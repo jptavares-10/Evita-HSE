@@ -22,7 +22,6 @@ export default function Dashboard() {
   const { data: matrix = [] } = useTrainingMatrix();
   const { data: allRecords = [] } = useAllRecords();
   const { data: mtrList = [] } = useMtrs();
-  const { data: allRecords = [] } = useAllRecords();
 
   const urgentServices = useMemo(() => {
     return services

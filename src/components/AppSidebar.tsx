@@ -33,6 +33,7 @@ import { useEmployees, useTrainingMatrix, useAllRecords } from "@/hooks/useTrain
 import { getRecordStatus } from "@/lib/trainings";
 import { useMtrs } from "@/hooks/useMTR";
 import { getCdfDisplayStatus } from "@/lib/mtr";
+import { useSuppliers } from "@/hooks/useSuppliers";
 
 const mainNav = [
   { title: "Dashboard", to: "/dashboard", icon: Home },

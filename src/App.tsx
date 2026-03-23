@@ -68,6 +68,8 @@ const App = () => (
               </Route>
               <Route path="/mtr" element={<Mtr />} />
               <Route path="/mtr/analise" element={<MtrAnalise />} />
+              <Route path="/fornecedores" element={<Fornecedores />} />
+              <Route path="/fornecedores/:id" element={<FornecedorDocumentos />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />

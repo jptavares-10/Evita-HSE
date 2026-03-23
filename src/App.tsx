@@ -40,6 +40,7 @@ const App = () => (
             <Route path="/cadastro" element={<PublicRoute><Cadastro /></PublicRoute>} />
             <Route path="/convite" element={<Convite />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/completar-cadastro" element={<CompletarCadastro />} />
 
             {/* Redirect root to dashboard */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />

@@ -72,7 +72,7 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
               <TabsTrigger value="history">Histórico</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="trainings" className="flex-1 overflow-y-auto px-4 pb-4 space-y-4">
+            <TabsContent value="trainings" className="flex-1 overflow-y-auto px-6 pb-4 space-y-4">
               {requiredTrainingIds.length > 0 && (
                 <div className="space-y-2">
                   <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Obrigatórios</h4>

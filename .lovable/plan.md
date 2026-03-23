@@ -1,10 +1,10 @@
 
 
-# Módulo de Serviços Periódicos — Plano de Implementação
+# Módulo de Treinamentos — Plano de Implementação
 
 ## Resumo
 
-Construir o módulo completo de Serviços Periódicos com 4 novas tabelas, storage bucket, 7+ componentes de UI, e integração com sidebar/dashboard existentes.
+Construir o módulo completo de Treinamentos com 5 novas tabelas, storage bucket, sidebar expandível com sub-itens, 4 telas principais (Visão Geral, Colaboradores, Catálogo, Matriz), e integração com dashboard.
 
 ---
 
@@ -12,84 +12,102 @@ Construir o módulo completo de Serviços Periódicos com 4 novas tabelas, stora
 
 Criar migration com:
 
-- **service_categories** — com RLS por company_id (SELECT, INSERT, UPDATE, DELETE)
-- **periodic_services** — com RLS por company_id, FK para categories e profiles
-- **service_attachments** — com RLS por company_id, FK para services e profiles
-- **service_history** — com RLS por company_id, FK para services e profiles
-- **Storage bucket** `service-attachments` (public) com RLS policies para acesso por company_id
-- **Função** `seed_default_categories(p_company_id uuid)` — insere as 4 categorias padrão (Segurança, Predial, Ambiental, Equipamentos) se a empresa não tiver categorias ainda
-- **Trigger** `on_company_created` na tabela companies para chamar seed automático (AFTER INSERT)
+- **trainings** (id, company_id, name, description, validity_months, alert_days_before, created_at) + RLS por company_id
+- **job_positions** (id, company_id, name, created_at) + RLS por company_id
+- **training_matrix** (id, company_id, job_position_id FK, training_id FK, created_at, UNIQUE(company_id, job_position_id, training_id)) + RLS
+- **employees** (id, company_id, name, job_position_id FK, sector, status default 'active', created_at) + RLS
+- **employee_training_records** (id, company_id, employee_id FK, training_id FK, done_at, expires_at, certificate_url, certificate_name, notes, registered_by FK profiles, created_at) + RLS
+- **Storage bucket** `training-certificates` (public)
+- Storage RLS policies for the bucket
 
-RLS em todas as tabelas segue o padrão existente usando `get_user_company_id()`.
+All RLS policies use `get_user_company_id()` following existing pattern.
 
 ---
 
 ## 2. Estrutura de Arquivos
 
 ```text
-src/pages/Servicos.tsx              — Página principal com KPIs + tabela
-src/components/servicos/
-  ServiceDrawer.tsx                 — Drawer criar/editar serviço
-  ServiceDetailDrawer.tsx           — Drawer detalhes + histórico (2 abas)
-  RegisterCompletionModal.tsx       — Modal registrar realização
-  DeleteServiceDialog.tsx           — Dialog confirmação exclusão
-  ManageCategoriesModal.tsx         — Modal gerenciar categorias
-  ServiceFilters.tsx                — Barra de filtros
-  KpiCards.tsx                      — 4 cards de status
-  ServiceEmptyState.tsx             — Estado vazio
-  FileUploadArea.tsx                — Componente upload com drag-and-drop
+src/pages/
+  Treinamentos.tsx                    — Layout com sub-rotas (tabs)
+  TreinamentosVisaoGeral.tsx          — KPIs + pendências
+  TreinamentosColaboradores.tsx       — Lista de colaboradores
+  TreinamentosCatalogo.tsx            — Lista de treinamentos
+  TreinamentosMatriz.tsx              — Grid interativo
+
+src/components/treinamentos/
+  TrainingKpiCards.tsx                 — 5 KPI cards
+  EmployeeDrawer.tsx                  — Drawer criar/editar colaborador
+  EmployeeDetailDrawer.tsx            — Ficha com abas (Treinamentos + Histórico)
+  RegisterCertificateModal.tsx        — Modal registrar certificado
+  TrainingDrawer.tsx                  — Drawer criar/editar treinamento
+  MatrixGrid.tsx                      — Grid checkbox da matriz
+  ImportEmployeesModal.tsx            — Modal importação CSV colaboradores
+  ImportMatrixModal.tsx               — Modal importação CSV matriz
+  TrainingEmptyStates.tsx             — Estados vazios
+
+src/hooks/useTrainings.ts             — Hooks React Query (CRUD trainings, employees, matrix, records)
+src/lib/trainings.ts                  — Helpers de status, formatação, cálculos de conformidade
 ```
 
 ---
 
 ## 3. Alterações em Arquivos Existentes
 
-- **App.tsx** — Adicionar rota `/servicos` protegida
-- **AppSidebar.tsx** — Ativar "Serviços Periódicos" (remover disabled, adicionar link `/servicos`, badge de alertas)
-- **Dashboard.tsx** — Adicionar seção "Atenção necessária" com até 5 serviços urgentes
+- **App.tsx** — Adicionar rotas: `/treinamentos`, `/treinamentos/colaboradores`, `/treinamentos/catalogo`, `/treinamentos/matriz`
+- **AppSidebar.tsx** — Ativar "Treinamentos" com sub-itens expandíveis (Visão Geral, Colaboradores, Treinamentos, Matriz) + badge de alertas (expired + missing count)
+- **Dashboard.tsx** — Adicionar card "Conformidade de Treinamentos" com % conformidade, pendências e link para `/treinamentos`
 
 ---
 
-## 4. Funcionalidades Principais
+## 4. Funcionalidades por Tela
 
-### Página /servicos
-- 4 KPI cards clicáveis (total, em dia, vencendo, vencidos)
-- Tabela com colunas: nome, categoria (badge colorido), frequência, última realização, próxima data, fornecedor, status, ações
-- Filtros: busca por nome, categoria, status, ordenação
-- Status calculado dinamicamente no frontend comparando `next_due_at` com hoje e `alert_days_before`
+### Visão Geral (/treinamentos)
+- 5 KPI cards: total colaboradores ativos, 100% em dia, com pendências, vencendo em breve, % conformidade
+- Tabela "Treinamentos com mais pendências" (nome, total missing+expired, breakdown por cargo)
+- Tabela "Cargos com mais pendências" (cargo, total, em dia, pendentes, % conformidade)
+- Lista "Alertas — Vencendo em breve" (status warning, ordenada por expires_at)
+- Filtros: setor, cargo, treinamento
 
-### Drawer Criar/Editar
-- Seções: Identificação, Frequência (toggle fixo/custom), Última realização (com preview da próxima data), Info adicional, Anexos (drag-and-drop com tipo de arquivo)
-- Cálculo automático de `next_due_at` ao salvar
-- Botão inline "+ Nova categoria" dentro do select
+### Colaboradores (/treinamentos/colaboradores)
+- Tabela com busca, filtros (cargo, setor, status, conformidade)
+- Drawer criar/editar colaborador (nome, cargo, setor, status)
+- Importação CSV com auto-criação de cargos
+- Ficha do colaborador (drawer com 2 abas):
+  - Aba Treinamentos: obrigatórios da matriz + extras, com status individual e botão registrar certificado
+  - Aba Histórico: timeline de certificados
+- Modal registrar certificado: data realização, data vencimento (auto-calculada, editável), upload, notas
 
-### Modal Registrar Realização
-- Atualiza `last_done_at`, `next_due_at` e `supplier` no serviço
-- Insere registro em `service_history`
-- Upload opcional de comprovante
+### Catálogo (/treinamentos/catalogo)
+- Tabela de treinamentos com busca
+- Drawer criar/editar (nome, descrição, validade meses, alerta dias)
+- Bloqueio de exclusão se houver registros ou vínculo na matriz
 
-### Drawer Detalhes + Histórico
-- Aba "Detalhes": info do serviço read-only + anexos + botão editar
-- Aba "Histórico": timeline cronológica dos registros
-
-### Modal Gerenciar Categorias
-- CRUD de categorias com cor (8 cores predefinidas + custom)
-- Bloqueia exclusão se houver serviços vinculados
-
-### Exclusão de Serviço
-- Deleta history, attachments (+ arquivos do Storage), e o serviço
-
-### Restrição de Plano
-- Botões de ação desabilitados com tooltip quando `plan === 'expired'`
+### Matriz (/treinamentos/matriz)
+- Grid: linhas = cargos, colunas = treinamentos, checkboxes
+- Salvamento em tempo real (INSERT/DELETE em training_matrix)
+- Importação CSV com criação automática de cargos
+- Estado vazio com instrução
 
 ---
 
-## 5. Detalhes Técnicos
+## 5. Lógica de Status (src/lib/trainings.ts)
 
-- Datas formatadas DD/MM/AAAA com `date-fns` + locale `ptBR`
-- Frequências mapeadas: weekly=7, monthly=30, quarterly=90, semiannual=180, annual=365
-- Upload para Storage path: `{company_id}/{service_id}/{filename}`
-- Drawer usa componente `vaul` (já instalado via shadcn drawer)
-- Calendar com `pointer-events-auto` para funcionar dentro de popover
-- Seed de categorias padrão via trigger no banco (para novas empresas) + verificação no frontend para empresas existentes que ainda não têm categorias
+- **ok**: expires_at > hoje + alert_days_before
+- **warning**: expires_at <= hoje + alert_days_before AND expires_at >= hoje
+- **expired**: expires_at < hoje
+- **missing**: treinamento obrigatório pelo cargo (via matriz) sem registro do colaborador
+
+Conformidade = registros ok / total obrigações da matriz (apenas colaboradores ativos).
+
+---
+
+## 6. Detalhes Técnicos
+
+- Datas DD/MM/AAAA com date-fns + locale ptBR
+- Upload para Storage path: `{company_id}/{employee_id}/{training_id}/{filename}`
+- Colaboradores inativos excluídos de cálculos de conformidade e badges
+- Plan expired: botões de ação desabilitados com tooltip
+- Importação CSV usa FileReader + parsing manual (sem dependência extra)
+- Badge na sidebar: soma de expired + missing de colaboradores ativos
+- Sub-itens na sidebar usando estado expandido/colapsado com animação
 

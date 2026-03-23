@@ -67,7 +67,7 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
           </DrawerHeader>
 
           <Tabs defaultValue="trainings" className="flex-1 flex flex-col overflow-hidden">
-            <TabsList className="mx-4">
+            <TabsList className="mx-6">
               <TabsTrigger value="trainings">Treinamentos</TabsTrigger>
               <TabsTrigger value="history">Histórico</TabsTrigger>
             </TabsList>

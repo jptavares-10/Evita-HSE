@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { useServiceAttachments, useServiceHistory } from "@/hooks/useServices";
 import { formatDateBR, getFrequencyLabel, getStatusInfo, FILE_TYPE_LABELS, FILE_TYPE_BADGE_COLORS } from "@/lib/services";
-import { ExternalLink, Pencil, FileText, Clock, X, Check } from "lucide-react";
+import { ExternalLink, Pencil, FileText, Clock, X, Check, Download, Calendar, Building2, Bell, MessageSquare, Paperclip } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -40,7 +40,7 @@ function formatDateTimeBR(dateStr: string | null | undefined): string {
   if (!dateStr) return "—";
   try {
     const d = new Date(dateStr);
-    return format(d, "dd/MM/yyyy HH:mm", { locale: ptBR });
+    return format(d, "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
   } catch {
     return "—";
   }
@@ -58,6 +58,9 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
 
   if (!service) return null;
   const statusInfo = getStatusInfo(service.next_due_at, service.alert_days_before);
+
+  // Attachments not linked to a specific history date (general attachments)
+  const generalAttachments = attachments.filter((att: any) => !att.reference_date);
 
   const handleSaveNote = async (historyId: string) => {
     if (!profile) return;
@@ -81,76 +84,88 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle className="flex items-center gap-2">
+      <SheetContent className="w-full sm:max-w-lg flex flex-col p-0">
+        <SheetHeader className="px-6 pt-6 pb-2">
+          <SheetTitle className="flex items-center gap-2 flex-wrap">
             {service.name}
+            {service.service_categories && (
+              <Badge variant="outline" className="text-xs">
+                <span className="h-2 w-2 rounded-full mr-1.5 inline-block" style={{ backgroundColor: service.service_categories.color }} />
+                {service.service_categories.name}
+              </Badge>
+            )}
             <Badge variant="outline" className={statusInfo.color}>{statusInfo.label}</Badge>
           </SheetTitle>
         </SheetHeader>
 
-        <Tabs defaultValue="details" className="mt-4">
-          <TabsList className="w-full">
+        <Tabs defaultValue="details" className="flex-1 flex flex-col overflow-hidden">
+          <TabsList className="mx-6 w-auto">
             <TabsTrigger value="details" className="flex-1">Detalhes</TabsTrigger>
-            <TabsTrigger value="history" className="flex-1">Histórico</TabsTrigger>
+            <TabsTrigger value="history" className="flex-1 gap-1.5">
+              Histórico
+              {history.length > 0 && (
+                <Badge variant="secondary" className="h-5 min-w-[20px] px-1.5 text-[10px]">{history.length}</Badge>
+              )}
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="details" className="space-y-4 mt-4">
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-muted-foreground">Categoria</p>
-                {service.service_categories && (
-                  <span className="inline-flex items-center gap-1.5">
-                    <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: service.service_categories.color }} />
-                    {service.service_categories.name}
-                  </span>
-                )}
+          <TabsContent value="details" className="flex-1 overflow-y-auto px-6 pb-6 mt-4 space-y-5">
+            {/* Info grid */}
+            <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Frequência</p>
+                <p className="font-medium">{getFrequencyLabel(service.frequency_type, service.frequency_preset, service.frequency_days)}</p>
               </div>
-              <div>
-                <p className="text-muted-foreground">Frequência</p>
-                <p>{getFrequencyLabel(service.frequency_type, service.frequency_preset, service.frequency_days)}</p>
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Alerta antecipado</p>
+                <p className="font-medium flex items-center gap-1.5"><Bell className="h-3.5 w-3.5 text-muted-foreground" />{service.alert_days_before} dias</p>
               </div>
-              <div>
-                <p className="text-muted-foreground">Última realização</p>
-                <p>{formatDateBR(service.last_done_at)}</p>
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Última realização</p>
+                <p className="font-medium flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-muted-foreground" />{formatDateBR(service.last_done_at)}</p>
               </div>
-              <div>
-                <p className="text-muted-foreground">Próxima data</p>
-                <p>{formatDateBR(service.next_due_at)}</p>
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Próxima data</p>
+                <p className="font-medium flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-muted-foreground" />{formatDateBR(service.next_due_at)}</p>
               </div>
-              <div>
-                <p className="text-muted-foreground">Fornecedor</p>
-                <p>{service.supplier || "—"}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Alerta antecipado</p>
-                <p>{service.alert_days_before} dias</p>
+              <div className="col-span-2 space-y-1">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Fornecedor</p>
+                <p className="font-medium flex items-center gap-1.5"><Building2 className="h-3.5 w-3.5 text-muted-foreground" />{service.supplier || "—"}</p>
               </div>
             </div>
-            {service.notes && (
-              <div className="text-sm">
-                <p className="text-muted-foreground mb-1">Observações gerais</p>
-                <p className="whitespace-pre-wrap">{service.notes}</p>
-              </div>
-            )}
 
-            {attachments.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Anexos</p>
-                {attachments.map((att: any) => (
+            {/* General notes */}
+            <div className="space-y-1.5 border-t pt-4">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                <MessageSquare className="h-3.5 w-3.5" />Observação geral do serviço
+              </p>
+              {service.notes ? (
+                <p className="text-sm whitespace-pre-wrap bg-muted/50 rounded-md p-3">{service.notes}</p>
+              ) : (
+                <p className="text-sm text-muted-foreground/60 italic">Nenhuma observação geral</p>
+              )}
+              <p className="text-[11px] text-muted-foreground/60">
+                Esta observação descreve o serviço em geral. Observações de cada realização ficam no Histórico.
+              </p>
+            </div>
+
+            {/* General attachments */}
+            {generalAttachments.length > 0 && (
+              <div className="space-y-2 border-t pt-4">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                  <Paperclip className="h-3.5 w-3.5" />Anexos gerais
+                </p>
+                {generalAttachments.map((att: any) => (
                   <a key={att.id} href={att.file_url} target="_blank" rel="noopener noreferrer" className="flex flex-col gap-1 text-sm bg-muted/50 px-3 py-2 rounded-md hover:bg-muted/80 transition-colors">
                     <div className="flex items-center gap-2">
                       <FileText className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
                       <span className="flex-1 truncate text-primary">{att.file_name}</span>
-                      <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
+                      <Download className="h-3.5 w-3.5 text-muted-foreground" />
                     </div>
                     <div className="flex items-center gap-1.5 pl-6 text-xs">
                       <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${FILE_TYPE_BADGE_COLORS[att.file_type] || FILE_TYPE_BADGE_COLORS.other}`}>
                         {FILE_TYPE_LABELS[att.file_type] || att.file_type}
                       </Badge>
-                      {att.reference_date && (
-                        <span className="text-muted-foreground">· {formatDateBR(att.reference_date)}</span>
-                      )}
                     </div>
                   </a>
                 ))}
@@ -162,13 +177,15 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
             </Button>
           </TabsContent>
 
-          <TabsContent value="history" className="mt-4">
+          <TabsContent value="history" className="flex-1 overflow-y-auto px-6 pb-6 mt-4">
             {history.length === 0 ? (
-              <div className="text-center py-8 text-sm text-muted-foreground">
-                Nenhuma realização registrada ainda
+              <div className="text-center py-12 space-y-2">
+                <Clock className="h-10 w-10 mx-auto text-muted-foreground/30" />
+                <p className="text-sm text-muted-foreground">Nenhuma realização registrada ainda.</p>
+                <p className="text-xs text-muted-foreground/60">Use o botão "Registrar realização" para começar.</p>
               </div>
             ) : (
-              <div className="relative pl-6 space-y-6">
+              <div className="relative pl-6 space-y-4">
                 <div className="absolute left-[9px] top-2 bottom-2 w-px bg-border" />
                 {history.map((h: any) => {
                   const historyAttachments = attachments.filter((att: any) => att.reference_date === h.done_at);
@@ -176,15 +193,25 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
 
                   return (
                     <div key={h.id} className="relative">
-                      <div className="absolute -left-6 top-1 h-[18px] w-[18px] rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center">
+                      <div className="absolute -left-6 top-1.5 h-[18px] w-[18px] rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center">
                         <Clock className="h-2.5 w-2.5 text-primary" />
                       </div>
-                      <div className="bg-muted/50 rounded-lg p-3 space-y-2">
-                        <p className="text-sm font-medium">{formatDateBR(h.done_at)}</p>
-                        {h.supplier && <p className="text-xs text-muted-foreground">Fornecedor: {h.supplier}</p>}
+                      <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+                        {/* Date */}
+                        <p className="text-sm font-semibold flex items-center gap-1.5">
+                          📅 {formatDateBR(h.done_at)}
+                        </p>
+
+                        {/* Supplier */}
+                        {h.supplier && (
+                          <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                            🏢 Fornecedor: <span className="font-medium text-foreground">{h.supplier}</span>
+                          </p>
+                        )}
 
                         {/* Notes section with inline edit */}
-                        <div className="text-xs">
+                        <div className="text-xs space-y-1">
+                          <p className="text-muted-foreground font-medium">📝 Observação:</p>
                           {isEditing ? (
                             <div className="space-y-2">
                               <Textarea
@@ -192,6 +219,7 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
                                 onChange={(e) => setEditingNoteText(e.target.value)}
                                 rows={3}
                                 className="text-xs"
+                                autoFocus
                               />
                               <div className="flex gap-2">
                                 <Button size="sm" variant="default" className="h-7 text-xs" onClick={() => handleSaveNote(h.id)}>
@@ -205,12 +233,12 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
                           ) : (
                             <div className="group flex items-start gap-1">
                               {h.notes ? (
-                                <p className="text-muted-foreground whitespace-pre-wrap flex-1">📝 {h.notes}</p>
+                                <p className="text-foreground/80 whitespace-pre-wrap flex-1 bg-background/50 rounded px-2 py-1.5">"{h.notes}"</p>
                               ) : (
                                 <p className="text-muted-foreground/60 italic flex-1">Nenhuma observação registrada</p>
                               )}
                               <button
-                                className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-muted"
+                                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-muted mt-0.5"
                                 onClick={() => {
                                   setEditingNoteId(h.id);
                                   setEditingNoteText(h.notes || "");
@@ -223,22 +251,20 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
                           )}
 
                           {h.notes_edited_at && !isEditing && (
-                            <p className="text-muted-foreground/60 italic mt-1">
-                              Editado por {h.notes_editor?.full_name || "—"} em {formatDateTimeBR(h.notes_edited_at)}
+                            <p className="text-muted-foreground/60 italic pl-2">
+                              Editado por {h.notes_editor?.full_name || "—"} {formatDateTimeBR(h.notes_edited_at)}
                             </p>
                           )}
                         </div>
 
-                        <p className="text-xs text-muted-foreground">
-                          Registrado por {h.profiles?.full_name || "—"} em {formatDateTimeBR(h.created_at)}
-                        </p>
-
+                        {/* Attachments for this completion */}
                         {historyAttachments.length > 0 && (
-                          <div className="mt-2 space-y-1 border-t pt-2">
+                          <div className="space-y-1.5 border-t pt-2">
+                            <p className="text-xs text-muted-foreground font-medium">📎 Anexos desta realização:</p>
                             {historyAttachments.map((att: any) => (
-                              <a key={att.id} href={att.file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs text-primary hover:underline">
-                                <FileText className="h-3 w-3 flex-shrink-0" />
-                                <span className="truncate">{att.file_name}</span>
+                              <a key={att.id} href={att.file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs hover:bg-muted/80 rounded px-2 py-1 transition-colors">
+                                <FileText className="h-3 w-3 flex-shrink-0 text-muted-foreground" />
+                                <span className="truncate text-primary font-medium">{att.file_name}</span>
                                 <Badge variant="outline" className={`text-[9px] px-1 py-0 ${FILE_TYPE_BADGE_COLORS[att.file_type] || FILE_TYPE_BADGE_COLORS.other}`}>
                                   {FILE_TYPE_LABELS[att.file_type] || att.file_type}
                                 </Badge>
@@ -249,6 +275,11 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
                             ))}
                           </div>
                         )}
+
+                        {/* Registered by */}
+                        <p className="text-[11px] text-muted-foreground border-t pt-2">
+                          👤 Registrado por {h.profiles?.full_name || "—"} {formatDateTimeBR(h.created_at)}
+                        </p>
                       </div>
                     </div>
                   );

@@ -40,7 +40,7 @@ export function TrainingDrawer({ open, onOpenChange, training }: Props) {
     <Drawer open={open} onOpenChange={onOpenChange} direction="right">
       <DrawerContent className="fixed right-0 top-0 bottom-0 w-full max-w-md rounded-none border-l flex flex-col">
         <DrawerHeader><DrawerTitle>{training ? "Editar treinamento" : "Novo treinamento"}</DrawerTitle></DrawerHeader>
-        <div className="flex-1 overflow-y-auto px-4 space-y-4">
+        <div className="flex-1 overflow-y-auto px-6 space-y-4">
           <div><Label>Nome *</Label><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex: NR-35 — Trabalho em altura" /></div>
           <div><Label>Descrição</Label><Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Descrição opcional" rows={3} /></div>
           <div>

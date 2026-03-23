@@ -147,7 +147,7 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
               </div>
             </TabsContent>
 
-            <TabsContent value="history" className="flex-1 overflow-y-auto px-4 pb-4">
+            <TabsContent value="history" className="flex-1 overflow-y-auto px-6 pb-4">
               {records.length === 0 ? (
                 <p className="text-center text-muted-foreground py-8">Nenhum certificado registrado ainda.</p>
               ) : (

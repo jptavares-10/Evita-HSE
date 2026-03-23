@@ -50,9 +50,7 @@ const trainingSubNav = [
   { title: "Matriz", to: "/treinamentos/matriz", icon: Grid3X3 },
 ];
 
-const moduleNav = [
-  { title: "Fornecedores", icon: Truck, disabled: true },
-];
+const moduleNav: { title: string; icon: any; disabled: boolean }[] = [];
 
 const settingsNav = [
   { title: "Minha Empresa", to: "/empresa", icon: Building2 },

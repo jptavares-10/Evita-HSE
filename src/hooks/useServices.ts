@@ -69,7 +69,7 @@ export function useServiceHistory(serviceId: string | null) {
       if (!serviceId) return [];
       const { data, error } = await supabase
         .from("service_history")
-        .select("*, profiles:registered_by(full_name)")
+        .select("*, profiles:registered_by(full_name), notes_editor:notes_edited_by(full_name)")
         .eq("service_id", serviceId)
         .order("done_at", { ascending: false });
       if (error) throw error;

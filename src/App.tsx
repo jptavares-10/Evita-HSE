@@ -25,6 +25,8 @@ import TreinamentosColaboradores from "./pages/TreinamentosColaboradores";
 import TreinamentosCatalogo from "./pages/TreinamentosCatalogo";
 import TreinamentosMatriz from "./pages/TreinamentosMatriz";
 import TreinamentosCargos from "./pages/TreinamentosCargos";
+import Mtr from "./pages/Mtr";
+import MtrAnalise from "./pages/MtrAnalise";
 
 const queryClient = new QueryClient();
 

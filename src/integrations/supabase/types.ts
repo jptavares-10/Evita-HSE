@@ -600,6 +600,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_company_and_admin: {
+        Args: {
+          p_cnpj?: string
+          p_company_name: string
+          p_email?: string
+          p_full_name?: string
+          p_segment?: string
+        }
+        Returns: Json
+      }
       get_user_company_id: { Args: never; Returns: string }
       seed_default_categories: {
         Args: { p_company_id: string }

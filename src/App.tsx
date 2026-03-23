@@ -5,8 +5,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { PublicRoute } from "@/components/PublicRoute";
+import { LandingRoute } from "@/components/LandingRoute";
 import { AppLayout } from "@/components/AppLayout";
 
+import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
 import Convite from "./pages/Convite";
@@ -41,6 +43,9 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
+            {/* Landing page - redirects to dashboard if authenticated */}
+            <Route path="/" element={<LandingRoute><LandingPage /></LandingRoute>} />
+
             {/* Public routes */}
             <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
             <Route path="/cadastro" element={<PublicRoute><Cadastro /></PublicRoute>} />
@@ -48,9 +53,6 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/portal/fornecedor/:token" element={<PortalFornecedor />} />
             <Route path="/completar-cadastro" element={<CompletarCadastro />} />
-
-            {/* Redirect root to dashboard */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
             {/* Protected routes with layout */}
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>

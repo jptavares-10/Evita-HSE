@@ -105,7 +105,11 @@ export function AppSidebar() {
 
   // Supplier alerts (active suppliers with no documents — we use a simple heuristic)
   const { data: supplierList = [] } = useSuppliers();
-  const supplierAlertCount = 0; // Badge not critical, can be enhanced later
+  const supplierAlertCount = 0;
+
+  // Incident alerts
+  const { data: occurrenceList = [] } = useOccurrences();
+  const incidentAlertCount = occurrenceList.filter((o: any) => o.status === "open" || o.status === "in_progress").length;
 
   const isTrainingsActive = location.pathname.startsWith("/treinamentos");
 

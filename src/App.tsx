@@ -18,6 +18,7 @@ import Empresa from "./pages/Empresa";
 import Planos from "./pages/Planos";
 import Perfil from "./pages/Perfil";
 import NotFound from "./pages/NotFound";
+import CompletarCadastro from "./pages/CompletarCadastro";
 import Treinamentos from "./pages/Treinamentos";
 import TreinamentosVisaoGeral from "./pages/TreinamentosVisaoGeral";
 import TreinamentosColaboradores from "./pages/TreinamentosColaboradores";

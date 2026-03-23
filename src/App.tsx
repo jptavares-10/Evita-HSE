@@ -30,6 +30,7 @@ import MtrAnalise from "./pages/MtrAnalise";
 import Fornecedores from "./pages/Fornecedores";
 import FornecedorDocumentos from "./pages/FornecedorDocumentos";
 import PortalFornecedor from "./pages/PortalFornecedor";
+import Incidentes from "./pages/Incidentes";
 
 const queryClient = new QueryClient();
 

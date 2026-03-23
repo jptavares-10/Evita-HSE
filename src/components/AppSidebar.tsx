@@ -40,6 +40,7 @@ const mainNav = [
   { title: "Serviços Periódicos", to: "/servicos", icon: ClipboardList },
   { title: "Gestão de MTR", to: "/mtr", icon: Recycle },
   { title: "Fornecedores", to: "/fornecedores", icon: Truck },
+  { title: "Incidentes", to: "/incidentes", icon: AlertTriangle },
 ];
 
 const trainingSubNav = [

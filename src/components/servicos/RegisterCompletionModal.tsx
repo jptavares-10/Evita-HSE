@@ -62,6 +62,7 @@ export function RegisterCompletionModal({ open, onOpenChange, service }: Props) 
     });
 
     // Upload attachments
+    const refDate = format(doneAt, "yyyy-MM-dd");
     for (const pf of pendingFiles) {
       const ext = pf.file.name.split(".").pop();
       const path = `${service.company_id}/${service.id}/${crypto.randomUUID()}.${ext}`;
@@ -75,6 +76,7 @@ export function RegisterCompletionModal({ open, onOpenChange, service }: Props) 
           file_url: publicUrl,
           file_type: pf.type,
           uploaded_by: profile.id,
+          reference_date: refDate,
         });
       }
     }

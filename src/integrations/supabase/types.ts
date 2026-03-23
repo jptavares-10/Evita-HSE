@@ -222,6 +222,7 @@ export type Database = {
           file_type: string
           file_url: string
           id: string
+          reference_date: string | null
           service_id: string
           uploaded_at: string
           uploaded_by: string | null
@@ -232,6 +233,7 @@ export type Database = {
           file_type?: string
           file_url: string
           id?: string
+          reference_date?: string | null
           service_id: string
           uploaded_at?: string
           uploaded_by?: string | null
@@ -242,6 +244,7 @@ export type Database = {
           file_type?: string
           file_url?: string
           id?: string
+          reference_date?: string | null
           service_id?: string
           uploaded_at?: string
           uploaded_by?: string | null

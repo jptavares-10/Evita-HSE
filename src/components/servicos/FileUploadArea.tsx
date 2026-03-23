@@ -8,6 +8,7 @@ import { FILE_TYPE_LABELS } from "@/lib/services";
 export interface PendingFile {
   file: File;
   type: string;
+  referenceDate?: string | null;
 }
 
 interface FileUploadAreaProps {

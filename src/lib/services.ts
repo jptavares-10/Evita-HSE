@@ -81,6 +81,13 @@ export const FILE_TYPE_LABELS: Record<string, string> = {
   other: "Outro",
 };
 
+export const FILE_TYPE_BADGE_COLORS: Record<string, string> = {
+  certificate: "bg-blue-100 text-blue-700 border-blue-200",
+  evidence: "bg-yellow-100 text-yellow-700 border-yellow-200",
+  license: "bg-green-100 text-green-700 border-green-200",
+  other: "bg-gray-100 text-gray-700 border-gray-200",
+};
+
 export const PRESET_COLORS = [
   "#EF4444", "#F59E0B", "#10B981", "#3B82F6",
   "#8B5CF6", "#EC4899", "#06B6D4", "#84CC16",

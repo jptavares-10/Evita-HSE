@@ -40,6 +40,7 @@ const trainingSubNav = [
   { title: "Visão Geral", to: "/treinamentos", icon: LayoutGrid },
   { title: "Colaboradores", to: "/treinamentos/colaboradores", icon: UserCheck },
   { title: "Treinamentos", to: "/treinamentos/catalogo", icon: BookOpen },
+  { title: "Cargos", to: "/treinamentos/cargos", icon: Briefcase },
   { title: "Matriz", to: "/treinamentos/matriz", icon: Grid3X3 },
 ];
 

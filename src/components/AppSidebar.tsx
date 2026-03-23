@@ -94,7 +94,7 @@ export function AppSidebar() {
               to={item.to}
               className={({ isActive }) =>
                 cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
+                  "relative flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
                   isActive
                     ? "bg-sidebar-accent text-sidebar-primary font-medium"
                     : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
@@ -104,13 +104,14 @@ export function AppSidebar() {
               <item.icon className="h-4 w-4 flex-shrink-0" />
               {!collapsed && <span className="flex-1">{item.title}</span>}
               {!collapsed && item.to === "/servicos" && alertCount > 0 && (
-                <span className="ml-auto bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full h-5 min-w-[20px] flex items-center justify-center px-1">
+                <span className="bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full h-5 min-w-[20px] flex items-center justify-center px-1">
                   {alertCount}
                 </span>
               )}
               {collapsed && item.to === "/servicos" && alertCount > 0 && (
                 <span className="absolute top-0 right-0 bg-destructive rounded-full h-2.5 w-2.5" />
               )}
+            </NavLink>
           ))}
         </div>
 

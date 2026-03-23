@@ -1,0 +1,1 @@
+ALTER TABLE public.service_attachments ADD COLUMN reference_date date;

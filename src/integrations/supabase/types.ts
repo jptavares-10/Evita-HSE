@@ -312,6 +312,8 @@ export type Database = {
           done_at: string
           id: string
           notes: string | null
+          notes_edited_at: string | null
+          notes_edited_by: string | null
           registered_by: string | null
           service_id: string
           supplier: string | null
@@ -322,6 +324,8 @@ export type Database = {
           done_at: string
           id?: string
           notes?: string | null
+          notes_edited_at?: string | null
+          notes_edited_by?: string | null
           registered_by?: string | null
           service_id: string
           supplier?: string | null
@@ -332,6 +336,8 @@ export type Database = {
           done_at?: string
           id?: string
           notes?: string | null
+          notes_edited_at?: string | null
+          notes_edited_by?: string | null
           registered_by?: string | null
           service_id?: string
           supplier?: string | null

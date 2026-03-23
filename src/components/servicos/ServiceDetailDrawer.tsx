@@ -94,11 +94,20 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Anexos</p>
                 {attachments.map((att: any) => (
-                  <a key={att.id} href={att.file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline bg-muted/50 px-3 py-2 rounded-md">
-                    <FileText className="h-4 w-4 flex-shrink-0" />
-                    <span className="flex-1 truncate">{att.file_name}</span>
-                    <Badge variant="secondary" className="text-[10px]">{FILE_TYPE_LABELS[att.file_type] || att.file_type}</Badge>
-                    <ExternalLink className="h-3.5 w-3.5" />
+                  <a key={att.id} href={att.file_url} target="_blank" rel="noopener noreferrer" className="flex flex-col gap-1 text-sm bg-muted/50 px-3 py-2 rounded-md hover:bg-muted/80 transition-colors">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                      <span className="flex-1 truncate text-primary">{att.file_name}</span>
+                      <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
+                    </div>
+                    <div className="flex items-center gap-1.5 pl-6 text-xs">
+                      <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${FILE_TYPE_BADGE_COLORS[att.file_type] || FILE_TYPE_BADGE_COLORS.other}`}>
+                        {FILE_TYPE_LABELS[att.file_type] || att.file_type}
+                      </Badge>
+                      {att.reference_date && (
+                        <span className="text-muted-foreground">· {formatDateBR(att.reference_date)}</span>
+                      )}
+                    </div>
                   </a>
                 ))}
               </div>

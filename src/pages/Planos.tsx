@@ -37,6 +37,7 @@ const plans = [
 ];
 
 export default function Planos() {
+  usePageTitle("Planos — Evita HSE");
   const { company } = useAuth();
 
   return (

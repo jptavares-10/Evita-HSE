@@ -22,6 +22,8 @@ export default function Dashboard() {
   const { data: allRecords = [] } = useAllRecords();
   const { data: mtrList = [] } = useMtrs();
   const { data: supplierList = [] } = useSuppliers();
+  const { data: occurrenceList = [] } = useOccurrences();
+  const { data: allCorrectiveActions = [] } = useAllCorrectiveActions();
 
   const activeSuppliers = supplierList.filter((s: any) => s.status === "active").length;
 

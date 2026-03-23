@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { ClipboardList, GraduationCap, Truck, AlertTriangle, CheckCircle2, XCircle, ArrowRight, TrendingUp, Recycle, Users } from "lucide-react";
+import { ClipboardList, GraduationCap, Truck, AlertTriangle, CheckCircle2, XCircle, ArrowRight, TrendingUp, Recycle, Users, ShieldAlert } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { usePeriodicServices } from "@/hooks/useServices";
 import { getServiceStatus, getStatusInfo, formatDateBR } from "@/lib/services";
@@ -8,6 +8,8 @@ import { computeEmployeeCompliance, getRecordStatus } from "@/lib/trainings";
 import { useMtrs } from "@/hooks/useMTR";
 import { getCdfDisplayStatus, getDaysRemainingLabel, formatDateBR as formatDateMtr } from "@/lib/mtr";
 import { useSuppliers } from "@/hooks/useSuppliers";
+import { useOccurrences, useAllCorrectiveActions } from "@/hooks/useOccurrences";
+import { getTypeInfo, getSeverityInfo, formatDateTimeBR } from "@/lib/occurrences";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";

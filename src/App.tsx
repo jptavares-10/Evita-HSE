@@ -12,6 +12,7 @@ import Cadastro from "./pages/Cadastro";
 import Convite from "./pages/Convite";
 import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
+import Servicos from "./pages/Servicos";
 import Usuarios from "./pages/Usuarios";
 import Empresa from "./pages/Empresa";
 import Planos from "./pages/Planos";

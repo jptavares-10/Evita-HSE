@@ -35,6 +35,7 @@ import { getRecordStatus } from "@/lib/trainings";
 import { useMtrs } from "@/hooks/useMTR";
 import { getCdfDisplayStatus } from "@/lib/mtr";
 import { useSuppliers } from "@/hooks/useSuppliers";
+import { useOccurrences } from "@/hooks/useOccurrences";
 
 const mainNav = [
   { title: "Dashboard", to: "/dashboard", icon: Home },

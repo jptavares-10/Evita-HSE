@@ -29,6 +29,7 @@ interface AuthContextType {
   profile: Profile | null;
   company: Company | null;
   loading: boolean;
+  profileLoaded: boolean; // true once profile fetch completed (profile may still be null)
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   refreshCompany: () => Promise<void>;
@@ -42,6 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [company, setCompany] = useState<Company | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileLoaded, setProfileLoaded] = useState(false);
 
   const fetchProfile = async (userId: string) => {
     const { data } = await supabase
@@ -65,6 +67,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user) {
       const p = await fetchProfile(user.id);
       setProfile(p);
+      setProfileLoaded(true);
+      if (p?.company_id) {
+        const c = await fetchCompany(p.company_id);
+        setCompany(c);
+      }
     }
   };
 
@@ -117,6 +124,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!isMounted) return;
         setProfile(null);
         setCompany(null);
+        setProfileLoaded(false);
         return;
       }
 
@@ -125,6 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!isMounted) return;
 
         setProfile(p);
+        setProfileLoaded(true);
 
         if (p?.company_id) {
           const c = await fetchCompany(p.company_id);
@@ -138,6 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!isMounted) return;
         setProfile(null);
         setCompany(null);
+        setProfileLoaded(true);
       }
     };
 
@@ -154,10 +164,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setProfile(null);
     setCompany(null);
+    setProfileLoaded(false);
   };
 
   return (
-    <AuthContext.Provider value={{ session, user, profile, company, loading, signOut, refreshProfile, refreshCompany }}>
+    <AuthContext.Provider value={{ session, user, profile, company, loading, profileLoaded, signOut, refreshProfile, refreshCompany }}>
       {children}
     </AuthContext.Provider>
   );

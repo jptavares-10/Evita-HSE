@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { translateSupabaseError } from "@/lib/supabase-errors";
@@ -21,6 +21,16 @@ const SEGMENTS = [
   "Outro",
 ];
 
+async function waitForSession(maxMs = 5000, intervalMs = 500) {
+  const start = Date.now();
+  while (Date.now() - start < maxMs) {
+    const { data } = await supabase.auth.getSession();
+    if (data.session) return data.session;
+    await new Promise((r) => setTimeout(r, intervalMs));
+  }
+  return null;
+}
+
 export default function Cadastro() {
   const [companyName, setCompanyName] = useState("");
   const [cnpj, setCnpj] = useState("");
@@ -31,8 +41,48 @@ export default function Cadastro() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  // Track if auth was created but RPC failed — allow retry without new signUp
+  const [authCreated, setAuthCreated] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const callRpc = async () => {
+    const { data, error: rpcError } = await supabase.rpc("create_company_and_admin", {
+      p_company_name: companyName.trim(),
+      p_cnpj: cnpj || null,
+      p_segment: segment || null,
+      p_full_name: fullName.trim(),
+      p_email: email.trim(),
+    });
+
+    if (rpcError) {
+      throw new Error(translateSupabaseError(rpcError.message));
+    }
+
+    const result = data as any;
+    if (!result?.success) {
+      throw new Error(result?.error ?? "Erro ao criar empresa. Tente novamente.");
+    }
+
+    return result;
+  };
+
+  const handleRetry = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      await callRpc();
+      toast({
+        title: "Bem-vindo ao Evita HSE!",
+        description: "Seu trial de 14 dias começou.",
+      });
+      navigate("/dashboard");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,61 +105,46 @@ export default function Cadastro() {
 
     setLoading(true);
 
-    // 1. Create auth user
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: email.trim(),
-      password,
-      options: { emailRedirectTo: window.location.origin },
-    });
+    try {
+      // 1. Create auth user (skip if already created from a previous failed attempt)
+      if (!authCreated) {
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: email.trim(),
+          password,
+          options: { emailRedirectTo: window.location.origin },
+        });
 
-    if (authError || !authData.user) {
-      setError(translateSupabaseError(authError?.message ?? "Erro ao criar conta."));
+        if (authError || !authData.user) {
+          setError(translateSupabaseError(authError?.message ?? "Erro ao criar conta."));
+          setLoading(false);
+          return;
+        }
+
+        setAuthCreated(true);
+      }
+
+      // 2. Wait for session to be active
+      const session = await waitForSession();
+      if (!session) {
+        setError("Erro ao iniciar sessão. Tente novamente.");
+        setLoading(false);
+        return;
+      }
+
+      // 3. Call RPC to create company + profile atomically
+      await callRpc();
+
+      toast({
+        title: "Bem-vindo ao Evita HSE!",
+        description: "Seu trial de 14 dias começou.",
+      });
+
+      navigate("/dashboard");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    const userId = authData.user.id;
-
-    // 2. Create company
-    const { data: companyData, error: companyError } = await supabase
-      .from("companies")
-      .insert({
-        name: companyName.trim(),
-        cnpj: cnpj || null,
-        segment: segment || null,
-        plan: "trial",
-        max_users: 2,
-      })
-      .select()
-      .single();
-
-    if (companyError || !companyData) {
-      setError("Erro ao criar empresa. Tente novamente.");
-      setLoading(false);
-      return;
-    }
-
-    // 3. Create profile
-    const { error: profileError } = await supabase.from("profiles").insert({
-      id: userId,
-      company_id: companyData.id,
-      full_name: fullName.trim(),
-      email: email.trim(),
-      role: "admin",
-    });
-
-    if (profileError) {
-      setError("Erro ao criar perfil. Tente novamente.");
-      setLoading(false);
-      return;
-    }
-
-    toast({
-      title: "Bem-vindo ao Evita HSE!",
-      description: "Seu trial de 14 dias começou.",
-    });
-
-    navigate("/dashboard");
   };
 
   return (
@@ -128,7 +163,7 @@ export default function Cadastro() {
               <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Dados da empresa</p>
               <div className="space-y-2">
                 <Label htmlFor="companyName">Nome da empresa *</Label>
-                <Input id="companyName" value={companyName} onChange={(e) => setCompanyName(e.target.value)} required />
+                <Input id="companyName" value={companyName} onChange={(e) => setCompanyName(e.target.value)} required disabled={authCreated} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="cnpj">CNPJ</Label>
@@ -138,11 +173,12 @@ export default function Cadastro() {
                   value={cnpj}
                   onChange={(e) => setCnpj(formatCNPJ(e.target.value))}
                   maxLength={18}
+                  disabled={authCreated}
                 />
               </div>
               <div className="space-y-2">
                 <Label>Segmento</Label>
-                <Select value={segment} onValueChange={setSegment}>
+                <Select value={segment} onValueChange={setSegment} disabled={authCreated}>
                   <SelectTrigger><SelectValue placeholder="Selecione o segmento" /></SelectTrigger>
                   <SelectContent>
                     {SEGMENTS.map((s) => (
@@ -157,31 +193,40 @@ export default function Cadastro() {
               <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Dados do responsável</p>
               <div className="space-y-2">
                 <Label htmlFor="fullName">Nome completo *</Label>
-                <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+                <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} required disabled={authCreated} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">E-mail *</Label>
-                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={authCreated} />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="password">Senha *</Label>
-                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} />
+                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} disabled={authCreated} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword">Confirmar senha *</Label>
-                  <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+                  <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required disabled={authCreated} />
                 </div>
               </div>
             </div>
 
             {error && (
-              <p className="text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">{error}</p>
+              <div className="space-y-2">
+                <p className="text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">{error}</p>
+                {authCreated && (
+                  <Button type="button" variant="outline" className="w-full" onClick={handleRetry} disabled={loading}>
+                    {loading ? "Tentando novamente..." : "Tentar novamente"}
+                  </Button>
+                )}
+              </div>
             )}
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Criando conta..." : "Criar conta"}
-            </Button>
+            {!authCreated && (
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Criando conta..." : "Criar conta"}
+              </Button>
+            )}
           </form>
 
           <p className="mt-4 text-center text-sm text-muted-foreground">

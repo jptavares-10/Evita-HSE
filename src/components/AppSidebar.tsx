@@ -16,6 +16,7 @@ import {
   UserCheck,
   Grid3X3,
   Briefcase,
+  AlertTriangle,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";

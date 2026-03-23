@@ -71,6 +71,7 @@ const App = () => (
               <Route path="/mtr/analise" element={<MtrAnalise />} />
               <Route path="/fornecedores" element={<Fornecedores />} />
               <Route path="/fornecedores/:id" element={<FornecedorDocumentos />} />
+              <Route path="/incidentes" element={<Incidentes />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />

@@ -113,6 +113,9 @@ export function RegisterCompletionModal({ open, onOpenChange, service }: Props) 
           <div className="space-y-2">
             <Label>Observações</Label>
             <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
+            <p className="text-xs text-muted-foreground">
+              Esta observação ficará salva no histórico desta realização com data e autoria.
+            </p>
           </div>
           <div className="space-y-2">
             <Label>Anexar comprovante</Label>

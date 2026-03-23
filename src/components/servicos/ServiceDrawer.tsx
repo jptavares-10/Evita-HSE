@@ -267,6 +267,9 @@ export function ServiceDrawer({ open, onOpenChange, editingService }: Props) {
               <div className="space-y-2">
                 <Label>Observações</Label>
                 <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
+                <p className="text-xs text-muted-foreground">
+                  Observação geral do serviço. Para registrar anotações de uma realização específica, use o botão "Registrar realização".
+                </p>
               </div>
             </section>
 

@@ -1,10 +1,18 @@
+import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { useServiceAttachments, useServiceHistory } from "@/hooks/useServices";
 import { formatDateBR, getFrequencyLabel, getStatusInfo, FILE_TYPE_LABELS, FILE_TYPE_BADGE_COLORS } from "@/lib/services";
-import { ExternalLink, Pencil, FileText, Clock } from "lucide-react";
+import { ExternalLink, Pencil, FileText, Clock, X, Check } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 interface Service {
   id: string;
@@ -28,12 +36,48 @@ interface Props {
   onEdit: () => void;
 }
 
+function formatDateTimeBR(dateStr: string | null | undefined): string {
+  if (!dateStr) return "—";
+  try {
+    const d = new Date(dateStr);
+    return format(d, "dd/MM/yyyy HH:mm", { locale: ptBR });
+  } catch {
+    return "—";
+  }
+}
+
 export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Props) {
   const { data: attachments = [] } = useServiceAttachments(service?.id ?? null);
   const { data: history = [] } = useServiceHistory(service?.id ?? null);
+  const { profile } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [editingNoteText, setEditingNoteText] = useState("");
 
   if (!service) return null;
   const statusInfo = getStatusInfo(service.next_due_at, service.alert_days_before);
+
+  const handleSaveNote = async (historyId: string) => {
+    if (!profile) return;
+    const { error } = await supabase
+      .from("service_history")
+      .update({
+        notes: editingNoteText || null,
+        notes_edited_at: new Date().toISOString(),
+        notes_edited_by: profile.id,
+      })
+      .eq("id", historyId);
+
+    if (error) {
+      toast({ title: "Erro ao atualizar observação", variant: "destructive" });
+    } else {
+      toast({ title: "Observação atualizada" });
+      queryClient.invalidateQueries({ queryKey: ["service-history"] });
+    }
+    setEditingNoteId(null);
+  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -85,7 +129,7 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
             </div>
             {service.notes && (
               <div className="text-sm">
-                <p className="text-muted-foreground mb-1">Observações</p>
+                <p className="text-muted-foreground mb-1">Observações gerais</p>
                 <p className="whitespace-pre-wrap">{service.notes}</p>
               </div>
             )}
@@ -128,18 +172,67 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
                 <div className="absolute left-[9px] top-2 bottom-2 w-px bg-border" />
                 {history.map((h: any) => {
                   const historyAttachments = attachments.filter((att: any) => att.reference_date === h.done_at);
+                  const isEditing = editingNoteId === h.id;
+
                   return (
                     <div key={h.id} className="relative">
                       <div className="absolute -left-6 top-1 h-[18px] w-[18px] rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center">
                         <Clock className="h-2.5 w-2.5 text-primary" />
                       </div>
-                      <div className="bg-muted/50 rounded-lg p-3 space-y-1">
+                      <div className="bg-muted/50 rounded-lg p-3 space-y-2">
                         <p className="text-sm font-medium">{formatDateBR(h.done_at)}</p>
                         {h.supplier && <p className="text-xs text-muted-foreground">Fornecedor: {h.supplier}</p>}
-                        {h.notes && <p className="text-xs text-muted-foreground">{h.notes}</p>}
+
+                        {/* Notes section with inline edit */}
+                        <div className="text-xs">
+                          {isEditing ? (
+                            <div className="space-y-2">
+                              <Textarea
+                                value={editingNoteText}
+                                onChange={(e) => setEditingNoteText(e.target.value)}
+                                rows={3}
+                                className="text-xs"
+                              />
+                              <div className="flex gap-2">
+                                <Button size="sm" variant="default" className="h-7 text-xs" onClick={() => handleSaveNote(h.id)}>
+                                  <Check className="h-3 w-3 mr-1" /> Salvar
+                                </Button>
+                                <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setEditingNoteId(null)}>
+                                  <X className="h-3 w-3 mr-1" /> Cancelar
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="group flex items-start gap-1">
+                              {h.notes ? (
+                                <p className="text-muted-foreground whitespace-pre-wrap flex-1">📝 {h.notes}</p>
+                              ) : (
+                                <p className="text-muted-foreground/60 italic flex-1">Nenhuma observação registrada</p>
+                              )}
+                              <button
+                                className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-muted"
+                                onClick={() => {
+                                  setEditingNoteId(h.id);
+                                  setEditingNoteText(h.notes || "");
+                                }}
+                                title="Editar observação"
+                              >
+                                <Pencil className="h-3 w-3 text-muted-foreground" />
+                              </button>
+                            </div>
+                          )}
+
+                          {h.notes_edited_at && !isEditing && (
+                            <p className="text-muted-foreground/60 italic mt-1">
+                              Editado por {h.notes_editor?.full_name || "—"} em {formatDateTimeBR(h.notes_edited_at)}
+                            </p>
+                          )}
+                        </div>
+
                         <p className="text-xs text-muted-foreground">
-                          Por: {h.profiles?.full_name || "—"}
+                          Registrado por {h.profiles?.full_name || "—"} em {formatDateTimeBR(h.created_at)}
                         </p>
+
                         {historyAttachments.length > 0 && (
                           <div className="mt-2 space-y-1 border-t pt-2">
                             {historyAttachments.map((att: any) => (
@@ -149,6 +242,9 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
                                 <Badge variant="outline" className={`text-[9px] px-1 py-0 ${FILE_TYPE_BADGE_COLORS[att.file_type] || FILE_TYPE_BADGE_COLORS.other}`}>
                                   {FILE_TYPE_LABELS[att.file_type] || att.file_type}
                                 </Badge>
+                                {att.reference_date && (
+                                  <span className="text-muted-foreground">· {formatDateBR(att.reference_date)}</span>
+                                )}
                               </a>
                             ))}
                           </div>

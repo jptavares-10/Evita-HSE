@@ -1,9 +1,13 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { ClipboardList, GraduationCap, Recycle, Truck, Lock } from "lucide-react";
+import { ClipboardList, GraduationCap, Recycle, Truck, Lock, AlertTriangle, CheckCircle2, XCircle, ArrowRight } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { usePeriodicServices } from "@/hooks/useServices";
+import { getServiceStatus, getStatusInfo, formatDateBR } from "@/lib/services";
+import { useMemo } from "react";
+import { Link } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
 
 const modules = [
-  { title: "Serviços Periódicos", description: "Gerencie ASOs, NRs e documentos periódicos", icon: ClipboardList },
   { title: "Treinamentos", description: "Controle de treinamentos e certificações", icon: GraduationCap },
   { title: "Gestão de MTR", description: "Manifesto de Transporte de Resíduos", icon: Recycle },
   { title: "Fornecedores", description: "Gestão e avaliação de fornecedores", icon: Truck },
@@ -11,6 +15,19 @@ const modules = [
 
 export default function Dashboard() {
   const { profile } = useAuth();
+  const { data: services = [] } = usePeriodicServices();
+
+  const urgentServices = useMemo(() => {
+    return services
+      .map((s: any) => ({
+        ...s,
+        _status: getServiceStatus(s.next_due_at, s.alert_days_before),
+        _statusInfo: getStatusInfo(s.next_due_at, s.alert_days_before),
+      }))
+      .filter((s: any) => s._status === "expired" || s._status === "warning")
+      .sort((a: any, b: any) => a.next_due_at.localeCompare(b.next_due_at))
+      .slice(0, 5);
+  }, [services]);
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 animate-fade-up">
@@ -21,9 +38,40 @@ export default function Dashboard() {
         <p className="text-muted-foreground mt-1">Bem-vindo ao painel de gestão de HSE.</p>
       </div>
 
+      {/* Attention section */}
+      <div className="bg-card border rounded-lg p-6">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">Atenção necessária</h2>
+        {urgentServices.length === 0 ? (
+          <div className="flex items-center gap-3 text-sm text-green-600">
+            <CheckCircle2 className="h-5 w-5" />
+            <span>Todos os serviços estão em dia</span>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {urgentServices.map((s: any) => (
+              <Link key={s.id} to="/servicos" className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-muted/50 transition-colors">
+                {s._status === "expired" ? (
+                  <XCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
+                ) : (
+                  <AlertTriangle className="h-4 w-4 text-yellow-500 flex-shrink-0" />
+                )}
+                <span className="flex-1 text-sm font-medium">{s.name}</span>
+                <Badge variant="outline" className={s._statusInfo.color + " text-xs"}>
+                  {s._statusInfo.label}
+                </Badge>
+                <span className="text-xs text-muted-foreground tabular-nums">{formatDateBR(s.next_due_at)}</span>
+              </Link>
+            ))}
+            <Link to="/servicos" className="flex items-center gap-1 text-sm text-primary hover:underline mt-2 pl-3">
+              Ver todos <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+        )}
+      </div>
+
       <div>
         <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">Módulos</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {modules.map((mod) => (
             <Tooltip key={mod.title}>
               <TooltipTrigger asChild>

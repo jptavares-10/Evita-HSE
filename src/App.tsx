@@ -23,6 +23,7 @@ import TreinamentosVisaoGeral from "./pages/TreinamentosVisaoGeral";
 import TreinamentosColaboradores from "./pages/TreinamentosColaboradores";
 import TreinamentosCatalogo from "./pages/TreinamentosCatalogo";
 import TreinamentosMatriz from "./pages/TreinamentosMatriz";
+import TreinamentosCargos from "./pages/TreinamentosCargos";
 
 const queryClient = new QueryClient();
 

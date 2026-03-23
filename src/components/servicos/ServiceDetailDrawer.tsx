@@ -126,21 +126,37 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
             ) : (
               <div className="relative pl-6 space-y-6">
                 <div className="absolute left-[9px] top-2 bottom-2 w-px bg-border" />
-                {history.map((h: any) => (
-                  <div key={h.id} className="relative">
-                    <div className="absolute -left-6 top-1 h-[18px] w-[18px] rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center">
-                      <Clock className="h-2.5 w-2.5 text-primary" />
+                {history.map((h: any) => {
+                  const historyAttachments = attachments.filter((att: any) => att.reference_date === h.done_at);
+                  return (
+                    <div key={h.id} className="relative">
+                      <div className="absolute -left-6 top-1 h-[18px] w-[18px] rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center">
+                        <Clock className="h-2.5 w-2.5 text-primary" />
+                      </div>
+                      <div className="bg-muted/50 rounded-lg p-3 space-y-1">
+                        <p className="text-sm font-medium">{formatDateBR(h.done_at)}</p>
+                        {h.supplier && <p className="text-xs text-muted-foreground">Fornecedor: {h.supplier}</p>}
+                        {h.notes && <p className="text-xs text-muted-foreground">{h.notes}</p>}
+                        <p className="text-xs text-muted-foreground">
+                          Por: {h.profiles?.full_name || "—"}
+                        </p>
+                        {historyAttachments.length > 0 && (
+                          <div className="mt-2 space-y-1 border-t pt-2">
+                            {historyAttachments.map((att: any) => (
+                              <a key={att.id} href={att.file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs text-primary hover:underline">
+                                <FileText className="h-3 w-3 flex-shrink-0" />
+                                <span className="truncate">{att.file_name}</span>
+                                <Badge variant="outline" className={`text-[9px] px-1 py-0 ${FILE_TYPE_BADGE_COLORS[att.file_type] || FILE_TYPE_BADGE_COLORS.other}`}>
+                                  {FILE_TYPE_LABELS[att.file_type] || att.file_type}
+                                </Badge>
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div className="bg-muted/50 rounded-lg p-3 space-y-1">
-                      <p className="text-sm font-medium">{formatDateBR(h.done_at)}</p>
-                      {h.supplier && <p className="text-xs text-muted-foreground">Fornecedor: {h.supplier}</p>}
-                      {h.notes && <p className="text-xs text-muted-foreground">{h.notes}</p>}
-                      <p className="text-xs text-muted-foreground">
-                        Por: {h.profiles?.full_name || "—"}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </TabsContent>

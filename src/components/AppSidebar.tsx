@@ -197,7 +197,8 @@ export function AppSidebar() {
           </div>
         </div>
 
-        {/* Modules */}
+        {/* Modules - hidden when empty */}
+        {moduleNav.length > 0 && (
         <div className="px-2">
           {!collapsed && <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-sidebar-muted">Módulos</p>}
           <div className="space-y-1">
@@ -219,6 +220,7 @@ export function AppSidebar() {
             ))}
           </div>
         </div>
+        )}
 
         {/* Settings */}
         <div className="px-2">

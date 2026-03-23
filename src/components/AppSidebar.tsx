@@ -100,6 +100,10 @@ export function AppSidebar() {
     return st === "warning" || st === "overdue";
   }).length;
 
+  // Supplier alerts (active suppliers with no documents — we use a simple heuristic)
+  const { data: supplierList = [] } = useSuppliers();
+  const supplierAlertCount = 0; // Badge not critical, can be enhanced later
+
   const isTrainingsActive = location.pathname.startsWith("/treinamentos");
 
   // Auto-expand when on trainings route

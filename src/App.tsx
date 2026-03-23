@@ -30,6 +30,7 @@ import MtrAnalise from "./pages/MtrAnalise";
 import Fornecedores from "./pages/Fornecedores";
 import FornecedorDocumentos from "./pages/FornecedorDocumentos";
 import PortalFornecedor from "./pages/PortalFornecedor";
+import Incidentes from "./pages/Incidentes";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +71,7 @@ const App = () => (
               <Route path="/mtr/analise" element={<MtrAnalise />} />
               <Route path="/fornecedores" element={<Fornecedores />} />
               <Route path="/fornecedores/:id" element={<FornecedorDocumentos />} />
+              <Route path="/incidentes" element={<Incidentes />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />

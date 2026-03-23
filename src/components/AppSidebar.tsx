@@ -16,6 +16,7 @@ import {
   UserCheck,
   Grid3X3,
   Briefcase,
+  AlertTriangle,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -34,12 +35,14 @@ import { getRecordStatus } from "@/lib/trainings";
 import { useMtrs } from "@/hooks/useMTR";
 import { getCdfDisplayStatus } from "@/lib/mtr";
 import { useSuppliers } from "@/hooks/useSuppliers";
+import { useOccurrences } from "@/hooks/useOccurrences";
 
 const mainNav = [
   { title: "Dashboard", to: "/dashboard", icon: Home },
   { title: "Serviços Periódicos", to: "/servicos", icon: ClipboardList },
   { title: "Gestão de MTR", to: "/mtr", icon: Recycle },
   { title: "Fornecedores", to: "/fornecedores", icon: Truck },
+  { title: "Incidentes", to: "/incidentes", icon: AlertTriangle },
 ];
 
 const trainingSubNav = [
@@ -102,7 +105,11 @@ export function AppSidebar() {
 
   // Supplier alerts (active suppliers with no documents — we use a simple heuristic)
   const { data: supplierList = [] } = useSuppliers();
-  const supplierAlertCount = 0; // Badge not critical, can be enhanced later
+  const supplierAlertCount = 0;
+
+  // Incident alerts
+  const { data: occurrenceList = [] } = useOccurrences();
+  const incidentAlertCount = occurrenceList.filter((o: any) => o.status === "open" || o.status === "in_progress").length;
 
   const isTrainingsActive = location.pathname.startsWith("/treinamentos");
 
@@ -150,6 +157,12 @@ export function AppSidebar() {
                 <span className="bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full h-5 min-w-[20px] flex items-center justify-center px-1">{mtrAlertCount}</span>
               )}
               {collapsed && item.to === "/mtr" && mtrAlertCount > 0 && (
+                <span className="absolute top-0 right-0 bg-destructive rounded-full h-2.5 w-2.5" />
+              )}
+              {!collapsed && item.to === "/incidentes" && incidentAlertCount > 0 && (
+                <span className="bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full h-5 min-w-[20px] flex items-center justify-center px-1">{incidentAlertCount}</span>
+              )}
+              {collapsed && item.to === "/incidentes" && incidentAlertCount > 0 && (
                 <span className="absolute top-0 right-0 bg-destructive rounded-full h-2.5 w-2.5" />
               )}
             </NavLink>

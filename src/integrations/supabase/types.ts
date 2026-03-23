@@ -53,6 +53,80 @@ export type Database = {
         }
         Relationships: []
       }
+      corrective_actions: {
+        Row: {
+          company_id: string
+          completed_at: string | null
+          completed_by: string | null
+          completion_notes: string | null
+          created_at: string
+          created_by: string
+          description: string
+          evidence_name: string | null
+          evidence_url: string | null
+          id: string
+          occurrence_id: string
+          status: string
+        }
+        Insert: {
+          company_id: string
+          completed_at?: string | null
+          completed_by?: string | null
+          completion_notes?: string | null
+          created_at?: string
+          created_by: string
+          description: string
+          evidence_name?: string | null
+          evidence_url?: string | null
+          id?: string
+          occurrence_id: string
+          status?: string
+        }
+        Update: {
+          company_id?: string
+          completed_at?: string | null
+          completed_by?: string | null
+          completion_notes?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string
+          evidence_name?: string | null
+          evidence_url?: string | null
+          id?: string
+          occurrence_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "corrective_actions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "corrective_actions_completed_by_fkey"
+            columns: ["completed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "corrective_actions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "corrective_actions_occurrence_id_fkey"
+            columns: ["occurrence_id"]
+            isOneToOne: false
+            referencedRelation: "occurrences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employee_training_records: {
         Row: {
           certificate_name: string | null
@@ -369,6 +443,173 @@ export type Database = {
           },
           {
             foreignKeyName: "mtrs_registered_by_fkey"
+            columns: ["registered_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      occurrence_attachments: {
+        Row: {
+          company_id: string
+          file_name: string
+          file_type: string
+          file_url: string
+          id: string
+          occurrence_id: string
+          uploaded_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          company_id: string
+          file_name: string
+          file_type?: string
+          file_url: string
+          id?: string
+          occurrence_id: string
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          company_id?: string
+          file_name?: string
+          file_type?: string
+          file_url?: string
+          id?: string
+          occurrence_id?: string
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "occurrence_attachments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "occurrence_attachments_occurrence_id_fkey"
+            columns: ["occurrence_id"]
+            isOneToOne: false
+            referencedRelation: "occurrences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "occurrence_attachments_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      occurrence_employees: {
+        Row: {
+          company_id: string
+          employee_id: string | null
+          employee_name: string
+          id: string
+          occurrence_id: string
+        }
+        Insert: {
+          company_id: string
+          employee_id?: string | null
+          employee_name: string
+          id?: string
+          occurrence_id: string
+        }
+        Update: {
+          company_id?: string
+          employee_id?: string | null
+          employee_name?: string
+          id?: string
+          occurrence_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "occurrence_employees_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "occurrence_employees_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "occurrence_employees_occurrence_id_fkey"
+            columns: ["occurrence_id"]
+            isOneToOne: false
+            referencedRelation: "occurrences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      occurrences: {
+        Row: {
+          body_part_affected: string | null
+          cause_analysis: string | null
+          company_id: string
+          created_at: string
+          description: string
+          id: string
+          location: string
+          occurred_at: string
+          registered_by: string | null
+          severity: string
+          status: string
+          type: string
+          updated_at: string
+          with_leave: boolean | null
+        }
+        Insert: {
+          body_part_affected?: string | null
+          cause_analysis?: string | null
+          company_id: string
+          created_at?: string
+          description: string
+          id?: string
+          location: string
+          occurred_at: string
+          registered_by?: string | null
+          severity: string
+          status?: string
+          type: string
+          updated_at?: string
+          with_leave?: boolean | null
+        }
+        Update: {
+          body_part_affected?: string | null
+          cause_analysis?: string | null
+          company_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          location?: string
+          occurred_at?: string
+          registered_by?: string | null
+          severity?: string
+          status?: string
+          type?: string
+          updated_at?: string
+          with_leave?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "occurrences_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "occurrences_registered_by_fkey"
             columns: ["registered_by"]
             isOneToOne: false
             referencedRelation: "profiles"

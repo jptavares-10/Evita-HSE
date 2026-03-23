@@ -93,6 +93,13 @@ export function AppSidebar() {
     return count;
   }, [employees, matrix, allRecords]);
 
+  // MTR alerts
+  const { data: mtrList = [] } = useMtrs();
+  const mtrAlertCount = mtrList.filter((m: any) => {
+    const st = getCdfDisplayStatus(m.cdf_status, m.alert_at, m.cdf_deadline_at);
+    return st === "warning" || st === "overdue";
+  }).length;
+
   const isTrainingsActive = location.pathname.startsWith("/treinamentos");
 
   // Auto-expand when on trainings route

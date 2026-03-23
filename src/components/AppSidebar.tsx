@@ -45,6 +45,11 @@ export function AppSidebar() {
   const { profile, company, signOut } = useAuth();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
+  const { data: services = [] } = usePeriodicServices();
+  const alertCount = services.filter((s: any) => {
+    const st = getServiceStatus(s.next_due_at, s.alert_days_before);
+    return st === "warning" || st === "expired";
+  }).length;
 
   const initials = profile?.full_name
     ?.split(" ")

@@ -1,10 +1,22 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Index from "./pages/Index.tsx";
-import NotFound from "./pages/NotFound.tsx";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { PublicRoute } from "@/components/PublicRoute";
+import { AppLayout } from "@/components/AppLayout";
+
+import Login from "./pages/Login";
+import Cadastro from "./pages/Cadastro";
+import Convite from "./pages/Convite";
+import ResetPassword from "./pages/ResetPassword";
+import Dashboard from "./pages/Dashboard";
+import Usuarios from "./pages/Usuarios";
+import Empresa from "./pages/Empresa";
+import Planos from "./pages/Planos";
+import Perfil from "./pages/Perfil";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
@@ -12,13 +24,30 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
-      <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+            <Route path="/cadastro" element={<PublicRoute><Cadastro /></PublicRoute>} />
+            <Route path="/convite" element={<Convite />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+
+            {/* Redirect root to dashboard */}
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+            {/* Protected routes with layout */}
+            <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/usuarios" element={<Usuarios />} />
+              <Route path="/empresa" element={<Empresa />} />
+              <Route path="/planos" element={<Planos />} />
+              <Route path="/perfil" element={<Perfil />} />
+            </Route>
+
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

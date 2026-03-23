@@ -24,10 +24,10 @@ import {
 
 const mainNav = [
   { title: "Dashboard", to: "/dashboard", icon: Home },
+  { title: "Serviços Periódicos", to: "/servicos", icon: ClipboardList },
 ];
 
 const moduleNav = [
-  { title: "Serviços Periódicos", icon: ClipboardList, disabled: true },
   { title: "Treinamentos", icon: GraduationCap, disabled: true },
   { title: "Gestão de MTR", icon: Recycle, disabled: true },
   { title: "Fornecedores", icon: Truck, disabled: true },

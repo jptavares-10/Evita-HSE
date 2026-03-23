@@ -40,6 +40,7 @@ const App = () => (
             {/* Protected routes with layout */}
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/servicos" element={<Servicos />} />
               <Route path="/usuarios" element={<Usuarios />} />
               <Route path="/empresa" element={<Empresa />} />
               <Route path="/planos" element={<Planos />} />

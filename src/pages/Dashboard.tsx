@@ -1,16 +1,17 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { ClipboardList, GraduationCap, Recycle, Truck, Lock, AlertTriangle, CheckCircle2, XCircle, ArrowRight, TrendingUp } from "lucide-react";
+import { ClipboardList, GraduationCap, Truck, Lock, AlertTriangle, CheckCircle2, XCircle, ArrowRight, TrendingUp, Recycle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { usePeriodicServices } from "@/hooks/useServices";
 import { getServiceStatus, getStatusInfo, formatDateBR } from "@/lib/services";
 import { useEmployees, useTrainingMatrix, useAllRecords } from "@/hooks/useTrainings";
 import { computeEmployeeCompliance, getRecordStatus } from "@/lib/trainings";
+import { useMtrs } from "@/hooks/useMTR";
+import { getCdfDisplayStatus, getDaysRemainingLabel, formatDateBR as formatDateMtr } from "@/lib/mtr";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 
 const modules = [
-  { title: "Gestão de MTR", description: "Manifesto de Transporte de Resíduos", icon: Recycle },
   { title: "Fornecedores", description: "Gestão e avaliação de fornecedores", icon: Truck },
 ];
 

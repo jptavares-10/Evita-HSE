@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
 
 interface Profile {
   id: string;
@@ -77,51 +76,77 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    const loadUserData = async (userId: string) => {
+    let isMounted = true;
+
+    const applySession = (nextSession: Session | null) => {
+      if (!isMounted) return;
+      setSession(nextSession);
+      setUser(nextSession?.user ?? null);
+      setLoading(false);
+    };
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, nextSession) => {
+        applySession(nextSession);
+      }
+    );
+
+    supabase.auth.getSession()
+      .then(({ data: { session: nextSession } }) => {
+        applySession(nextSession);
+      })
+      .catch((err) => {
+        console.error("Error getting session:", err);
+        if (!isMounted) return;
+        setSession(null);
+        setUser(null);
+        setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadUserData = async () => {
+      if (!user) {
+        if (!isMounted) return;
+        setProfile(null);
+        setCompany(null);
+        return;
+      }
+
       try {
-        const p = await fetchProfile(userId);
+        const p = await fetchProfile(user.id);
+        if (!isMounted) return;
+
         setProfile(p);
+
         if (p?.company_id) {
           const c = await fetchCompany(p.company_id);
+          if (!isMounted) return;
           setCompany(c);
+        } else {
+          setCompany(null);
         }
       } catch (err) {
         console.error("Error loading user data:", err);
+        if (!isMounted) return;
         setProfile(null);
         setCompany(null);
       }
     };
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
+    void loadUserData();
 
-        if (session?.user) {
-          await loadUserData(session.user.id);
-        } else {
-          setProfile(null);
-          setCompany(null);
-        }
-        setLoading(false);
-      }
-    );
-
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (session?.user) {
-        await loadUserData(session.user.id);
-      }
-      setLoading(false);
-    }).catch((err) => {
-      console.error("Error getting session:", err);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
 
   const signOut = async () => {
     await supabase.auth.signOut();

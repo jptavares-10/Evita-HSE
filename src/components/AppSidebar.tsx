@@ -102,8 +102,15 @@ export function AppSidebar() {
               }
             >
               <item.icon className="h-4 w-4 flex-shrink-0" />
-              {!collapsed && <span>{item.title}</span>}
-            </NavLink>
+              {!collapsed && <span className="flex-1">{item.title}</span>}
+              {!collapsed && item.to === "/servicos" && alertCount > 0 && (
+                <span className="ml-auto bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full h-5 min-w-[20px] flex items-center justify-center px-1">
+                  {alertCount}
+                </span>
+              )}
+              {collapsed && item.to === "/servicos" && alertCount > 0 && (
+                <span className="absolute top-0 right-0 bg-destructive rounded-full h-2.5 w-2.5" />
+              )}
           ))}
         </div>
 

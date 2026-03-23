@@ -11,14 +11,18 @@ export function useServiceCategories() {
     queryKey: ["service-categories", company?.id],
     queryFn: async () => {
       if (!company) return [];
-      // Seed defaults for existing companies
-      await supabase.rpc("seed_default_categories", { p_company_id: company.id });
+      // Seed defaults for existing companies (ignore errors)
+      try {
+        await supabase.rpc("seed_default_categories", { p_company_id: company.id });
+      } catch (e) {
+        console.warn("seed_default_categories failed:", e);
+      }
       const { data, error } = await supabase
         .from("service_categories")
         .select("*")
         .order("name");
       if (error) throw error;
-      return data;
+      return data ?? [];
     },
     enabled: !!company,
   });

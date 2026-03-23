@@ -276,9 +276,19 @@ export function ServiceDrawer({ open, onOpenChange, editingService }: Props) {
               {editingService && existingAttachments.length > 0 && (
                 <div className="space-y-2">
                   {existingAttachments.map((att: any) => (
-                    <div key={att.id} className="flex items-center gap-2 text-sm bg-muted/50 px-3 py-2 rounded-md">
-                      <a href={att.file_url} target="_blank" rel="noopener noreferrer" className="flex-1 truncate text-primary hover:underline">{att.file_name}</a>
-                      <Button variant="ghost" size="sm" className="text-destructive h-7" onClick={() => handleDeleteAttachment(att.id, att.file_url)}>Remover</Button>
+                    <div key={att.id} className="flex flex-col gap-1 text-sm bg-muted/50 px-3 py-2 rounded-md">
+                      <div className="flex items-center gap-2">
+                        <a href={att.file_url} target="_blank" rel="noopener noreferrer" className="flex-1 truncate text-primary hover:underline">{att.file_name}</a>
+                        <Button variant="ghost" size="sm" className="text-destructive h-7" onClick={() => handleDeleteAttachment(att.id, att.file_url)}>Remover</Button>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-xs">
+                        <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${FILE_TYPE_BADGE_COLORS[att.file_type] || FILE_TYPE_BADGE_COLORS.other}`}>
+                          {FILE_TYPE_LABELS[att.file_type] || att.file_type}
+                        </Badge>
+                        {att.reference_date && (
+                          <span className="text-muted-foreground">· {formatDateBR(att.reference_date)}</span>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>

@@ -100,6 +100,32 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* MTR alerts card */}
+      {(() => {
+        const urgentMtrs = mtrList
+          .map((m: any) => ({ ...m, _st: getCdfDisplayStatus(m.cdf_status, m.alert_at, m.cdf_deadline_at) }))
+          .filter((m: any) => m._st === "warning" || m._st === "overdue")
+          .sort((a: any, b: any) => a.cdf_deadline_at.localeCompare(b.cdf_deadline_at))
+          .slice(0, 3);
+        if (urgentMtrs.length === 0) return null;
+        return (
+          <div className="bg-card border rounded-lg p-6">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">MTRs com CDF Pendente</h2>
+            <div className="space-y-2">
+              {urgentMtrs.map((m: any) => (
+                <Link key={m.id} to="/mtr" className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-muted/50 transition-colors">
+                  {m._st === "overdue" ? <XCircle className="h-4 w-4 text-destructive flex-shrink-0" /> : <AlertTriangle className="h-4 w-4 text-yellow-500 flex-shrink-0" />}
+                  <span className="flex-1 text-sm font-medium">MTR {m.mtr_number}</span>
+                  <span className="text-xs text-muted-foreground">{formatDateMtr(m.cdf_deadline_at)}</span>
+                  <span className={`text-xs font-medium ${m._st === "overdue" ? "text-destructive" : "text-yellow-600"}`}>{getDaysRemainingLabel(m.cdf_status, m.cdf_deadline_at)}</span>
+                </Link>
+              ))}
+              <Link to="/mtr" className="flex items-center gap-1 text-sm text-primary hover:underline mt-2 pl-3">Ver todos <ArrowRight className="h-3.5 w-3.5" /></Link>
+            </div>
+          </div>
+        );
+      })()}
+
       <div>
         <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">Módulos</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

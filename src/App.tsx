@@ -23,6 +23,7 @@ import TreinamentosVisaoGeral from "./pages/TreinamentosVisaoGeral";
 import TreinamentosColaboradores from "./pages/TreinamentosColaboradores";
 import TreinamentosCatalogo from "./pages/TreinamentosCatalogo";
 import TreinamentosMatriz from "./pages/TreinamentosMatriz";
+import TreinamentosCargos from "./pages/TreinamentosCargos";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +56,7 @@ const App = () => (
                 <Route path="colaboradores" element={<TreinamentosColaboradores />} />
                 <Route path="catalogo" element={<TreinamentosCatalogo />} />
                 <Route path="matriz" element={<TreinamentosMatriz />} />
+                <Route path="cargos" element={<TreinamentosCargos />} />
               </Route>
             </Route>
 

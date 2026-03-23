@@ -5,6 +5,7 @@ const tabs = [
   { label: "Visão Geral", to: "/treinamentos" },
   { label: "Colaboradores", to: "/treinamentos/colaboradores" },
   { label: "Treinamentos", to: "/treinamentos/catalogo" },
+  { label: "Cargos", to: "/treinamentos/cargos" },
   { label: "Matriz", to: "/treinamentos/matriz" },
 ];
 

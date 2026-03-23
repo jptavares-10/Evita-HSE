@@ -31,6 +31,8 @@ import { usePeriodicServices } from "@/hooks/useServices";
 import { getServiceStatus } from "@/lib/services";
 import { useEmployees, useTrainingMatrix, useAllRecords } from "@/hooks/useTrainings";
 import { getRecordStatus } from "@/lib/trainings";
+import { useMtrs } from "@/hooks/useMTR";
+import { getCdfDisplayStatus } from "@/lib/mtr";
 
 const mainNav = [
   { title: "Dashboard", to: "/dashboard", icon: Home },

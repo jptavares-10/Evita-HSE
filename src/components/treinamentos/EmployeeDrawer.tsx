@@ -41,7 +41,7 @@ export function EmployeeDrawer({ open, onOpenChange, employee }: Props) {
     <Drawer open={open} onOpenChange={onOpenChange} direction="right">
       <DrawerContent className="fixed right-0 top-0 bottom-0 w-full max-w-md rounded-none border-l flex flex-col">
         <DrawerHeader><DrawerTitle>{employee ? "Editar colaborador" : "Novo colaborador"}</DrawerTitle></DrawerHeader>
-        <div className="flex-1 overflow-y-auto px-4 space-y-4">
+        <div className="flex-1 overflow-y-auto px-6 space-y-4">
           <div><Label>Nome completo *</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>
           <div>
             <Label>Cargo *</Label>

@@ -67,12 +67,12 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
           </DrawerHeader>
 
           <Tabs defaultValue="trainings" className="flex-1 flex flex-col overflow-hidden">
-            <TabsList className="mx-4">
+            <TabsList className="mx-6">
               <TabsTrigger value="trainings">Treinamentos</TabsTrigger>
               <TabsTrigger value="history">Histórico</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="trainings" className="flex-1 overflow-y-auto px-4 pb-4 space-y-4">
+            <TabsContent value="trainings" className="flex-1 overflow-y-auto px-6 pb-4 space-y-4">
               {requiredTrainingIds.length > 0 && (
                 <div className="space-y-2">
                   <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Obrigatórios</h4>
@@ -147,7 +147,7 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
               </div>
             </TabsContent>
 
-            <TabsContent value="history" className="flex-1 overflow-y-auto px-4 pb-4">
+            <TabsContent value="history" className="flex-1 overflow-y-auto px-6 pb-4">
               {records.length === 0 ? (
                 <p className="text-center text-muted-foreground py-8">Nenhum certificado registrado ainda.</p>
               ) : (

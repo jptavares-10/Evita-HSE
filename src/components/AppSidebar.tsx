@@ -31,10 +31,13 @@ import { usePeriodicServices } from "@/hooks/useServices";
 import { getServiceStatus } from "@/lib/services";
 import { useEmployees, useTrainingMatrix, useAllRecords } from "@/hooks/useTrainings";
 import { getRecordStatus } from "@/lib/trainings";
+import { useMtrs } from "@/hooks/useMTR";
+import { getCdfDisplayStatus } from "@/lib/mtr";
 
 const mainNav = [
   { title: "Dashboard", to: "/dashboard", icon: Home },
   { title: "Serviços Periódicos", to: "/servicos", icon: ClipboardList },
+  { title: "Gestão de MTR", to: "/mtr", icon: Recycle },
 ];
 
 const trainingSubNav = [
@@ -46,7 +49,6 @@ const trainingSubNav = [
 ];
 
 const moduleNav = [
-  { title: "Gestão de MTR", icon: Recycle, disabled: true },
   { title: "Fornecedores", icon: Truck, disabled: true },
 ];
 
@@ -91,6 +93,13 @@ export function AppSidebar() {
     return count;
   }, [employees, matrix, allRecords]);
 
+  // MTR alerts
+  const { data: mtrList = [] } = useMtrs();
+  const mtrAlertCount = mtrList.filter((m: any) => {
+    const st = getCdfDisplayStatus(m.cdf_status, m.alert_at, m.cdf_deadline_at);
+    return st === "warning" || st === "overdue";
+  }).length;
+
   const isTrainingsActive = location.pathname.startsWith("/treinamentos");
 
   // Auto-expand when on trainings route
@@ -131,6 +140,12 @@ export function AppSidebar() {
                 <span className="bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full h-5 min-w-[20px] flex items-center justify-center px-1">{serviceAlertCount}</span>
               )}
               {collapsed && item.to === "/servicos" && serviceAlertCount > 0 && (
+                <span className="absolute top-0 right-0 bg-destructive rounded-full h-2.5 w-2.5" />
+              )}
+              {!collapsed && item.to === "/mtr" && mtrAlertCount > 0 && (
+                <span className="bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full h-5 min-w-[20px] flex items-center justify-center px-1">{mtrAlertCount}</span>
+              )}
+              {collapsed && item.to === "/mtr" && mtrAlertCount > 0 && (
                 <span className="absolute top-0 right-0 bg-destructive rounded-full h-2.5 w-2.5" />
               )}
             </NavLink>

@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const SEGMENTS = [
   "Construção Civil",
@@ -32,6 +33,7 @@ async function waitForSession(maxMs = 5000, intervalMs = 500) {
 }
 
 export default function Cadastro() {
+  usePageTitle("Criar conta — Evita HSE");
   const [companyName, setCompanyName] = useState("");
   const [cnpj, setCnpj] = useState("");
   const [segment, setSegment] = useState("");

@@ -16,8 +16,10 @@ import { SupplierKpiCards } from "@/components/fornecedores/SupplierKpiCards";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { formatPhone } from "@/lib/suppliers";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function Fornecedores() {
+  usePageTitle("Fornecedores — Evita HSE");
   const { company } = useAuth();
   const { data: suppliers = [], isLoading } = useSuppliers();
   const { data: categories = [] } = useSupplierCategories();

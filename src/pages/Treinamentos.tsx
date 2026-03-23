@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const tabs = [
   { label: "Visão Geral", to: "/treinamentos" },
@@ -10,6 +11,7 @@ const tabs = [
 ];
 
 export default function Treinamentos() {
+  usePageTitle("Treinamentos — Evita HSE");
   const location = useLocation();
 
   return (

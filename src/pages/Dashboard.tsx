@@ -1,6 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { ClipboardList, GraduationCap, Truck, AlertTriangle, CheckCircle2, XCircle, ArrowRight, TrendingUp, Recycle, Users, ShieldAlert } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { ClipboardList, GraduationCap, Recycle, Truck, AlertTriangle, CheckCircle2, XCircle, ArrowRight, Users, ShieldAlert, CreditCard, Calendar } from "lucide-react";
 import { usePeriodicServices } from "@/hooks/useServices";
 import { getServiceStatus, getStatusInfo, formatDateBR } from "@/lib/services";
 import { useEmployees, useTrainingMatrix, useAllRecords } from "@/hooks/useTrainings";
@@ -13,189 +12,246 @@ import { getTypeInfo, getSeverityInfo, formatDateTimeBR } from "@/lib/occurrence
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { differenceInDays, format, parseISO } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { Skeleton } from "@/components/ui/skeleton";
+import { usePageTitle } from "@/hooks/usePageTitle";
+
+function DashboardCard({ icon: Icon, iconColor, title, items, link, linkLabel }: {
+  icon: any; iconColor: string; title: string; items: { label: string; value: number | string; color?: string }[]; link: string; linkLabel: string;
+}) {
+  return (
+    <div className="bg-card border rounded-lg p-5 flex flex-col">
+      <div className="flex items-center gap-2 mb-4">
+        <Icon className={`h-5 w-5 ${iconColor}`} />
+        <h3 className="font-semibold text-sm">{title}</h3>
+      </div>
+      <div className="flex flex-wrap gap-x-4 gap-y-1 flex-1">
+        {items.map((item) => (
+          <div key={item.label} className="text-center min-w-[60px]">
+            <p className={`text-xl font-bold tabular-nums ${item.color || ""}`}>{item.value}</p>
+            <p className="text-[10px] text-muted-foreground leading-tight">{item.label}</p>
+          </div>
+        ))}
+      </div>
+      <Link to={link} className="flex items-center gap-1 text-xs text-primary hover:underline mt-4 pt-3 border-t">
+        {linkLabel} <ArrowRight className="h-3 w-3" />
+      </Link>
+    </div>
+  );
+}
 
 export default function Dashboard() {
-  const { profile } = useAuth();
-  const { data: services = [] } = usePeriodicServices();
-  const { data: employees = [] } = useEmployees();
+  usePageTitle("Dashboard — Evita HSE");
+  const { profile, company } = useAuth();
+  const { data: services = [], isLoading: loadingServices } = usePeriodicServices();
+  const { data: employees = [], isLoading: loadingEmployees } = useEmployees();
   const { data: matrix = [] } = useTrainingMatrix();
   const { data: allRecords = [] } = useAllRecords();
-  const { data: mtrList = [] } = useMtrs();
-  const { data: supplierList = [] } = useSuppliers();
-  const { data: occurrenceList = [] } = useOccurrences();
+  const { data: mtrList = [], isLoading: loadingMtr } = useMtrs();
+  const { data: supplierList = [], isLoading: loadingSuppliers } = useSuppliers();
+  const { data: occurrenceList = [], isLoading: loadingOccurrences } = useOccurrences();
   const { data: allCorrectiveActions = [] } = useAllCorrectiveActions();
 
-  const activeSuppliers = supplierList.filter((s: any) => s.status === "active").length;
+  const isLoading = loadingServices || loadingEmployees || loadingMtr || loadingSuppliers || loadingOccurrences;
 
-  const urgentServices = useMemo(() => {
-    return services
-      .map((s: any) => ({ ...s, _status: getServiceStatus(s.next_due_at, s.alert_days_before), _statusInfo: getStatusInfo(s.next_due_at, s.alert_days_before) }))
-      .filter((s: any) => s._status === "expired" || s._status === "warning")
-      .sort((a: any, b: any) => a.next_due_at.localeCompare(b.next_due_at))
-      .slice(0, 5);
+  // Services stats
+  const serviceStats = useMemo(() => {
+    let ok = 0, warning = 0, expired = 0;
+    services.forEach((s: any) => {
+      const st = getServiceStatus(s.next_due_at, s.alert_days_before);
+      if (st === "expired") expired++;
+      else if (st === "warning") warning++;
+      else ok++;
+    });
+    return { ok, warning, expired };
   }, [services]);
 
+  // Training stats
   const trainingStats = useMemo(() => {
     const activeEmps = employees.filter((e: any) => e.status === "active");
-    let totalObligations = 0;
-    let fulfilledObligations = 0;
-    let pendingEmployees = 0;
-
+    let totalObl = 0, fulfilled = 0, pendingEmps = 0, warningCount = 0;
     for (const emp of activeEmps) {
       const requiredIds = matrix.filter((m: any) => m.job_position_id === emp.job_position_id).map((m: any) => m.training_id);
-      const empRecords = allRecords.filter((r: any) => r.employee_id === emp.id).map((r: any) => ({ training_id: r.training_id, expires_at: r.expires_at }));
+      const empRecords = allRecords.filter((r: any) => r.employee_id === emp.id);
       const c = computeEmployeeCompliance(requiredIds, empRecords);
-      totalObligations += c.required;
-      fulfilledObligations += c.fulfilled;
-      if (c.pending > 0) pendingEmployees++;
+      totalObl += c.required;
+      fulfilled += c.fulfilled;
+      if (c.pending > 0) pendingEmps++;
     }
-
-    const conformity = totalObligations > 0 ? Math.round((fulfilledObligations / totalObligations) * 100) : 100;
-    return { conformity, pendingEmployees, hasData: activeEmps.length > 0 };
+    // count warnings
+    allRecords.forEach((r: any) => {
+      const st = getRecordStatus(r.expires_at, r.trainings?.alert_days_before ?? 30);
+      if (st === "warning") warningCount++;
+    });
+    const conformity = totalObl > 0 ? Math.round((fulfilled / totalObl) * 100) : 100;
+    return { conformity, pendingEmps, warningCount };
   }, [employees, matrix, allRecords]);
 
+  // MTR stats
+  const mtrStats = useMemo(() => {
+    let pending = 0, warning = 0, overdue = 0;
+    mtrList.forEach((m: any) => {
+      const st = getCdfDisplayStatus(m.cdf_status, m.alert_at, m.cdf_deadline_at);
+      if (st === "overdue") overdue++;
+      else if (st === "warning") warning++;
+      else if (st === "pending") pending++;
+    });
+    return { pending: pending + warning, warning, overdue };
+  }, [mtrList]);
+
+  // Supplier stats
+  const activeSuppliers = supplierList.filter((s: any) => s.status === "active").length;
+
+  // Occurrence stats
+  const openOccs = occurrenceList.filter((o: any) => o.status === "open" || o.status === "in_progress").length;
+  const pendingActions = allCorrectiveActions.filter((a: any) => a.status !== "completed").length;
+
+  // Plan info
+  const planLabel = company?.plan === "trial" ? "Trial" : company?.plan === "basic" ? "Basic" : company?.plan === "pro" ? "Pro" : company?.plan ?? "—";
+  const trialDaysLeft = company?.trial_ends_at ? Math.max(0, differenceInDays(parseISO(company.trial_ends_at), new Date())) : null;
+
+  // Urgent items
+  const urgentItems = useMemo(() => {
+    const items: { icon: any; iconColor: string; text: string; badge: string; badgeColor: string; link: string; priority: number }[] = [];
+
+    // Expired services
+    services.forEach((s: any) => {
+      const st = getServiceStatus(s.next_due_at, s.alert_days_before);
+      if (st === "expired") items.push({ icon: ClipboardList, iconColor: "text-destructive", text: s.name, badge: "Vencido", badgeColor: "bg-destructive/10 text-destructive", link: "/servicos", priority: 0 });
+    });
+    // MTR overdue
+    mtrList.forEach((m: any) => {
+      const st = getCdfDisplayStatus(m.cdf_status, m.alert_at, m.cdf_deadline_at);
+      if (st === "overdue") items.push({ icon: Recycle, iconColor: "text-destructive", text: `MTR ${m.mtr_number}`, badge: "CDF vencido", badgeColor: "bg-destructive/10 text-destructive", link: "/mtr", priority: 1 });
+    });
+    // Critical occurrences
+    occurrenceList.forEach((o: any) => {
+      if ((o.status === "open" || o.status === "in_progress") && o.severity === "critical") {
+        items.push({ icon: ShieldAlert, iconColor: "text-destructive", text: o.location, badge: "Crítica", badgeColor: "bg-destructive/10 text-destructive", link: "/incidentes", priority: 2 });
+      }
+    });
+    // MTR warning
+    mtrList.forEach((m: any) => {
+      const st = getCdfDisplayStatus(m.cdf_status, m.alert_at, m.cdf_deadline_at);
+      if (st === "warning") items.push({ icon: Recycle, iconColor: "text-yellow-600", text: `MTR ${m.mtr_number}`, badge: "CDF em alerta", badgeColor: "bg-yellow-100 text-yellow-700", link: "/mtr", priority: 4 });
+    });
+    // Warning services
+    services.forEach((s: any) => {
+      const st = getServiceStatus(s.next_due_at, s.alert_days_before);
+      if (st === "warning") items.push({ icon: ClipboardList, iconColor: "text-yellow-600", text: s.name, badge: "Vencendo", badgeColor: "bg-yellow-100 text-yellow-700", link: "/servicos", priority: 5 });
+    });
+
+    return items.sort((a, b) => a.priority - b.priority).slice(0, 8);
+  }, [services, mtrList, occurrenceList]);
+
+  const today = format(new Date(), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR });
+  const todayCapitalized = today.charAt(0).toUpperCase() + today.slice(1);
+
+  if (isLoading) {
+    return (
+      <div className="max-w-5xl mx-auto space-y-6">
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-6 w-48" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-44 rounded-lg" />)}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-5xl mx-auto space-y-8 animate-fade-up">
+    <div className="max-w-5xl mx-auto space-y-6 animate-fade-up">
+      {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Olá, {profile?.full_name?.split(" ")[0]}</h1>
-        <p className="text-muted-foreground mt-1">Bem-vindo ao painel de gestão de HSE.</p>
+        <h1 className="text-2xl font-bold">Olá, {profile?.full_name?.split(" ")[0]} 👋</h1>
+        <p className="text-muted-foreground text-sm mt-0.5">Aqui está o resumo da sua gestão hoje.</p>
+        <p className="text-xs text-muted-foreground mt-0.5">{todayCapitalized}</p>
       </div>
 
-      {/* Attention section */}
-      <div className="bg-card border rounded-lg p-6">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">Atenção necessária</h2>
-        {urgentServices.length === 0 ? (
-          <div className="flex items-center gap-3 text-sm text-green-600"><CheckCircle2 className="h-5 w-5" /><span>Todos os serviços estão em dia</span></div>
-        ) : (
+      {/* Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <DashboardCard
+          icon={ClipboardList} iconColor="text-primary" title="Serviços Periódicos"
+          items={[
+            { label: "Em dia", value: serviceStats.ok, color: "text-green-600" },
+            { label: "Vencendo", value: serviceStats.warning, color: "text-yellow-600" },
+            { label: "Vencidos", value: serviceStats.expired, color: "text-destructive" },
+          ]}
+          link="/servicos" linkLabel="Ver todos"
+        />
+        <DashboardCard
+          icon={GraduationCap} iconColor="text-primary" title="Treinamentos"
+          items={[
+            { label: "Conformidade", value: `${trainingStats.conformity}%` },
+            { label: "Com pendências", value: trainingStats.pendingEmps, color: trainingStats.pendingEmps > 0 ? "text-destructive" : "" },
+            { label: "Vencendo", value: trainingStats.warningCount, color: trainingStats.warningCount > 0 ? "text-yellow-600" : "" },
+          ]}
+          link="/treinamentos" linkLabel="Ver detalhes"
+        />
+        <DashboardCard
+          icon={Recycle} iconColor="text-primary" title="MTR"
+          items={[
+            { label: "CDFs pendentes", value: mtrStats.pending },
+            { label: "Em alerta", value: mtrStats.warning, color: mtrStats.warning > 0 ? "text-yellow-600" : "" },
+            { label: "Vencidos", value: mtrStats.overdue, color: mtrStats.overdue > 0 ? "text-destructive" : "" },
+          ]}
+          link="/mtr" linkLabel="Ver todos"
+        />
+        <DashboardCard
+          icon={Truck} iconColor="text-primary" title="Fornecedores"
+          items={[
+            { label: "Ativos", value: activeSuppliers },
+          ]}
+          link="/fornecedores" linkLabel="Gerenciar"
+        />
+        <DashboardCard
+          icon={ShieldAlert} iconColor="text-destructive" title="Incidentes"
+          items={[
+            { label: "Abertas", value: openOccs, color: openOccs > 0 ? "text-destructive" : "" },
+            { label: "Ações pendentes", value: pendingActions, color: pendingActions > 0 ? "text-yellow-600" : "" },
+          ]}
+          link="/incidentes" linkLabel="Ver ocorrências"
+        />
+        <div className="bg-card border rounded-lg p-5 flex flex-col">
+          <div className="flex items-center gap-2 mb-4">
+            <CreditCard className="h-5 w-5 text-primary" />
+            <h3 className="font-semibold text-sm">Seu plano</h3>
+          </div>
+          <div className="flex-1 space-y-2">
+            <Badge variant="outline" className="text-xs">{planLabel}</Badge>
+            {company?.plan === "trial" && trialDaysLeft !== null && (
+              <p className="text-sm">{trialDaysLeft} dias restantes</p>
+            )}
+          </div>
+          <Link to="/planos" className="flex items-center gap-1 text-xs text-primary hover:underline mt-4 pt-3 border-t">
+            Conhecer planos <ArrowRight className="h-3 w-3" />
+          </Link>
+        </div>
+      </div>
+
+      {/* Urgent section */}
+      {urgentItems.length > 0 ? (
+        <div className="bg-card border rounded-lg p-6">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">Requer atenção</h2>
           <div className="space-y-2">
-            {urgentServices.map((s: any) => (
-              <Link key={s.id} to="/servicos" className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-muted/50 transition-colors">
-                {s._status === "expired" ? <XCircle className="h-4 w-4 text-red-500 flex-shrink-0" /> : <AlertTriangle className="h-4 w-4 text-yellow-500 flex-shrink-0" />}
-                <span className="flex-1 text-sm font-medium">{s.name}</span>
-                <Badge variant="outline" className={s._statusInfo.color + " text-xs"}>{s._statusInfo.label}</Badge>
-                <span className="text-xs text-muted-foreground tabular-nums">{formatDateBR(s.next_due_at)}</span>
+            {urgentItems.map((item, idx) => (
+              <Link key={idx} to={item.link} className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-muted/50 transition-colors">
+                <item.icon className={`h-4 w-4 flex-shrink-0 ${item.iconColor}`} />
+                <span className="flex-1 text-sm font-medium truncate">{item.text}</span>
+                <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${item.badgeColor}`}>{item.badge}</span>
               </Link>
             ))}
-            <Link to="/servicos" className="flex items-center gap-1 text-sm text-primary hover:underline mt-2 pl-3">Ver todos <ArrowRight className="h-3.5 w-3.5" /></Link>
           </div>
-        )}
-      </div>
-
-      {/* Training conformity card */}
-      {trainingStats.hasData && (
+        </div>
+      ) : (
         <div className="bg-card border rounded-lg p-6">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">Conformidade de Treinamentos</h2>
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-3">
-              <TrendingUp className="h-8 w-8 text-primary" />
-              <div>
-                <p className="text-3xl font-bold tabular-nums">{trainingStats.conformity}%</p>
-                <p className="text-xs text-muted-foreground">Conformidade geral</p>
-              </div>
-            </div>
-            {trainingStats.pendingEmployees > 0 && (
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-yellow-500" />
-                <span className="text-sm">{trainingStats.pendingEmployees} colaborador{trainingStats.pendingEmployees > 1 ? "es" : ""} com pendências</span>
-              </div>
-            )}
-            <Link to="/treinamentos" className="ml-auto text-sm text-primary hover:underline flex items-center gap-1">Ver detalhes <ArrowRight className="h-3.5 w-3.5" /></Link>
+          <div className="flex items-center gap-3 text-sm text-green-600">
+            <CheckCircle2 className="h-5 w-5" />
+            <span>✅ Tudo em ordem! Nenhuma pendência crítica no momento.</span>
           </div>
         </div>
       )}
-
-      {/* MTR alerts card */}
-      {(() => {
-        const urgentMtrs = mtrList
-          .map((m: any) => ({ ...m, _st: getCdfDisplayStatus(m.cdf_status, m.alert_at, m.cdf_deadline_at) }))
-          .filter((m: any) => m._st === "warning" || m._st === "overdue")
-          .sort((a: any, b: any) => a.cdf_deadline_at.localeCompare(b.cdf_deadline_at))
-          .slice(0, 3);
-        if (urgentMtrs.length === 0) return null;
-        return (
-          <div className="bg-card border rounded-lg p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">MTRs com CDF Pendente</h2>
-            <div className="space-y-2">
-              {urgentMtrs.map((m: any) => (
-                <Link key={m.id} to="/mtr" className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-muted/50 transition-colors">
-                  {m._st === "overdue" ? <XCircle className="h-4 w-4 text-destructive flex-shrink-0" /> : <AlertTriangle className="h-4 w-4 text-yellow-500 flex-shrink-0" />}
-                  <span className="flex-1 text-sm font-medium">MTR {m.mtr_number}</span>
-                  <span className="text-xs text-muted-foreground">{formatDateMtr(m.cdf_deadline_at)}</span>
-                  <span className={`text-xs font-medium ${m._st === "overdue" ? "text-destructive" : "text-yellow-600"}`}>{getDaysRemainingLabel(m.cdf_status, m.cdf_deadline_at)}</span>
-                </Link>
-              ))}
-              <Link to="/mtr" className="flex items-center gap-1 text-sm text-primary hover:underline mt-2 pl-3">Ver todos <ArrowRight className="h-3.5 w-3.5" /></Link>
-            </div>
-          </div>
-        );
-      })()}
-
-      {/* Suppliers card */}
-      {activeSuppliers > 0 && (
-        <div className="bg-card border rounded-lg p-6">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">Fornecedores</h2>
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-3">
-              <Users className="h-8 w-8 text-primary" />
-              <div>
-                <p className="text-3xl font-bold tabular-nums">{activeSuppliers}</p>
-                <p className="text-xs text-muted-foreground">Fornecedores ativos</p>
-              </div>
-            </div>
-            <Link to="/fornecedores" className="ml-auto text-sm text-primary hover:underline flex items-center gap-1">Gerenciar fornecedores <ArrowRight className="h-3.5 w-3.5" /></Link>
-          </div>
-        </div>
-      )}
-
-      {/* Occurrences card */}
-      {(() => {
-        const openOccs = occurrenceList.filter((o: any) => o.status === "open" || o.status === "in_progress");
-        const pendingActions = allCorrectiveActions.filter((a: any) => a.status !== "completed").length;
-        if (openOccs.length === 0 && pendingActions === 0) return null;
-        const urgent = openOccs
-          .sort((a: any, b: any) => {
-            const sevOrder: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
-            return (sevOrder[a.severity] ?? 4) - (sevOrder[b.severity] ?? 4);
-          })
-          .slice(0, 3);
-        return (
-          <div className="bg-card border rounded-lg p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">Ocorrências Abertas</h2>
-            <div className="flex items-center gap-6 mb-4">
-              <div className="flex items-center gap-3">
-                <ShieldAlert className="h-8 w-8 text-destructive" />
-                <div>
-                  <p className="text-3xl font-bold tabular-nums">{openOccs.length}</p>
-                  <p className="text-xs text-muted-foreground">ocorrências abertas</p>
-                </div>
-              </div>
-              {pendingActions > 0 && (
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-yellow-500" />
-                  <span className="text-sm">{pendingActions} ações pendentes</span>
-                </div>
-              )}
-            </div>
-            {urgent.length > 0 && (
-              <div className="space-y-2">
-                {urgent.map((o: any) => {
-                  const ti = getTypeInfo(o.type);
-                  const si = getSeverityInfo(o.severity);
-                  return (
-                    <Link key={o.id} to="/incidentes" className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-muted/50 transition-colors">
-                      <Badge className={ti.color + " text-[10px]"}>{ti.label}</Badge>
-                      <span className="flex-1 text-sm truncate">{o.location}</span>
-                      <Badge className={si.color + " text-[10px]"}>{si.label}</Badge>
-                      <span className="text-xs text-muted-foreground tabular-nums">{formatDateTimeBR(o.occurred_at)}</span>
-                    </Link>
-                  );
-                })}
-                <Link to="/incidentes" className="flex items-center gap-1 text-sm text-primary hover:underline mt-2 pl-3">Ver todas <ArrowRight className="h-3.5 w-3.5" /></Link>
-              </div>
-            )}
-          </div>
-        );
-      })()}
     </div>
   );
 }

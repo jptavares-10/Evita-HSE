@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const plans = [
   {
@@ -36,6 +37,7 @@ const plans = [
 ];
 
 export default function Planos() {
+  usePageTitle("Planos — Evita HSE");
   const { company } = useAuth();
 
   return (

@@ -246,6 +246,136 @@ export type Database = {
           },
         ]
       }
+      mtr_waste_items: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          mtr_id: string
+          quantity_tons: number | null
+          waste_category_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          mtr_id: string
+          quantity_tons?: number | null
+          waste_category_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          mtr_id?: string
+          quantity_tons?: number | null
+          waste_category_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mtr_waste_items_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mtr_waste_items_mtr_id_fkey"
+            columns: ["mtr_id"]
+            isOneToOne: false
+            referencedRelation: "mtrs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mtr_waste_items_waste_category_id_fkey"
+            columns: ["waste_category_id"]
+            isOneToOne: false
+            referencedRelation: "waste_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mtrs: {
+        Row: {
+          alert_at: string
+          cdf_deadline_at: string
+          cdf_file_name: string | null
+          cdf_file_url: string | null
+          cdf_notes: string | null
+          cdf_number: string | null
+          cdf_received_at: string | null
+          cdf_status: string
+          company_id: string
+          created_at: string
+          id: string
+          issued_at: string
+          mtr_file_name: string | null
+          mtr_file_url: string | null
+          mtr_number: string
+          notes: string | null
+          registered_by: string | null
+          transporter: string | null
+          updated_at: string
+        }
+        Insert: {
+          alert_at: string
+          cdf_deadline_at: string
+          cdf_file_name?: string | null
+          cdf_file_url?: string | null
+          cdf_notes?: string | null
+          cdf_number?: string | null
+          cdf_received_at?: string | null
+          cdf_status?: string
+          company_id: string
+          created_at?: string
+          id?: string
+          issued_at: string
+          mtr_file_name?: string | null
+          mtr_file_url?: string | null
+          mtr_number: string
+          notes?: string | null
+          registered_by?: string | null
+          transporter?: string | null
+          updated_at?: string
+        }
+        Update: {
+          alert_at?: string
+          cdf_deadline_at?: string
+          cdf_file_name?: string | null
+          cdf_file_url?: string | null
+          cdf_notes?: string | null
+          cdf_number?: string | null
+          cdf_received_at?: string | null
+          cdf_status?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          issued_at?: string
+          mtr_file_name?: string | null
+          mtr_file_url?: string | null
+          mtr_number?: string
+          notes?: string | null
+          registered_by?: string | null
+          transporter?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mtrs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mtrs_registered_by_fkey"
+            columns: ["registered_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       periodic_services: {
         Row: {
           alert_days_before: number
@@ -588,6 +718,38 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "trainings_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      waste_categories: {
+        Row: {
+          color: string
+          company_id: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          color?: string
+          company_id: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          color?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waste_categories_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"

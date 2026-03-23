@@ -49,7 +49,6 @@ const trainingSubNav = [
 ];
 
 const moduleNav = [
-  { title: "Gestão de MTR", icon: Recycle, disabled: true },
   { title: "Fornecedores", icon: Truck, disabled: true },
 ];
 

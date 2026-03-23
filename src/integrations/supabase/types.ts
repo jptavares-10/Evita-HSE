@@ -14,13 +14,137 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      companies: {
+        Row: {
+          cnpj: string | null
+          created_at: string
+          id: string
+          logo_url: string | null
+          max_users: number
+          name: string
+          plan: string
+          segment: string | null
+          trial_ends_at: string | null
+          trial_started_at: string | null
+        }
+        Insert: {
+          cnpj?: string | null
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          max_users?: number
+          name: string
+          plan?: string
+          segment?: string | null
+          trial_ends_at?: string | null
+          trial_started_at?: string | null
+        }
+        Update: {
+          cnpj?: string | null
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          max_users?: number
+          name?: string
+          plan?: string
+          segment?: string | null
+          trial_ends_at?: string | null
+          trial_started_at?: string | null
+        }
+        Relationships: []
+      }
+      invitations: {
+        Row: {
+          company_id: string
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string
+          status: string
+          token: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by: string
+          status?: string
+          token?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          status?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitations_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invitations_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          company_id: string
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          role: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          company_id: string
+          created_at?: string
+          email: string
+          full_name: string
+          id: string
+          role?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          company_id?: string
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_company_id: { Args: never; Returns: string }
     }
     Enums: {
       [_ in never]: never

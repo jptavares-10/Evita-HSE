@@ -13,8 +13,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Plus, Search, Eye, Pencil, XCircle, Trash2, AlertTriangle } from "lucide-react";
 import { getTypeInfo, getSeverityInfo, getStatusInfo, formatDateTimeBR, OCCURRENCE_TYPES, SEVERITY_LEVELS, STATUS_OPTIONS } from "@/lib/occurrences";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function Incidentes() {
+  usePageTitle("Incidentes — Evita HSE");
   const { company } = useAuth();
   const planExpired = company?.plan === "expired";
   const { data: occurrences = [], isLoading } = useOccurrences();

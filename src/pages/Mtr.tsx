@@ -15,8 +15,10 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Eye, FileCheck, Pencil, Trash2, Recycle, Plus, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function Mtr() {
+  usePageTitle("Gestão de MTR — Evita HSE");
   const { company } = useAuth();
   const { data: mtrs = [], isLoading } = useMtrs();
   const isExpired = company?.plan === "expired";

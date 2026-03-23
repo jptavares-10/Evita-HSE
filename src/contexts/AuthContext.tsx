@@ -48,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .from("profiles")
       .select("*")
       .eq("id", userId)
-      .single();
+      .maybeSingle();
     return data as Profile | null;
   };
 
@@ -57,7 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .from("companies")
       .select("*")
       .eq("id", companyId)
-      .single();
+      .maybeSingle();
     return data as Company | null;
   };
 

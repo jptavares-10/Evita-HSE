@@ -18,6 +18,11 @@ import Empresa from "./pages/Empresa";
 import Planos from "./pages/Planos";
 import Perfil from "./pages/Perfil";
 import NotFound from "./pages/NotFound";
+import Treinamentos from "./pages/Treinamentos";
+import TreinamentosVisaoGeral from "./pages/TreinamentosVisaoGeral";
+import TreinamentosColaboradores from "./pages/TreinamentosColaboradores";
+import TreinamentosCatalogo from "./pages/TreinamentosCatalogo";
+import TreinamentosMatriz from "./pages/TreinamentosMatriz";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +50,12 @@ const App = () => (
               <Route path="/empresa" element={<Empresa />} />
               <Route path="/planos" element={<Planos />} />
               <Route path="/perfil" element={<Perfil />} />
+              <Route path="/treinamentos" element={<Treinamentos />}>
+                <Route index element={<TreinamentosVisaoGeral />} />
+                <Route path="colaboradores" element={<TreinamentosColaboradores />} />
+                <Route path="catalogo" element={<TreinamentosCatalogo />} />
+                <Route path="matriz" element={<TreinamentosMatriz />} />
+              </Route>
             </Route>
 
             <Route path="*" element={<NotFound />} />

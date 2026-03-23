@@ -19,6 +19,9 @@ export default function Dashboard() {
   const { data: matrix = [] } = useTrainingMatrix();
   const { data: allRecords = [] } = useAllRecords();
   const { data: mtrList = [] } = useMtrs();
+  const { data: supplierList = [] } = useSuppliers();
+
+  const activeSuppliers = supplierList.filter((s: any) => s.status === "active").length;
 
   const urgentServices = useMemo(() => {
     return services

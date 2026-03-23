@@ -641,6 +641,221 @@ export type Database = {
           },
         ]
       }
+      supplier_categories: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_categories_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      supplier_documents: {
+        Row: {
+          company_id: string
+          description: string
+          file_name: string
+          file_type: string
+          file_url: string
+          folder_id: string | null
+          id: string
+          reference_name: string | null
+          supplier_id: string
+          uploaded_at: string
+          uploaded_by_supplier: boolean
+        }
+        Insert: {
+          company_id: string
+          description: string
+          file_name: string
+          file_type?: string
+          file_url: string
+          folder_id?: string | null
+          id?: string
+          reference_name?: string | null
+          supplier_id: string
+          uploaded_at?: string
+          uploaded_by_supplier?: boolean
+        }
+        Update: {
+          company_id?: string
+          description?: string
+          file_name?: string
+          file_type?: string
+          file_url?: string
+          folder_id?: string | null
+          id?: string
+          reference_name?: string | null
+          supplier_id?: string
+          uploaded_at?: string
+          uploaded_by_supplier?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_documents_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_documents_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_documents_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      supplier_folders: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by_supplier: boolean
+          id: string
+          name: string
+          parent_folder_id: string | null
+          supplier_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by_supplier?: boolean
+          id?: string
+          name: string
+          parent_folder_id?: string | null
+          supplier_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by_supplier?: boolean
+          id?: string
+          name?: string
+          parent_folder_id?: string | null
+          supplier_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_folders_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_folders_parent_folder_id_fkey"
+            columns: ["parent_folder_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_folders_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      suppliers: {
+        Row: {
+          category_id: string | null
+          company_id: string
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          notes: string | null
+          portal_enabled: boolean
+          portal_token: string
+          status: string
+        }
+        Insert: {
+          category_id?: string | null
+          company_id: string
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          portal_enabled?: boolean
+          portal_token?: string
+          status?: string
+        }
+        Update: {
+          category_id?: string | null
+          company_id?: string
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          portal_enabled?: boolean
+          portal_token?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "suppliers_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "suppliers_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "suppliers_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       training_matrix: {
         Row: {
           company_id: string
@@ -772,10 +987,27 @@ export type Database = {
         }
         Returns: Json
       }
+      create_supplier_folder_portal: {
+        Args: { p_name: string; p_parent_folder_id?: string; p_token: string }
+        Returns: Json
+      }
+      get_supplier_portal_data: { Args: { p_token: string }; Returns: Json }
       get_user_company_id: { Args: never; Returns: string }
       seed_default_categories: {
         Args: { p_company_id: string }
         Returns: undefined
+      }
+      upload_supplier_document: {
+        Args: {
+          p_description?: string
+          p_file_name?: string
+          p_file_type?: string
+          p_file_url?: string
+          p_folder_id?: string
+          p_reference_name?: string
+          p_token: string
+        }
+        Returns: Json
       }
     }
     Enums: {

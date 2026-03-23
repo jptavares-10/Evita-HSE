@@ -33,11 +33,13 @@ import { useEmployees, useTrainingMatrix, useAllRecords } from "@/hooks/useTrain
 import { getRecordStatus } from "@/lib/trainings";
 import { useMtrs } from "@/hooks/useMTR";
 import { getCdfDisplayStatus } from "@/lib/mtr";
+import { useSuppliers } from "@/hooks/useSuppliers";
 
 const mainNav = [
   { title: "Dashboard", to: "/dashboard", icon: Home },
   { title: "Serviços Periódicos", to: "/servicos", icon: ClipboardList },
   { title: "Gestão de MTR", to: "/mtr", icon: Recycle },
+  { title: "Fornecedores", to: "/fornecedores", icon: Truck },
 ];
 
 const trainingSubNav = [
@@ -48,9 +50,7 @@ const trainingSubNav = [
   { title: "Matriz", to: "/treinamentos/matriz", icon: Grid3X3 },
 ];
 
-const moduleNav = [
-  { title: "Fornecedores", icon: Truck, disabled: true },
-];
+const moduleNav: { title: string; icon: any; disabled: boolean }[] = [];
 
 const settingsNav = [
   { title: "Minha Empresa", to: "/empresa", icon: Building2 },
@@ -99,6 +99,10 @@ export function AppSidebar() {
     const st = getCdfDisplayStatus(m.cdf_status, m.alert_at, m.cdf_deadline_at);
     return st === "warning" || st === "overdue";
   }).length;
+
+  // Supplier alerts (active suppliers with no documents — we use a simple heuristic)
+  const { data: supplierList = [] } = useSuppliers();
+  const supplierAlertCount = 0; // Badge not critical, can be enhanced later
 
   const isTrainingsActive = location.pathname.startsWith("/treinamentos");
 
@@ -193,7 +197,8 @@ export function AppSidebar() {
           </div>
         </div>
 
-        {/* Modules */}
+        {/* Modules - hidden when empty */}
+        {moduleNav.length > 0 && (
         <div className="px-2">
           {!collapsed && <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-sidebar-muted">Módulos</p>}
           <div className="space-y-1">
@@ -215,6 +220,7 @@ export function AppSidebar() {
             ))}
           </div>
         </div>
+        )}
 
         {/* Settings */}
         <div className="px-2">

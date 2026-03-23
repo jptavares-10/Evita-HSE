@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { ClipboardList, GraduationCap, Truck, Lock, AlertTriangle, CheckCircle2, XCircle, ArrowRight, TrendingUp, Recycle } from "lucide-react";
+import { ClipboardList, GraduationCap, Truck, AlertTriangle, CheckCircle2, XCircle, ArrowRight, TrendingUp, Recycle, Users } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { usePeriodicServices } from "@/hooks/useServices";
 import { getServiceStatus, getStatusInfo, formatDateBR } from "@/lib/services";
@@ -7,13 +7,10 @@ import { useEmployees, useTrainingMatrix, useAllRecords } from "@/hooks/useTrain
 import { computeEmployeeCompliance, getRecordStatus } from "@/lib/trainings";
 import { useMtrs } from "@/hooks/useMTR";
 import { getCdfDisplayStatus, getDaysRemainingLabel, formatDateBR as formatDateMtr } from "@/lib/mtr";
+import { useSuppliers } from "@/hooks/useSuppliers";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
-
-const modules = [
-  { title: "Fornecedores", description: "Gestão e avaliação de fornecedores", icon: Truck },
-];
 
 export default function Dashboard() {
   const { profile } = useAuth();
@@ -22,6 +19,9 @@ export default function Dashboard() {
   const { data: matrix = [] } = useTrainingMatrix();
   const { data: allRecords = [] } = useAllRecords();
   const { data: mtrList = [] } = useMtrs();
+  const { data: supplierList = [] } = useSuppliers();
+
+  const activeSuppliers = supplierList.filter((s: any) => s.status === "active").length;
 
   const urgentServices = useMemo(() => {
     return services
@@ -126,25 +126,22 @@ export default function Dashboard() {
         );
       })()}
 
-      <div>
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">Módulos</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {modules.map((mod) => (
-            <Tooltip key={mod.title}>
-              <TooltipTrigger asChild>
-                <div className="relative bg-card border rounded-lg p-6 opacity-50 cursor-not-allowed select-none">
-                  <div className="absolute top-3 right-3"><Lock className="h-3.5 w-3.5 text-muted-foreground" /></div>
-                  <mod.icon className="h-8 w-8 text-muted-foreground mb-3" />
-                  <h3 className="font-semibold text-foreground mb-1">{mod.title}</h3>
-                  <p className="text-xs text-muted-foreground">{mod.description}</p>
-                  <span className="inline-block mt-3 text-[10px] font-medium uppercase tracking-wider bg-muted text-muted-foreground px-2 py-1 rounded">Em breve</span>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>Em breve</TooltipContent>
-            </Tooltip>
-          ))}
+      {/* Suppliers card */}
+      {activeSuppliers > 0 && (
+        <div className="bg-card border rounded-lg p-6">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">Fornecedores</h2>
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3">
+              <Users className="h-8 w-8 text-primary" />
+              <div>
+                <p className="text-3xl font-bold tabular-nums">{activeSuppliers}</p>
+                <p className="text-xs text-muted-foreground">Fornecedores ativos</p>
+              </div>
+            </div>
+            <Link to="/fornecedores" className="ml-auto text-sm text-primary hover:underline flex items-center gap-1">Gerenciar fornecedores <ArrowRight className="h-3.5 w-3.5" /></Link>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

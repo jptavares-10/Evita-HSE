@@ -27,6 +27,9 @@ import TreinamentosMatriz from "./pages/TreinamentosMatriz";
 import TreinamentosCargos from "./pages/TreinamentosCargos";
 import Mtr from "./pages/Mtr";
 import MtrAnalise from "./pages/MtrAnalise";
+import Fornecedores from "./pages/Fornecedores";
+import FornecedorDocumentos from "./pages/FornecedorDocumentos";
+import PortalFornecedor from "./pages/PortalFornecedor";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +45,7 @@ const App = () => (
             <Route path="/cadastro" element={<PublicRoute><Cadastro /></PublicRoute>} />
             <Route path="/convite" element={<Convite />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/portal/fornecedor/:token" element={<PortalFornecedor />} />
             <Route path="/completar-cadastro" element={<CompletarCadastro />} />
 
             {/* Redirect root to dashboard */}
@@ -64,6 +68,8 @@ const App = () => (
               </Route>
               <Route path="/mtr" element={<Mtr />} />
               <Route path="/mtr/analise" element={<MtrAnalise />} />
+              <Route path="/fornecedores" element={<Fornecedores />} />
+              <Route path="/fornecedores/:id" element={<FornecedorDocumentos />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />

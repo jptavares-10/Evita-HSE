@@ -83,7 +83,7 @@ export function useSaveMtr() {
         delete payload.mtr_number;
         payload.mtr_file_url = mtr_file_url;
         payload.mtr_file_name = mtr_file_name;
-        const { error } = await supabase.from("mtrs").update(payload).eq("id", values.id);
+        const { error } = await supabase.from("mtrs").update(payload as any).eq("id", values.id);
         if (error) throw error;
         mtrId = values.id;
 

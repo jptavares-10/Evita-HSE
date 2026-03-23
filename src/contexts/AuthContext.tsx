@@ -77,18 +77,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    const loadUserData = async (userId: string) => {
+      try {
+        const p = await fetchProfile(userId);
+        setProfile(p);
+        if (p?.company_id) {
+          const c = await fetchCompany(p.company_id);
+          setCompany(c);
+        }
+      } catch (err) {
+        console.error("Error loading user data:", err);
+        setProfile(null);
+        setCompany(null);
+      }
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
 
         if (session?.user) {
-          const p = await fetchProfile(session.user.id);
-          setProfile(p);
-          if (p?.company_id) {
-            const c = await fetchCompany(p.company_id);
-            setCompany(c);
-          }
+          await loadUserData(session.user.id);
         } else {
           setProfile(null);
           setCompany(null);
@@ -102,13 +112,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(session?.user ?? null);
 
       if (session?.user) {
-        const p = await fetchProfile(session.user.id);
-        setProfile(p);
-        if (p?.company_id) {
-          const c = await fetchCompany(p.company_id);
-          setCompany(c);
-        }
+        await loadUserData(session.user.id);
       }
+      setLoading(false);
+    }).catch((err) => {
+      console.error("Error getting session:", err);
       setLoading(false);
     });
 

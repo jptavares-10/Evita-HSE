@@ -92,7 +92,7 @@ export function useSaveMtr() {
       } else {
         payload.mtr_file_url = mtr_file_url;
         payload.mtr_file_name = mtr_file_name;
-        const { data, error } = await supabase.from("mtrs").insert(payload).select("id").single();
+        const { data, error } = await supabase.from("mtrs").insert(payload as any).select("id").single();
         if (error) throw error;
         mtrId = data.id;
       }

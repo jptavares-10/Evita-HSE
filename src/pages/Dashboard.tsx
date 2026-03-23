@@ -146,6 +146,56 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* Occurrences card */}
+      {(() => {
+        const openOccs = occurrenceList.filter((o: any) => o.status === "open" || o.status === "in_progress");
+        const pendingActions = allCorrectiveActions.filter((a: any) => a.status !== "completed").length;
+        if (openOccs.length === 0 && pendingActions === 0) return null;
+        const urgent = openOccs
+          .sort((a: any, b: any) => {
+            const sevOrder: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
+            return (sevOrder[a.severity] ?? 4) - (sevOrder[b.severity] ?? 4);
+          })
+          .slice(0, 3);
+        return (
+          <div className="bg-card border rounded-lg p-6">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">Ocorrências Abertas</h2>
+            <div className="flex items-center gap-6 mb-4">
+              <div className="flex items-center gap-3">
+                <ShieldAlert className="h-8 w-8 text-destructive" />
+                <div>
+                  <p className="text-3xl font-bold tabular-nums">{openOccs.length}</p>
+                  <p className="text-xs text-muted-foreground">ocorrências abertas</p>
+                </div>
+              </div>
+              {pendingActions > 0 && (
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                  <span className="text-sm">{pendingActions} ações pendentes</span>
+                </div>
+              )}
+            </div>
+            {urgent.length > 0 && (
+              <div className="space-y-2">
+                {urgent.map((o: any) => {
+                  const ti = getTypeInfo(o.type);
+                  const si = getSeverityInfo(o.severity);
+                  return (
+                    <Link key={o.id} to="/incidentes" className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-muted/50 transition-colors">
+                      <Badge className={ti.color + " text-[10px]"}>{ti.label}</Badge>
+                      <span className="flex-1 text-sm truncate">{o.location}</span>
+                      <Badge className={si.color + " text-[10px]"}>{si.label}</Badge>
+                      <span className="text-xs text-muted-foreground tabular-nums">{formatDateTimeBR(o.occurred_at)}</span>
+                    </Link>
+                  );
+                })}
+                <Link to="/incidentes" className="flex items-center gap-1 text-sm text-primary hover:underline mt-2 pl-3">Ver todas <ArrowRight className="h-3.5 w-3.5" /></Link>
+              </div>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 }

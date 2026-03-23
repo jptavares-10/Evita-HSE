@@ -159,6 +159,12 @@ export function AppSidebar() {
               {collapsed && item.to === "/mtr" && mtrAlertCount > 0 && (
                 <span className="absolute top-0 right-0 bg-destructive rounded-full h-2.5 w-2.5" />
               )}
+              {!collapsed && item.to === "/incidentes" && incidentAlertCount > 0 && (
+                <span className="bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full h-5 min-w-[20px] flex items-center justify-center px-1">{incidentAlertCount}</span>
+              )}
+              {collapsed && item.to === "/incidentes" && incidentAlertCount > 0 && (
+                <span className="absolute top-0 right-0 bg-destructive rounded-full h-2.5 w-2.5" />
+              )}
             </NavLink>
           ))}
 

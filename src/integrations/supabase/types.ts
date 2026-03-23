@@ -101,6 +101,82 @@ export type Database = {
           },
         ]
       }
+      periodic_services: {
+        Row: {
+          alert_days_before: number
+          category_id: string | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          frequency_days: number | null
+          frequency_preset: string | null
+          frequency_type: string
+          id: string
+          last_done_at: string
+          name: string
+          next_due_at: string
+          notes: string | null
+          supplier: string | null
+          updated_at: string
+        }
+        Insert: {
+          alert_days_before?: number
+          category_id?: string | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          frequency_days?: number | null
+          frequency_preset?: string | null
+          frequency_type?: string
+          id?: string
+          last_done_at: string
+          name: string
+          next_due_at: string
+          notes?: string | null
+          supplier?: string | null
+          updated_at?: string
+        }
+        Update: {
+          alert_days_before?: number
+          category_id?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          frequency_days?: number | null
+          frequency_preset?: string | null
+          frequency_type?: string
+          id?: string
+          last_done_at?: string
+          name?: string
+          next_due_at?: string
+          notes?: string | null
+          supplier?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "periodic_services_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "service_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "periodic_services_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "periodic_services_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -139,12 +215,158 @@ export type Database = {
           },
         ]
       }
+      service_attachments: {
+        Row: {
+          company_id: string
+          file_name: string
+          file_type: string
+          file_url: string
+          id: string
+          service_id: string
+          uploaded_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          company_id: string
+          file_name: string
+          file_type?: string
+          file_url: string
+          id?: string
+          service_id: string
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          company_id?: string
+          file_name?: string
+          file_type?: string
+          file_url?: string
+          id?: string
+          service_id?: string
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_attachments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_attachments_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "periodic_services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_attachments_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_categories: {
+        Row: {
+          color: string
+          company_id: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          color?: string
+          company_id: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          color?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_categories_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_history: {
+        Row: {
+          company_id: string
+          created_at: string
+          done_at: string
+          id: string
+          notes: string | null
+          registered_by: string | null
+          service_id: string
+          supplier: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          done_at: string
+          id?: string
+          notes?: string | null
+          registered_by?: string | null
+          service_id: string
+          supplier?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          done_at?: string
+          id?: string
+          notes?: string | null
+          registered_by?: string | null
+          service_id?: string
+          supplier?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_history_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_history_registered_by_fkey"
+            columns: ["registered_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_history_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "periodic_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
       get_user_company_id: { Args: never; Returns: string }
+      seed_default_categories: {
+        Args: { p_company_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

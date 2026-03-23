@@ -64,7 +64,7 @@ export function useSaveMtr() {
       let mtr_file_url = values.existing_mtr_file_url || null;
       let mtr_file_name = values.existing_mtr_file_name || null;
 
-      const payload: Record<string, unknown> = {
+      const payload: any = {
         company_id: company.id,
         mtr_number: values.mtr_number,
         issued_at: values.issued_at,

@@ -115,6 +115,7 @@ export function ServiceDrawer({ open, onOpenChange, editingService }: Props) {
 
     // Upload new files
     if (pendingFiles.length && company && profile) {
+      const refDate = format(lastDoneAt, "yyyy-MM-dd");
       for (const pf of pendingFiles) {
         const ext = pf.file.name.split(".").pop();
         const path = `${company.id}/${serviceId}/${crypto.randomUUID()}.${ext}`;
@@ -128,6 +129,7 @@ export function ServiceDrawer({ open, onOpenChange, editingService }: Props) {
             file_url: publicUrl,
             file_type: pf.type,
             uploaded_by: profile.id,
+            reference_date: refDate,
           });
         }
       }

@@ -159,7 +159,7 @@ export function OccurrenceDetailDrawer({ open, onOpenChange, occurrence, onEdit,
                   <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">Documentos</p>
                   <div className="space-y-1">
                     {documents.map((doc: any) => (
-                      <a key={doc.id} href={doc.file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
+                      <a key={doc.id} href={signedMap[doc.file_url] || "#"} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
                         <FileText className="h-3.5 w-3.5" />{doc.file_name}
                       </a>
                     ))}

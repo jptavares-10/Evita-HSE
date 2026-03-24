@@ -1,113 +1,96 @@
 
 
-# Módulo de Treinamentos — Plano de Implementação
+# Melhorias na Sidebar, Serviços Periódicos e IC & NC
 
 ## Resumo
 
-Construir o módulo completo de Treinamentos com 5 novas tabelas, storage bucket, sidebar expandível com sub-itens, 4 telas principais (Visão Geral, Colaboradores, Catálogo, Matriz), e integração com dashboard.
+Tres partes: (1) reorganizar sidebar em grupos colapsaveis HSE, (2) adicionar tipo de realizacao em servicos periodicos, (3) melhorar historico do drawer de detalhes com exportacao CSV.
 
 ---
 
 ## 1. Banco de Dados (1 migration)
 
-Criar migration com:
-
-- **trainings** (id, company_id, name, description, validity_months, alert_days_before, created_at) + RLS por company_id
-- **job_positions** (id, company_id, name, created_at) + RLS por company_id
-- **training_matrix** (id, company_id, job_position_id FK, training_id FK, created_at, UNIQUE(company_id, job_position_id, training_id)) + RLS
-- **employees** (id, company_id, name, job_position_id FK, sector, status default 'active', created_at) + RLS
-- **employee_training_records** (id, company_id, employee_id FK, training_id FK, done_at, expires_at, certificate_url, certificate_name, notes, registered_by FK profiles, created_at) + RLS
-- **Storage bucket** `training-certificates` (public)
-- Storage RLS policies for the bucket
-
-All RLS policies use `get_user_company_id()` following existing pattern.
+Adicionar 2 colunas em `service_history`:
+- `realization_type` (text, default `'scheduled'`)
+- `failure_description` (text, nullable)
 
 ---
 
-## 2. Estrutura de Arquivos
+## 2. Sidebar — Reorganizacao Completa
+
+**Arquivo:** `src/components/AppSidebar.tsx` — reescrever a navegacao
+
+Estrutura de grupos colapsaveis:
 
 ```text
-src/pages/
-  Treinamentos.tsx                    — Layout com sub-rotas (tabs)
-  TreinamentosVisaoGeral.tsx          — KPIs + pendências
-  TreinamentosColaboradores.tsx       — Lista de colaboradores
-  TreinamentosCatalogo.tsx            — Lista de treinamentos
-  TreinamentosMatriz.tsx              — Grid interativo
+Dashboard (item direto, sem grupo)
 
-src/components/treinamentos/
-  TrainingKpiCards.tsx                 — 5 KPI cards
-  EmployeeDrawer.tsx                  — Drawer criar/editar colaborador
-  EmployeeDetailDrawer.tsx            — Ficha com abas (Treinamentos + Histórico)
-  RegisterCertificateModal.tsx        — Modal registrar certificado
-  TrainingDrawer.tsx                  — Drawer criar/editar treinamento
-  MatrixGrid.tsx                      — Grid checkbox da matriz
-  ImportEmployeesModal.tsx            — Modal importação CSV colaboradores
-  ImportMatrixModal.tsx               — Modal importação CSV matriz
-  TrainingEmptyStates.tsx             — Estados vazios
+SEGURANCA (vermelho, Shield icon)
+  → Servicos Periodicos [badge]
+  → IC & NC [badge]
 
-src/hooks/useTrainings.ts             — Hooks React Query (CRUD trainings, employees, matrix, records)
-src/lib/trainings.ts                  — Helpers de status, formatação, cálculos de conformidade
+SAUDE (amarelo, Heart/HeartPulse icon)
+  → Treinamentos [badge]
+    → sub-itens (Visao Geral, Colaboradores, etc.)
+
+MEIO AMBIENTE (verde, Leaf icon)
+  → Gestao de MTR [badge]
+  → Fornecedores [badge]
+
+CONFIGURACOES (secao fixa)
+  → Minha Empresa, Usuarios, Plano
+
+[Avatar + logout no rodape]
 ```
 
----
-
-## 3. Alterações em Arquivos Existentes
-
-- **App.tsx** — Adicionar rotas: `/treinamentos`, `/treinamentos/colaboradores`, `/treinamentos/catalogo`, `/treinamentos/matriz`
-- **AppSidebar.tsx** — Ativar "Treinamentos" com sub-itens expandíveis (Visão Geral, Colaboradores, Treinamentos, Matriz) + badge de alertas (expired + missing count)
-- **Dashboard.tsx** — Adicionar card "Conformidade de Treinamentos" com % conformidade, pendências e link para `/treinamentos`
-
----
-
-## 4. Funcionalidades por Tela
-
-### Visão Geral (/treinamentos)
-- 5 KPI cards: total colaboradores ativos, 100% em dia, com pendências, vencendo em breve, % conformidade
-- Tabela "Treinamentos com mais pendências" (nome, total missing+expired, breakdown por cargo)
-- Tabela "Cargos com mais pendências" (cargo, total, em dia, pendentes, % conformidade)
-- Lista "Alertas — Vencendo em breve" (status warning, ordenada por expires_at)
-- Filtros: setor, cargo, treinamento
-
-### Colaboradores (/treinamentos/colaboradores)
-- Tabela com busca, filtros (cargo, setor, status, conformidade)
-- Drawer criar/editar colaborador (nome, cargo, setor, status)
-- Importação CSV com auto-criação de cargos
-- Ficha do colaborador (drawer com 2 abas):
-  - Aba Treinamentos: obrigatórios da matriz + extras, com status individual e botão registrar certificado
-  - Aba Histórico: timeline de certificados
-- Modal registrar certificado: data realização, data vencimento (auto-calculada, editável), upload, notas
-
-### Catálogo (/treinamentos/catalogo)
-- Tabela de treinamentos com busca
-- Drawer criar/editar (nome, descrição, validade meses, alerta dias)
-- Bloqueio de exclusão se houver registros ou vínculo na matriz
-
-### Matriz (/treinamentos/matriz)
-- Grid: linhas = cargos, colunas = treinamentos, checkboxes
-- Salvamento em tempo real (INSERT/DELETE em training_matrix)
-- Importação CSV com criação automática de cargos
-- Estado vazio com instrução
+Comportamento:
+- Estado de cada grupo (aberto/fechado) salvo em `localStorage` key `evita-sidebar-groups`
+- Default: todos abertos
+- Badge no cabecalho do grupo = soma dos badges dos subitens
+- Treinamentos mantem sub-navegacao expansivel dentro do grupo SAUDE
+- Sidebar colapsavel (mini-mode) mantem funcionamento atual
 
 ---
 
-## 5. Lógica de Status (src/lib/trainings.ts)
+## 3. Renomear "Incidentes" → "IC & NC"
 
-- **ok**: expires_at > hoje + alert_days_before
-- **warning**: expires_at <= hoje + alert_days_before AND expires_at >= hoje
-- **expired**: expires_at < hoje
-- **missing**: treinamento obrigatório pelo cargo (via matriz) sem registro do colaborador
-
-Conformidade = registros ok / total obrigações da matriz (apenas colaboradores ativos).
+Arquivos afetados:
+- `AppSidebar.tsx` — label do item
+- `Incidentes.tsx` — titulo da pagina e `usePageTitle`
+- `Dashboard.tsx` — titulo do card e link label
+- `OccurrenceKpiCards.tsx` — se houver referencia textual
+- Rotas permanecem `/incidentes`
 
 ---
 
-## 6. Detalhes Técnicos
+## 4. Tipo de Realizacao em Servicos Periodicos
 
-- Datas DD/MM/AAAA com date-fns + locale ptBR
-- Upload para Storage path: `{company_id}/{employee_id}/{training_id}/{filename}`
-- Colaboradores inativos excluídos de cálculos de conformidade e badges
-- Plan expired: botões de ação desabilitados com tooltip
-- Importação CSV usa FileReader + parsing manual (sem dependência extra)
-- Badge na sidebar: soma de expired + missing de colaboradores ativos
-- Sub-itens na sidebar usando estado expandido/colapsado com animação
+### RegisterCompletionModal.tsx
+- Adicionar toggle `realization_type`: "Programado" (default) / "Corretivo"
+- Se corretivo: revelar textarea "Descricao da falha"
+- Passar ambos campos para o hook `useRegisterCompletion`
+
+### useServices.ts — `useRegisterCompletion`
+- Adicionar `realization_type` e `failure_description` ao INSERT em `service_history`
+
+### ServiceDetailDrawer.tsx — Aba Historico
+- Exibir badge verde "Programado" ou laranja "Corretivo" em cada entrada
+- Se corretivo + failure_description: exibir motivo em italico
+- Adicionar botao "Exportar historico" no topo da aba que gera CSV com colunas: Data, Tipo, Fornecedor, Observacao, Motivo da falha, Registrado por
+
+---
+
+## 5. Botao "Ver detalhes" na Tabela de Servicos
+
+**Arquivo:** `src/pages/Servicos.tsx`
+- Adicionar icone Eye na coluna de acoes antes dos outros botoes
+- Ao clicar: abrir `ServiceDetailDrawer` na aba Detalhes (comportamento existente)
+
+---
+
+## 6. Detalhes Tecnicos
+
+- `useServiceHistory` query ja faz join com `profiles:registered_by` e `notes_editor:notes_edited_by` — precisa incluir os novos campos `realization_type` e `failure_description` (vem automaticamente com `select("*", ...)`)
+- Exportacao CSV usa `Blob` + `URL.createObjectURL` + `<a download>` no frontend
+- localStorage key para grupos: `evita-sidebar-groups` com formato `{ seguranca: true, saude: true, meio_ambiente: true }`
 

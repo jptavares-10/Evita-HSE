@@ -180,7 +180,7 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
                   <Paperclip className="h-3.5 w-3.5" />Anexos gerais
                 </p>
                 {generalAttachments.map((att: any) => (
-                  <a key={att.id} href={att.file_url} target="_blank" rel="noopener noreferrer" className="flex flex-col gap-1 text-sm bg-muted/50 px-3 py-2 rounded-md hover:bg-muted/80 transition-colors">
+                  <a key={att.id} href={signedMap[att.file_url] || "#"} target="_blank" rel="noopener noreferrer" className="flex flex-col gap-1 text-sm bg-muted/50 px-3 py-2 rounded-md hover:bg-muted/80 transition-colors">
                     <div className="flex items-center gap-2">
                       <FileText className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
                       <span className="flex-1 truncate text-primary">{att.file_name}</span>

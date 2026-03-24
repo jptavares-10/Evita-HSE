@@ -28,7 +28,7 @@ export function OccurrenceDetailDrawer({ open, onOpenChange, occurrence, onEdit,
   const [completionNotes, setCompletionNotes] = useState("");
   const [evidenceFile, setEvidenceFile] = useState<File | null>(null);
   const [showCloseDialog, setShowCloseDialog] = useState(false);
-  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [lightboxPath, setLightboxPath] = useState<string | null>(null);
 
   const { data: employees = [] } = useOccurrenceEmployees(occurrence?.id ?? null);
   const { data: attachments = [] } = useOccurrenceAttachments(occurrence?.id ?? null);

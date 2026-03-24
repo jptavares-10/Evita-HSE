@@ -308,10 +308,10 @@ export function OccurrenceDetailDrawer({ open, onOpenChange, occurrence, onEdit,
       </Dialog>
 
       {/* Lightbox */}
-      {lightboxUrl && (
-        <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4" onClick={() => setLightboxUrl(null)}>
-          <button className="absolute top-4 right-4 text-white" onClick={() => setLightboxUrl(null)}><X className="h-8 w-8" /></button>
-          <img src={lightboxUrl} alt="" className="max-w-full max-h-full object-contain rounded" onClick={(e) => e.stopPropagation()} />
+      {lightboxPath && lightboxSignedUrl && (
+        <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4" onClick={() => setLightboxPath(null)}>
+          <button className="absolute top-4 right-4 text-white" onClick={() => setLightboxPath(null)}><X className="h-8 w-8" /></button>
+          <img src={lightboxSignedUrl} alt="" className="max-w-full max-h-full object-contain rounded" onClick={(e) => e.stopPropagation()} />
         </div>
       )}
     </>

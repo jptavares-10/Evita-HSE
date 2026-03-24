@@ -141,8 +141,12 @@ export function OccurrenceDetailDrawer({ open, onOpenChange, occurrence, onEdit,
                   <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">Fotos</p>
                   <div className="grid grid-cols-3 gap-2">
                     {images.map((img: any) => (
-                      <button key={img.id} onClick={() => setLightboxUrl(img.file_url)} className="aspect-square rounded-md overflow-hidden border hover:opacity-80 transition-opacity">
-                        <img src={img.file_url} alt={img.file_name} className="w-full h-full object-cover" />
+                      <button key={img.id} onClick={() => setLightboxPath(img.file_url)} className="aspect-square rounded-md overflow-hidden border hover:opacity-80 transition-opacity">
+                        {signedMap[img.file_url] ? (
+                          <img src={signedMap[img.file_url]} alt={img.file_name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-muted animate-pulse" />
+                        )}
                       </button>
                     ))}
                   </div>

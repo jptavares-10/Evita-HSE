@@ -91,9 +91,7 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
                           <div className="text-xs text-muted-foreground">
                             Realizado: {formatDateBR(latest.done_at)} · Vence: {formatDateBR(latest.expires_at)}
                             {latest.certificate_url && (
-                              <a href={latest.certificate_url} target="_blank" rel="noreferrer" className="ml-2 text-primary hover:underline inline-flex items-center gap-1">
-                                <Download className="h-3 w-3" />Certificado
-                              </a>
+                              <CertificateLink url={latest.certificate_url} />
                             )}
                           </div>
                         )}

@@ -160,9 +160,7 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
                       </div>
                       {r.notes && <p className="text-xs text-muted-foreground italic">📝 {r.notes}</p>}
                       {r.certificate_url && (
-                        <a href={r.certificate_url} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline inline-flex items-center gap-1">
-                          <FileText className="h-3 w-3" />{r.certificate_name || "Certificado"}
-                        </a>
+                        <CertificateLink url={r.certificate_url} label={r.certificate_name || "Certificado"} />
                       )}
                       <p className="text-[11px] text-muted-foreground">👤 Registrado por {r.profiles?.full_name || "—"}</p>
                     </div>

@@ -311,7 +311,7 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
                           <div className="space-y-1.5 border-t pt-2">
                             <p className="text-xs text-muted-foreground font-medium">📎 Anexos desta realização:</p>
                             {historyAttachments.map((att: any) => (
-                              <a key={att.id} href={att.file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs hover:bg-muted/80 rounded px-2 py-1 transition-colors">
+                              <a key={att.id} href={signedMap[att.file_url] || "#"} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs hover:bg-muted/80 rounded px-2 py-1 transition-colors">
                                 <FileText className="h-3 w-3 flex-shrink-0 text-muted-foreground" />
                                 <span className="truncate text-primary font-medium">{att.file_name}</span>
                                 <Badge variant="outline" className={`text-[9px] px-1 py-0 ${FILE_TYPE_BADGE_COLORS[att.file_type] || FILE_TYPE_BADGE_COLORS.other}`}>

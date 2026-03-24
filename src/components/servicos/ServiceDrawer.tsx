@@ -280,7 +280,7 @@ export function ServiceDrawer({ open, onOpenChange, editingService }: Props) {
                   {existingAttachments.map((att: any) => (
                     <div key={att.id} className="flex flex-col gap-1 text-sm bg-muted/50 px-3 py-2 rounded-md">
                       <div className="flex items-center gap-2">
-                        <a href={att.file_url} target="_blank" rel="noopener noreferrer" className="flex-1 truncate text-primary hover:underline">{att.file_name}</a>
+                        <a href="#" onClick={(e) => e.preventDefault()} className="flex-1 truncate text-primary">{att.file_name}</a>
                         <Button variant="ghost" size="sm" className="text-destructive h-7" onClick={() => handleDeleteAttachment(att.id, att.file_url)}>Remover</Button>
                       </div>
                       <div className="flex items-center gap-1.5 text-xs">

@@ -224,6 +224,7 @@ export function useRegisterCompletion() {
     onSuccess: ({ nextDueStr }) => {
       queryClient.invalidateQueries({ queryKey: ["periodic-services"] });
       queryClient.invalidateQueries({ queryKey: ["service-history"] });
+      queryClient.invalidateQueries({ queryKey: ["service-attachments"] });
       const formatted = nextDueStr.split("-").reverse().join("/");
       toast({ title: `Realização registrada. Próxima data atualizada para ${formatted}` });
     },

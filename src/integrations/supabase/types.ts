@@ -873,6 +873,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "service_history_notes_edited_by_fkey"
+            columns: ["notes_edited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "service_history_registered_by_fkey"
             columns: ["registered_by"]
             isOneToOne: false

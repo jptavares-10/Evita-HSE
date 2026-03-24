@@ -219,9 +219,9 @@ export function useRegisterCompletion() {
       const { error: updErr } = await supabase.from("periodic_services").update(updatePayload).eq("id", values.serviceId);
       if (updErr) throw updErr;
 
-      return nextDueStr;
+      return { nextDueStr, historyId: histRecord.id };
     },
-    onSuccess: (nextDueStr) => {
+    onSuccess: ({ nextDueStr }) => {
       queryClient.invalidateQueries({ queryKey: ["periodic-services"] });
       queryClient.invalidateQueries({ queryKey: ["service-history"] });
       const formatted = nextDueStr.split("-").reverse().join("/");

@@ -275,3 +275,30 @@ export default function PortalFornecedor() {
     </div>
   );
 }
+
+function PortalDocRow({ doc }: { doc: any }) {
+  const [signedUrl, setSignedUrl] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    getSignedUrl("supplier-documents", doc.file_url).then((u) => { if (!cancelled) setSignedUrl(u); });
+    return () => { cancelled = true; };
+  }, [doc.file_url]);
+
+  return (
+    <div className="border rounded-lg p-3 flex items-center gap-3">
+      <span className="text-xl">{getFileIcon(doc.file_type || getFileExtension(doc.file_name))}</span>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium truncate">{doc.file_name}</p>
+        <p className="text-xs text-muted-foreground">{doc.description}</p>
+        {doc.reference_name && <p className="text-xs text-muted-foreground">Ref: {doc.reference_name}</p>}
+        <span className="text-xs text-muted-foreground">{formatDateBR(doc.uploaded_at)}</span>
+      </div>
+      <a href={signedUrl || "#"} target="_blank" rel="noopener noreferrer">
+        <Button variant="ghost" size="icon" className="h-8 w-8"><Eye className="h-4 w-4" /></Button>
+      </a>
+      <a href={signedUrl || "#"} download={doc.file_name}>
+        <Button variant="ghost" size="icon" className="h-8 w-8"><Download className="h-4 w-4" /></Button>
+      </a>
+    </div>
+  );
+}

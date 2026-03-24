@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { CheckCircle2, AlertTriangle, XCircle, RotateCw, Pencil, Trash2 } from "lucide-react";
+import { CheckCircle2, AlertTriangle, XCircle, RotateCw, Pencil, Trash2, Eye } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function Servicos() {

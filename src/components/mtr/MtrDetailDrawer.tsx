@@ -22,6 +22,7 @@ export function MtrDetailDrawer({ open, onOpenChange, mtr, onEdit }: Props) {
   const signedMap = useSignedUrls("mtr-files", fileUrls);
 
   if (!mtr) return null;
+  const statusInfo = getCdfStatusInfo(mtr.cdf_status, mtr.alert_at, mtr.cdf_deadline_at);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>

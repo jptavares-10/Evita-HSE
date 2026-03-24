@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,22 @@ import { getRecordStatus, getRecordStatusInfo, MISSING_STATUS_INFO, formatDateBR
 import { Pencil, Plus, FileText, Download } from "lucide-react";
 import { RegisterCertificateModal } from "./RegisterCertificateModal";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { getSignedUrl } from "@/lib/storage-utils";
+
+function CertificateLink({ url, label = "Certificado" }: { url: string; label?: string }) {
+  const [signedUrl, setSignedUrl] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    getSignedUrl("training-certificates", url).then((u) => { if (!cancelled) setSignedUrl(u); });
+    return () => { cancelled = true; };
+  }, [url]);
+  if (!signedUrl) return <span className="text-xs text-muted-foreground ml-2">Carregando...</span>;
+  return (
+    <a href={signedUrl} target="_blank" rel="noreferrer" className="ml-2 text-xs text-primary hover:underline inline-flex items-center gap-1">
+      <Download className="h-3 w-3" />{label}
+    </a>
+  );
+}
 
 interface Props {
   employee: any;
@@ -91,9 +107,7 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
                           <div className="text-xs text-muted-foreground">
                             Realizado: {formatDateBR(latest.done_at)} · Vence: {formatDateBR(latest.expires_at)}
                             {latest.certificate_url && (
-                              <a href={latest.certificate_url} target="_blank" rel="noreferrer" className="ml-2 text-primary hover:underline inline-flex items-center gap-1">
-                                <Download className="h-3 w-3" />Certificado
-                              </a>
+                              <CertificateLink url={latest.certificate_url} />
                             )}
                           </div>
                         )}
@@ -162,9 +176,7 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
                       </div>
                       {r.notes && <p className="text-xs text-muted-foreground italic">📝 {r.notes}</p>}
                       {r.certificate_url && (
-                        <a href={r.certificate_url} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline inline-flex items-center gap-1">
-                          <FileText className="h-3 w-3" />{r.certificate_name || "Certificado"}
-                        </a>
+                        <CertificateLink url={r.certificate_url} label={r.certificate_name || "Certificado"} />
                       )}
                       <p className="text-[11px] text-muted-foreground">👤 Registrado por {r.profiles?.full_name || "—"}</p>
                     </div>

@@ -65,8 +65,7 @@ export function RegisterCertificateModal({ open, onOpenChange, employeeId, train
         const path = `${company.id}/${employeeId}/${trainingId}/${Date.now()}.${ext}`;
         const { error: upErr } = await supabase.storage.from("training-certificates").upload(path, file);
         if (upErr) throw upErr;
-        const { data: urlData } = supabase.storage.from("training-certificates").getPublicUrl(path);
-        certUrl = urlData.publicUrl;
+        certUrl = path;
         certName = file.name;
       }
 

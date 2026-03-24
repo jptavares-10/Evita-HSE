@@ -122,12 +122,11 @@ export function ServiceDrawer({ open, onOpenChange, editingService }: Props) {
         const path = `${company.id}/${serviceId}/${crypto.randomUUID()}.${ext}`;
         const { error: uploadErr } = await supabase.storage.from("service-attachments").upload(path, pf.file);
         if (!uploadErr) {
-          const { data: { publicUrl } } = supabase.storage.from("service-attachments").getPublicUrl(path);
           await supabase.from("service_attachments").insert({
             service_id: serviceId,
             company_id: company.id,
             file_name: pf.file.name,
-            file_url: publicUrl,
+            file_url: path,
             file_type: pf.type,
             uploaded_by: profile.id,
             reference_date: refDate,
@@ -281,7 +280,7 @@ export function ServiceDrawer({ open, onOpenChange, editingService }: Props) {
                   {existingAttachments.map((att: any) => (
                     <div key={att.id} className="flex flex-col gap-1 text-sm bg-muted/50 px-3 py-2 rounded-md">
                       <div className="flex items-center gap-2">
-                        <a href={att.file_url} target="_blank" rel="noopener noreferrer" className="flex-1 truncate text-primary hover:underline">{att.file_name}</a>
+                        <a href="#" onClick={(e) => e.preventDefault()} className="flex-1 truncate text-primary">{att.file_name}</a>
                         <Button variant="ghost" size="sm" className="text-destructive h-7" onClick={() => handleDeleteAttachment(att.id, att.file_url)}>Remover</Button>
                       </div>
                       <div className="flex items-center gap-1.5 text-xs">

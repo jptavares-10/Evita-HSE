@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { useServiceAttachments, useServiceHistory } from "@/hooks/useServices";
 import { formatDateBR, getFrequencyLabel, getStatusInfo, FILE_TYPE_LABELS, FILE_TYPE_BADGE_COLORS } from "@/lib/services";
 import { ExternalLink, Pencil, FileText, Clock, X, Check, Download, Calendar, Building2, Bell, MessageSquare, Paperclip, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useSignedUrls } from "@/hooks/useSignedUrl";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
@@ -78,6 +79,10 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
 
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [editingNoteText, setEditingNoteText] = useState("");
+
+  // Resolve signed URLs for all attachments
+  const attachmentUrls = useMemo(() => attachments.map((a: any) => a.file_url).filter(Boolean), [attachments]);
+  const signedMap = useSignedUrls("service-attachments", attachmentUrls);
 
   if (!service) return null;
   const statusInfo = getStatusInfo(service.next_due_at, service.alert_days_before);
@@ -175,7 +180,7 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
                   <Paperclip className="h-3.5 w-3.5" />Anexos gerais
                 </p>
                 {generalAttachments.map((att: any) => (
-                  <a key={att.id} href={att.file_url} target="_blank" rel="noopener noreferrer" className="flex flex-col gap-1 text-sm bg-muted/50 px-3 py-2 rounded-md hover:bg-muted/80 transition-colors">
+                  <a key={att.id} href={signedMap[att.file_url] || "#"} target="_blank" rel="noopener noreferrer" className="flex flex-col gap-1 text-sm bg-muted/50 px-3 py-2 rounded-md hover:bg-muted/80 transition-colors">
                     <div className="flex items-center gap-2">
                       <FileText className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
                       <span className="flex-1 truncate text-primary">{att.file_name}</span>
@@ -306,7 +311,7 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
                           <div className="space-y-1.5 border-t pt-2">
                             <p className="text-xs text-muted-foreground font-medium">📎 Anexos desta realização:</p>
                             {historyAttachments.map((att: any) => (
-                              <a key={att.id} href={att.file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs hover:bg-muted/80 rounded px-2 py-1 transition-colors">
+                              <a key={att.id} href={signedMap[att.file_url] || "#"} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs hover:bg-muted/80 rounded px-2 py-1 transition-colors">
                                 <FileText className="h-3 w-3 flex-shrink-0 text-muted-foreground" />
                                 <span className="truncate text-primary font-medium">{att.file_name}</span>
                                 <Badge variant="outline" className={`text-[9px] px-1 py-0 ${FILE_TYPE_BADGE_COLORS[att.file_type] || FILE_TYPE_BADGE_COLORS.other}`}>

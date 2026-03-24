@@ -1,9 +1,11 @@
+import { useMemo } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDateBR, getCdfStatusInfo, formatTons } from "@/lib/mtr";
 import { Download, Edit, FileText, User, Calendar } from "lucide-react";
+import { useSignedUrls } from "@/hooks/useSignedUrl";
 
 interface Props {
   open: boolean;
@@ -13,6 +15,12 @@ interface Props {
 }
 
 export function MtrDetailDrawer({ open, onOpenChange, mtr, onEdit }: Props) {
+  const fileUrls = useMemo(() => {
+    if (!mtr) return [];
+    return [mtr.mtr_file_url, mtr.cdf_file_url].filter(Boolean);
+  }, [mtr?.mtr_file_url, mtr?.cdf_file_url]);
+  const signedMap = useSignedUrls("mtr-files", fileUrls);
+
   if (!mtr) return null;
   const statusInfo = getCdfStatusInfo(mtr.cdf_status, mtr.alert_at, mtr.cdf_deadline_at);
 
@@ -71,12 +79,12 @@ export function MtrDetailDrawer({ open, onOpenChange, mtr, onEdit }: Props) {
             <div className="space-y-2">
               <h4 className="text-sm font-semibold">Documentos</h4>
               {mtr.mtr_file_url ? (
-                <a href={mtr.mtr_file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
+                <a href={signedMap[mtr.mtr_file_url] || "#"} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
                   <FileText className="h-4 w-4" />{mtr.mtr_file_name || "Arquivo MTR"}<Download className="h-3.5 w-3.5" />
                 </a>
               ) : <p className="text-sm text-muted-foreground">Nenhum arquivo MTR anexado.</p>}
               {mtr.cdf_file_url ? (
-                <a href={mtr.cdf_file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
+                <a href={signedMap[mtr.cdf_file_url] || "#"} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
                   <FileText className="h-4 w-4" />{mtr.cdf_file_name || "Arquivo CDF"}<Download className="h-3.5 w-3.5" />
                 </a>
               ) : mtr.cdf_status === "received" ? <p className="text-sm text-muted-foreground">Nenhum arquivo CDF anexado.</p> : null}

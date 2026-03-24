@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { getSignedUrl } from "@/lib/storage-utils";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -85,7 +86,6 @@ export default function PortalFornecedor() {
       const filePath = `${portalData.company_id}/${portalData.supplier_id}/${folderPath}/${Date.now()}_${uploadFile.name}`;
       const { error: upErr } = await supabase.storage.from("supplier-documents").upload(filePath, uploadFile);
       if (upErr) throw upErr;
-      const { data: urlData } = supabase.storage.from("supplier-documents").getPublicUrl(filePath);
       const ext = uploadFile.name.split(".").pop()?.toLowerCase() || "";
 
       const { data, error: rpcErr } = await supabase.rpc("upload_supplier_document", {
@@ -93,7 +93,7 @@ export default function PortalFornecedor() {
         p_folder_id: uploadFolderId === "root" ? null : uploadFolderId,
         p_description: uploadDescription.trim(),
         p_reference_name: uploadReference.trim() || null,
-        p_file_url: urlData.publicUrl,
+        p_file_url: filePath,
         p_file_name: uploadFile.name,
         p_file_type: ext,
       });
@@ -195,21 +195,7 @@ export default function PortalFornecedor() {
             ) : (
               <div className="space-y-2">
                 {filteredDocs.map((doc: any) => (
-                  <div key={doc.id} className="border rounded-lg p-3 flex items-center gap-3">
-                    <span className="text-xl">{getFileIcon(doc.file_type || getFileExtension(doc.file_name))}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{doc.file_name}</p>
-                      <p className="text-xs text-muted-foreground">{doc.description}</p>
-                      {doc.reference_name && <p className="text-xs text-muted-foreground">Ref: {doc.reference_name}</p>}
-                      <span className="text-xs text-muted-foreground">{formatDateBR(doc.uploaded_at)}</span>
-                    </div>
-                    <a href={doc.file_url} target="_blank" rel="noopener noreferrer">
-                      <Button variant="ghost" size="icon" className="h-8 w-8"><Eye className="h-4 w-4" /></Button>
-                    </a>
-                    <a href={doc.file_url} download={doc.file_name}>
-                      <Button variant="ghost" size="icon" className="h-8 w-8"><Download className="h-4 w-4" /></Button>
-                    </a>
-                  </div>
+                  <PortalDocRow key={doc.id} doc={doc} />
                 ))}
               </div>
             )}
@@ -286,6 +272,33 @@ export default function PortalFornecedor() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+function PortalDocRow({ doc }: { doc: any }) {
+  const [signedUrl, setSignedUrl] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    getSignedUrl("supplier-documents", doc.file_url).then((u) => { if (!cancelled) setSignedUrl(u); });
+    return () => { cancelled = true; };
+  }, [doc.file_url]);
+
+  return (
+    <div className="border rounded-lg p-3 flex items-center gap-3">
+      <span className="text-xl">{getFileIcon(doc.file_type || getFileExtension(doc.file_name))}</span>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium truncate">{doc.file_name}</p>
+        <p className="text-xs text-muted-foreground">{doc.description}</p>
+        {doc.reference_name && <p className="text-xs text-muted-foreground">Ref: {doc.reference_name}</p>}
+        <span className="text-xs text-muted-foreground">{formatDateBR(doc.uploaded_at)}</span>
+      </div>
+      <a href={signedUrl || "#"} target="_blank" rel="noopener noreferrer">
+        <Button variant="ghost" size="icon" className="h-8 w-8"><Eye className="h-4 w-4" /></Button>
+      </a>
+      <a href={signedUrl || "#"} download={doc.file_name}>
+        <Button variant="ghost" size="icon" className="h-8 w-8"><Download className="h-4 w-4" /></Button>
+      </a>
     </div>
   );
 }

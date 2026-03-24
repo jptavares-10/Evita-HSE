@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { AlertTriangle, Calendar, MapPin, User, Pencil, Plus, Play, CheckCircle2, Trash2, FileText, Image, Download, X } from "lucide-react";
+import { useSignedUrls, useSignedUrl } from "@/hooks/useSignedUrl";
 import { getTypeInfo, getSeverityInfo, getStatusInfo, getActionStatusInfo, getBodyPartLabel, formatDateTimeBR, formatDateBR } from "@/lib/occurrences";
 import { useOccurrenceEmployees, useOccurrenceAttachments, useCorrectiveActions, useAddCorrectiveAction, useUpdateActionStatus, useDeleteCorrectiveAction, useCloseOccurrence } from "@/hooks/useOccurrences";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -27,7 +28,7 @@ export function OccurrenceDetailDrawer({ open, onOpenChange, occurrence, onEdit,
   const [completionNotes, setCompletionNotes] = useState("");
   const [evidenceFile, setEvidenceFile] = useState<File | null>(null);
   const [showCloseDialog, setShowCloseDialog] = useState(false);
-  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [lightboxPath, setLightboxPath] = useState<string | null>(null);
 
   const { data: employees = [] } = useOccurrenceEmployees(occurrence?.id ?? null);
   const { data: attachments = [] } = useOccurrenceAttachments(occurrence?.id ?? null);
@@ -36,6 +37,14 @@ export function OccurrenceDetailDrawer({ open, onOpenChange, occurrence, onEdit,
   const updateAction = useUpdateActionStatus();
   const deleteAction = useDeleteCorrectiveAction();
   const closeOcc = useCloseOccurrence();
+  // Resolve signed URLs for all attachment file_urls + evidence_urls
+  const allFileUrls = useMemo(() => {
+    const urls: string[] = attachments.map((a: any) => a.file_url).filter(Boolean);
+    actions.forEach((a: any) => { if (a.evidence_url) urls.push(a.evidence_url); });
+    return urls;
+  }, [attachments, actions]);
+  const signedMap = useSignedUrls("occurrence-files", allFileUrls);
+  const lightboxSignedUrl = useSignedUrl("occurrence-files", lightboxPath);
 
   if (!occurrence) return null;
 
@@ -130,8 +139,12 @@ export function OccurrenceDetailDrawer({ open, onOpenChange, occurrence, onEdit,
                   <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">Fotos</p>
                   <div className="grid grid-cols-3 gap-2">
                     {images.map((img: any) => (
-                      <button key={img.id} onClick={() => setLightboxUrl(img.file_url)} className="aspect-square rounded-md overflow-hidden border hover:opacity-80 transition-opacity">
-                        <img src={img.file_url} alt={img.file_name} className="w-full h-full object-cover" />
+                      <button key={img.id} onClick={() => setLightboxPath(img.file_url)} className="aspect-square rounded-md overflow-hidden border hover:opacity-80 transition-opacity">
+                        {signedMap[img.file_url] ? (
+                          <img src={signedMap[img.file_url]} alt={img.file_name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-muted animate-pulse" />
+                        )}
                       </button>
                     ))}
                   </div>
@@ -144,7 +157,7 @@ export function OccurrenceDetailDrawer({ open, onOpenChange, occurrence, onEdit,
                   <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">Documentos</p>
                   <div className="space-y-1">
                     {documents.map((doc: any) => (
-                      <a key={doc.id} href={doc.file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
+                      <a key={doc.id} href={signedMap[doc.file_url] || "#"} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
                         <FileText className="h-3.5 w-3.5" />{doc.file_name}
                       </a>
                     ))}
@@ -198,7 +211,7 @@ export function OccurrenceDetailDrawer({ open, onOpenChange, occurrence, onEdit,
                           <p>Concluída em {formatDateTimeBR(action.completed_at)} por {action.completer?.full_name}</p>
                           {action.completion_notes && <p>"{action.completion_notes}"</p>}
                           {action.evidence_url && (
-                            <a href={action.evidence_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
+                            <a href={signedMap[action.evidence_url] || "#"} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
                               <Download className="h-3 w-3" />{action.evidence_name || "Evidência"}
                             </a>
                           )}
@@ -293,10 +306,10 @@ export function OccurrenceDetailDrawer({ open, onOpenChange, occurrence, onEdit,
       </Dialog>
 
       {/* Lightbox */}
-      {lightboxUrl && (
-        <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4" onClick={() => setLightboxUrl(null)}>
-          <button className="absolute top-4 right-4 text-white" onClick={() => setLightboxUrl(null)}><X className="h-8 w-8" /></button>
-          <img src={lightboxUrl} alt="" className="max-w-full max-h-full object-contain rounded" onClick={(e) => e.stopPropagation()} />
+      {lightboxPath && lightboxSignedUrl && (
+        <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4" onClick={() => setLightboxPath(null)}>
+          <button className="absolute top-4 right-4 text-white" onClick={() => setLightboxPath(null)}><X className="h-8 w-8" /></button>
+          <img src={lightboxSignedUrl} alt="" className="max-w-full max-h-full object-contain rounded" onClick={(e) => e.stopPropagation()} />
         </div>
       )}
     </>

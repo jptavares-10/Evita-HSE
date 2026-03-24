@@ -56,7 +56,7 @@ export function RegisterCompletionModal({ open, onOpenChange, service }: Props) 
 
   const handleSubmit = async () => {
     if (!service || !profile) return;
-    await registerCompletion.mutateAsync({
+    const result = await registerCompletion.mutateAsync({
       serviceId: service.id,
       done_at: format(doneAt, "yyyy-MM-dd"),
       supplier: supplier || null,
@@ -72,7 +72,7 @@ export function RegisterCompletionModal({ open, onOpenChange, service }: Props) 
     const refDate = format(doneAt, "yyyy-MM-dd");
     for (const pf of pendingFiles) {
       const ext = pf.file.name.split(".").pop();
-      const path = `${service.company_id}/${service.id}/${crypto.randomUUID()}.${ext}`;
+      const path = `${service.company_id}/${service.id}/${result.historyId}/${crypto.randomUUID()}.${ext}`;
       const { error: uploadErr } = await supabase.storage.from("service-attachments").upload(path, pf.file);
       if (!uploadErr) {
         const { data: { publicUrl } } = supabase.storage.from("service-attachments").getPublicUrl(path);
@@ -81,7 +81,7 @@ export function RegisterCompletionModal({ open, onOpenChange, service }: Props) 
           company_id: service.company_id,
           file_name: pf.file.name,
           file_url: publicUrl,
-          file_type: pf.type,
+          file_type: pf.type || "evidence",
           uploaded_by: profile.id,
           reference_date: refDate,
         });

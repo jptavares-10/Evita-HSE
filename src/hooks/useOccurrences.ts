@@ -158,12 +158,11 @@ export function useSaveOccurrence() {
           const path = `${company.id}/${occurrenceId}/${crypto.randomUUID()}.${ext}`;
           const { error: upErr } = await supabase.storage.from("occurrence-files").upload(path, file);
           if (upErr) throw upErr;
-          const { data: urlData } = supabase.storage.from("occurrence-files").getPublicUrl(path);
           const fileType = ["jpg", "jpeg", "png", "gif", "webp"].includes(ext) ? "image" : "document";
           await supabase.from("occurrence_attachments").insert({
             occurrence_id: occurrenceId,
             company_id: company.id,
-            file_url: urlData.publicUrl,
+            file_url: path,
             file_name: file.name,
             file_type: fileType,
             uploaded_by: profile.id,

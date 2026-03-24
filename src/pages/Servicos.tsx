@@ -174,6 +174,16 @@ export default function Servicos() {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div>
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setDetailService(s); setDetailOpen(true); }}>
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>Ver detalhes</TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div>
                             <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!!isExpired} onClick={() => setCompletionService(s)}>
                               <RotateCw className="h-4 w-4" />
                             </Button>

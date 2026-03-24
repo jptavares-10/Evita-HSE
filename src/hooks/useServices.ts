@@ -203,6 +203,8 @@ export function useRegisterCompletion() {
         supplier: values.supplier || null,
         notes: values.notes || null,
         registered_by: profile.id,
+        realization_type: values.realization_type || "scheduled",
+        failure_description: values.failure_description || null,
       });
       if (histErr) throw histErr;
 

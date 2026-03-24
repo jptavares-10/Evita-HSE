@@ -46,6 +46,16 @@ export function OccurrenceDetailDrawer({ open, onOpenChange, occurrence, onEdit,
 
   const images = attachments.filter((a: any) => a.file_type === "image");
   const documents = attachments.filter((a: any) => a.file_type === "document");
+
+  // Resolve signed URLs for all attachment file_urls + evidence_urls
+  const allFileUrls = useMemo(() => {
+    const urls: string[] = attachments.map((a: any) => a.file_url).filter(Boolean);
+    actions.forEach((a: any) => { if (a.evidence_url) urls.push(a.evidence_url); });
+    return urls;
+  }, [attachments, actions]);
+  const signedMap = useSignedUrls("occurrence-files", allFileUrls);
+  const lightboxSignedUrl = useSignedUrl("occurrence-files", lightboxPath);
+
   const completedActions = actions.filter((a: any) => a.status === "completed").length;
 
   const handleAddAction = () => {

@@ -187,6 +187,8 @@ export function useRegisterCompletion() {
       frequency_type: string;
       frequency_preset: string | null;
       frequency_days: number | null;
+      realization_type?: string;
+      failure_description?: string | null;
     }) => {
       if (!company || !profile) throw new Error("Sem empresa");
       const freqDays = getFrequencyDays(values.frequency_type, values.frequency_preset, values.frequency_days);

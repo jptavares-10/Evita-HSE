@@ -275,3 +275,40 @@ export default function FornecedorDocumentos() {
     </div>
   );
 }
+
+function SupplierDocRow({ doc, planExpired, onDelete }: { doc: any; planExpired: boolean; onDelete: () => void }) {
+  const [signedUrl, setSignedUrl] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    getSignedUrl("supplier-documents", doc.file_url).then((u) => { if (!cancelled) setSignedUrl(u); });
+    return () => { cancelled = true; };
+  }, [doc.file_url]);
+
+  return (
+    <div className="border rounded-lg p-3 flex items-center gap-3 hover:bg-muted/30 transition-colors">
+      <span className="text-xl">{getFileIcon(doc.file_type || getFileExtension(doc.file_name))}</span>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium truncate">{doc.file_name}</p>
+        <p className="text-xs text-muted-foreground">{doc.description}</p>
+        {doc.reference_name && <p className="text-xs text-muted-foreground">Ref: {doc.reference_name}</p>}
+        <div className="flex items-center gap-2 mt-1">
+          <span className="text-xs text-muted-foreground">{formatDateBR(doc.uploaded_at)}</span>
+          {doc.uploaded_by_supplier && <Badge variant="outline" className="text-[10px] px-1.5 py-0">Fornecedor</Badge>}
+        </div>
+      </div>
+      <div className="flex items-center gap-1">
+        <a href={signedUrl || "#"} target="_blank" rel="noopener noreferrer">
+          <Button variant="ghost" size="icon" className="h-8 w-8"><Eye className="h-4 w-4" /></Button>
+        </a>
+        <a href={signedUrl || "#"} download={doc.file_name}>
+          <Button variant="ghost" size="icon" className="h-8 w-8"><Download className="h-4 w-4" /></Button>
+        </a>
+        {!planExpired && (
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={onDelete}>
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}

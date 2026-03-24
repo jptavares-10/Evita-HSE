@@ -196,7 +196,7 @@ export function useRegisterCompletion() {
       const nextDueStr = format(nextDue, "yyyy-MM-dd");
 
       // Insert history
-      const { error: histErr } = await supabase.from("service_history").insert({
+      const { data: histRecord, error: histErr } = await supabase.from("service_history").insert({
         service_id: values.serviceId,
         company_id: company.id,
         done_at: values.done_at,
@@ -205,7 +205,7 @@ export function useRegisterCompletion() {
         registered_by: profile.id,
         realization_type: values.realization_type || "scheduled",
         failure_description: values.failure_description || null,
-      });
+      }).select("id").single();
       if (histErr) throw histErr;
 
       // Update service

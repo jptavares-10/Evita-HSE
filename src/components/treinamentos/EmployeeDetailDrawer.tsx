@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,22 @@ import { getRecordStatus, getRecordStatusInfo, MISSING_STATUS_INFO, formatDateBR
 import { Pencil, Plus, FileText, Download } from "lucide-react";
 import { RegisterCertificateModal } from "./RegisterCertificateModal";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { getSignedUrl } from "@/lib/storage-utils";
+
+function CertificateLink({ url, label = "Certificado" }: { url: string; label?: string }) {
+  const [signedUrl, setSignedUrl] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    getSignedUrl("training-certificates", url).then((u) => { if (!cancelled) setSignedUrl(u); });
+    return () => { cancelled = true; };
+  }, [url]);
+  if (!signedUrl) return <span className="text-xs text-muted-foreground ml-2">Carregando...</span>;
+  return (
+    <a href={signedUrl} target="_blank" rel="noreferrer" className="ml-2 text-xs text-primary hover:underline inline-flex items-center gap-1">
+      <Download className="h-3 w-3" />{label}
+    </a>
+  );
+}
 
 interface Props {
   employee: any;

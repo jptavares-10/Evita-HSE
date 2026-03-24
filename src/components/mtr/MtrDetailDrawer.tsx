@@ -1,9 +1,11 @@
+import { useMemo } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDateBR, getCdfStatusInfo, formatTons } from "@/lib/mtr";
 import { Download, Edit, FileText, User, Calendar } from "lucide-react";
+import { useSignedUrls } from "@/hooks/useSignedUrl";
 
 interface Props {
   open: boolean;

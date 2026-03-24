@@ -103,8 +103,7 @@ export function useSaveMtr() {
         const path = `${company.id}/${mtrId}/mtr/mtr_file.${ext}`;
         const { error: upErr } = await supabase.storage.from("mtr-files").upload(path, values.mtr_file, { upsert: true });
         if (upErr) throw upErr;
-        const { data: urlData } = supabase.storage.from("mtr-files").getPublicUrl(path);
-        mtr_file_url = urlData.publicUrl;
+        mtr_file_url = path;
         mtr_file_name = values.mtr_file.name;
         await supabase.from("mtrs").update({ mtr_file_url, mtr_file_name }).eq("id", mtrId);
       }

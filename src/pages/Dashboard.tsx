@@ -206,7 +206,7 @@ export default function Dashboard() {
           link="/fornecedores" linkLabel="Gerenciar"
         />
         <DashboardCard
-          icon={ShieldAlert} iconColor="text-destructive" title="Incidentes"
+          icon={ShieldAlert} iconColor="text-destructive" title="IC & NC"
           items={[
             { label: "Abertas", value: openOccs, color: openOccs > 0 ? "text-destructive" : "" },
             { label: "Ações pendentes", value: pendingActions, color: pendingActions > 0 ? "text-yellow-600" : "" },

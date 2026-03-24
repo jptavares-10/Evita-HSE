@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { CheckCircle2, AlertTriangle, XCircle, RotateCw, Pencil, Trash2 } from "lucide-react";
+import { CheckCircle2, AlertTriangle, XCircle, RotateCw, Pencil, Trash2, Eye } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function Servicos() {
@@ -171,6 +171,16 @@ export default function Servicos() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div>
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setDetailService(s); setDetailOpen(true); }}>
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>Ver detalhes</TooltipContent>
+                      </Tooltip>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div>

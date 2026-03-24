@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { useServiceAttachments, useServiceHistory } from "@/hooks/useServices";
 import { formatDateBR, getFrequencyLabel, getStatusInfo, FILE_TYPE_LABELS, FILE_TYPE_BADGE_COLORS } from "@/lib/services";
-import { ExternalLink, Pencil, FileText, Clock, X, Check, Download, Calendar, Building2, Bell, MessageSquare, Paperclip } from "lucide-react";
+import { ExternalLink, Pencil, FileText, Clock, X, Check, Download, Calendar, Building2, Bell, MessageSquare, Paperclip, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -46,6 +46,29 @@ function formatDateTimeBR(dateStr: string | null | undefined): string {
   }
 }
 
+function exportHistoryCSV(history: any[], serviceName: string) {
+  const rows = [["Data", "Tipo", "Fornecedor", "Observação", "Motivo da falha", "Registrado por"]];
+  for (const h of history) {
+    rows.push([
+      formatDateBR(h.done_at),
+      h.realization_type === "corrective" ? "Corretivo" : "Programado",
+      h.supplier || "",
+      h.notes || "",
+      h.failure_description || "",
+      h.profiles?.full_name || "",
+    ]);
+  }
+  const csv = rows.map((r) => r.map((c) => `"${(c || "").replace(/"/g, '""')}"`).join(",")).join("\n");
+  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const safeName = serviceName.replace(/[^a-zA-Z0-9\u00C0-\u024F]/g, "_").substring(0, 40);
+  a.href = url;
+  a.download = `historico_${safeName}_${format(new Date(), "dd-MM-yyyy")}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Props) {
   const { data: attachments = [] } = useServiceAttachments(service?.id ?? null);
   const { data: history = [] } = useServiceHistory(service?.id ?? null);
@@ -59,7 +82,6 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
   if (!service) return null;
   const statusInfo = getStatusInfo(service.next_due_at, service.alert_days_before);
 
-  // Attachments not linked to a specific history date (general attachments)
   const generalAttachments = attachments.filter((att: any) => !att.reference_date);
 
   const handleSaveNote = async (historyId: string) => {
@@ -110,7 +132,6 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
           </TabsList>
 
           <TabsContent value="details" className="flex-1 overflow-y-auto px-6 pb-6 mt-4 space-y-5">
-            {/* Info grid */}
             <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
               <div className="space-y-1">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Frequência</p>
@@ -134,7 +155,6 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
               </div>
             </div>
 
-            {/* General notes */}
             <div className="space-y-1.5 border-t pt-4">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                 <MessageSquare className="h-3.5 w-3.5" />Observação geral do serviço
@@ -149,7 +169,6 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
               </p>
             </div>
 
-            {/* General attachments */}
             {generalAttachments.length > 0 && (
               <div className="space-y-2 border-t pt-4">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
@@ -178,6 +197,16 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
           </TabsContent>
 
           <TabsContent value="history" className="flex-1 overflow-y-auto px-6 pb-6 mt-4">
+            {/* Export button */}
+            {history.length > 0 && (
+              <div className="flex justify-end mb-4">
+                <Button variant="outline" size="sm" onClick={() => exportHistoryCSV(history, service.name)}>
+                  <Download className="h-3.5 w-3.5 mr-1.5" />
+                  Exportar histórico
+                </Button>
+              </div>
+            )}
+
             {history.length === 0 ? (
               <div className="text-center py-12 space-y-2">
                 <Clock className="h-10 w-10 mx-auto text-muted-foreground/30" />
@@ -190,6 +219,7 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
                 {history.map((h: any) => {
                   const historyAttachments = attachments.filter((att: any) => att.reference_date === h.done_at);
                   const isEditing = editingNoteId === h.id;
+                  const isCorrective = h.realization_type === "corrective";
 
                   return (
                     <div key={h.id} className="relative">
@@ -197,10 +227,17 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
                         <Clock className="h-2.5 w-2.5 text-primary" />
                       </div>
                       <div className="bg-muted/50 rounded-lg p-4 space-y-3">
-                        {/* Date */}
-                        <p className="text-sm font-semibold flex items-center gap-1.5">
-                          📅 {formatDateBR(h.done_at)}
-                        </p>
+                        {/* Type badge + date */}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Badge className={isCorrective ? "bg-orange-100 text-orange-700 border-orange-200" : "bg-green-100 text-green-700 border-green-200"} variant="outline">
+                            {isCorrective ? (
+                              <><AlertTriangle className="h-3 w-3 mr-1" />Corretivo</>
+                            ) : (
+                              <><Calendar className="h-3 w-3 mr-1" />Programado</>
+                            )}
+                          </Badge>
+                          <span className="text-sm font-semibold">📅 {formatDateBR(h.done_at)}</span>
+                        </div>
 
                         {/* Supplier */}
                         {h.supplier && (
@@ -209,7 +246,14 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
                           </p>
                         )}
 
-                        {/* Notes section with inline edit */}
+                        {/* Failure description for corrective */}
+                        {isCorrective && h.failure_description && (
+                          <p className="text-xs italic text-orange-700 bg-orange-50 rounded px-2 py-1.5">
+                            ⚠️ Motivo: {h.failure_description}
+                          </p>
+                        )}
+
+                        {/* Notes */}
                         <div className="text-xs space-y-1">
                           <p className="text-muted-foreground font-medium">📝 Observação:</p>
                           {isEditing ? (
@@ -257,7 +301,7 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
                           )}
                         </div>
 
-                        {/* Attachments for this completion */}
+                        {/* Attachments */}
                         {historyAttachments.length > 0 && (
                           <div className="space-y-1.5 border-t pt-2">
                             <p className="text-xs text-muted-foreground font-medium">📎 Anexos desta realização:</p>

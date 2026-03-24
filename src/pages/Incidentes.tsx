@@ -16,7 +16,7 @@ import { getTypeInfo, getSeverityInfo, getStatusInfo, formatDateTimeBR, OCCURREN
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function Incidentes() {
-  usePageTitle("Incidentes — Evita HSE");
+  usePageTitle("IC & NC — Evita HSE");
   const { company } = useAuth();
   const planExpired = company?.plan === "expired";
   const { data: occurrences = [], isLoading } = useOccurrences();
@@ -64,7 +64,7 @@ export default function Incidentes() {
     <div className="max-w-7xl mx-auto space-y-6 animate-fade-up">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Incidentes e Não Conformidades</h1>
+          <h1 className="text-2xl font-bold text-foreground">IC & NC — Incidentes e Não Conformidades</h1>
           <p className="text-muted-foreground text-sm mt-1">Gerencie ocorrências e ações corretivas</p>
         </div>
         <Tooltip>

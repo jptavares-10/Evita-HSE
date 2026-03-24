@@ -187,6 +187,8 @@ export function useRegisterCompletion() {
       frequency_type: string;
       frequency_preset: string | null;
       frequency_days: number | null;
+      realization_type?: string;
+      failure_description?: string | null;
     }) => {
       if (!company || !profile) throw new Error("Sem empresa");
       const freqDays = getFrequencyDays(values.frequency_type, values.frequency_preset, values.frequency_days);
@@ -201,6 +203,8 @@ export function useRegisterCompletion() {
         supplier: values.supplier || null,
         notes: values.notes || null,
         registered_by: profile.id,
+        realization_type: values.realization_type || "scheduled",
+        failure_description: values.failure_description || null,
       });
       if (histErr) throw histErr;
 

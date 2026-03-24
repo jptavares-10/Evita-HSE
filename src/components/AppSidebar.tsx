@@ -138,7 +138,7 @@ export function AppSidebar() {
       const requiredIds = matrix.filter((m: any) => m.job_position_id === emp.job_position_id).map((m: any) => m.training_id);
       const empRecords = allRecords.filter((r: any) => r.employee_id === emp.id);
       const c = computeEmployeeCompliance(requiredIds, empRecords);
-      count += c.missing + c.expired;
+      count += c.pending;
     }
     return count;
   }, [employees, matrix, allRecords]);

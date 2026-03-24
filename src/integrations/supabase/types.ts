@@ -826,10 +826,12 @@ export type Database = {
           company_id: string
           created_at: string
           done_at: string
+          failure_description: string | null
           id: string
           notes: string | null
           notes_edited_at: string | null
           notes_edited_by: string | null
+          realization_type: string
           registered_by: string | null
           service_id: string
           supplier: string | null
@@ -838,10 +840,12 @@ export type Database = {
           company_id: string
           created_at?: string
           done_at: string
+          failure_description?: string | null
           id?: string
           notes?: string | null
           notes_edited_at?: string | null
           notes_edited_by?: string | null
+          realization_type?: string
           registered_by?: string | null
           service_id: string
           supplier?: string | null
@@ -850,10 +854,12 @@ export type Database = {
           company_id?: string
           created_at?: string
           done_at?: string
+          failure_description?: string | null
           id?: string
           notes?: string | null
           notes_edited_at?: string | null
           notes_edited_by?: string | null
+          realization_type?: string
           registered_by?: string | null
           service_id?: string
           supplier?: string | null

@@ -16,7 +16,7 @@ import { getTypeInfo, getSeverityInfo, getStatusInfo, formatDateTimeBR, OCCURREN
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function Incidentes() {
-  usePageTitle("Incidentes — Evita HSE");
+  usePageTitle("IC & NC — Evita HSE");
   const { company } = useAuth();
   const planExpired = company?.plan === "expired";
   const { data: occurrences = [], isLoading } = useOccurrences();

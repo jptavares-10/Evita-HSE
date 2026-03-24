@@ -1,5 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { getSignedUrl } from "@/lib/storage-utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSuppliers, useSupplierFolders, useSupplierDocuments, useCreateSupplierFolder, useUploadSupplierDocument, useDeleteSupplierDocument, useDeleteSupplierFolder } from "@/hooks/useSuppliers";
 import { Button } from "@/components/ui/button";

@@ -196,7 +196,7 @@ export function useRegisterCompletion() {
       const nextDueStr = format(nextDue, "yyyy-MM-dd");
 
       // Insert history
-      const { error: histErr } = await supabase.from("service_history").insert({
+      const { data: histRecord, error: histErr } = await supabase.from("service_history").insert({
         service_id: values.serviceId,
         company_id: company.id,
         done_at: values.done_at,
@@ -205,7 +205,7 @@ export function useRegisterCompletion() {
         registered_by: profile.id,
         realization_type: values.realization_type || "scheduled",
         failure_description: values.failure_description || null,
-      });
+      }).select("id").single();
       if (histErr) throw histErr;
 
       // Update service
@@ -219,11 +219,12 @@ export function useRegisterCompletion() {
       const { error: updErr } = await supabase.from("periodic_services").update(updatePayload).eq("id", values.serviceId);
       if (updErr) throw updErr;
 
-      return nextDueStr;
+      return { nextDueStr, historyId: histRecord.id };
     },
-    onSuccess: (nextDueStr) => {
+    onSuccess: ({ nextDueStr }) => {
       queryClient.invalidateQueries({ queryKey: ["periodic-services"] });
       queryClient.invalidateQueries({ queryKey: ["service-history"] });
+      queryClient.invalidateQueries({ queryKey: ["service-attachments"] });
       const formatted = nextDueStr.split("-").reverse().join("/");
       toast({ title: `Realização registrada. Próxima data atualizada para ${formatted}` });
     },

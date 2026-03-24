@@ -78,12 +78,12 @@ export function MtrDetailDrawer({ open, onOpenChange, mtr, onEdit }: Props) {
             <div className="space-y-2">
               <h4 className="text-sm font-semibold">Documentos</h4>
               {mtr.mtr_file_url ? (
-                <a href={mtr.mtr_file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
+                <a href={signedMap[mtr.mtr_file_url] || "#"} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
                   <FileText className="h-4 w-4" />{mtr.mtr_file_name || "Arquivo MTR"}<Download className="h-3.5 w-3.5" />
                 </a>
               ) : <p className="text-sm text-muted-foreground">Nenhum arquivo MTR anexado.</p>}
               {mtr.cdf_file_url ? (
-                <a href={mtr.cdf_file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
+                <a href={signedMap[mtr.cdf_file_url] || "#"} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
                   <FileText className="h-4 w-4" />{mtr.cdf_file_name || "Arquivo CDF"}<Download className="h-3.5 w-3.5" />
                 </a>
               ) : mtr.cdf_status === "received" ? <p className="text-sm text-muted-foreground">Nenhum arquivo CDF anexado.</p> : null}

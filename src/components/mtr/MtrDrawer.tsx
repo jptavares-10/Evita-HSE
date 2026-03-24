@@ -197,7 +197,7 @@ export function MtrDrawer({ open, onOpenChange, editMtr }: Props) {
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Documentos</h3>
               {(editMtr?.mtr_file_name && !mtrFile) && (
-                <p className="text-sm">Arquivo atual: <a href={editMtr.mtr_file_url} target="_blank" rel="noopener noreferrer" className="text-primary underline">{editMtr.mtr_file_name}</a></p>
+                <p className="text-sm">Arquivo atual: <span className="text-primary">{editMtr.mtr_file_name}</span></p>
               )}
               {mtrFile && <p className="text-sm">Novo arquivo: {mtrFile.name}</p>}
               <label className="flex items-center gap-2 cursor-pointer text-sm text-primary hover:underline">

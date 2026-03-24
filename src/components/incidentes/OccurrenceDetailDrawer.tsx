@@ -37,16 +37,6 @@ export function OccurrenceDetailDrawer({ open, onOpenChange, occurrence, onEdit,
   const updateAction = useUpdateActionStatus();
   const deleteAction = useDeleteCorrectiveAction();
   const closeOcc = useCloseOccurrence();
-
-  if (!occurrence) return null;
-
-  const typeInfo = getTypeInfo(occurrence.type);
-  const severityInfo = getSeverityInfo(occurrence.severity);
-  const statusInfo = getStatusInfo(occurrence.status);
-
-  const images = attachments.filter((a: any) => a.file_type === "image");
-  const documents = attachments.filter((a: any) => a.file_type === "document");
-
   // Resolve signed URLs for all attachment file_urls + evidence_urls
   const allFileUrls = useMemo(() => {
     const urls: string[] = attachments.map((a: any) => a.file_url).filter(Boolean);
@@ -56,6 +46,14 @@ export function OccurrenceDetailDrawer({ open, onOpenChange, occurrence, onEdit,
   const signedMap = useSignedUrls("occurrence-files", allFileUrls);
   const lightboxSignedUrl = useSignedUrl("occurrence-files", lightboxPath);
 
+  if (!occurrence) return null;
+
+  const typeInfo = getTypeInfo(occurrence.type);
+  const severityInfo = getSeverityInfo(occurrence.severity);
+  const statusInfo = getStatusInfo(occurrence.status);
+
+  const images = attachments.filter((a: any) => a.file_type === "image");
+  const documents = attachments.filter((a: any) => a.file_type === "document");
   const completedActions = actions.filter((a: any) => a.status === "completed").length;
 
   const handleAddAction = () => {

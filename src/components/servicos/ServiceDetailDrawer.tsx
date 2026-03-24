@@ -80,6 +80,10 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [editingNoteText, setEditingNoteText] = useState("");
 
+  // Resolve signed URLs for all attachments
+  const attachmentUrls = useMemo(() => attachments.map((a: any) => a.file_url).filter(Boolean), [attachments]);
+  const signedMap = useSignedUrls("service-attachments", attachmentUrls);
+
   if (!service) return null;
   const statusInfo = getStatusInfo(service.next_due_at, service.alert_days_before);
 

@@ -213,7 +213,7 @@ export function OccurrenceDetailDrawer({ open, onOpenChange, occurrence, onEdit,
                           <p>Concluída em {formatDateTimeBR(action.completed_at)} por {action.completer?.full_name}</p>
                           {action.completion_notes && <p>"{action.completion_notes}"</p>}
                           {action.evidence_url && (
-                            <a href={action.evidence_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
+                            <a href={signedMap[action.evidence_url] || "#"} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
                               <Download className="h-3 w-3" />{action.evidence_name || "Evidência"}
                             </a>
                           )}

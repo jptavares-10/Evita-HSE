@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { AlertTriangle, Calendar, MapPin, User, Pencil, Plus, Play, CheckCircle2, Trash2, FileText, Image, Download, X } from "lucide-react";
+import { useSignedUrls, useSignedUrl } from "@/hooks/useSignedUrl";
 import { getTypeInfo, getSeverityInfo, getStatusInfo, getActionStatusInfo, getBodyPartLabel, formatDateTimeBR, formatDateBR } from "@/lib/occurrences";
 import { useOccurrenceEmployees, useOccurrenceAttachments, useCorrectiveActions, useAddCorrectiveAction, useUpdateActionStatus, useDeleteCorrectiveAction, useCloseOccurrence } from "@/hooks/useOccurrences";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";

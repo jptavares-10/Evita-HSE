@@ -75,12 +75,11 @@ export function RegisterCompletionModal({ open, onOpenChange, service }: Props) 
       const path = `${service.company_id}/${service.id}/${result.historyId}/${crypto.randomUUID()}.${ext}`;
       const { error: uploadErr } = await supabase.storage.from("service-attachments").upload(path, pf.file);
       if (!uploadErr) {
-        const { data: { publicUrl } } = supabase.storage.from("service-attachments").getPublicUrl(path);
         await supabase.from("service_attachments").insert({
           service_id: service.id,
           company_id: service.company_id,
           file_name: pf.file.name,
-          file_url: publicUrl,
+          file_url: path,
           file_type: pf.type || "evidence",
           uploaded_by: profile.id,
           reference_date: refDate,

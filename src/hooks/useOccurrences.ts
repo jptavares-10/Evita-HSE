@@ -312,8 +312,7 @@ export function useUpdateActionStatus() {
           const path = `${company.id}/${values.occurrenceId}/actions/${values.actionId}.${ext}`;
           const { error: upErr } = await supabase.storage.from("occurrence-files").upload(path, values.evidenceFile, { upsert: true });
           if (upErr) throw upErr;
-          const { data: urlData } = supabase.storage.from("occurrence-files").getPublicUrl(path);
-          updatePayload.evidence_url = urlData.publicUrl;
+          updatePayload.evidence_url = path;
           updatePayload.evidence_name = values.evidenceFile.name;
         }
       }

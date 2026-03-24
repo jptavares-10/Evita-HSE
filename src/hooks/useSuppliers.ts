@@ -287,7 +287,6 @@ export function useUploadSupplierDocument() {
       const filePath = `${company!.id}/${values.supplier_id}/${folderPath}/${Date.now()}_${values.file.name}`;
       const { error: upErr } = await supabase.storage.from("supplier-documents").upload(filePath, values.file);
       if (upErr) throw upErr;
-      const { data: urlData } = supabase.storage.from("supplier-documents").getPublicUrl(filePath);
       const ext = values.file.name.split(".").pop()?.toLowerCase() || "";
       const { error } = await supabase.from("supplier_documents").insert({
         supplier_id: values.supplier_id,
@@ -295,7 +294,7 @@ export function useUploadSupplierDocument() {
         company_id: company!.id,
         description: values.description,
         reference_name: values.reference_name || null,
-        file_url: urlData.publicUrl,
+        file_url: filePath,
         file_name: values.file.name,
         file_type: ext,
         uploaded_by_supplier: false,

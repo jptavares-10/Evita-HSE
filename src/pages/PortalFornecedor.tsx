@@ -85,7 +85,6 @@ export default function PortalFornecedor() {
       const filePath = `${portalData.company_id}/${portalData.supplier_id}/${folderPath}/${Date.now()}_${uploadFile.name}`;
       const { error: upErr } = await supabase.storage.from("supplier-documents").upload(filePath, uploadFile);
       if (upErr) throw upErr;
-      const { data: urlData } = supabase.storage.from("supplier-documents").getPublicUrl(filePath);
       const ext = uploadFile.name.split(".").pop()?.toLowerCase() || "";
 
       const { data, error: rpcErr } = await supabase.rpc("upload_supplier_document", {
@@ -93,7 +92,7 @@ export default function PortalFornecedor() {
         p_folder_id: uploadFolderId === "root" ? null : uploadFolderId,
         p_description: uploadDescription.trim(),
         p_reference_name: uploadReference.trim() || null,
-        p_file_url: urlData.publicUrl,
+        p_file_url: filePath,
         p_file_name: uploadFile.name,
         p_file_type: ext,
       });

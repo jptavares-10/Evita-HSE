@@ -156,14 +156,12 @@ export function useRegisterCdf() {
       const path = `${company.id}/${values.mtrId}/cdf/cdf_file.${ext}`;
       const { error: upErr } = await supabase.storage.from("mtr-files").upload(path, values.cdf_file, { upsert: true });
       if (upErr) throw upErr;
-      const { data: urlData } = supabase.storage.from("mtr-files").getPublicUrl(path);
-
       // Update MTR
       const { error: mtrErr } = await supabase.from("mtrs").update({
         cdf_status: "received",
         cdf_number: values.cdf_number,
         cdf_received_at: values.cdf_received_at,
-        cdf_file_url: urlData.publicUrl,
+        cdf_file_url: path,
         cdf_file_name: values.cdf_file.name,
         cdf_notes: values.cdf_notes || null,
         updated_at: new Date().toISOString(),

@@ -40,13 +40,16 @@ export default function Empresa() {
       return;
     }
     setLoading(true);
-    const { error } = await supabase
-      .from("companies")
-      .update({ name: name.trim(), cnpj: cnpj || null, segment: segment || null })
-      .eq("id", company.id);
+    const { data, error } = await supabase.rpc("update_company_safe_fields", {
+      p_name: name.trim(),
+      p_cnpj: cnpj || null,
+      p_segment: segment || null,
+      p_logo_url: company.logo_url,
+    });
 
-    if (error) {
-      toast({ title: "Erro", description: "Erro ao atualizar dados.", variant: "destructive" });
+    const rpcError = error || (data && !(data as any).success ? new Error((data as any).error) : null);
+    if (rpcError) {
+      toast({ title: "Erro", description: typeof rpcError === "string" ? rpcError : (rpcError as any).message || "Erro ao atualizar dados.", variant: "destructive" });
     } else {
       toast({ title: "Dados atualizados com sucesso!" });
       await refreshCompany();
@@ -73,7 +76,12 @@ export default function Empresa() {
 
     const { data: { publicUrl } } = supabase.storage.from("company-logos").getPublicUrl(path);
 
-    await supabase.from("companies").update({ logo_url: publicUrl }).eq("id", company.id);
+    await supabase.rpc("update_company_safe_fields", {
+      p_name: company.name,
+      p_cnpj: company.cnpj,
+      p_segment: company.segment,
+      p_logo_url: publicUrl,
+    });
     toast({ title: "Logo atualizada!" });
     await refreshCompany();
     setUploading(false);

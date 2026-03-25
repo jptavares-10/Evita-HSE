@@ -1251,6 +1251,15 @@ export type Database = {
         Args: { p_company_id: string }
         Returns: undefined
       }
+      update_company_safe_fields: {
+        Args: {
+          p_cnpj?: string
+          p_logo_url?: string
+          p_name: string
+          p_segment?: string
+        }
+        Returns: Json
+      }
       upload_supplier_document: {
         Args: {
           p_description?: string

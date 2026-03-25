@@ -190,7 +190,7 @@ export default function PortalFornecedor() {
             ) : (
               <div className="space-y-2">
                 {filteredDocs.map((doc: any) => (
-                  <PortalDocRow key={doc.id} doc={doc} />
+                  <PortalDocRow key={doc.id} doc={doc} token={token!} />
                 ))}
               </div>
             )}

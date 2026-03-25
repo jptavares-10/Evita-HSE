@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from "react";
-import { getSignedUrl } from "@/lib/storage-utils";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";

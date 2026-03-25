@@ -47,9 +47,9 @@ export default function Empresa() {
       p_logo_url: company.logo_url,
     });
 
-    if (error) {
-      toast({ title: "Erro", description: "Erro ao atualizar dados.", variant: "destructive" });
-    } else {
+    const rpcError = error || (data && !(data as any).success ? new Error((data as any).error) : null);
+    if (rpcError) {
+      toast({ title: "Erro", description: typeof rpcError === "string" ? rpcError : (rpcError as any).message || "Erro ao atualizar dados.", variant: "destructive" });
       toast({ title: "Dados atualizados com sucesso!" });
       await refreshCompany();
     }

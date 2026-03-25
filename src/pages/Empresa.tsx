@@ -76,7 +76,12 @@ export default function Empresa() {
 
     const { data: { publicUrl } } = supabase.storage.from("company-logos").getPublicUrl(path);
 
-    await supabase.from("companies").update({ logo_url: publicUrl }).eq("id", company.id);
+    await supabase.rpc("update_company_safe_fields", {
+      p_name: company.name,
+      p_cnpj: company.cnpj,
+      p_segment: company.segment,
+      p_logo_url: publicUrl,
+    });
     toast({ title: "Logo atualizada!" });
     await refreshCompany();
     setUploading(false);

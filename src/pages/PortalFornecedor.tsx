@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from "react";
-import { getSignedUrl } from "@/lib/storage-utils";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -82,23 +81,19 @@ export default function PortalFornecedor() {
     if (!uploadFile || !uploadDescription.trim()) return;
     setUploading(true);
     try {
-      const folderPath = uploadFolderId === "root" ? "root" : uploadFolderId;
-      const filePath = `${portalData.company_id}/${portalData.supplier_id}/${folderPath}/${Date.now()}_${uploadFile.name}`;
-      const { error: upErr } = await supabase.storage.from("supplier-documents").upload(filePath, uploadFile);
-      if (upErr) throw upErr;
-      const ext = uploadFile.name.split(".").pop()?.toLowerCase() || "";
+      const formData = new FormData();
+      formData.append("token", token!);
+      formData.append("file", uploadFile);
+      formData.append("description", uploadDescription.trim());
+      if (uploadReference.trim()) formData.append("reference_name", uploadReference.trim());
+      if (uploadFolderId !== "root") formData.append("folder_id", uploadFolderId);
 
-      const { data, error: rpcErr } = await supabase.rpc("upload_supplier_document", {
-        p_token: token!,
-        p_folder_id: uploadFolderId === "root" ? null : uploadFolderId,
-        p_description: uploadDescription.trim(),
-        p_reference_name: uploadReference.trim() || null,
-        p_file_url: filePath,
-        p_file_name: uploadFile.name,
-        p_file_type: ext,
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const res = await fetch(`${supabaseUrl}/functions/v1/supplier-portal-upload`, {
+        method: "POST",
+        body: formData,
       });
-      if (rpcErr) throw rpcErr;
-      const result = data as any;
+      const result = await res.json();
       if (!result.success) throw new Error(result.error);
 
       toast({ title: "Documento enviado com sucesso" });
@@ -195,7 +190,7 @@ export default function PortalFornecedor() {
             ) : (
               <div className="space-y-2">
                 {filteredDocs.map((doc: any) => (
-                  <PortalDocRow key={doc.id} doc={doc} />
+                  <PortalDocRow key={doc.id} doc={doc} token={token!} />
                 ))}
               </div>
             )}
@@ -276,13 +271,20 @@ export default function PortalFornecedor() {
   );
 }
 
-function PortalDocRow({ doc }: { doc: any }) {
+function PortalDocRow({ doc, token }: { doc: any; token: string }) {
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
   useEffect(() => {
     let cancelled = false;
-    getSignedUrl("supplier-documents", doc.file_url).then((u) => { if (!cancelled) setSignedUrl(u); });
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    fetch(`${supabaseUrl}/functions/v1/supplier-portal-file`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, file_path: doc.file_url }),
+    })
+      .then((r) => r.json())
+      .then((result) => { if (!cancelled && result.signed_url) setSignedUrl(result.signed_url); });
     return () => { cancelled = true; };
-  }, [doc.file_url]);
+  }, [doc.file_url, token]);
 
   return (
     <div className="border rounded-lg p-3 flex items-center gap-3">

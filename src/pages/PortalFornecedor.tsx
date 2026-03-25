@@ -271,13 +271,20 @@ export default function PortalFornecedor() {
   );
 }
 
-function PortalDocRow({ doc }: { doc: any }) {
+function PortalDocRow({ doc, token }: { doc: any; token: string }) {
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
   useEffect(() => {
     let cancelled = false;
-    getSignedUrl("supplier-documents", doc.file_url).then((u) => { if (!cancelled) setSignedUrl(u); });
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    fetch(`${supabaseUrl}/functions/v1/supplier-portal-file`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, file_path: doc.file_url }),
+    })
+      .then((r) => r.json())
+      .then((result) => { if (!cancelled && result.signed_url) setSignedUrl(result.signed_url); });
     return () => { cancelled = true; };
-  }, [doc.file_url]);
+  }, [doc.file_url, token]);
 
   return (
     <div className="border rounded-lg p-3 flex items-center gap-3">

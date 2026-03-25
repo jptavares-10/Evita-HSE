@@ -82,23 +82,19 @@ export default function PortalFornecedor() {
     if (!uploadFile || !uploadDescription.trim()) return;
     setUploading(true);
     try {
-      const folderPath = uploadFolderId === "root" ? "root" : uploadFolderId;
-      const filePath = `${portalData.company_id}/${portalData.supplier_id}/${folderPath}/${Date.now()}_${uploadFile.name}`;
-      const { error: upErr } = await supabase.storage.from("supplier-documents").upload(filePath, uploadFile);
-      if (upErr) throw upErr;
-      const ext = uploadFile.name.split(".").pop()?.toLowerCase() || "";
+      const formData = new FormData();
+      formData.append("token", token!);
+      formData.append("file", uploadFile);
+      formData.append("description", uploadDescription.trim());
+      if (uploadReference.trim()) formData.append("reference_name", uploadReference.trim());
+      if (uploadFolderId !== "root") formData.append("folder_id", uploadFolderId);
 
-      const { data, error: rpcErr } = await supabase.rpc("upload_supplier_document", {
-        p_token: token!,
-        p_folder_id: uploadFolderId === "root" ? null : uploadFolderId,
-        p_description: uploadDescription.trim(),
-        p_reference_name: uploadReference.trim() || null,
-        p_file_url: filePath,
-        p_file_name: uploadFile.name,
-        p_file_type: ext,
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const res = await fetch(`${supabaseUrl}/functions/v1/supplier-portal-upload`, {
+        method: "POST",
+        body: formData,
       });
-      if (rpcErr) throw rpcErr;
-      const result = data as any;
+      const result = await res.json();
       if (!result.success) throw new Error(result.error);
 
       toast({ title: "Documento enviado com sucesso" });

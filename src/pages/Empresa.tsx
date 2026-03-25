@@ -40,10 +40,12 @@ export default function Empresa() {
       return;
     }
     setLoading(true);
-    const { error } = await supabase
-      .from("companies")
-      .update({ name: name.trim(), cnpj: cnpj || null, segment: segment || null })
-      .eq("id", company.id);
+    const { data, error } = await supabase.rpc("update_company_safe_fields", {
+      p_name: name.trim(),
+      p_cnpj: cnpj || null,
+      p_segment: segment || null,
+      p_logo_url: company.logo_url,
+    });
 
     if (error) {
       toast({ title: "Erro", description: "Erro ao atualizar dados.", variant: "destructive" });

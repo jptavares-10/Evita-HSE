@@ -22,6 +22,8 @@ export default function PortalFornecedor() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [portalData, setPortalData] = useState<any>(null);
+  const [rateLimited, setRateLimited] = useState(false);
+  const requestTimestamps = useRef<number[]>([]);
 
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [newFolderOpen, setNewFolderOpen] = useState(false);
@@ -33,6 +35,18 @@ export default function PortalFornecedor() {
   const [uploadReference, setUploadReference] = useState("");
   const [uploadFolderId, setUploadFolderId] = useState<string>("root");
   const [uploading, setUploading] = useState(false);
+
+  const checkRateLimit = useCallback(() => {
+    const now = Date.now();
+    requestTimestamps.current = requestTimestamps.current.filter(t => now - t < RATE_LIMIT_WINDOW);
+    if (requestTimestamps.current.length >= RATE_LIMIT_MAX) {
+      setRateLimited(true);
+      setTimeout(() => setRateLimited(false), RATE_LIMIT_WINDOW);
+      return false;
+    }
+    requestTimestamps.current.push(now);
+    return true;
+  }, []);
 
   const fetchPortalData = async () => {
     if (!token) return;

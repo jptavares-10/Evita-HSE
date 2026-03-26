@@ -132,6 +132,16 @@ export default function PortalFornecedor() {
     } finally { setUploading(false); }
   };
 
+  if (rateLimited) return (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="text-center space-y-4 max-w-md">
+        <AlertTriangle className="h-12 w-12 text-destructive mx-auto" />
+        <h1 className="text-xl font-bold">Muitas tentativas</h1>
+        <p className="text-muted-foreground">Aguarde alguns minutos antes de tentar novamente.</p>
+      </div>
+    </div>
+  );
+
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
@@ -143,7 +153,7 @@ export default function PortalFornecedor() {
       <div className="text-center space-y-4 max-w-md">
         <AlertTriangle className="h-12 w-12 text-destructive mx-auto" />
         <h1 className="text-xl font-bold">Portal indisponível</h1>
-        <p className="text-muted-foreground">{error}</p>
+        <p className="text-muted-foreground">Link inválido ou expirado.</p>
       </div>
     </div>
   );

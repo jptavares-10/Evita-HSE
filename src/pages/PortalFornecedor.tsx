@@ -97,15 +97,23 @@ export default function PortalFornecedor() {
     fetchPortalData();
   };
 
+  const ALLOWED_EXTENSIONS = ['.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx'];
+
   const handleUpload = async () => {
     if (!uploadFile || !uploadDescription.trim()) return;
+    if (uploadDescription.trim().length > 5000) { toast({ title: "Erro", description: "Descrição muito longa (máx 5000 caracteres).", variant: "destructive" }); return; }
+    if (uploadReference.trim().length > 255) { toast({ title: "Erro", description: "Referência muito longa (máx 255 caracteres).", variant: "destructive" }); return; }
+    if (uploadFile.size > MAX_FILE_SIZE) { toast({ title: "Erro", description: "Arquivo excede o limite de 20MB.", variant: "destructive" }); return; }
+    const ext = '.' + uploadFile.name.split('.').pop()?.toLowerCase();
+    if (!ALLOWED_EXTENSIONS.includes(ext)) { toast({ title: "Erro", description: "Tipo de arquivo não permitido.", variant: "destructive" }); return; }
+    if (!checkRateLimit()) { toast({ title: "Muitas tentativas", description: "Aguarde alguns minutos.", variant: "destructive" }); return; }
     setUploading(true);
     try {
       const formData = new FormData();
       formData.append("token", token!);
       formData.append("file", uploadFile);
-      formData.append("description", uploadDescription.trim());
-      if (uploadReference.trim()) formData.append("reference_name", uploadReference.trim());
+      formData.append("description", uploadDescription.trim().substring(0, 5000));
+      if (uploadReference.trim()) formData.append("reference_name", uploadReference.trim().substring(0, 255));
       if (uploadFolderId !== "root") formData.append("folder_id", uploadFolderId);
 
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -120,7 +128,7 @@ export default function PortalFornecedor() {
       setUploadFile(null); setUploadDescription(""); setUploadReference(""); setUploadFolderId("root"); setUploadOpen(false);
       fetchPortalData();
     } catch (e: any) {
-      toast({ title: "Erro", description: e.message, variant: "destructive" });
+      toast({ title: "Erro", description: "Não foi possível enviar o documento.", variant: "destructive" });
     } finally { setUploading(false); }
   };
 

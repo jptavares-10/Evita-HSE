@@ -81,14 +81,15 @@ export default function PortalFornecedor() {
   }, [documents, selectedFolderId]);
 
   const handleCreateFolder = async () => {
-    if (!newFolderName.trim()) return;
+    if (!newFolderName.trim() || newFolderName.trim().length > 255) return;
+    if (!checkRateLimit()) { toast({ title: "Muitas tentativas", description: "Aguarde alguns minutos.", variant: "destructive" }); return; }
     const parentId = newFolderParent === "root" ? null : newFolderParent;
     const { data, error: rpcErr } = await supabase.rpc("create_supplier_folder_portal", {
       p_token: token!,
-      p_name: newFolderName.trim(),
+      p_name: newFolderName.trim().substring(0, 255),
       p_parent_folder_id: parentId,
     });
-    if (rpcErr) { toast({ title: "Erro", description: rpcErr.message, variant: "destructive" }); return; }
+    if (rpcErr) { toast({ title: "Erro", description: "Não foi possível criar a pasta.", variant: "destructive" }); return; }
     const result = data as any;
     if (!result.success) { toast({ title: "Erro", description: result.error, variant: "destructive" }); return; }
     toast({ title: "Pasta criada" });

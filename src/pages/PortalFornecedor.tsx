@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,10 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { formatDateBR, getFileIcon, getFileExtension } from "@/lib/suppliers";
 
+const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
+const RATE_LIMIT_WINDOW = 60_000; // 1 minute
+const RATE_LIMIT_MAX = 10;
+
 export default function PortalFornecedor() {
   const { token } = useParams<{ token: string }>();
   const { toast } = useToast();
@@ -18,6 +22,8 @@ export default function PortalFornecedor() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [portalData, setPortalData] = useState<any>(null);
+  const [rateLimited, setRateLimited] = useState(false);
+  const requestTimestamps = useRef<number[]>([]);
 
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [newFolderOpen, setNewFolderOpen] = useState(false);
@@ -30,20 +36,33 @@ export default function PortalFornecedor() {
   const [uploadFolderId, setUploadFolderId] = useState<string>("root");
   const [uploading, setUploading] = useState(false);
 
+  const checkRateLimit = useCallback(() => {
+    const now = Date.now();
+    requestTimestamps.current = requestTimestamps.current.filter(t => now - t < RATE_LIMIT_WINDOW);
+    if (requestTimestamps.current.length >= RATE_LIMIT_MAX) {
+      setRateLimited(true);
+      setTimeout(() => setRateLimited(false), RATE_LIMIT_WINDOW);
+      return false;
+    }
+    requestTimestamps.current.push(now);
+    return true;
+  }, []);
+
   const fetchPortalData = async () => {
     if (!token) return;
+    if (!checkRateLimit()) return;
     setLoading(true);
     try {
       const { data, error: rpcErr } = await supabase.rpc("get_supplier_portal_data", { p_token: token });
       if (rpcErr) throw rpcErr;
       const result = data as any;
       if (!result.success) {
-        setError(result.error);
+        setError("Link inválido ou expirado.");
       } else {
         setPortalData(result);
       }
     } catch (e: any) {
-      setError("Erro ao carregar o portal.");
+      setError("Link inválido ou expirado.");
     } finally {
       setLoading(false);
     }
@@ -62,14 +81,15 @@ export default function PortalFornecedor() {
   }, [documents, selectedFolderId]);
 
   const handleCreateFolder = async () => {
-    if (!newFolderName.trim()) return;
+    if (!newFolderName.trim() || newFolderName.trim().length > 255) return;
+    if (!checkRateLimit()) { toast({ title: "Muitas tentativas", description: "Aguarde alguns minutos.", variant: "destructive" }); return; }
     const parentId = newFolderParent === "root" ? null : newFolderParent;
     const { data, error: rpcErr } = await supabase.rpc("create_supplier_folder_portal", {
       p_token: token!,
-      p_name: newFolderName.trim(),
+      p_name: newFolderName.trim().substring(0, 255),
       p_parent_folder_id: parentId,
     });
-    if (rpcErr) { toast({ title: "Erro", description: rpcErr.message, variant: "destructive" }); return; }
+    if (rpcErr) { toast({ title: "Erro", description: "Não foi possível criar a pasta.", variant: "destructive" }); return; }
     const result = data as any;
     if (!result.success) { toast({ title: "Erro", description: result.error, variant: "destructive" }); return; }
     toast({ title: "Pasta criada" });
@@ -77,15 +97,23 @@ export default function PortalFornecedor() {
     fetchPortalData();
   };
 
+  const ALLOWED_EXTENSIONS = ['.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx'];
+
   const handleUpload = async () => {
     if (!uploadFile || !uploadDescription.trim()) return;
+    if (uploadDescription.trim().length > 5000) { toast({ title: "Erro", description: "Descrição muito longa (máx 5000 caracteres).", variant: "destructive" }); return; }
+    if (uploadReference.trim().length > 255) { toast({ title: "Erro", description: "Referência muito longa (máx 255 caracteres).", variant: "destructive" }); return; }
+    if (uploadFile.size > MAX_FILE_SIZE) { toast({ title: "Erro", description: "Arquivo excede o limite de 20MB.", variant: "destructive" }); return; }
+    const ext = '.' + uploadFile.name.split('.').pop()?.toLowerCase();
+    if (!ALLOWED_EXTENSIONS.includes(ext)) { toast({ title: "Erro", description: "Tipo de arquivo não permitido.", variant: "destructive" }); return; }
+    if (!checkRateLimit()) { toast({ title: "Muitas tentativas", description: "Aguarde alguns minutos.", variant: "destructive" }); return; }
     setUploading(true);
     try {
       const formData = new FormData();
       formData.append("token", token!);
       formData.append("file", uploadFile);
-      formData.append("description", uploadDescription.trim());
-      if (uploadReference.trim()) formData.append("reference_name", uploadReference.trim());
+      formData.append("description", uploadDescription.trim().substring(0, 5000));
+      if (uploadReference.trim()) formData.append("reference_name", uploadReference.trim().substring(0, 255));
       if (uploadFolderId !== "root") formData.append("folder_id", uploadFolderId);
 
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -100,9 +128,19 @@ export default function PortalFornecedor() {
       setUploadFile(null); setUploadDescription(""); setUploadReference(""); setUploadFolderId("root"); setUploadOpen(false);
       fetchPortalData();
     } catch (e: any) {
-      toast({ title: "Erro", description: e.message, variant: "destructive" });
+      toast({ title: "Erro", description: "Não foi possível enviar o documento.", variant: "destructive" });
     } finally { setUploading(false); }
   };
+
+  if (rateLimited) return (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="text-center space-y-4 max-w-md">
+        <AlertTriangle className="h-12 w-12 text-destructive mx-auto" />
+        <h1 className="text-xl font-bold">Muitas tentativas</h1>
+        <p className="text-muted-foreground">Aguarde alguns minutos antes de tentar novamente.</p>
+      </div>
+    </div>
+  );
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-background">
@@ -115,7 +153,7 @@ export default function PortalFornecedor() {
       <div className="text-center space-y-4 max-w-md">
         <AlertTriangle className="h-12 w-12 text-destructive mx-auto" />
         <h1 className="text-xl font-bold">Portal indisponível</h1>
-        <p className="text-muted-foreground">{error}</p>
+        <p className="text-muted-foreground">Link inválido ou expirado.</p>
       </div>
     </div>
   );
@@ -135,7 +173,7 @@ export default function PortalFornecedor() {
       <main className="max-w-5xl mx-auto px-6 py-8">
         <div className="mb-6">
           <p className="text-sm text-muted-foreground">
-            Envie seus documentos para <strong>{portalData.company_name}</strong>. Seus arquivos ficam organizados e disponíveis para consulta.
+            Envie seus documentos. Seus arquivos ficam organizados e disponíveis para consulta.
           </p>
         </div>
 

@@ -50,18 +50,19 @@ export default function PortalFornecedor() {
 
   const fetchPortalData = async () => {
     if (!token) return;
+    if (!checkRateLimit()) return;
     setLoading(true);
     try {
       const { data, error: rpcErr } = await supabase.rpc("get_supplier_portal_data", { p_token: token });
       if (rpcErr) throw rpcErr;
       const result = data as any;
       if (!result.success) {
-        setError(result.error);
+        setError("Link inválido ou expirado.");
       } else {
         setPortalData(result);
       }
     } catch (e: any) {
-      setError("Erro ao carregar o portal.");
+      setError("Link inválido ou expirado.");
     } finally {
       setLoading(false);
     }

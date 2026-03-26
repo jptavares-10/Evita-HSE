@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,10 @@ import { Shield, Folder, FolderOpen, FolderPlus, Upload, Eye, Download, FileText
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { formatDateBR, getFileIcon, getFileExtension } from "@/lib/suppliers";
+
+const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
+const RATE_LIMIT_WINDOW = 60_000; // 1 minute
+const RATE_LIMIT_MAX = 10;
 
 export default function PortalFornecedor() {
   const { token } = useParams<{ token: string }>();

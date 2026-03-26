@@ -173,7 +173,7 @@ export default function PortalFornecedor() {
       <main className="max-w-5xl mx-auto px-6 py-8">
         <div className="mb-6">
           <p className="text-sm text-muted-foreground">
-            Envie seus documentos para <strong>{portalData.company_name}</strong>. Seus arquivos ficam organizados e disponíveis para consulta.
+            Envie seus documentos. Seus arquivos ficam organizados e disponíveis para consulta.
           </p>
         </div>
 

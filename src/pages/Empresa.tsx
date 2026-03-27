@@ -16,7 +16,7 @@ const SEGMENTS = [
 ];
 
 export default function Empresa() {
-  const { company, refreshCompany } = useAuth();
+  const { company, profile, refreshCompany } = useAuth();
   const { toast } = useToast();
   const [name, setName] = useState("");
   const [cnpj, setCnpj] = useState("");
@@ -24,6 +24,7 @@ export default function Empresa() {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const isExpired = company?.plan === "expired";
+  const isAdmin = profile?.role === "admin";
 
   useEffect(() => {
     if (company) {
@@ -115,7 +116,7 @@ export default function Empresa() {
 
         <div className="space-y-2">
           <Label>Nome da empresa</Label>
-          <Input value={name} onChange={(e) => setName(e.target.value)} />
+          <Input value={name} onChange={(e) => setName(e.target.value)} disabled={!isAdmin} />
         </div>
 
         <div className="space-y-2">
@@ -125,12 +126,13 @@ export default function Empresa() {
             value={cnpj}
             onChange={(e) => setCnpj(formatCNPJ(e.target.value))}
             maxLength={18}
+            disabled={!isAdmin}
           />
         </div>
 
         <div className="space-y-2">
           <Label>Segmento</Label>
-          <Select value={segment} onValueChange={setSegment}>
+          <Select value={segment} onValueChange={setSegment} disabled={!isAdmin}>
             <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
             <SelectContent>
               {SEGMENTS.map((s) => (
@@ -140,16 +142,22 @@ export default function Empresa() {
           </Select>
         </div>
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div>
-              <Button onClick={handleSave} disabled={loading || isExpired}>
-                {loading ? "Salvando..." : "Salvar alterações"}
-              </Button>
-            </div>
-          </TooltipTrigger>
-          {isExpired && <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>}
-        </Tooltip>
+        {!isAdmin && (
+          <p className="text-sm text-muted-foreground">Apenas administradores podem editar os dados da empresa.</p>
+        )}
+
+        {isAdmin && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <Button onClick={handleSave} disabled={loading || isExpired}>
+                  {loading ? "Salvando..." : "Salvar alterações"}
+                </Button>
+              </div>
+            </TooltipTrigger>
+            {isExpired && <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>}
+          </Tooltip>
+        )}
       </div>
     </div>
   );

@@ -1330,6 +1330,7 @@ export type Database = {
       }
       get_supplier_portal_data: { Args: { p_token: string }; Returns: Json }
       get_user_company_id: { Args: never; Returns: string }
+      remove_member: { Args: { p_member_id: string }; Returns: Json }
       seed_default_categories: {
         Args: { p_company_id: string }
         Returns: undefined

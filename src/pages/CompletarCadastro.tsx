@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { translateSupabaseError } from "@/lib/supabase-errors";
@@ -23,14 +23,21 @@ const SEGMENTS = [
 ];
 
 export default function CompletarCadastro() {
-  const { user, refreshProfile } = useAuth();
+  const { user, profile, profileLoaded, refreshProfile } = useAuth();
+  const navigate = useNavigate();
+
+  // If profile already has company_id, redirect to dashboard
+  useEffect(() => {
+    if (profileLoaded && profile?.company_id) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [profileLoaded, profile, navigate]);
   const [companyName, setCompanyName] = useState("");
   const [cnpj, setCnpj] = useState("");
   const [segment, setSegment] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {

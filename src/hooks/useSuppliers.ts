@@ -88,7 +88,7 @@ export function useSuppliers() {
         .select("*, supplier_categories(id, name)")
         .order("name");
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as any[];
     },
     enabled: !!company,
   });

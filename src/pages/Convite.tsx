@@ -75,6 +75,21 @@ export default function Convite() {
       return;
     }
 
+    // Wait for session to be active before inserting profile
+    let activeSession = null;
+    const start = Date.now();
+    while (Date.now() - start < 5000) {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) { activeSession = data.session; break; }
+      await new Promise((r) => setTimeout(r, 500));
+    }
+
+    if (!activeSession) {
+      setError("Erro ao iniciar sessão. Tente novamente.");
+      setSubmitting(false);
+      return;
+    }
+
     const { error: profileError } = await supabase.from("profiles").insert({
       id: authData.user.id,
       company_id: invitation.company_id,

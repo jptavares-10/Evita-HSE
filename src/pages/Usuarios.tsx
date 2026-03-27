@@ -126,7 +126,12 @@ export default function Usuarios() {
   };
 
   const handleRemoveUser = async (userId: string) => {
-    await supabase.from("profiles").delete().eq("id", userId);
+    const { data, error } = await supabase.rpc("remove_member", { p_member_id: userId });
+    const result = data as any;
+    if (error || !result?.success) {
+      toast({ title: "Erro", description: result?.error || "Erro ao remover usuário.", variant: "destructive" });
+      return;
+    }
     toast({ title: "Usuário removido." });
     fetchData();
   };

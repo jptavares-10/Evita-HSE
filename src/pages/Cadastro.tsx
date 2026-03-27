@@ -134,7 +134,20 @@ export default function Cadastro() {
       }
 
       // 3. Call RPC to create company + profile atomically
-      await callRpc();
+      const rpcResult = await callRpc();
+
+      // 4. Verify profile was created before redirecting
+      const { data: profileCheck } = await supabase
+        .from("profiles")
+        .select("id, company_id")
+        .eq("id", session.user.id)
+        .maybeSingle();
+
+      if (!profileCheck?.company_id) {
+        setError("Erro ao finalizar cadastro. Tente novamente.");
+        setLoading(false);
+        return;
+      }
 
       toast({
         title: "Bem-vindo ao Evita HSE!",

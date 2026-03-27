@@ -66,7 +66,7 @@ export function useJobPositions() {
     queryKey: ["job-positions", company?.id],
     queryFn: async () => {
       if (!company) return [];
-      const { data, error } = await supabase.from("job_positions").select("*").order("name");
+      const { data, error } = await supabase.from("job_positions").select("*, sectors(id, name)").order("name");
       if (error) throw error;
       return data ?? [];
     },

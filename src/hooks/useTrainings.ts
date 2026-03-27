@@ -84,7 +84,7 @@ export function useSaveJobPosition() {
         const { error } = await supabase.from("job_positions").update({ name: v.name, sector_id: v.sector_id ?? null }).eq("id", v.id);
         if (error) throw error;
       } else {
-        const { data, error } = await supabase.from("job_positions").insert({ company_id: company.id, name: v.name }).select("id").single();
+        const { data, error } = await supabase.from("job_positions").insert({ company_id: company.id, name: v.name, sector_id: v.sector_id ?? null }).select("id").single();
         if (error) throw error;
         return data.id;
       }

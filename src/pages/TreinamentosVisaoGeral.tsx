@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useEmployees, useTrainings, useTrainingMatrix, useAllRecords, useJobPositions } from "@/hooks/useTrainings";
+import { useEmployees, useTrainings, useTrainingMatrix, useAllRecords, useJobPositions, useSectors, useTrainingSectorRules } from "@/hooks/useTrainings";
 import { computeEmployeeCompliance, getRecordStatus, formatDateBR } from "@/lib/trainings";
 import { TrainingKpiCards } from "@/components/treinamentos/TrainingKpiCards";
 import { Badge } from "@/components/ui/badge";

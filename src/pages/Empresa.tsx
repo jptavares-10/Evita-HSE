@@ -24,6 +24,7 @@ export default function Empresa() {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const isExpired = company?.plan === "expired";
+  const isAdmin = profile?.role === "admin";
 
   useEffect(() => {
     if (company) {

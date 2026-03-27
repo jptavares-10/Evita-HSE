@@ -224,8 +224,7 @@ export default function TreinamentosVisaoGeral() {
           const st = getRecordStatus(latest.expires_at, t.alert_days_before ?? 30, true);
           if (st === "expired" && (filterPendencyType === "all" || filterPendencyType === "expired")) {
             rows.push([emp.name, emp.job_positions?.name || "", emp.sectors?.name || "", t.name, "Vencido", formatDateBR(latest.expires_at)]);
-          }
-          }
+        }
         }
       }
     }

@@ -104,15 +104,24 @@ export default function TreinamentosCargos() {
             className="pl-9"
           />
         </div>
-        <div className="flex gap-2">
-          <Input
-            placeholder="Nome do novo cargo"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-            disabled={isExpired}
-            className="w-56"
-          />
+        <div className="flex gap-2 items-end">
+          <div>
+            <Input
+              placeholder="Nome do novo cargo"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleAdd()}
+              disabled={isExpired}
+              className="w-56"
+            />
+          </div>
+          <Select value={newSectorId} onValueChange={setNewSectorId}>
+            <SelectTrigger className="w-[180px]"><SelectValue placeholder="Setor (opcional)" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Sem setor</SelectItem>
+              {sectors.map((s: any) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
           <Tooltip>
             <TooltipTrigger asChild>
               <span>

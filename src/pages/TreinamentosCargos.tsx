@@ -160,7 +160,6 @@ export default function TreinamentosCargos() {
                 <TableHead className="w-40">Criado em</TableHead>
                 <TableHead className="w-24 text-right">Ações</TableHead>
               </TableRow>
-              </TableRow>
             </TableHeader>
             <TableBody>
               {filtered.map((pos: any) => (

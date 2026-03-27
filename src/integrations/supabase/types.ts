@@ -986,6 +986,13 @@ export type Database = {
             referencedRelation: "suppliers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "supplier_documents_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       supplier_folders: {
@@ -1036,6 +1043,13 @@ export type Database = {
             columns: ["supplier_id"]
             isOneToOne: false
             referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_folders_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -1228,7 +1242,76 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      suppliers_safe: {
+        Row: {
+          category_id: string | null
+          company_id: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string | null
+          created_by: string | null
+          id: string | null
+          name: string | null
+          notes: string | null
+          portal_enabled: boolean | null
+          portal_token: string | null
+          status: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          company_id?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string | null
+          name?: string | null
+          notes?: string | null
+          portal_enabled?: boolean | null
+          portal_token?: never
+          status?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          company_id?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string | null
+          name?: string | null
+          notes?: string | null
+          portal_enabled?: boolean | null
+          portal_token?: never
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "suppliers_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "suppliers_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "suppliers_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       create_company_and_admin: {

@@ -106,15 +106,22 @@ export default function TreinamentosCargos() {
             className="pl-9"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
           <Input
             placeholder="Nome do novo cargo"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAdd()}
             disabled={isExpired}
-            className="w-56"
+            className="w-48"
           />
+          <Select value={newSectorId} onValueChange={setNewSectorId}>
+            <SelectTrigger className="w-40"><SelectValue placeholder="Setor (opcional)" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">Nenhum</SelectItem>
+              {sectors.map((s: any) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
           <Tooltip>
             <TooltipTrigger asChild>
               <span>
@@ -125,6 +132,9 @@ export default function TreinamentosCargos() {
             </TooltipTrigger>
             {isExpired && <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>}
           </Tooltip>
+          <Button variant="outline" size="icon" onClick={() => setSectorsModalOpen(true)} title="Gerenciar Setores">
+            <Settings className="h-4 w-4" />
+          </Button>
         </div>
       </div>
 

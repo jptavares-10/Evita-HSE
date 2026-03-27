@@ -96,8 +96,9 @@ export function useSaveJobPosition() {
   return useMutation({
     mutationFn: async (v: { id?: string; name: string; sector_id?: string | null }) => {
       if (!company) throw new Error("Sem empresa");
+      const sectorId = v.sector_id && v.sector_id !== "none" ? v.sector_id : null;
       if (v.id) {
-        const { error } = await supabase.from("job_positions").update({ name: v.name, sector_id: v.sector_id || null }).eq("id", v.id);
+        const { error } = await supabase.from("job_positions").update({ name: v.name, sector_id: sectorId }).eq("id", v.id);
         if (error) throw error;
       } else {
         const { data, error } = await supabase.from("job_positions").insert({ company_id: company.id, name: v.name, sector_id: v.sector_id || null }).select("id").single();

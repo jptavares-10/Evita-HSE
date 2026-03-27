@@ -239,7 +239,7 @@ export function useEmployeeRecords(employeeId: string | null) {
       if (!employeeId) return [];
       const { data, error } = await supabase
         .from("employee_training_records")
-        .select("*, trainings(id, name, alert_days_before), profiles:registered_by(full_name)")
+        .select("*, trainings(id, name, alert_days_before, has_expiry), profiles:registered_by(full_name)")
         .eq("employee_id", employeeId)
         .order("done_at", { ascending: false });
       if (error) throw error;

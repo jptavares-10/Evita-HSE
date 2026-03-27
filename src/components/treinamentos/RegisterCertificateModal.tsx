@@ -39,12 +39,16 @@ export function RegisterCertificateModal({ open, onOpenChange, employeeId, train
     if (open) {
       const today = new Date();
       setDoneAt(today);
-      setExpiresAt(calculateExpiresAt(today, validityMonths));
+      if (hasExpiry && validityMonths) {
+        setExpiresAt(calculateExpiresAt(today, validityMonths));
+      } else {
+        setExpiresAt(new Date(2099, 11, 31));
+      }
       setManualExpiry(false);
       setNotes("");
       setFile(null);
     }
-  }, [open, validityMonths]);
+  }, [open, validityMonths, hasExpiry]);
 
   useEffect(() => {
     if (!manualExpiry) {

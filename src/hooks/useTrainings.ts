@@ -59,7 +59,22 @@ export function useDeleteTraining() {
   });
 }
 
-// ─── Job Positions ───
+// ─── Sectors ───
+export function useSectors() {
+  const { company } = useAuth();
+  return useQuery({
+    queryKey: ["sectors", company?.id],
+    queryFn: async () => {
+      if (!company) return [];
+      const { data, error } = await supabase.from("sectors").select("*").order("name");
+      if (error) throw error;
+      return data ?? [];
+    },
+    enabled: !!company,
+  });
+}
+
+
 export function useJobPositions() {
   const { company } = useAuth();
   return useQuery({

@@ -180,6 +180,13 @@ export default function TreinamentosCargos() {
                           className="h-8"
                           autoFocus
                         />
+                        <Select value={editingSectorId} onValueChange={setEditingSectorId}>
+                          <SelectTrigger className="w-32 h-8"><SelectValue placeholder="Setor" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="">Nenhum</SelectItem>
+                            {sectors.map((s: any) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
                         <Button size="sm" variant="ghost" onClick={handleEditSave} disabled={!editingName.trim() || save.isPending}>
                           Salvar
                         </Button>
@@ -190,6 +197,9 @@ export default function TreinamentosCargos() {
                     ) : (
                       <span className="font-medium">{pos.name}</span>
                     )}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground text-sm">
+                    {sectors.find((s: any) => s.id === pos.sector_id)?.name || "—"}
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm">
                     {format(new Date(pos.created_at), "dd/MM/yyyy", { locale: ptBR })}

@@ -48,10 +48,11 @@ export default function TreinamentosCargos() {
 
   const handleEditSave = () => {
     if (!editingId || !editingName.trim()) return;
-    save.mutate({ id: editingId, name: editingName.trim() }, {
+    save.mutate({ id: editingId, name: editingName.trim(), sector_id: editingSectorId || null }, {
       onSuccess: () => {
         setEditingId(null);
         setEditingName("");
+        setEditingSectorId("");
         toast({ title: "Cargo atualizado" });
       },
     });

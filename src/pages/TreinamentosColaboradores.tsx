@@ -20,6 +20,7 @@ export default function TreinamentosColaboradores() {
   const { data: positions = [] } = useJobPositions();
   const { data: matrix = [] } = useTrainingMatrix();
   const { data: allRecords = [] } = useAllRecords();
+  const { data: trainings = [] } = useTrainings();
 
   const [search, setSearch] = useState("");
   const [filterPosition, setFilterPosition] = useState("all");
@@ -30,14 +31,20 @@ export default function TreinamentosColaboradores() {
   const [detailEmployee, setDetailEmployee] = useState<any>(null);
   const [importOpen, setImportOpen] = useState(false);
 
+  const trainingsMap = useMemo(() => {
+    const map = new Map<string, { has_expiry: boolean }>();
+    trainings.forEach((t: any) => map.set(t.id, { has_expiry: t.has_expiry !== false }));
+    return map;
+  }, [trainings]);
+
   const enriched = useMemo(() => {
     return employees.map((emp: any) => {
       const requiredIds = matrix.filter((m: any) => m.job_position_id === emp.job_position_id).map((m: any) => m.training_id);
       const empRecords = allRecords.filter((r: any) => r.employee_id === emp.id).map((r: any) => ({ training_id: r.training_id, expires_at: r.expires_at }));
-      const compliance = computeEmployeeCompliance(requiredIds, empRecords);
+      const compliance = computeEmployeeCompliance(requiredIds, empRecords, 30, trainingsMap);
       return { ...emp, compliance };
     });
-  }, [employees, matrix, allRecords]);
+  }, [employees, matrix, allRecords, trainingsMap]);
 
   const filtered = useMemo(() => {
     return enriched.filter((e: any) => {

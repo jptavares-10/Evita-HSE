@@ -196,6 +196,8 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
           trainingId={certModal.trainingId}
           trainingName={certModal.trainingName}
           validityMonths={certModal.validityMonths}
+          hasExpiry={certModal.hasExpiry}
+        />
         />
       )}
     </>

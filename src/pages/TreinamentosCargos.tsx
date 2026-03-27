@@ -39,9 +39,10 @@ export default function TreinamentosCargos() {
 
   const handleAdd = () => {
     if (!newName.trim()) return;
-    save.mutate({ name: newName.trim() }, {
+    save.mutate({ name: newName.trim(), sector_id: newSectorId || null }, {
       onSuccess: () => {
         setNewName("");
+        setNewSectorId("");
         toast({ title: "Cargo cadastrado com sucesso" });
       },
     });

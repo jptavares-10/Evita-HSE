@@ -94,6 +94,59 @@ export function useSaveJobPosition() {
   });
 }
 
+// ─── Sectors ───
+export function useSectors() {
+  const { company } = useAuth();
+  return useQuery({
+    queryKey: ["sectors", company?.id],
+    queryFn: async () => {
+      if (!company) return [];
+      const { data, error } = await supabase.from("sectors").select("*").order("name");
+      if (error) throw error;
+      return data ?? [];
+    },
+    enabled: !!company,
+  });
+}
+
+export function useSaveSector() {
+  const qc = useQueryClient();
+  const { company } = useAuth();
+  const { toast } = useToast();
+  return useMutation({
+    mutationFn: async (v: { id?: string; name: string }) => {
+      if (!company) throw new Error("Sem empresa");
+      if (v.id) {
+        const { error } = await supabase.from("sectors").update({ name: v.name }).eq("id", v.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("sectors").insert({ company_id: company.id, name: v.name });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["sectors"] }); toast({ title: "Setor salvo" }); },
+    onError: () => { toast({ title: "Erro ao salvar setor", variant: "destructive" }); },
+  });
+}
+
+export function useDeleteSector() {
+  const qc = useQueryClient();
+  const { toast } = useToast();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { count } = await supabase.from("employees").select("id", { count: "exact", head: true }).eq("sector_id", id);
+      const { count: jpCount } = await supabase.from("job_positions").select("id", { count: "exact", head: true }).eq("sector_id", id);
+      if ((count ?? 0) > 0 || (jpCount ?? 0) > 0) throw new Error("HAS_DEPS");
+      const { error } = await supabase.from("sectors").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["sectors"] }); toast({ title: "Setor excluído" }); },
+    onError: (e: Error) => {
+      toast({ title: e.message === "HAS_DEPS" ? "Setor possui vínculos com colaboradores ou cargos. Remova-os primeiro." : "Erro ao excluir setor", variant: "destructive" });
+    },
+  });
+}
+
 // ─── Employees ───
 export function useEmployees() {
   const { company } = useAuth();

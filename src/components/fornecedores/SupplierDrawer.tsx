@@ -177,16 +177,24 @@ export function SupplierDrawer({ open, onOpenChange, supplier }: Props) {
               </div>
               {isEdit && portalEnabled && (
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Input value={portalLink} readOnly className="text-xs bg-muted" />
-                    <Button variant="outline" size="icon" onClick={handleCopyLink}><Copy className="h-4 w-4" /></Button>
-                  </div>
-                  <Button variant="ghost" size="sm" className="text-xs" onClick={() => setConfirmRegenerate(true)}>
-                    <RefreshCw className="h-3 w-3 mr-1" />Gerar novo link
-                  </Button>
-                  <p className="text-xs text-muted-foreground">
-                    Compartilhe este link com o fornecedor para que ele possa enviar documentos diretamente.
-                  </p>
+                  {isAdmin && supplier?.portal_token ? (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <Input value={portalLink} readOnly className="text-xs bg-muted" />
+                        <Button variant="outline" size="icon" onClick={handleCopyLink}><Copy className="h-4 w-4" /></Button>
+                      </div>
+                      <Button variant="ghost" size="sm" className="text-xs" onClick={() => setConfirmRegenerate(true)}>
+                        <RefreshCw className="h-3 w-3 mr-1" />Gerar novo link
+                      </Button>
+                      <p className="text-xs text-muted-foreground">
+                        Compartilhe este link com o fornecedor para que ele possa enviar documentos diretamente.
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      Apenas administradores podem acessar o link do portal.
+                    </p>
+                  )}
                 </div>
               )}
             </div>

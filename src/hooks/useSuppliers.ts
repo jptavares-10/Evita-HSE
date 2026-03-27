@@ -84,7 +84,7 @@ export function useSuppliers() {
     queryFn: async () => {
       if (!company) return [];
       const { data, error } = await supabase
-        .from("suppliers")
+        .from("suppliers_safe" as any)
         .select("*, supplier_categories(id, name)")
         .order("name");
       if (error) throw error;

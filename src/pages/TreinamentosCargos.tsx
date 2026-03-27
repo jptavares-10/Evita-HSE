@@ -18,6 +18,7 @@ import { ManageSectorsModal } from "@/components/treinamentos/ManageSectorsModal
 export default function TreinamentosCargos() {
   const { company } = useAuth();
   const { data: positions = [], isLoading } = useJobPositions();
+  const { data: sectors = [] } = useSectors();
   const save = useSaveJobPosition();
   const { toast } = useToast();
   const qc = useQueryClient();
@@ -25,9 +26,12 @@ export default function TreinamentosCargos() {
 
   const [search, setSearch] = useState("");
   const [newName, setNewName] = useState("");
+  const [newSectorId, setNewSectorId] = useState<string>("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
+  const [editingSectorId, setEditingSectorId] = useState<string>("");
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
+  const [sectorsModalOpen, setSectorsModalOpen] = useState(false);
 
   const filtered = positions.filter((p: any) =>
     p.name.toLowerCase().includes(search.toLowerCase())

@@ -108,7 +108,7 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
                         </div>
                         {latest && (
                           <div className="text-xs text-muted-foreground">
-                            Realizado: {formatDateBR(latest.done_at)} · Vence: {formatDateBR(latest.expires_at)}
+                            Realizado: {formatDateBR(latest.done_at)}{t.has_expiry !== false && <> · Vence: {formatDateBR(latest.expires_at)}</>}
                             {latest.certificate_url && (
                               <CertificateLink url={latest.certificate_url} />
                             )}

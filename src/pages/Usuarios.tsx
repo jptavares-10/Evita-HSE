@@ -57,15 +57,17 @@ export default function Usuarios() {
   const [inviteOpen, setInviteOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const isExpired = company?.plan === "expired";
+  const isAdmin = profile?.role === "admin";
 
   const fetchData = async () => {
     if (!profile?.company_id) return;
-    const [{ data: usersData }, { data: invData }] = await Promise.all([
-      supabase.from("profiles").select("*").eq("company_id", profile.company_id),
-      supabase.from("invitations").select("*").eq("company_id", profile.company_id).eq("status", "pending"),
-    ]);
+    const { data: usersData } = await supabase.from("profiles").select("*").eq("company_id", profile.company_id);
     setUsers(usersData ?? []);
-    setInvitations(invData ?? []);
+
+    if (profile.role === "admin") {
+      const { data: invData } = await supabase.from("invitations").select("*").eq("company_id", profile.company_id).eq("status", "pending");
+      setInvitations(invData ?? []);
+    }
   };
 
   useEffect(() => { fetchData(); }, [profile?.company_id]);

@@ -257,7 +257,7 @@ export function useAllRecords() {
       if (!company) return [];
       const { data, error } = await supabase
         .from("employee_training_records")
-        .select("*, trainings(id, name, alert_days_before), employees(id, name, status, job_position_id)")
+        .select("*, trainings(id, name, alert_days_before, has_expiry), employees(id, name, status, job_position_id)")
         .order("expires_at", { ascending: true });
       if (error) throw error;
       return data ?? [];

@@ -129,7 +129,7 @@ export default function TreinamentosColaboradores() {
                 <TableRow key={emp.id} className="cursor-pointer hover:bg-muted/50" onClick={() => setDetailEmployee(emp)}>
                   <TableCell className="font-medium">{emp.name}</TableCell>
                   <TableCell>{emp.job_positions?.name || "—"}</TableCell>
-                  <TableCell>{emp.sectors?.name || "—"}</TableCell>
+                  <TableCell>{emp.sector || "—"}</TableCell>
                   <TableCell>
                     <Badge variant="outline" className={emp.status === "active" ? "bg-green-100 text-green-700 border-green-200" : "bg-gray-100 text-gray-700 border-gray-200"}>
                       {emp.status === "active" ? "Ativo" : "Inativo"}

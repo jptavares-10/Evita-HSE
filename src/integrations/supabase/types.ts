@@ -206,7 +206,6 @@ export type Database = {
           job_position_id: string | null
           name: string
           sector: string | null
-          sector_id: string | null
           status: string
         }
         Insert: {
@@ -216,7 +215,6 @@ export type Database = {
           job_position_id?: string | null
           name: string
           sector?: string | null
-          sector_id?: string | null
           status?: string
         }
         Update: {
@@ -226,7 +224,6 @@ export type Database = {
           job_position_id?: string | null
           name?: string
           sector?: string | null
-          sector_id?: string | null
           status?: string
         }
         Relationships: [
@@ -242,13 +239,6 @@ export type Database = {
             columns: ["job_position_id"]
             isOneToOne: false
             referencedRelation: "job_positions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "employees_sector_id_fkey"
-            columns: ["sector_id"]
-            isOneToOne: false
-            referencedRelation: "sectors"
             referencedColumns: ["id"]
           },
         ]
@@ -307,21 +297,18 @@ export type Database = {
           created_at: string
           id: string
           name: string
-          sector_id: string | null
         }
         Insert: {
           company_id: string
           created_at?: string
           id?: string
           name: string
-          sector_id?: string | null
         }
         Update: {
           company_id?: string
           created_at?: string
           id?: string
           name?: string
-          sector_id?: string | null
         }
         Relationships: [
           {
@@ -329,13 +316,6 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "job_positions_sector_id_fkey"
-            columns: ["sector_id"]
-            isOneToOne: false
-            referencedRelation: "sectors"
             referencedColumns: ["id"]
           },
         ]
@@ -744,35 +724,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "profiles_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      sectors: {
-        Row: {
-          company_id: string
-          created_at: string
-          id: string
-          name: string
-        }
-        Insert: {
-          company_id: string
-          created_at?: string
-          id?: string
-          name: string
-        }
-        Update: {
-          company_id?: string
-          created_at?: string
-          id?: string
-          name?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "sectors_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
@@ -1219,82 +1170,33 @@ export type Database = {
           },
         ]
       }
-      training_sector_rules: {
-        Row: {
-          company_id: string
-          created_at: string
-          id: string
-          sector_id: string
-          training_id: string
-        }
-        Insert: {
-          company_id: string
-          created_at?: string
-          id?: string
-          sector_id: string
-          training_id: string
-        }
-        Update: {
-          company_id?: string
-          created_at?: string
-          id?: string
-          sector_id?: string
-          training_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "training_sector_rules_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "training_sector_rules_sector_id_fkey"
-            columns: ["sector_id"]
-            isOneToOne: false
-            referencedRelation: "sectors"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "training_sector_rules_training_id_fkey"
-            columns: ["training_id"]
-            isOneToOne: false
-            referencedRelation: "trainings"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       trainings: {
         Row: {
           alert_days_before: number
           company_id: string
           created_at: string
           description: string | null
-          has_expiry: boolean
           id: string
           name: string
-          validity_months: number | null
+          validity_months: number
         }
         Insert: {
           alert_days_before?: number
           company_id: string
           created_at?: string
           description?: string | null
-          has_expiry?: boolean
           id?: string
           name: string
-          validity_months?: number | null
+          validity_months: number
         }
         Update: {
           alert_days_before?: number
           company_id?: string
           created_at?: string
           description?: string | null
-          has_expiry?: boolean
           id?: string
           name?: string
-          validity_months?: number | null
+          validity_months?: number
         }
         Relationships: [
           {

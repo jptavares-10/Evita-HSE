@@ -81,23 +81,17 @@ export interface EmployeeCompliance {
 export function computeEmployeeCompliance(
   requiredTrainingIds: string[],
   records: Array<{ training_id: string; expires_at: string }>,
-  alertDaysBefore: number = 30,
-  trainingsMap?: Map<string, { has_expiry: boolean; alert_days_before: number }>
+  alertDaysBefore: number = 30
 ): EmployeeCompliance {
   const required = requiredTrainingIds.length;
   if (required === 0) return { required: 0, fulfilled: 0, pending: 0, isCompliant: true };
 
   let fulfilled = 0;
   for (const tid of requiredTrainingIds) {
-    const tInfo = trainingsMap?.get(tid);
-    const hasExpiry = tInfo ? tInfo.has_expiry !== false : true;
     const latestRecord = records
       .filter((r) => r.training_id === tid)
       .sort((a, b) => b.expires_at.localeCompare(a.expires_at))[0];
-    if (!latestRecord) continue;
-    if (!hasExpiry) {
-      fulfilled++;
-    } else if (getRecordStatus(latestRecord.expires_at, tInfo?.alert_days_before ?? alertDaysBefore) === "ok") {
+    if (latestRecord && getRecordStatus(latestRecord.expires_at, alertDaysBefore) === "ok") {
       fulfilled++;
     }
   }

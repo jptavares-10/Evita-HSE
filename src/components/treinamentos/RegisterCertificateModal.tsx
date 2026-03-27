@@ -21,11 +21,10 @@ interface Props {
   employeeId: string;
   trainingId: string;
   trainingName: string;
-  validityMonths: number | null;
-  hasExpiry?: boolean;
+  validityMonths: number;
 }
 
-export function RegisterCertificateModal({ open, onOpenChange, employeeId, trainingId, trainingName, validityMonths, hasExpiry = true }: Props) {
+export function RegisterCertificateModal({ open, onOpenChange, employeeId, trainingId, trainingName, validityMonths }: Props) {
   const { company } = useAuth();
   const register = useRegisterCertificate();
   const [doneAt, setDoneAt] = useState<Date>(new Date());
@@ -39,24 +38,20 @@ export function RegisterCertificateModal({ open, onOpenChange, employeeId, train
     if (open) {
       const today = new Date();
       setDoneAt(today);
-      if (hasExpiry && validityMonths) {
-        setExpiresAt(calculateExpiresAt(today, validityMonths));
-      } else {
-        setExpiresAt(new Date(2099, 11, 31));
-      }
+      setExpiresAt(calculateExpiresAt(today, validityMonths));
       setManualExpiry(false);
       setNotes("");
       setFile(null);
     }
-  }, [open, validityMonths, hasExpiry]);
+  }, [open, validityMonths]);
 
   useEffect(() => {
-    if (!manualExpiry && hasExpiry && validityMonths) {
+    if (!manualExpiry) {
       setExpiresAt(calculateExpiresAt(doneAt, validityMonths));
     }
-  }, [doneAt, validityMonths, manualExpiry, hasExpiry]);
+  }, [doneAt, validityMonths, manualExpiry]);
 
-  const defaultExpiry = hasExpiry && validityMonths ? calculateExpiresAt(doneAt, validityMonths) : null;
+  const defaultExpiry = calculateExpiresAt(doneAt, validityMonths);
 
   const handleSubmit = async () => {
     if (!company) return;
@@ -78,7 +73,7 @@ export function RegisterCertificateModal({ open, onOpenChange, employeeId, train
         employee_id: employeeId,
         training_id: trainingId,
         done_at: format(doneAt, "yyyy-MM-dd"),
-        expires_at: hasExpiry ? format(expiresAt, "yyyy-MM-dd") : "2099-12-31",
+        expires_at: format(expiresAt, "yyyy-MM-dd"),
         certificate_url: certUrl,
         certificate_name: certName,
         notes: notes.trim() || null,
@@ -108,25 +103,23 @@ export function RegisterCertificateModal({ open, onOpenChange, employeeId, train
             </Popover>
           </div>
 
-          {hasExpiry && (
-            <div>
-              <Label>Data de vencimento *</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className={cn("w-full justify-start text-left", !expiresAt && "text-muted-foreground")}>
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {format(expiresAt, "dd/MM/yyyy", { locale: ptBR })}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar mode="single" selected={expiresAt} onSelect={(d) => { if (d) { setExpiresAt(d); setManualExpiry(true); } }} className="p-3 pointer-events-auto" locale={ptBR} />
-                </PopoverContent>
-              </Popover>
-              {manualExpiry && defaultExpiry && (
-                <p className="text-xs text-yellow-600 mt-1">Data ajustada manualmente (padrão: {format(defaultExpiry, "dd/MM/yyyy")})</p>
-              )}
-            </div>
-          )}
+          <div>
+            <Label>Data de vencimento *</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className={cn("w-full justify-start text-left", !expiresAt && "text-muted-foreground")}>
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {format(expiresAt, "dd/MM/yyyy", { locale: ptBR })}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar mode="single" selected={expiresAt} onSelect={(d) => { if (d) { setExpiresAt(d); setManualExpiry(true); } }} className="p-3 pointer-events-auto" locale={ptBR} />
+              </PopoverContent>
+            </Popover>
+            {manualExpiry && (
+              <p className="text-xs text-yellow-600 mt-1">Data ajustada manualmente (padrão: {format(defaultExpiry, "dd/MM/yyyy")})</p>
+            )}
+          </div>
 
           <div>
             <Label>Certificado (PDF, JPG, PNG)</Label>

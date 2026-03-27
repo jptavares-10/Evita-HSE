@@ -19,7 +19,8 @@ import { SupplierDrawer } from "@/components/fornecedores/SupplierDrawer";
 export default function FornecedorDocumentos() {
   const { id: supplierId } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { company } = useAuth();
+  const { company, profile } = useAuth();
+  const isAdmin = profile?.role === "admin";
   const { toast } = useToast();
   const planExpired = company?.plan === "expired";
 

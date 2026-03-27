@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useSupplierCategories, useCreateSupplierCategory, useCreateSupplier, useUpdateSupplier, useRegeneratePortalToken } from "@/hooks/useSuppliers";
+import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Copy, RefreshCw, Plus } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -20,6 +21,8 @@ interface Props {
 
 export function SupplierDrawer({ open, onOpenChange, supplier }: Props) {
   const isEdit = !!supplier;
+  const { profile } = useAuth();
+  const isAdmin = profile?.role === "admin";
   const { data: categories = [] } = useSupplierCategories();
   const createSupplier = useCreateSupplier();
   const updateSupplier = useUpdateSupplier();
@@ -174,16 +177,24 @@ export function SupplierDrawer({ open, onOpenChange, supplier }: Props) {
               </div>
               {isEdit && portalEnabled && (
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Input value={portalLink} readOnly className="text-xs bg-muted" />
-                    <Button variant="outline" size="icon" onClick={handleCopyLink}><Copy className="h-4 w-4" /></Button>
-                  </div>
-                  <Button variant="ghost" size="sm" className="text-xs" onClick={() => setConfirmRegenerate(true)}>
-                    <RefreshCw className="h-3 w-3 mr-1" />Gerar novo link
-                  </Button>
-                  <p className="text-xs text-muted-foreground">
-                    Compartilhe este link com o fornecedor para que ele possa enviar documentos diretamente.
-                  </p>
+                  {isAdmin && supplier?.portal_token ? (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <Input value={portalLink} readOnly className="text-xs bg-muted" />
+                        <Button variant="outline" size="icon" onClick={handleCopyLink}><Copy className="h-4 w-4" /></Button>
+                      </div>
+                      <Button variant="ghost" size="sm" className="text-xs" onClick={() => setConfirmRegenerate(true)}>
+                        <RefreshCw className="h-3 w-3 mr-1" />Gerar novo link
+                      </Button>
+                      <p className="text-xs text-muted-foreground">
+                        Compartilhe este link com o fornecedor para que ele possa enviar documentos diretamente.
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      Apenas administradores podem acessar o link do portal.
+                    </p>
+                  )}
                 </div>
               )}
             </div>

@@ -175,7 +175,7 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
                         <span className="font-medium text-sm">{r.trainings?.name}</span>
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        📅 Realizado: {formatDateBR(r.done_at)} · Vence: {formatDateBR(r.expires_at)}
+                        📅 Realizado: {formatDateBR(r.done_at)}{r.trainings?.has_expiry !== false && <> · Vence: {formatDateBR(r.expires_at)}</>}
                       </div>
                       {r.notes && <p className="text-xs text-muted-foreground italic">📝 {r.notes}</p>}
                       {r.certificate_url && (

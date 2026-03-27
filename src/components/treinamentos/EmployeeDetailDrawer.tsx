@@ -198,7 +198,6 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
           validityMonths={certModal.validityMonths}
           hasExpiry={certModal.hasExpiry}
         />
-        />
       )}
     </>
   );

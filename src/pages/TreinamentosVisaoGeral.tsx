@@ -354,12 +354,12 @@ export default function TreinamentosVisaoGeral() {
             <SelectItem value="expired">Vencido</SelectItem>
           </SelectContent>
         </Select>
-        {sectors.length > 0 && (
+        {sectorsList.length > 0 && (
           <Select value={filterSector} onValueChange={setFilterSector}>
             <SelectTrigger className="w-44 h-9 text-xs bg-background"><SelectValue placeholder="Setor" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os setores</SelectItem>
-              {sectors.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+              {sectorsList.map((s: any) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
             </SelectContent>
           </Select>
         )}

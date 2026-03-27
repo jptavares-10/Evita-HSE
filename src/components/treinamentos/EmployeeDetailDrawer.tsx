@@ -58,8 +58,11 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
 
   const getStatusForTraining = (trainingId: string) => {
     const latest = getLatestRecord(trainingId);
-    if (!latest) return MISSING_STATUS_INFO;
     const t = trainings.find((t: any) => t.id === trainingId);
+    if (!latest) return MISSING_STATUS_INFO;
+    if (t?.has_expiry === false) {
+      return { status: "ok" as const, label: "Realizado", color: "text-green-600", badgeClass: "bg-green-100 text-green-700 border-green-200" };
+    }
     return getRecordStatusInfo(latest.expires_at, t?.alert_days_before ?? 30);
   };
 

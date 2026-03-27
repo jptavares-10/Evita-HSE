@@ -215,7 +215,7 @@ export default function TreinamentosCargos() {
                                 variant="ghost"
                                 className="h-8 w-8"
                                 disabled={isExpired}
-                                onClick={() => { setEditingId(pos.id); setEditingName(pos.name); }}
+                                onClick={() => { setEditingId(pos.id); setEditingName(pos.name); setEditingSectorId(pos.sector_id || ""); }}
                               >
                                 <Pencil className="h-3.5 w-3.5" />
                               </Button>

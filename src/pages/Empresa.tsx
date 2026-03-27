@@ -16,7 +16,7 @@ const SEGMENTS = [
 ];
 
 export default function Empresa() {
-  const { company, refreshCompany } = useAuth();
+  const { company, profile, refreshCompany } = useAuth();
   const { toast } = useToast();
   const [name, setName] = useState("");
   const [cnpj, setCnpj] = useState("");

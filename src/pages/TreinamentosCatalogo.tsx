@@ -3,7 +3,6 @@ import { useTrainings, useDeleteTraining, useTrainingMatrix, useAllRecords } fro
 import { useAuth } from "@/contexts/AuthContext";
 import { formatValidityLabel } from "@/lib/trainings";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -79,14 +78,8 @@ export default function TreinamentosCatalogo() {
               {filtered.map((t: any) => (
                 <TableRow key={t.id}>
                   <TableCell className="font-medium">{t.name}</TableCell>
-                  <TableCell>
-                    {t.has_expiry === false ? (
-                      <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-200 text-xs">Sem vencimento</Badge>
-                    ) : (
-                      formatValidityLabel(t.validity_months)
-                    )}
-                  </TableCell>
-                  <TableCell>{t.has_expiry === false ? "—" : `${t.alert_days_before} dias antes`}</TableCell>
+                  <TableCell>{formatValidityLabel(t.validity_months)}</TableCell>
+                  <TableCell>{t.alert_days_before} dias antes</TableCell>
                   <TableCell>{t.positionCount} cargo{t.positionCount !== 1 ? "s" : ""}</TableCell>
                   <TableCell className="text-right space-x-1">
                     <ActionButton variant="ghost" size="icon" onClick={() => { setEditTraining(t); setDrawerOpen(true); }}>

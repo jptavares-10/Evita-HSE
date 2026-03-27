@@ -3,10 +3,10 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useTrainings, useTrainingMatrix, useEmployeeRecords, useTrainingSectorRules } from "@/hooks/useTrainings";
+import { useTrainings, useTrainingMatrix, useEmployeeRecords } from "@/hooks/useTrainings";
 import { useAuth } from "@/contexts/AuthContext";
-import { getRecordStatus, getRecordStatusInfo, MISSING_STATUS_INFO, NO_EXPIRY_STATUS_INFO, formatDateBR } from "@/lib/trainings";
-import { Pencil, Plus, Download } from "lucide-react";
+import { getRecordStatus, getRecordStatusInfo, MISSING_STATUS_INFO, formatDateBR } from "@/lib/trainings";
+import { Pencil, Plus, FileText, Download } from "lucide-react";
 import { RegisterCertificateModal } from "./RegisterCertificateModal";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getSignedUrl } from "@/lib/storage-utils";
@@ -37,16 +37,13 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
   const isExpired = company?.plan === "expired";
   const { data: trainings = [] } = useTrainings();
   const { data: matrix = [] } = useTrainingMatrix();
-  const { data: sectorRules = [] } = useTrainingSectorRules();
   const { data: records = [] } = useEmployeeRecords(employee?.id ?? null);
-  const [certModal, setCertModal] = useState<{ trainingId: string; trainingName: string; validityMonths: number | null; hasExpiry: boolean } | null>(null);
+  const [certModal, setCertModal] = useState<{ trainingId: string; trainingName: string; validityMonths: number } | null>(null);
 
   const requiredTrainingIds = useMemo(() => {
     if (!employee) return [];
-    const matrixIds = matrix.filter((m: any) => m.job_position_id === employee.job_position_id).map((m: any) => m.training_id);
-    const sectorIds = employee.sector_id ? sectorRules.filter((r: any) => r.sector_id === employee.sector_id).map((r: any) => r.training_id) : [];
-    return [...new Set([...matrixIds, ...sectorIds])];
-  }, [matrix, sectorRules, employee]);
+    return matrix.filter((m: any) => m.job_position_id === employee.job_position_id).map((m: any) => m.training_id);
+  }, [matrix, employee]);
 
   const extraRecordTrainingIds = useMemo(() => {
     const required = new Set(requiredTrainingIds);
@@ -60,12 +57,10 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
   };
 
   const getStatusForTraining = (trainingId: string) => {
-    const t = trainings.find((t: any) => t.id === trainingId);
-    const hasExpiry = t?.has_expiry !== false;
     const latest = getLatestRecord(trainingId);
     if (!latest) return MISSING_STATUS_INFO;
-    if (!hasExpiry) return NO_EXPIRY_STATUS_INFO;
-    return getRecordStatusInfo(latest.expires_at, t?.alert_days_before ?? 30, hasExpiry);
+    const t = trainings.find((t: any) => t.id === trainingId);
+    return getRecordStatusInfo(latest.expires_at, t?.alert_days_before ?? 30);
   };
 
   const ActionBtn = ({ children, onClick, ...props }: any) => {
@@ -79,10 +74,10 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
     <>
       <Drawer open={!!employee} onOpenChange={(v) => !v && onClose()} direction="right">
         <DrawerContent className="fixed right-0 top-0 bottom-0 w-full max-w-lg rounded-none border-l flex flex-col">
-          <DrawerHeader className="flex items-center justify-between px-6 pt-6 pb-4">
+          <DrawerHeader className="flex items-center justify-between">
             <div>
               <DrawerTitle>{employee?.name}</DrawerTitle>
-              <p className="text-sm text-muted-foreground">{employee?.job_positions?.name} {employee?.sectors?.name ? `· ${employee.sectors.name}` : ""}</p>
+              <p className="text-sm text-muted-foreground">{employee?.job_positions?.name} {employee?.sector ? `· ${employee.sector}` : ""}</p>
             </div>
             <ActionBtn variant="outline" onClick={() => onEdit(employee)}><Pencil className="h-3.5 w-3.5 mr-1" />Editar</ActionBtn>
           </DrawerHeader>
@@ -100,7 +95,6 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
                   {requiredTrainingIds.map((tid: string) => {
                     const t = trainings.find((t: any) => t.id === tid);
                     if (!t) return null;
-                    const hasExpiry = t.has_expiry !== false;
                     const statusInfo = getStatusForTraining(tid);
                     const latest = getLatestRecord(tid);
                     return (
@@ -111,14 +105,13 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
                         </div>
                         {latest && (
                           <div className="text-xs text-muted-foreground">
-                            Realizado: {formatDateBR(latest.done_at)}
-                            {hasExpiry && <> · Vence: {formatDateBR(latest.expires_at)}</>}
+                            Realizado: {formatDateBR(latest.done_at)} · Vence: {formatDateBR(latest.expires_at)}
                             {latest.certificate_url && (
                               <CertificateLink url={latest.certificate_url} />
                             )}
                           </div>
                         )}
-                        <ActionBtn variant="outline" size="sm" onClick={() => setCertModal({ trainingId: tid, trainingName: t.name, validityMonths: t.validity_months, hasExpiry })}>
+                        <ActionBtn variant="outline" size="sm" onClick={() => setCertModal({ trainingId: tid, trainingName: t.name, validityMonths: t.validity_months })}>
                           <Plus className="h-3 w-3 mr-1" />Registrar certificado
                         </ActionBtn>
                       </div>
@@ -133,7 +126,6 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
                   {extraRecordTrainingIds.map((tid: string) => {
                     const t = trainings.find((t: any) => t.id === tid);
                     if (!t) return null;
-                    const hasExpiry = t.has_expiry !== false;
                     const statusInfo = getStatusForTraining(tid);
                     const latest = getLatestRecord(tid);
                     return (
@@ -147,8 +139,7 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
                         </div>
                         {latest && (
                           <div className="text-xs text-muted-foreground">
-                            Realizado: {formatDateBR(latest.done_at)}
-                            {hasExpiry && <> · Vence: {formatDateBR(latest.expires_at)}</>}
+                            Realizado: {formatDateBR(latest.done_at)} · Vence: {formatDateBR(latest.expires_at)}
                           </div>
                         )}
                       </div>
@@ -159,9 +150,10 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
 
               <div className="pt-2">
                 <ActionBtn variant="outline" onClick={() => {
+                  // Open cert modal with a picker — simplified: use first available training
                   const available = trainings.filter((t: any) => !requiredTrainingIds.includes(t.id) && !extraRecordTrainingIds.includes(t.id));
                   if (available.length > 0) {
-                    setCertModal({ trainingId: available[0].id, trainingName: available[0].name, validityMonths: available[0].validity_months, hasExpiry: available[0].has_expiry !== false });
+                    setCertModal({ trainingId: available[0].id, trainingName: available[0].name, validityMonths: available[0].validity_months });
                   }
                 }}>
                   <Plus className="h-3.5 w-3.5 mr-1" />Adicionar treinamento extra
@@ -174,26 +166,21 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
                 <p className="text-center text-muted-foreground py-8">Nenhum certificado registrado ainda.</p>
               ) : (
                 <div className="space-y-3">
-                  {records.map((r: any) => {
-                    const hasExpiry = r.trainings?.has_expiry !== false;
-                    return (
-                      <div key={r.id} className="border-l-2 border-primary/30 pl-4 py-2 space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-sm">{r.trainings?.name}</span>
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          📅 Realizado: {formatDateBR(r.done_at)}
-                          {hasExpiry && <> · Vence: {formatDateBR(r.expires_at)}</>}
-                          {!hasExpiry && <> · <span className="text-blue-600">Sem vencimento</span></>}
-                        </div>
-                        {r.notes && <p className="text-xs text-muted-foreground italic">📝 {r.notes}</p>}
-                        {r.certificate_url && (
-                          <CertificateLink url={r.certificate_url} label={r.certificate_name || "Certificado"} />
-                        )}
-                        <p className="text-[11px] text-muted-foreground">👤 Registrado por {r.profiles?.full_name || "—"}</p>
+                  {records.map((r: any) => (
+                    <div key={r.id} className="border-l-2 border-primary/30 pl-4 py-2 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-sm">{r.trainings?.name}</span>
                       </div>
-                    );
-                  })}
+                      <div className="text-xs text-muted-foreground">
+                        📅 Realizado: {formatDateBR(r.done_at)} · Vence: {formatDateBR(r.expires_at)}
+                      </div>
+                      {r.notes && <p className="text-xs text-muted-foreground italic">📝 {r.notes}</p>}
+                      {r.certificate_url && (
+                        <CertificateLink url={r.certificate_url} label={r.certificate_name || "Certificado"} />
+                      )}
+                      <p className="text-[11px] text-muted-foreground">👤 Registrado por {r.profiles?.full_name || "—"}</p>
+                    </div>
+                  ))}
                 </div>
               )}
             </TabsContent>
@@ -209,7 +196,6 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
           trainingId={certModal.trainingId}
           trainingName={certModal.trainingName}
           validityMonths={certModal.validityMonths}
-          hasExpiry={certModal.hasExpiry}
         />
       )}
     </>

@@ -6,14 +6,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useRegisterCertificate } from "@/hooks/useTrainings";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { calculateExpiresAt } from "@/lib/trainings";
+import { calculateExpiresAt, formatDateBR } from "@/lib/trainings";
 
 interface Props {
   open: boolean;
@@ -21,11 +21,10 @@ interface Props {
   employeeId: string;
   trainingId: string;
   trainingName: string;
-  validityMonths: number | null;
-  hasExpiry?: boolean;
+  validityMonths: number;
 }
 
-export function RegisterCertificateModal({ open, onOpenChange, employeeId, trainingId, trainingName, validityMonths, hasExpiry = true }: Props) {
+export function RegisterCertificateModal({ open, onOpenChange, employeeId, trainingId, trainingName, validityMonths }: Props) {
   const { company } = useAuth();
   const register = useRegisterCertificate();
   const [doneAt, setDoneAt] = useState<Date>(new Date());
@@ -39,25 +38,20 @@ export function RegisterCertificateModal({ open, onOpenChange, employeeId, train
     if (open) {
       const today = new Date();
       setDoneAt(today);
-      if (hasExpiry && validityMonths) {
-        setExpiresAt(calculateExpiresAt(today, validityMonths));
-      } else {
-        // For no-expiry trainings, set a far-future date
-        setExpiresAt(new Date(2099, 11, 31));
-      }
+      setExpiresAt(calculateExpiresAt(today, validityMonths));
       setManualExpiry(false);
       setNotes("");
       setFile(null);
     }
-  }, [open, validityMonths, hasExpiry]);
+  }, [open, validityMonths]);
 
   useEffect(() => {
-    if (!manualExpiry && hasExpiry && validityMonths) {
+    if (!manualExpiry) {
       setExpiresAt(calculateExpiresAt(doneAt, validityMonths));
     }
-  }, [doneAt, validityMonths, manualExpiry, hasExpiry]);
+  }, [doneAt, validityMonths, manualExpiry]);
 
-  const defaultExpiry = hasExpiry && validityMonths ? calculateExpiresAt(doneAt, validityMonths) : null;
+  const defaultExpiry = calculateExpiresAt(doneAt, validityMonths);
 
   const handleSubmit = async () => {
     if (!company) return;
@@ -96,7 +90,7 @@ export function RegisterCertificateModal({ open, onOpenChange, employeeId, train
       <DialogContent className="max-w-md">
         <DialogHeader><DialogTitle>Registrar certificado — {trainingName}</DialogTitle></DialogHeader>
         <div className="space-y-4">
-          <div className="space-y-1.5">
+          <div>
             <Label>Data de realização *</Label>
             <Popover>
               <PopoverTrigger asChild>
@@ -109,36 +103,30 @@ export function RegisterCertificateModal({ open, onOpenChange, employeeId, train
             </Popover>
           </div>
 
-          {hasExpiry && (
-            <div className="space-y-1.5">
-              <Label>Data de vencimento *</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className={cn("w-full justify-start text-left", !expiresAt && "text-muted-foreground")}>
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {format(expiresAt, "dd/MM/yyyy", { locale: ptBR })}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar mode="single" selected={expiresAt} onSelect={(d) => { if (d) { setExpiresAt(d); setManualExpiry(true); } }} className="p-3 pointer-events-auto" locale={ptBR} />
-                </PopoverContent>
-              </Popover>
-              {manualExpiry && defaultExpiry && (
-                <p className="text-xs text-yellow-600 mt-1">Data ajustada manualmente (padrão: {format(defaultExpiry, "dd/MM/yyyy")})</p>
-              )}
-            </div>
-          )}
+          <div>
+            <Label>Data de vencimento *</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className={cn("w-full justify-start text-left", !expiresAt && "text-muted-foreground")}>
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {format(expiresAt, "dd/MM/yyyy", { locale: ptBR })}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar mode="single" selected={expiresAt} onSelect={(d) => { if (d) { setExpiresAt(d); setManualExpiry(true); } }} className="p-3 pointer-events-auto" locale={ptBR} />
+              </PopoverContent>
+            </Popover>
+            {manualExpiry && (
+              <p className="text-xs text-yellow-600 mt-1">Data ajustada manualmente (padrão: {format(defaultExpiry, "dd/MM/yyyy")})</p>
+            )}
+          </div>
 
-          {!hasExpiry && (
-            <p className="text-xs text-blue-600 bg-blue-50 p-2 rounded-md">Este treinamento não tem validade. Não será cobrado vencimento.</p>
-          )}
-
-          <div className="space-y-1.5">
+          <div>
             <Label>Certificado (PDF, JPG, PNG)</Label>
             <Input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(e) => setFile(e.target.files?.[0] || null)} />
           </div>
 
-          <div className="space-y-1.5">
+          <div>
             <Label>Observações</Label>
             <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
           </div>

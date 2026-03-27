@@ -63,7 +63,7 @@ export default function TreinamentosVisaoGeral() {
   const filteredEmployees = useMemo(() => {
     return activeEmployees.filter((emp: any) => {
       if (filterPosition !== "all" && emp.job_position_id !== filterPosition) return false;
-      if (filterSector !== "all" && emp.sector !== filterSector) return false;
+      if (filterSector !== "all" && emp.sector_id !== filterSector) return false;
       return true;
     });
   }, [activeEmployees, filterPosition, filterSector]);

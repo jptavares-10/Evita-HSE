@@ -116,7 +116,7 @@ export default function TreinamentosVisaoGeral() {
       map[t.id] = { id: t.id, name: t.name, missing: 0, expired: 0, positions: new Set(), employeeIds: new Set() };
     }
     for (const emp of filteredEmployees) {
-      const requiredIds = matrix.filter((m: any) => m.job_position_id === emp.job_position_id).map((m: any) => m.training_id);
+      const requiredIds = getRequiredIds(emp);
       for (const tid of requiredIds) {
         if (!map[tid]) continue;
         if (filterTraining !== "all" && tid !== filterTraining) continue;

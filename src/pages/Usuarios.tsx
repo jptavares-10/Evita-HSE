@@ -253,7 +253,7 @@ export default function Usuarios() {
       </div>
 
       {/* Pending invitations */}
-      {invitations.length > 0 && (
+      {isAdmin && invitations.length > 0 && (
         <div>
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Convites pendentes</h2>
           <div className="space-y-2">

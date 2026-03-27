@@ -51,12 +51,12 @@ export function RegisterCertificateModal({ open, onOpenChange, employeeId, train
   }, [open, validityMonths, hasExpiry]);
 
   useEffect(() => {
-    if (!manualExpiry) {
+    if (!manualExpiry && hasExpiry && validityMonths) {
       setExpiresAt(calculateExpiresAt(doneAt, validityMonths));
     }
-  }, [doneAt, validityMonths, manualExpiry]);
+  }, [doneAt, validityMonths, manualExpiry, hasExpiry]);
 
-  const defaultExpiry = calculateExpiresAt(doneAt, validityMonths);
+  const defaultExpiry = hasExpiry && validityMonths ? calculateExpiresAt(doneAt, validityMonths) : null;
 
   const handleSubmit = async () => {
     if (!company) return;

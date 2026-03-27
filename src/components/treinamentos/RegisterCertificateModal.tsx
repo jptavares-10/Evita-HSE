@@ -78,7 +78,7 @@ export function RegisterCertificateModal({ open, onOpenChange, employeeId, train
         employee_id: employeeId,
         training_id: trainingId,
         done_at: format(doneAt, "yyyy-MM-dd"),
-        expires_at: format(expiresAt, "yyyy-MM-dd"),
+        expires_at: hasExpiry ? format(expiresAt, "yyyy-MM-dd") : "2099-12-31",
         certificate_url: certUrl,
         certificate_name: certName,
         notes: notes.trim() || null,

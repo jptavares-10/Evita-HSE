@@ -23,22 +23,53 @@ const SEGMENTS = [
 ];
 
 export default function CompletarCadastro() {
-  const { user, profile, profileLoaded, refreshProfile } = useAuth();
+  const { user, session, loading, refreshProfile } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  // If profile already has company_id, redirect to dashboard
-  useEffect(() => {
-    if (profileLoaded && profile?.company_id) {
-      navigate("/dashboard", { replace: true });
-    }
-  }, [profileLoaded, profile, navigate]);
   const [companyName, setCompanyName] = useState("");
   const [cnpj, setCnpj] = useState("");
   const [segment, setSegment] = useState("");
   const [fullName, setFullName] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const { toast } = useToast();
+  const [checking, setChecking] = useState(true);
+
+  // On mount, check directly in the DB if profile already exists with company_id
+  useEffect(() => {
+    if (loading) return;
+
+    if (!session || !user) {
+      navigate("/login", { replace: true });
+      return;
+    }
+
+    const checkProfile = async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("id, company_id")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (data?.company_id) {
+        // Profile already complete — refresh context and go to dashboard
+        await refreshProfile();
+        navigate("/dashboard", { replace: true });
+      } else {
+        setChecking(false);
+      }
+    };
+
+    checkProfile();
+  }, [loading, session, user]);
+
+  if (loading || checking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +85,7 @@ export default function CompletarCadastro() {
       return;
     }
 
-    setLoading(true);
+    setSubmitting(true);
 
     try {
       const { data, error: rpcError } = await supabase.rpc("create_company_and_admin", {
@@ -73,11 +104,11 @@ export default function CompletarCadastro() {
       await refreshProfile();
 
       toast({ title: "Cadastro finalizado com sucesso!" });
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
     } catch (err: any) {
       setError(err.message);
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
@@ -132,8 +163,8 @@ export default function CompletarCadastro() {
               <p className="text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">{error}</p>
             )}
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Finalizando..." : "Finalizar cadastro"}
+            <Button type="submit" className="w-full" disabled={submitting}>
+              {submitting ? "Finalizando..." : "Finalizar cadastro"}
             </Button>
           </form>
         </div>

@@ -167,9 +167,9 @@ export function useSaveEmployee() {
   const { company } = useAuth();
   const { toast } = useToast();
   return useMutation({
-    mutationFn: async (v: { id?: string; name: string; job_position_id: string | null; sector?: string | null; status?: string }) => {
+    mutationFn: async (v: { id?: string; name: string; job_position_id: string | null; sector_id?: string | null; status?: string }) => {
       if (!company) throw new Error("Sem empresa");
-      const payload = { company_id: company.id, name: v.name, job_position_id: v.job_position_id, sector: v.sector || null, status: v.status || "active" };
+      const payload = { company_id: company.id, name: v.name, job_position_id: v.job_position_id, sector_id: v.sector_id || null, status: v.status || "active" };
       if (v.id) {
         const { error } = await supabase.from("employees").update(payload).eq("id", v.id);
         if (error) throw error;

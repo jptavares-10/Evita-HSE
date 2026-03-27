@@ -57,15 +57,17 @@ export default function Usuarios() {
   const [inviteOpen, setInviteOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const isExpired = company?.plan === "expired";
+  const isAdmin = profile?.role === "admin";
 
   const fetchData = async () => {
     if (!profile?.company_id) return;
-    const [{ data: usersData }, { data: invData }] = await Promise.all([
-      supabase.from("profiles").select("*").eq("company_id", profile.company_id),
-      supabase.from("invitations").select("*").eq("company_id", profile.company_id).eq("status", "pending"),
-    ]);
+    const { data: usersData } = await supabase.from("profiles").select("*").eq("company_id", profile.company_id);
     setUsers(usersData ?? []);
-    setInvitations(invData ?? []);
+
+    if (profile.role === "admin") {
+      const { data: invData } = await supabase.from("invitations").select("*").eq("company_id", profile.company_id).eq("status", "pending");
+      setInvitations(invData ?? []);
+    }
   };
 
   useEffect(() => { fetchData(); }, [profile?.company_id]);
@@ -138,57 +140,59 @@ export default function Usuarios() {
             {users.length} de {company?.max_users} usuários
           </p>
         </div>
-        <Dialog open={inviteOpen} onOpenChange={(o) => { setInviteOpen(o); if (!o) { setInviteLink(""); setInviteEmail(""); } }}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div>
-                <DialogTrigger asChild>
-                  <Button disabled={isExpired}>
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Convidar usuário
-                  </Button>
-                </DialogTrigger>
-              </div>
-            </TooltipTrigger>
-            {isExpired && <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>}
-          </Tooltip>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Convidar usuário</DialogTitle>
-            </DialogHeader>
-            {inviteLink ? (
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">Compartilhe este link com o convidado:</p>
-                <div className="flex gap-2">
-                  <Input value={inviteLink} readOnly className="text-xs" />
-                  <Button size="sm" variant="outline" onClick={handleCopyLink}>
-                    <Copy className="h-4 w-4" />
-                  </Button>
+        {isAdmin && (
+          <Dialog open={inviteOpen} onOpenChange={(o) => { setInviteOpen(o); if (!o) { setInviteLink(""); setInviteEmail(""); } }}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <DialogTrigger asChild>
+                    <Button disabled={isExpired}>
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Convidar usuário
+                    </Button>
+                  </DialogTrigger>
                 </div>
-                <DialogClose asChild>
-                  <Button variant="outline" className="w-full">Fechar</Button>
-                </DialogClose>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>E-mail do convidado</Label>
-                  <Input
-                    type="email"
-                    placeholder="email@exemplo.com"
-                    value={inviteEmail}
-                    onChange={(e) => setInviteEmail(e.target.value)}
-                  />
+              </TooltipTrigger>
+              {isExpired && <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>}
+            </Tooltip>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Convidar usuário</DialogTitle>
+              </DialogHeader>
+              {inviteLink ? (
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground">Compartilhe este link com o convidado:</p>
+                  <div className="flex gap-2">
+                    <Input value={inviteLink} readOnly className="text-xs" />
+                    <Button size="sm" variant="outline" onClick={handleCopyLink}>
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <DialogClose asChild>
+                    <Button variant="outline" className="w-full">Fechar</Button>
+                  </DialogClose>
                 </div>
-                <DialogFooter>
-                  <Button onClick={handleInvite} disabled={loading || !inviteEmail.trim()}>
-                    {loading ? "Enviando..." : "Gerar convite"}
-                  </Button>
-                </DialogFooter>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
+              ) : (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>E-mail do convidado</Label>
+                    <Input
+                      type="email"
+                      placeholder="email@exemplo.com"
+                      value={inviteEmail}
+                      onChange={(e) => setInviteEmail(e.target.value)}
+                    />
+                  </div>
+                  <DialogFooter>
+                    <Button onClick={handleInvite} disabled={loading || !inviteEmail.trim()}>
+                      {loading ? "Enviando..." : "Gerar convite"}
+                    </Button>
+                  </DialogFooter>
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       {/* Users table */}
@@ -249,7 +253,7 @@ export default function Usuarios() {
       </div>
 
       {/* Pending invitations */}
-      {invitations.length > 0 && (
+      {isAdmin && invitations.length > 0 && (
         <div>
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Convites pendentes</h2>
           <div className="space-y-2">

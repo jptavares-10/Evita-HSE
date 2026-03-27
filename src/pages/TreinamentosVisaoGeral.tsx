@@ -186,22 +186,24 @@ export default function TreinamentosVisaoGeral() {
     if (!pendencyModal) return [];
     const result: Array<{ name: string; position: string; status: string }> = [];
     for (const emp of filteredEmployees) {
-      const requiredIds = matrix.filter((m: any) => m.job_position_id === emp.job_position_id).map((m: any) => m.training_id);
+      const requiredIds = getRequiredIds(emp);
       if (!requiredIds.includes(pendencyModal.trainingId)) continue;
+      const tInfo = trainingsMap.get(pendencyModal.trainingId);
+      if (tInfo && !tInfo.has_expiry) continue; // no-expiry trainings don't have pendencies by expiry
       const latest = allRecords
         .filter((r: any) => r.employee_id === emp.id && r.training_id === pendencyModal.trainingId)
         .sort((a: any, b: any) => b.expires_at.localeCompare(a.expires_at))[0];
       if (!latest) {
         result.push({ name: emp.name, position: emp.job_positions?.name || "—", status: "Não realizado" });
       } else {
-        const st = getRecordStatus(latest.expires_at, trainings.find((t: any) => t.id === pendencyModal.trainingId)?.alert_days_before ?? 30);
+        const st = getRecordStatus(latest.expires_at, tInfo?.alert_days_before ?? 30, tInfo?.has_expiry ?? true);
         if (st === "expired") {
           result.push({ name: emp.name, position: emp.job_positions?.name || "—", status: `Vencido desde ${formatDateBR(latest.expires_at)}` });
         }
       }
     }
     return result;
-  }, [pendencyModal, filteredEmployees, matrix, allRecords, trainings]);
+  }, [pendencyModal, filteredEmployees, allRecords, trainingsMap, sectorRules, matrix]);
 
   // Export pendencies
   const handleExport = () => {

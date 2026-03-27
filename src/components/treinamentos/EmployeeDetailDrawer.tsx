@@ -38,7 +38,7 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
   const { data: trainings = [] } = useTrainings();
   const { data: matrix = [] } = useTrainingMatrix();
   const { data: records = [] } = useEmployeeRecords(employee?.id ?? null);
-  const [certModal, setCertModal] = useState<{ trainingId: string; trainingName: string; validityMonths: number } | null>(null);
+  const [certModal, setCertModal] = useState<{ trainingId: string; trainingName: string; validityMonths: number; hasExpiry: boolean } | null>(null);
 
   const requiredTrainingIds = useMemo(() => {
     if (!employee) return [];

@@ -156,8 +156,10 @@ export default function TreinamentosCargos() {
             <TableHeader>
               <TableRow>
                 <TableHead>Nome do cargo</TableHead>
+                <TableHead>Setor</TableHead>
                 <TableHead className="w-40">Criado em</TableHead>
                 <TableHead className="w-24 text-right">Ações</TableHead>
+              </TableRow>
               </TableRow>
             </TableHeader>
             <TableBody>

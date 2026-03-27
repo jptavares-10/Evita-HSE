@@ -21,6 +21,8 @@ interface Props {
 
 export function SupplierDrawer({ open, onOpenChange, supplier }: Props) {
   const isEdit = !!supplier;
+  const { profile } = useAuth();
+  const isAdmin = profile?.role === "admin";
   const { data: categories = [] } = useSupplierCategories();
   const createSupplier = useCreateSupplier();
   const updateSupplier = useUpdateSupplier();

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { useSaveTraining } from "@/hooks/useTrainings";
 import { formatValidityLabel } from "@/lib/trainings";
 
@@ -17,6 +18,7 @@ export function TrainingDrawer({ open, onOpenChange, training }: Props) {
   const save = useSaveTraining();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [hasExpiry, setHasExpiry] = useState(true);
   const [validityMonths, setValidityMonths] = useState(24);
   const [alertDays, setAlertDays] = useState(30);
 
@@ -24,6 +26,7 @@ export function TrainingDrawer({ open, onOpenChange, training }: Props) {
     if (open) {
       setName(training?.name || "");
       setDescription(training?.description || "");
+      setHasExpiry(training?.has_expiry !== false);
       setValidityMonths(training?.validity_months || 24);
       setAlertDays(training?.alert_days_before || 30);
     }
@@ -31,7 +34,14 @@ export function TrainingDrawer({ open, onOpenChange, training }: Props) {
 
   const handleSave = () => {
     if (!name.trim()) return;
-    save.mutate({ id: training?.id, name: name.trim(), description: description.trim() || null, validity_months: validityMonths, alert_days_before: alertDays }, {
+    save.mutate({
+      id: training?.id,
+      name: name.trim(),
+      description: description.trim() || null,
+      has_expiry: hasExpiry,
+      validity_months: hasExpiry ? validityMonths : null,
+      alert_days_before: alertDays,
+    }, {
       onSuccess: () => onOpenChange(false),
     });
   };

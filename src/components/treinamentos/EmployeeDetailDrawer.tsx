@@ -77,7 +77,7 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
           <DrawerHeader className="flex items-center justify-between">
             <div>
               <DrawerTitle>{employee?.name}</DrawerTitle>
-              <p className="text-sm text-muted-foreground">{employee?.job_positions?.name} {employee?.sector ? `· ${employee.sector}` : ""}</p>
+              <p className="text-sm text-muted-foreground">{employee?.job_positions?.name} {employee?.job_positions?.sectors?.name ? `· ${employee.job_positions.sectors.name}` : ""}</p>
             </div>
             <ActionBtn variant="outline" onClick={() => onEdit(employee)}><Pencil className="h-3.5 w-3.5 mr-1" />Editar</ActionBtn>
           </DrawerHeader>

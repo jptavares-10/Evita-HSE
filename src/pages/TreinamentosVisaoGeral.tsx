@@ -77,9 +77,7 @@ export default function TreinamentosVisaoGeral() {
     let totalPendencies = 0;
 
     for (const emp of filteredEmployees) {
-      const requiredIds = matrix
-        .filter((m: any) => m.job_position_id === emp.job_position_id)
-        .map((m: any) => m.training_id);
+      const requiredIds = getRequiredIds(emp);
       if (filterTraining !== "all") {
         const filtered = requiredIds.filter((id: string) => id === filterTraining);
         if (filtered.length === 0) continue;
@@ -88,7 +86,9 @@ export default function TreinamentosVisaoGeral() {
       const targetIds = filterTraining !== "all" ? requiredIds.filter((id: string) => id === filterTraining) : requiredIds;
       const compliance = computeEmployeeCompliance(
         targetIds,
-        empRecords.map((r: any) => ({ training_id: r.training_id, expires_at: r.expires_at }))
+        empRecords.map((r: any) => ({ training_id: r.training_id, expires_at: r.expires_at })),
+        30,
+        trainingsMap
       );
       totalObligations += compliance.required;
       fulfilledObligations += compliance.fulfilled;

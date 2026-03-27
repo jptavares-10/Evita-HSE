@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useEmployees, useTrainings, useTrainingMatrix, useAllRecords, useJobPositions } from "@/hooks/useTrainings";
+import { useEmployees, useTrainings, useTrainingMatrix, useAllRecords, useJobPositions, useSectors, useTrainingSectorRules } from "@/hooks/useTrainings";
 import { computeEmployeeCompliance, getRecordStatus, formatDateBR } from "@/lib/trainings";
 import { TrainingKpiCards } from "@/components/treinamentos/TrainingKpiCards";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +23,8 @@ export default function TreinamentosVisaoGeral() {
   const { data: matrix = [] } = useTrainingMatrix();
   const { data: allRecords = [] } = useAllRecords();
   const { data: positions = [] } = useJobPositions();
+  const { data: sectorsList = [] } = useSectors();
+  const { data: sectorRules = [] } = useTrainingSectorRules();
   const { toast } = useToast();
   const qc = useQueryClient();
 
@@ -42,18 +44,26 @@ export default function TreinamentosVisaoGeral() {
   const [importResult, setImportResult] = useState<string | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
 
+  const trainingsMap = useMemo(() => {
+    const m = new Map<string, { has_expiry: boolean; alert_days_before: number }>();
+    for (const t of trainings) m.set(t.id, { has_expiry: t.has_expiry !== false, alert_days_before: t.alert_days_before });
+    return m;
+  }, [trainings]);
+
   const activeEmployees = useMemo(() => employees.filter((e: any) => e.status === "active"), [employees]);
 
-  const sectors = useMemo(() => {
-    const s = new Set(activeEmployees.map((e: any) => e.sector).filter(Boolean));
-    return [...s].sort();
-  }, [activeEmployees]);
+  // Helper to get required training ids for an employee (matrix + sector rules)
+  const getRequiredIds = (emp: any) => {
+    const matrixIds = matrix.filter((m: any) => m.job_position_id === emp.job_position_id).map((m: any) => m.training_id);
+    const secIds = emp.sector_id ? sectorRules.filter((r: any) => r.sector_id === emp.sector_id).map((r: any) => r.training_id) : [];
+    return [...new Set([...matrixIds, ...secIds])];
+  };
 
   // Apply filters to employees
   const filteredEmployees = useMemo(() => {
     return activeEmployees.filter((emp: any) => {
       if (filterPosition !== "all" && emp.job_position_id !== filterPosition) return false;
-      if (filterSector !== "all" && emp.sector !== filterSector) return false;
+      if (filterSector !== "all" && emp.sector_id !== filterSector) return false;
       return true;
     });
   }, [activeEmployees, filterPosition, filterSector]);
@@ -67,9 +77,7 @@ export default function TreinamentosVisaoGeral() {
     let totalPendencies = 0;
 
     for (const emp of filteredEmployees) {
-      const requiredIds = matrix
-        .filter((m: any) => m.job_position_id === emp.job_position_id)
-        .map((m: any) => m.training_id);
+      const requiredIds = getRequiredIds(emp);
       if (filterTraining !== "all") {
         const filtered = requiredIds.filter((id: string) => id === filterTraining);
         if (filtered.length === 0) continue;
@@ -78,7 +86,9 @@ export default function TreinamentosVisaoGeral() {
       const targetIds = filterTraining !== "all" ? requiredIds.filter((id: string) => id === filterTraining) : requiredIds;
       const compliance = computeEmployeeCompliance(
         targetIds,
-        empRecords.map((r: any) => ({ training_id: r.training_id, expires_at: r.expires_at }))
+        empRecords.map((r: any) => ({ training_id: r.training_id, expires_at: r.expires_at })),
+        30,
+        trainingsMap
       );
       totalObligations += compliance.required;
       fulfilledObligations += compliance.fulfilled;
@@ -89,13 +99,15 @@ export default function TreinamentosVisaoGeral() {
 
     const warningRecords = allRecords.filter((r: any) => {
       if (r.employees?.status !== "active") return false;
-      return getRecordStatus(r.expires_at, r.trainings?.alert_days_before ?? 30) === "warning";
+      const hasExpiry = r.trainings?.has_expiry !== false;
+      if (!hasExpiry) return false;
+      return getRecordStatus(r.expires_at, r.trainings?.alert_days_before ?? 30, true) === "warning";
     });
 
     const conformity = totalObligations > 0 ? Math.round((fulfilledObligations / totalObligations) * 100) : 100;
 
     return { totalActive: filteredEmployees.length, employeesOk, employeesPending, warningCount: warningRecords.length, conformity, totalPendencies };
-  }, [filteredEmployees, matrix, allRecords, filterTraining]);
+  }, [filteredEmployees, allRecords, filterTraining, trainingsMap, sectorRules, matrix]);
 
   // Training pendencies with position breakdown
   const trainingPendencies = useMemo(() => {
@@ -104,7 +116,7 @@ export default function TreinamentosVisaoGeral() {
       map[t.id] = { id: t.id, name: t.name, missing: 0, expired: 0, positions: new Set(), employeeIds: new Set() };
     }
     for (const emp of filteredEmployees) {
-      const requiredIds = matrix.filter((m: any) => m.job_position_id === emp.job_position_id).map((m: any) => m.training_id);
+      const requiredIds = getRequiredIds(emp);
       for (const tid of requiredIds) {
         if (!map[tid]) continue;
         if (filterTraining !== "all" && tid !== filterTraining) continue;
@@ -144,12 +156,14 @@ export default function TreinamentosVisaoGeral() {
       if (!emp.job_position_id || !map[emp.job_position_id]) continue;
       const posData = map[emp.job_position_id];
       posData.total++;
-      const requiredIds = matrix.filter((m: any) => m.job_position_id === emp.job_position_id).map((m: any) => m.training_id);
+      const requiredIds = getRequiredIds(emp);
       const targetIds = filterTraining !== "all" ? requiredIds.filter((id: string) => id === filterTraining) : requiredIds;
       const empRecords = allRecords.filter((r: any) => r.employee_id === emp.id);
       const compliance = computeEmployeeCompliance(
         targetIds,
-        empRecords.map((r: any) => ({ training_id: r.training_id, expires_at: r.expires_at }))
+        empRecords.map((r: any) => ({ training_id: r.training_id, expires_at: r.expires_at })),
+        30,
+        trainingsMap
       );
       if (compliance.isCompliant && compliance.required > 0) posData.ok++;
       else if (compliance.pending > 0) posData.pending++;
@@ -172,42 +186,45 @@ export default function TreinamentosVisaoGeral() {
     if (!pendencyModal) return [];
     const result: Array<{ name: string; position: string; status: string }> = [];
     for (const emp of filteredEmployees) {
-      const requiredIds = matrix.filter((m: any) => m.job_position_id === emp.job_position_id).map((m: any) => m.training_id);
+      const requiredIds = getRequiredIds(emp);
       if (!requiredIds.includes(pendencyModal.trainingId)) continue;
+      const tInfo = trainingsMap.get(pendencyModal.trainingId);
+      if (tInfo && !tInfo.has_expiry) continue; // no-expiry trainings don't have pendencies by expiry
       const latest = allRecords
         .filter((r: any) => r.employee_id === emp.id && r.training_id === pendencyModal.trainingId)
         .sort((a: any, b: any) => b.expires_at.localeCompare(a.expires_at))[0];
       if (!latest) {
         result.push({ name: emp.name, position: emp.job_positions?.name || "—", status: "Não realizado" });
       } else {
-        const st = getRecordStatus(latest.expires_at, trainings.find((t: any) => t.id === pendencyModal.trainingId)?.alert_days_before ?? 30);
+        const st = getRecordStatus(latest.expires_at, tInfo?.alert_days_before ?? 30, tInfo?.has_expiry ?? true);
         if (st === "expired") {
           result.push({ name: emp.name, position: emp.job_positions?.name || "—", status: `Vencido desde ${formatDateBR(latest.expires_at)}` });
         }
       }
     }
     return result;
-  }, [pendencyModal, filteredEmployees, matrix, allRecords, trainings]);
+  }, [pendencyModal, filteredEmployees, allRecords, trainingsMap, sectorRules, matrix]);
 
   // Export pendencies
   const handleExport = () => {
     const rows: string[][] = [["Nome do colaborador", "Cargo", "Setor", "Treinamento", "Status da pendência", "Data de vencimento"]];
     for (const emp of filteredEmployees) {
-      const requiredIds = matrix.filter((m: any) => m.job_position_id === emp.job_position_id).map((m: any) => m.training_id);
+      const requiredIds = getRequiredIds(emp);
       const targetIds = filterTraining !== "all" ? requiredIds.filter((id: string) => id === filterTraining) : requiredIds;
       for (const tid of targetIds) {
         const t = trainings.find((t: any) => t.id === tid);
         if (!t) continue;
+        const hasExpiry = t.has_expiry !== false;
         const latest = allRecords.filter((r: any) => r.employee_id === emp.id && r.training_id === tid).sort((a: any, b: any) => b.expires_at.localeCompare(a.expires_at))[0];
         if (!latest) {
           if (filterPendencyType === "all" || filterPendencyType === "missing") {
-            rows.push([emp.name, emp.job_positions?.name || "", emp.sector || "", t.name, "Não realizado", ""]);
+            rows.push([emp.name, emp.job_positions?.name || "", emp.sectors?.name || "", t.name, "Não realizado", ""]);
           }
-        } else {
-          const st = getRecordStatus(latest.expires_at, t.alert_days_before ?? 30);
+        } else if (hasExpiry) {
+          const st = getRecordStatus(latest.expires_at, t.alert_days_before ?? 30, true);
           if (st === "expired" && (filterPendencyType === "all" || filterPendencyType === "expired")) {
-            rows.push([emp.name, emp.job_positions?.name || "", emp.sector || "", t.name, "Vencido", formatDateBR(latest.expires_at)]);
-          }
+            rows.push([emp.name, emp.job_positions?.name || "", emp.sectors?.name || "", t.name, "Vencido", formatDateBR(latest.expires_at)]);
+        }
         }
       }
     }
@@ -342,12 +359,12 @@ export default function TreinamentosVisaoGeral() {
             <SelectItem value="expired">Vencido</SelectItem>
           </SelectContent>
         </Select>
-        {sectors.length > 0 && (
+        {sectorsList.length > 0 && (
           <Select value={filterSector} onValueChange={setFilterSector}>
             <SelectTrigger className="w-44 h-9 text-xs bg-background"><SelectValue placeholder="Setor" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os setores</SelectItem>
-              {sectors.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+              {sectorsList.map((s: any) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
             </SelectContent>
           </Select>
         )}

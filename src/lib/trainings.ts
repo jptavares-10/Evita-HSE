@@ -3,7 +3,8 @@ import { ptBR } from "date-fns/locale";
 
 export type TrainingRecordStatus = "ok" | "warning" | "expired" | "missing";
 
-export function getRecordStatus(expiresAt: string, alertDaysBefore: number): TrainingRecordStatus {
+export function getRecordStatus(expiresAt: string, alertDaysBefore: number, hasExpiry: boolean = true): TrainingRecordStatus {
+  if (!hasExpiry) return "ok";
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const exp = parseISO(expiresAt);
@@ -15,13 +16,16 @@ export function getRecordStatus(expiresAt: string, alertDaysBefore: number): Tra
   return "ok";
 }
 
-export function getRecordStatusInfo(expiresAt: string, alertDaysBefore: number) {
+export function getRecordStatusInfo(expiresAt: string, alertDaysBefore: number, hasExpiry: boolean = true) {
+  if (!hasExpiry) {
+    return { status: "ok" as const, label: "Sem vencimento", color: "text-blue-600", badgeClass: "bg-blue-100 text-blue-700 border-blue-200" };
+  }
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const exp = parseISO(expiresAt);
   exp.setHours(0, 0, 0, 0);
   const diff = differenceInDays(exp, today);
-  const status = getRecordStatus(expiresAt, alertDaysBefore);
+  const status = getRecordStatus(expiresAt, alertDaysBefore, hasExpiry);
 
   if (status === "expired") {
     return { status, label: `Vencido há ${Math.abs(diff)} dias`, color: "text-destructive", badgeClass: "bg-red-100 text-red-700 border-red-200" };
@@ -39,12 +43,20 @@ export const MISSING_STATUS_INFO = {
   badgeClass: "bg-gray-100 text-gray-700 border-gray-200",
 };
 
+export const NO_EXPIRY_STATUS_INFO = {
+  status: "ok" as const,
+  label: "Sem vencimento",
+  color: "text-blue-600",
+  badgeClass: "bg-blue-100 text-blue-700 border-blue-200",
+};
+
 export function calculateExpiresAt(doneAt: string | Date, validityMonths: number): Date {
   const base = typeof doneAt === "string" ? parseISO(doneAt) : doneAt;
   return addMonths(base, validityMonths);
 }
 
-export function formatValidityLabel(months: number): string {
+export function formatValidityLabel(months: number | null, hasExpiry: boolean = true): string {
+  if (!hasExpiry || months === null) return "Sem vencimento";
   const years = Math.floor(months / 12);
   const rem = months % 12;
   if (years > 0 && rem > 0) return `${years} ano${years > 1 ? "s" : ""} e ${rem} ${rem > 1 ? "meses" : "mês"}`;
@@ -78,10 +90,15 @@ export interface EmployeeCompliance {
   isCompliant: boolean;
 }
 
+/**
+ * Compute compliance for a single employee.
+ * trainingsMap is optional — when provided, we check has_expiry to treat no-expiry trainings as always ok.
+ */
 export function computeEmployeeCompliance(
   requiredTrainingIds: string[],
   records: Array<{ training_id: string; expires_at: string }>,
-  alertDaysBefore: number = 30
+  alertDaysBefore: number = 30,
+  trainingsMap?: Map<string, { has_expiry: boolean; alert_days_before: number }>
 ): EmployeeCompliance {
   const required = requiredTrainingIds.length;
   if (required === 0) return { required: 0, fulfilled: 0, pending: 0, isCompliant: true };
@@ -91,7 +108,16 @@ export function computeEmployeeCompliance(
     const latestRecord = records
       .filter((r) => r.training_id === tid)
       .sort((a, b) => b.expires_at.localeCompare(a.expires_at))[0];
-    if (latestRecord && getRecordStatus(latestRecord.expires_at, alertDaysBefore) === "ok") {
+    if (!latestRecord) continue; // missing
+
+    const tInfo = trainingsMap?.get(tid);
+    const hasExpiry = tInfo?.has_expiry ?? true;
+    const alertDays = tInfo?.alert_days_before ?? alertDaysBefore;
+
+    if (!hasExpiry) {
+      // No expiry → always ok if record exists
+      fulfilled++;
+    } else if (getRecordStatus(latestRecord.expires_at, alertDays, true) === "ok") {
       fulfilled++;
     }
   }

@@ -53,15 +53,23 @@ export function TrainingDrawer({ open, onOpenChange, training }: Props) {
         <div className="flex-1 overflow-y-auto px-6 space-y-4">
           <div><Label>Nome *</Label><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex: NR-35 — Trabalho em altura" /></div>
           <div><Label>Descrição</Label><Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Descrição opcional" rows={3} /></div>
-          <div>
-            <Label>Validade em meses *</Label>
-            <Input type="number" min={1} value={validityMonths} onChange={(e) => setValidityMonths(Number(e.target.value))} />
-            <p className="text-xs text-muted-foreground mt-1">Equivale a {formatValidityLabel(validityMonths)}</p>
+          <div className="flex items-center gap-3">
+            <Switch checked={hasExpiry} onCheckedChange={setHasExpiry} />
+            <Label>{hasExpiry ? "Possui vencimento" : "Sem vencimento"}</Label>
           </div>
-          <div>
-            <Label>Avisar com antecedência de (dias)</Label>
-            <Input type="number" min={1} value={alertDays} onChange={(e) => setAlertDays(Number(e.target.value))} />
-          </div>
+          {hasExpiry && (
+            <>
+              <div>
+                <Label>Validade em meses *</Label>
+                <Input type="number" min={1} value={validityMonths} onChange={(e) => setValidityMonths(Number(e.target.value))} />
+                <p className="text-xs text-muted-foreground mt-1">Equivale a {formatValidityLabel(validityMonths)}</p>
+              </div>
+              <div>
+                <Label>Avisar com antecedência de (dias)</Label>
+                <Input type="number" min={1} value={alertDays} onChange={(e) => setAlertDays(Number(e.target.value))} />
+              </div>
+            </>
+          )}
         </div>
         <DrawerFooter className="flex-row gap-2">
           <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>Cancelar</Button>

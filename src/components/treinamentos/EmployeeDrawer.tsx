@@ -18,21 +18,22 @@ export function EmployeeDrawer({ open, onOpenChange, employee }: Props) {
   const { data: positions = [] } = useJobPositions();
   const [name, setName] = useState("");
   const [positionId, setPositionId] = useState<string>("");
-  const [sector, setSector] = useState("");
   const [active, setActive] = useState(true);
+
+  const selectedPosition = positions.find((p: any) => p.id === positionId);
+  const sectorName = selectedPosition?.sectors?.name;
 
   useEffect(() => {
     if (open) {
       setName(employee?.name || "");
       setPositionId(employee?.job_position_id || "");
-      setSector(employee?.sector || "");
       setActive(employee?.status !== "inactive");
     }
   }, [open, employee]);
 
   const handleSave = () => {
     if (!name.trim() || !positionId) return;
-    save.mutate({ id: employee?.id, name: name.trim(), job_position_id: positionId, sector: sector.trim() || null, status: active ? "active" : "inactive" }, {
+    save.mutate({ id: employee?.id, name: name.trim(), job_position_id: positionId, sector: null, status: active ? "active" : "inactive" }, {
       onSuccess: () => onOpenChange(false),
     });
   };
@@ -52,7 +53,13 @@ export function EmployeeDrawer({ open, onOpenChange, employee }: Props) {
               </SelectContent>
             </Select>
           </div>
-          <div><Label>Setor / Área</Label><Input value={sector} onChange={(e) => setSector(e.target.value)} placeholder="Ex: Produção" /></div>
+          {sectorName && (
+            <div>
+              <Label>Setor</Label>
+              <Input value={sectorName} disabled className="bg-muted" />
+              <p className="text-xs text-muted-foreground mt-1">Definido pelo cargo selecionado</p>
+            </div>
+          )}
           <div className="flex items-center gap-3">
             <Switch checked={active} onCheckedChange={setActive} />
             <Label>{active ? "Ativo" : "Inativo"}</Label>

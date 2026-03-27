@@ -266,6 +266,8 @@ export default function TreinamentosCargos() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <ManageSectorsModal open={sectorsModalOpen} onOpenChange={setSectorsModalOpen} />
     </div>
   );
 }

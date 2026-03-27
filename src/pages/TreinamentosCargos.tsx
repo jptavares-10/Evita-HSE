@@ -196,7 +196,6 @@ export default function TreinamentosCargos() {
                     )}
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm">{pos.sectors?.name || "—"}</TableCell>
-                  </TableCell>
                   <TableCell className="text-muted-foreground text-sm">
                     {format(new Date(pos.created_at), "dd/MM/yyyy", { locale: ptBR })}
                   </TableCell>

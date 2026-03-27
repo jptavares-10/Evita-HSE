@@ -1,21 +1,24 @@
 import { useState } from "react";
-import { useJobPositions, useSaveJobPosition } from "@/hooks/useTrainings";
+import { useJobPositions, useSaveJobPosition, useSectors } from "@/hooks/useTrainings";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Search, Briefcase } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Pencil, Trash2, Search, Briefcase, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { ManageSectorsModal } from "@/components/treinamentos/ManageSectorsModal";
 
 export default function TreinamentosCargos() {
   const { company } = useAuth();
   const { data: positions = [], isLoading } = useJobPositions();
+  const { data: sectors = [] } = useSectors();
   const save = useSaveJobPosition();
   const { toast } = useToast();
   const qc = useQueryClient();
@@ -23,9 +26,12 @@ export default function TreinamentosCargos() {
 
   const [search, setSearch] = useState("");
   const [newName, setNewName] = useState("");
+  const [newSectorId, setNewSectorId] = useState<string>("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
+  const [editingSectorId, setEditingSectorId] = useState<string>("");
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
+  const [sectorsModalOpen, setSectorsModalOpen] = useState(false);
 
   const filtered = positions.filter((p: any) =>
     p.name.toLowerCase().includes(search.toLowerCase())
@@ -33,9 +39,10 @@ export default function TreinamentosCargos() {
 
   const handleAdd = () => {
     if (!newName.trim()) return;
-    save.mutate({ name: newName.trim() }, {
+    save.mutate({ name: newName.trim(), sector_id: newSectorId || null }, {
       onSuccess: () => {
         setNewName("");
+        setNewSectorId("");
         toast({ title: "Cargo cadastrado com sucesso" });
       },
     });
@@ -43,10 +50,11 @@ export default function TreinamentosCargos() {
 
   const handleEditSave = () => {
     if (!editingId || !editingName.trim()) return;
-    save.mutate({ id: editingId, name: editingName.trim() }, {
+    save.mutate({ id: editingId, name: editingName.trim(), sector_id: editingSectorId || null }, {
       onSuccess: () => {
         setEditingId(null);
         setEditingName("");
+        setEditingSectorId("");
         toast({ title: "Cargo atualizado" });
       },
     });
@@ -98,15 +106,22 @@ export default function TreinamentosCargos() {
             className="pl-9"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
           <Input
             placeholder="Nome do novo cargo"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAdd()}
             disabled={isExpired}
-            className="w-56"
+            className="w-48"
           />
+          <Select value={newSectorId} onValueChange={setNewSectorId}>
+            <SelectTrigger className="w-40"><SelectValue placeholder="Setor (opcional)" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">Nenhum</SelectItem>
+              {sectors.map((s: any) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
           <Tooltip>
             <TooltipTrigger asChild>
               <span>
@@ -117,6 +132,9 @@ export default function TreinamentosCargos() {
             </TooltipTrigger>
             {isExpired && <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>}
           </Tooltip>
+          <Button variant="outline" size="icon" onClick={() => setSectorsModalOpen(true)} title="Gerenciar Setores">
+            <Settings className="h-4 w-4" />
+          </Button>
         </div>
       </div>
 
@@ -141,6 +159,7 @@ export default function TreinamentosCargos() {
             <TableHeader>
               <TableRow>
                 <TableHead>Nome do cargo</TableHead>
+                <TableHead>Setor padrão</TableHead>
                 <TableHead className="w-40">Criado em</TableHead>
                 <TableHead className="w-24 text-right">Ações</TableHead>
               </TableRow>
@@ -161,6 +180,13 @@ export default function TreinamentosCargos() {
                           className="h-8"
                           autoFocus
                         />
+                        <Select value={editingSectorId} onValueChange={setEditingSectorId}>
+                          <SelectTrigger className="w-32 h-8"><SelectValue placeholder="Setor" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="">Nenhum</SelectItem>
+                            {sectors.map((s: any) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
                         <Button size="sm" variant="ghost" onClick={handleEditSave} disabled={!editingName.trim() || save.isPending}>
                           Salvar
                         </Button>
@@ -171,6 +197,9 @@ export default function TreinamentosCargos() {
                     ) : (
                       <span className="font-medium">{pos.name}</span>
                     )}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground text-sm">
+                    {sectors.find((s: any) => s.id === pos.sector_id)?.name || "—"}
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm">
                     {format(new Date(pos.created_at), "dd/MM/yyyy", { locale: ptBR })}
@@ -186,7 +215,7 @@ export default function TreinamentosCargos() {
                                 variant="ghost"
                                 className="h-8 w-8"
                                 disabled={isExpired}
-                                onClick={() => { setEditingId(pos.id); setEditingName(pos.name); }}
+                                onClick={() => { setEditingId(pos.id); setEditingName(pos.name); setEditingSectorId(pos.sector_id || ""); }}
                               >
                                 <Pencil className="h-3.5 w-3.5" />
                               </Button>
@@ -237,6 +266,8 @@ export default function TreinamentosCargos() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <ManageSectorsModal open={sectorsModalOpen} onOpenChange={setSectorsModalOpen} />
     </div>
   );
 }

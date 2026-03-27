@@ -21,7 +21,8 @@ interface Props {
   employeeId: string;
   trainingId: string;
   trainingName: string;
-  validityMonths: number;
+  validityMonths: number | null;
+  hasExpiry?: boolean;
 }
 
 export function RegisterCertificateModal({ open, onOpenChange, employeeId, trainingId, trainingName, validityMonths }: Props) {

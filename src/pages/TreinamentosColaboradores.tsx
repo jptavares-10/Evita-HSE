@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useEmployees, useJobPositions, useTrainingMatrix, useAllRecords } from "@/hooks/useTrainings";
+import { useEmployees, useJobPositions, useTrainingMatrix, useAllRecords, useTrainings } from "@/hooks/useTrainings";
 import { computeEmployeeCompliance } from "@/lib/trainings";
 import { useAuth } from "@/contexts/AuthContext";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";

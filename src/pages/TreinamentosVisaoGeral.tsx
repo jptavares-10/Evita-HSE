@@ -99,13 +99,15 @@ export default function TreinamentosVisaoGeral() {
 
     const warningRecords = allRecords.filter((r: any) => {
       if (r.employees?.status !== "active") return false;
-      return getRecordStatus(r.expires_at, r.trainings?.alert_days_before ?? 30) === "warning";
+      const hasExpiry = r.trainings?.has_expiry !== false;
+      if (!hasExpiry) return false;
+      return getRecordStatus(r.expires_at, r.trainings?.alert_days_before ?? 30, true) === "warning";
     });
 
     const conformity = totalObligations > 0 ? Math.round((fulfilledObligations / totalObligations) * 100) : 100;
 
     return { totalActive: filteredEmployees.length, employeesOk, employeesPending, warningCount: warningRecords.length, conformity, totalPendencies };
-  }, [filteredEmployees, matrix, allRecords, filterTraining]);
+  }, [filteredEmployees, allRecords, filterTraining, trainingsMap, sectorRules, matrix]);
 
   // Training pendencies with position breakdown
   const trainingPendencies = useMemo(() => {

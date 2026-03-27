@@ -23,7 +23,15 @@ const SEGMENTS = [
 ];
 
 export default function CompletarCadastro() {
-  const { user, refreshProfile } = useAuth();
+  const { user, profile, profileLoaded, refreshProfile } = useAuth();
+  const navigate = useNavigate();
+
+  // If profile already has company_id, redirect to dashboard
+  useEffect(() => {
+    if (profileLoaded && profile?.company_id) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [profileLoaded, profile, navigate]);
   const [companyName, setCompanyName] = useState("");
   const [cnpj, setCnpj] = useState("");
   const [segment, setSegment] = useState("");

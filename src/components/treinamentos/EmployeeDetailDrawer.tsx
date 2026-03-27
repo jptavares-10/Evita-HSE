@@ -153,7 +153,7 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
                   // Open cert modal with a picker — simplified: use first available training
                   const available = trainings.filter((t: any) => !requiredTrainingIds.includes(t.id) && !extraRecordTrainingIds.includes(t.id));
                   if (available.length > 0) {
-                    setCertModal({ trainingId: available[0].id, trainingName: available[0].name, validityMonths: available[0].validity_months });
+                   setCertModal({ trainingId: available[0].id, trainingName: available[0].name, validityMonths: available[0].validity_months, hasExpiry: available[0].has_expiry !== false });
                   }
                 }}>
                   <Plus className="h-3.5 w-3.5 mr-1" />Adicionar treinamento extra

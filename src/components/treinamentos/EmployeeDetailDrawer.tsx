@@ -114,7 +114,7 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
                             )}
                           </div>
                         )}
-                        <ActionBtn variant="outline" size="sm" onClick={() => setCertModal({ trainingId: tid, trainingName: t.name, validityMonths: t.validity_months })}>
+                        <ActionBtn variant="outline" size="sm" onClick={() => setCertModal({ trainingId: tid, trainingName: t.name, validityMonths: t.validity_months, hasExpiry: t.has_expiry !== false })}>
                           <Plus className="h-3 w-3 mr-1" />Registrar certificado
                         </ActionBtn>
                       </div>

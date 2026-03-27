@@ -25,7 +25,7 @@ interface Props {
   hasExpiry?: boolean;
 }
 
-export function RegisterCertificateModal({ open, onOpenChange, employeeId, trainingId, trainingName, validityMonths }: Props) {
+export function RegisterCertificateModal({ open, onOpenChange, employeeId, trainingId, trainingName, validityMonths, hasExpiry = true }: Props) {
   const { company } = useAuth();
   const register = useRegisterCertificate();
   const [doneAt, setDoneAt] = useState<Date>(new Date());

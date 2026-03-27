@@ -69,7 +69,6 @@ export default function TreinamentosCatalogo() {
               <TableRow>
                 <TableHead>Nome</TableHead>
                 <TableHead>Validade</TableHead>
-                <TableHead>Alerta</TableHead>
                 <TableHead>Cargos</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>

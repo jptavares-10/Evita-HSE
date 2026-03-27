@@ -209,20 +209,22 @@ export default function TreinamentosVisaoGeral() {
   const handleExport = () => {
     const rows: string[][] = [["Nome do colaborador", "Cargo", "Setor", "Treinamento", "Status da pendência", "Data de vencimento"]];
     for (const emp of filteredEmployees) {
-      const requiredIds = matrix.filter((m: any) => m.job_position_id === emp.job_position_id).map((m: any) => m.training_id);
+      const requiredIds = getRequiredIds(emp);
       const targetIds = filterTraining !== "all" ? requiredIds.filter((id: string) => id === filterTraining) : requiredIds;
       for (const tid of targetIds) {
         const t = trainings.find((t: any) => t.id === tid);
         if (!t) continue;
+        const hasExpiry = t.has_expiry !== false;
         const latest = allRecords.filter((r: any) => r.employee_id === emp.id && r.training_id === tid).sort((a: any, b: any) => b.expires_at.localeCompare(a.expires_at))[0];
         if (!latest) {
           if (filterPendencyType === "all" || filterPendencyType === "missing") {
-            rows.push([emp.name, emp.job_positions?.name || "", emp.sector || "", t.name, "Não realizado", ""]);
+            rows.push([emp.name, emp.job_positions?.name || "", emp.sectors?.name || "", t.name, "Não realizado", ""]);
           }
-        } else {
-          const st = getRecordStatus(latest.expires_at, t.alert_days_before ?? 30);
+        } else if (hasExpiry) {
+          const st = getRecordStatus(latest.expires_at, t.alert_days_before ?? 30, true);
           if (st === "expired" && (filterPendencyType === "all" || filterPendencyType === "expired")) {
-            rows.push([emp.name, emp.job_positions?.name || "", emp.sector || "", t.name, "Vencido", formatDateBR(latest.expires_at)]);
+            rows.push([emp.name, emp.job_positions?.name || "", emp.sectors?.name || "", t.name, "Vencido", formatDateBR(latest.expires_at)]);
+          }
           }
         }
       }

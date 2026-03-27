@@ -108,23 +108,25 @@ export function RegisterCertificateModal({ open, onOpenChange, employeeId, train
             </Popover>
           </div>
 
-          <div>
-            <Label>Data de vencimento *</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className={cn("w-full justify-start text-left", !expiresAt && "text-muted-foreground")}>
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {format(expiresAt, "dd/MM/yyyy", { locale: ptBR })}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar mode="single" selected={expiresAt} onSelect={(d) => { if (d) { setExpiresAt(d); setManualExpiry(true); } }} className="p-3 pointer-events-auto" locale={ptBR} />
-              </PopoverContent>
-            </Popover>
-            {manualExpiry && (
-              <p className="text-xs text-yellow-600 mt-1">Data ajustada manualmente (padrão: {format(defaultExpiry, "dd/MM/yyyy")})</p>
-            )}
-          </div>
+          {hasExpiry && (
+            <div>
+              <Label>Data de vencimento *</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className={cn("w-full justify-start text-left", !expiresAt && "text-muted-foreground")}>
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {format(expiresAt, "dd/MM/yyyy", { locale: ptBR })}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar mode="single" selected={expiresAt} onSelect={(d) => { if (d) { setExpiresAt(d); setManualExpiry(true); } }} className="p-3 pointer-events-auto" locale={ptBR} />
+                </PopoverContent>
+              </Popover>
+              {manualExpiry && defaultExpiry && (
+                <p className="text-xs text-yellow-600 mt-1">Data ajustada manualmente (padrão: {format(defaultExpiry, "dd/MM/yyyy")})</p>
+              )}
+            </div>
+          )}
 
           <div>
             <Label>Certificado (PDF, JPG, PNG)</Label>

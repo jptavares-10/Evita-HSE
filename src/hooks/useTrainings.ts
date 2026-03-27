@@ -23,9 +23,10 @@ export function useSaveTraining() {
   const { company } = useAuth();
   const { toast } = useToast();
   return useMutation({
-    mutationFn: async (v: { id?: string; name: string; description?: string | null; validity_months: number; alert_days_before: number }) => {
+    mutationFn: async (v: { id?: string; name: string; description?: string | null; has_expiry?: boolean; validity_months: number | null; alert_days_before: number }) => {
       if (!company) throw new Error("Sem empresa");
-      const payload = { company_id: company.id, name: v.name, description: v.description || null, validity_months: v.validity_months, alert_days_before: v.alert_days_before };
+      const hasExpiry = v.has_expiry !== false;
+      const payload = { company_id: company.id, name: v.name, description: v.description || null, has_expiry: hasExpiry, validity_months: hasExpiry ? v.validity_months : null, alert_days_before: v.alert_days_before };
       if (v.id) {
         const { error } = await supabase.from("trainings").update(payload).eq("id", v.id);
         if (error) throw error;

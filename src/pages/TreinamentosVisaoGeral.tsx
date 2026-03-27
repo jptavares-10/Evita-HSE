@@ -156,12 +156,14 @@ export default function TreinamentosVisaoGeral() {
       if (!emp.job_position_id || !map[emp.job_position_id]) continue;
       const posData = map[emp.job_position_id];
       posData.total++;
-      const requiredIds = matrix.filter((m: any) => m.job_position_id === emp.job_position_id).map((m: any) => m.training_id);
+      const requiredIds = getRequiredIds(emp);
       const targetIds = filterTraining !== "all" ? requiredIds.filter((id: string) => id === filterTraining) : requiredIds;
       const empRecords = allRecords.filter((r: any) => r.employee_id === emp.id);
       const compliance = computeEmployeeCompliance(
         targetIds,
-        empRecords.map((r: any) => ({ training_id: r.training_id, expires_at: r.expires_at }))
+        empRecords.map((r: any) => ({ training_id: r.training_id, expires_at: r.expires_at })),
+        30,
+        trainingsMap
       );
       if (compliance.isCompliant && compliance.required > 0) posData.ok++;
       else if (compliance.pending > 0) posData.pending++;

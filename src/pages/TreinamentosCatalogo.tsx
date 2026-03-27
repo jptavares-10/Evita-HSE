@@ -69,7 +69,6 @@ export default function TreinamentosCatalogo() {
               <TableRow>
                 <TableHead>Nome</TableHead>
                 <TableHead>Validade</TableHead>
-                <TableHead>Alerta</TableHead>
                 <TableHead>Cargos</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
@@ -78,8 +77,7 @@ export default function TreinamentosCatalogo() {
               {filtered.map((t: any) => (
                 <TableRow key={t.id}>
                   <TableCell className="font-medium">{t.name}</TableCell>
-                  <TableCell>{formatValidityLabel(t.validity_months)}</TableCell>
-                  <TableCell>{t.alert_days_before} dias antes</TableCell>
+                  <TableCell>{t.has_expiry === false ? "Sem vencimento" : formatValidityLabel(t.validity_months)}</TableCell>
                   <TableCell>{t.positionCount} cargo{t.positionCount !== 1 ? "s" : ""}</TableCell>
                   <TableCell className="text-right space-x-1">
                     <ActionButton variant="ghost" size="icon" onClick={() => { setEditTraining(t); setDrawerOpen(true); }}>

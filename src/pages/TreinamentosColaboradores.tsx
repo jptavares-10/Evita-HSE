@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useEmployees, useJobPositions, useTrainingMatrix, useAllRecords } from "@/hooks/useTrainings";
+import { useEmployees, useJobPositions, useTrainingMatrix, useAllRecords, useTrainings } from "@/hooks/useTrainings";
 import { computeEmployeeCompliance } from "@/lib/trainings";
 import { useAuth } from "@/contexts/AuthContext";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -20,6 +20,7 @@ export default function TreinamentosColaboradores() {
   const { data: positions = [] } = useJobPositions();
   const { data: matrix = [] } = useTrainingMatrix();
   const { data: allRecords = [] } = useAllRecords();
+  const { data: trainings = [] } = useTrainings();
 
   const [search, setSearch] = useState("");
   const [filterPosition, setFilterPosition] = useState("all");
@@ -30,14 +31,20 @@ export default function TreinamentosColaboradores() {
   const [detailEmployee, setDetailEmployee] = useState<any>(null);
   const [importOpen, setImportOpen] = useState(false);
 
+  const trainingsMap = useMemo(() => {
+    const map = new Map<string, { has_expiry: boolean }>();
+    trainings.forEach((t: any) => map.set(t.id, { has_expiry: t.has_expiry !== false }));
+    return map;
+  }, [trainings]);
+
   const enriched = useMemo(() => {
     return employees.map((emp: any) => {
       const requiredIds = matrix.filter((m: any) => m.job_position_id === emp.job_position_id).map((m: any) => m.training_id);
       const empRecords = allRecords.filter((r: any) => r.employee_id === emp.id).map((r: any) => ({ training_id: r.training_id, expires_at: r.expires_at }));
-      const compliance = computeEmployeeCompliance(requiredIds, empRecords);
+      const compliance = computeEmployeeCompliance(requiredIds, empRecords, 30, trainingsMap);
       return { ...emp, compliance };
     });
-  }, [employees, matrix, allRecords]);
+  }, [employees, matrix, allRecords, trainingsMap]);
 
   const filtered = useMemo(() => {
     return enriched.filter((e: any) => {
@@ -129,7 +136,7 @@ export default function TreinamentosColaboradores() {
                 <TableRow key={emp.id} className="cursor-pointer hover:bg-muted/50" onClick={() => setDetailEmployee(emp)}>
                   <TableCell className="font-medium">{emp.name}</TableCell>
                   <TableCell>{emp.job_positions?.name || "—"}</TableCell>
-                  <TableCell>{emp.sector || "—"}</TableCell>
+                  <TableCell>{emp.job_positions?.sectors?.name || emp.sector || "—"}</TableCell>
                   <TableCell>
                     <Badge variant="outline" className={emp.status === "active" ? "bg-green-100 text-green-700 border-green-200" : "bg-gray-100 text-gray-700 border-gray-200"}>
                       {emp.status === "active" ? "Ativo" : "Inativo"}

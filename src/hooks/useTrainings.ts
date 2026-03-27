@@ -23,9 +23,10 @@ export function useSaveTraining() {
   const { company } = useAuth();
   const { toast } = useToast();
   return useMutation({
-    mutationFn: async (v: { id?: string; name: string; description?: string | null; validity_months: number; alert_days_before: number }) => {
+    mutationFn: async (v: { id?: string; name: string; description?: string | null; has_expiry?: boolean; validity_months: number | null; alert_days_before: number }) => {
       if (!company) throw new Error("Sem empresa");
-      const payload = { company_id: company.id, name: v.name, description: v.description || null, validity_months: v.validity_months, alert_days_before: v.alert_days_before };
+      const hasExpiry = v.has_expiry !== false;
+      const payload = { company_id: company.id, name: v.name, description: v.description || null, has_expiry: hasExpiry, validity_months: hasExpiry ? v.validity_months : null, alert_days_before: v.alert_days_before };
       if (v.id) {
         const { error } = await supabase.from("trainings").update(payload).eq("id", v.id);
         if (error) throw error;
@@ -58,14 +59,29 @@ export function useDeleteTraining() {
   });
 }
 
-// ─── Job Positions ───
+// ─── Sectors ───
+export function useSectors() {
+  const { company } = useAuth();
+  return useQuery({
+    queryKey: ["sectors", company?.id],
+    queryFn: async () => {
+      if (!company) return [];
+      const { data, error } = await supabase.from("sectors").select("*").order("name");
+      if (error) throw error;
+      return data ?? [];
+    },
+    enabled: !!company,
+  });
+}
+
+
 export function useJobPositions() {
   const { company } = useAuth();
   return useQuery({
     queryKey: ["job-positions", company?.id],
     queryFn: async () => {
       if (!company) return [];
-      const { data, error } = await supabase.from("job_positions").select("*").order("name");
+      const { data, error } = await supabase.from("job_positions").select("*, sectors(id, name)").order("name");
       if (error) throw error;
       return data ?? [];
     },
@@ -78,13 +94,14 @@ export function useSaveJobPosition() {
   const { company } = useAuth();
   const { toast } = useToast();
   return useMutation({
-    mutationFn: async (v: { id?: string; name: string }) => {
+    mutationFn: async (v: { id?: string; name: string; sector_id?: string | null }) => {
       if (!company) throw new Error("Sem empresa");
+      const sectorId = v.sector_id && v.sector_id !== "none" ? v.sector_id : null;
       if (v.id) {
-        const { error } = await supabase.from("job_positions").update({ name: v.name }).eq("id", v.id);
+        const { error } = await supabase.from("job_positions").update({ name: v.name, sector_id: sectorId }).eq("id", v.id);
         if (error) throw error;
       } else {
-        const { data, error } = await supabase.from("job_positions").insert({ company_id: company.id, name: v.name }).select("id").single();
+        const { data, error } = await supabase.from("job_positions").insert({ company_id: company.id, name: v.name, sector_id: sectorId }).select("id").single();
         if (error) throw error;
         return data.id;
       }
@@ -101,7 +118,7 @@ export function useEmployees() {
     queryKey: ["employees", company?.id],
     queryFn: async () => {
       if (!company) return [];
-      const { data, error } = await supabase.from("employees").select("*, job_positions(id, name)").order("name");
+      const { data, error } = await supabase.from("employees").select("*, job_positions(id, name, sector_id, sectors(id, name))").order("name");
       if (error) throw error;
       return data ?? [];
     },

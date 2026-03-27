@@ -23,6 +23,8 @@ export default function TreinamentosVisaoGeral() {
   const { data: matrix = [] } = useTrainingMatrix();
   const { data: allRecords = [] } = useAllRecords();
   const { data: positions = [] } = useJobPositions();
+  const { data: sectorsList = [] } = useSectors();
+  const { data: sectorRules = [] } = useTrainingSectorRules();
   const { toast } = useToast();
   const qc = useQueryClient();
 
@@ -42,12 +44,20 @@ export default function TreinamentosVisaoGeral() {
   const [importResult, setImportResult] = useState<string | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
 
+  const trainingsMap = useMemo(() => {
+    const m = new Map<string, { has_expiry: boolean; alert_days_before: number }>();
+    for (const t of trainings) m.set(t.id, { has_expiry: t.has_expiry !== false, alert_days_before: t.alert_days_before });
+    return m;
+  }, [trainings]);
+
   const activeEmployees = useMemo(() => employees.filter((e: any) => e.status === "active"), [employees]);
 
-  const sectors = useMemo(() => {
-    const s = new Set(activeEmployees.map((e: any) => e.sector).filter(Boolean));
-    return [...s].sort();
-  }, [activeEmployees]);
+  // Helper to get required training ids for an employee (matrix + sector rules)
+  const getRequiredIds = (emp: any) => {
+    const matrixIds = matrix.filter((m: any) => m.job_position_id === emp.job_position_id).map((m: any) => m.training_id);
+    const secIds = emp.sector_id ? sectorRules.filter((r: any) => r.sector_id === emp.sector_id).map((r: any) => r.training_id) : [];
+    return [...new Set([...matrixIds, ...secIds])];
+  };
 
   // Apply filters to employees
   const filteredEmployees = useMemo(() => {

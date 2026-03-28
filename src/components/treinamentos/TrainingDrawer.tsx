@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { useSaveTraining } from "@/hooks/useTrainings";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useSaveTraining, useSectors, useTrainingSectorRules, useSaveTrainingSectorRules } from "@/hooks/useTrainings";
 import { formatValidityLabel } from "@/lib/trainings";
 
 interface Props {
@@ -16,11 +17,16 @@ interface Props {
 
 export function TrainingDrawer({ open, onOpenChange, training }: Props) {
   const save = useSaveTraining();
+  const saveSectorRules = useSaveTrainingSectorRules();
+  const { data: sectors = [] } = useSectors();
+  const { data: sectorRules = [] } = useTrainingSectorRules();
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [hasExpiry, setHasExpiry] = useState(true);
   const [validityMonths, setValidityMonths] = useState(24);
   const [alertDays, setAlertDays] = useState(30);
+  const [selectedSectorIds, setSelectedSectorIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (open) {
@@ -29,8 +35,21 @@ export function TrainingDrawer({ open, onOpenChange, training }: Props) {
       setHasExpiry(training?.has_expiry !== false);
       setValidityMonths(training?.validity_months || 24);
       setAlertDays(training?.alert_days_before || 30);
+      // Load existing sector rules for this training
+      if (training?.id) {
+        const existing = sectorRules.filter((r: any) => r.training_id === training.id).map((r: any) => r.sector_id);
+        setSelectedSectorIds(existing);
+      } else {
+        setSelectedSectorIds([]);
+      }
     }
-  }, [open, training]);
+  }, [open, training, sectorRules]);
+
+  const toggleSector = (sectorId: string) => {
+    setSelectedSectorIds(prev =>
+      prev.includes(sectorId) ? prev.filter(id => id !== sectorId) : [...prev, sectorId]
+    );
+  };
 
   const handleSave = () => {
     if (!name.trim()) return;
@@ -42,8 +61,58 @@ export function TrainingDrawer({ open, onOpenChange, training }: Props) {
       validity_months: hasExpiry ? validityMonths : null,
       alert_days_before: alertDays,
     }, {
-      onSuccess: () => onOpenChange(false),
+      onSuccess: (_, variables) => {
+        // For new trainings, we need the ID to save sector rules
+        // For existing, use the training id
+        const trainingId = variables.id;
+        if (trainingId) {
+          saveSectorRules.mutate({ trainingId, sectorIds: selectedSectorIds });
+        }
+        onOpenChange(false);
+      },
     });
+  };
+
+  // For new trainings, save sector rules after creation
+  // We need to modify save to return the ID
+  const handleSaveNew = () => {
+    if (!name.trim()) return;
+    if (training?.id) {
+      // Editing existing
+      save.mutate({
+        id: training.id,
+        name: name.trim(),
+        description: description.trim() || null,
+        has_expiry: hasExpiry,
+        validity_months: hasExpiry ? validityMonths : null,
+        alert_days_before: alertDays,
+      }, {
+        onSuccess: () => {
+          saveSectorRules.mutate({ trainingId: training.id, sectorIds: selectedSectorIds });
+          onOpenChange(false);
+        },
+      });
+    } else {
+      // Creating new - need to get the ID back
+      save.mutate({
+        name: name.trim(),
+        description: description.trim() || null,
+        has_expiry: hasExpiry,
+        validity_months: hasExpiry ? validityMonths : null,
+        alert_days_before: alertDays,
+      }, {
+        onSuccess: async () => {
+          // Query the newly created training by name to get the ID
+          // This is a workaround since the mutation doesn't return ID
+          const { supabase } = await import("@/integrations/supabase/client");
+          const { data } = await supabase.from("trainings").select("id").eq("name", name.trim()).order("created_at", { ascending: false }).limit(1).single();
+          if (data?.id && selectedSectorIds.length > 0) {
+            saveSectorRules.mutate({ trainingId: data.id, sectorIds: selectedSectorIds });
+          }
+          onOpenChange(false);
+        },
+      });
+    }
   };
 
   return (
@@ -70,10 +139,34 @@ export function TrainingDrawer({ open, onOpenChange, training }: Props) {
               </div>
             </>
           )}
+
+          {/* Sector selection */}
+          <div className="space-y-2">
+            <Label>Setores obrigatórios</Label>
+            <p className="text-xs text-muted-foreground">
+              Todos os cargos vinculados aos setores selecionados terão este treinamento como obrigatório.
+            </p>
+            {sectors.length === 0 ? (
+              <p className="text-sm text-muted-foreground italic">Nenhum setor cadastrado. Crie setores na tela de Cargos.</p>
+            ) : (
+              <div className="space-y-2 max-h-48 overflow-y-auto border rounded-md p-3">
+                {sectors.map((s: any) => (
+                  <div key={s.id} className="flex items-center gap-2">
+                    <Checkbox
+                      id={`sector-${s.id}`}
+                      checked={selectedSectorIds.includes(s.id)}
+                      onCheckedChange={() => toggleSector(s.id)}
+                    />
+                    <label htmlFor={`sector-${s.id}`} className="text-sm cursor-pointer">{s.name}</label>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
         <DrawerFooter className="flex-row gap-2">
           <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>Cancelar</Button>
-          <Button className="flex-1" onClick={handleSave} disabled={!name.trim() || save.isPending}>Salvar</Button>
+          <Button className="flex-1" onClick={handleSaveNew} disabled={!name.trim() || save.isPending}>Salvar</Button>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

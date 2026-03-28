@@ -115,6 +115,7 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
                 </AlertDialogContent>
               </AlertDialog>
             </div>
+          </DrawerHeader>
 
           <Tabs defaultValue="trainings" className="flex-1 flex flex-col overflow-hidden">
             <TabsList className="mx-6">

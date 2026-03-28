@@ -86,8 +86,35 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
               <DrawerTitle>{employee?.name}</DrawerTitle>
               <p className="text-sm text-muted-foreground">{employee?.job_positions?.name} {employee?.job_positions?.sectors?.name ? `· ${employee.job_positions.sectors.name}` : ""}</p>
             </div>
-            <ActionBtn variant="outline" onClick={() => onEdit(employee)}><Pencil className="h-3.5 w-3.5 mr-1" />Editar</ActionBtn>
-          </DrawerHeader>
+            <div className="flex items-center gap-2">
+              <ActionBtn variant="outline" onClick={() => onEdit(employee)}><Pencil className="h-3.5 w-3.5 mr-1" />Editar</ActionBtn>
+              <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="text-destructive border-destructive/30 hover:bg-destructive/10" disabled={isExpired}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Excluir colaborador?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      O colaborador <strong>{employee?.name}</strong> e todos os seus registros de treinamento serão excluídos permanentemente.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      onClick={() => {
+                        deleteEmployee.mutate(employee.id, {
+                          onSuccess: () => { setDeleteOpen(false); onClose(); },
+                        });
+                      }}
+                    >Excluir</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
 
           <Tabs defaultValue="trainings" className="flex-1 flex flex-col overflow-hidden">
             <TabsList className="mx-6">

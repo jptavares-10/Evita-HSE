@@ -256,10 +256,21 @@ export function useDeleteEmployee() {
   const { toast } = useToast();
   return useMutation({
     mutationFn: async (id: string) => {
+      // Delete training records first
+      const { error: recErr } = await supabase.from("employee_training_records").delete().eq("employee_id", id);
+      if (recErr) throw recErr;
+      // Delete occurrence_employees links
+      const { error: occErr } = await supabase.from("occurrence_employees").delete().eq("employee_id", id);
+      if (occErr) throw occErr;
       const { error } = await supabase.from("employees").delete().eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["employees"] }); toast({ title: "Colaborador excluído" }); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["employees"] });
+      qc.invalidateQueries({ queryKey: ["employee-records"] });
+      qc.invalidateQueries({ queryKey: ["all-training-records"] });
+      toast({ title: "Colaborador excluído" });
+    },
     onError: () => { toast({ title: "Erro ao excluir colaborador", variant: "destructive" }); },
   });
 }

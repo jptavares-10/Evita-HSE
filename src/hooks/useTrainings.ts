@@ -30,9 +30,11 @@ export function useSaveTraining() {
       if (v.id) {
         const { error } = await supabase.from("trainings").update(payload).eq("id", v.id);
         if (error) throw error;
+        return v.id;
       } else {
-        const { error } = await supabase.from("trainings").insert(payload);
+        const { data, error } = await supabase.from("trainings").insert(payload).select("id").single();
         if (error) throw error;
+        return data.id as string;
       }
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["trainings"] }); toast({ title: "Treinamento salvo" }); },
@@ -71,6 +73,84 @@ export function useSectors() {
       return data ?? [];
     },
     enabled: !!company,
+  });
+}
+
+export function useSaveSector() {
+  const qc = useQueryClient();
+  const { company } = useAuth();
+  const { toast } = useToast();
+  return useMutation({
+    mutationFn: async (v: { id?: string; name: string }) => {
+      if (!company) throw new Error("Sem empresa");
+      if (v.id) {
+        const { error } = await supabase.from("sectors").update({ name: v.name }).eq("id", v.id);
+        if (error) throw error;
+      } else {
+        const { data, error } = await supabase.from("sectors").insert({ company_id: company.id, name: v.name }).select("id").single();
+        if (error) throw error;
+        return data.id;
+      }
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["sectors"] }); },
+    onError: () => { toast({ title: "Erro ao salvar setor", variant: "destructive" }); },
+  });
+}
+
+export function useDeleteSector() {
+  const qc = useQueryClient();
+  const { toast } = useToast();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { count } = await supabase.from("job_positions").select("id", { count: "exact", head: true }).eq("sector_id", id);
+      if ((count ?? 0) > 0) throw new Error("HAS_DEPS");
+      const { error } = await supabase.from("sectors").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["sectors"] }); toast({ title: "Setor excluído" }); },
+    onError: (e: Error) => {
+      toast({ title: e.message === "HAS_DEPS" ? "Existem cargos vinculados a este setor. Remova-os primeiro." : "Erro ao excluir setor", variant: "destructive" });
+    },
+  });
+}
+
+// ─── Training Sector Rules ───
+export function useTrainingSectorRules() {
+  const { company } = useAuth();
+  return useQuery({
+    queryKey: ["training-sector-rules", company?.id],
+    queryFn: async () => {
+      if (!company) return [];
+      const { data, error } = await supabase.from("training_sector_rules").select("*");
+      if (error) throw error;
+      return data ?? [];
+    },
+    enabled: !!company,
+  });
+}
+
+export function useSaveTrainingSectorRules() {
+  const qc = useQueryClient();
+  const { company } = useAuth();
+  const { toast } = useToast();
+  return useMutation({
+    mutationFn: async ({ trainingId, sectorIds }: { trainingId: string; sectorIds: string[] }) => {
+      if (!company) throw new Error("Sem empresa");
+      // Delete existing rules for this training
+      const { error: delError } = await supabase.from("training_sector_rules").delete().eq("training_id", trainingId);
+      if (delError) throw delError;
+      // Insert new rules
+      if (sectorIds.length > 0) {
+        const rows = sectorIds.map(sid => ({ company_id: company.id, training_id: trainingId, sector_id: sid }));
+        const { error } = await supabase.from("training_sector_rules").insert(rows);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["training-sector-rules"] });
+      qc.invalidateQueries({ queryKey: ["training-matrix"] });
+    },
+    onError: () => { toast({ title: "Erro ao salvar regras de setor", variant: "destructive" }); },
   });
 }
 

@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { useSaveTraining } from "@/hooks/useTrainings";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useSaveTraining, useSectors, useTrainingSectorRules, useSaveTrainingSectorRules } from "@/hooks/useTrainings";
 import { formatValidityLabel } from "@/lib/trainings";
 
 interface Props {
@@ -16,11 +17,16 @@ interface Props {
 
 export function TrainingDrawer({ open, onOpenChange, training }: Props) {
   const save = useSaveTraining();
+  const saveSectorRules = useSaveTrainingSectorRules();
+  const { data: sectors = [] } = useSectors();
+  const { data: sectorRules = [] } = useTrainingSectorRules();
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [hasExpiry, setHasExpiry] = useState(true);
   const [validityMonths, setValidityMonths] = useState(24);
   const [alertDays, setAlertDays] = useState(30);
+  const [selectedSectorIds, setSelectedSectorIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (open) {
@@ -29,8 +35,20 @@ export function TrainingDrawer({ open, onOpenChange, training }: Props) {
       setHasExpiry(training?.has_expiry !== false);
       setValidityMonths(training?.validity_months || 24);
       setAlertDays(training?.alert_days_before || 30);
+      if (training?.id) {
+        const existing = sectorRules.filter((r: any) => r.training_id === training.id).map((r: any) => r.sector_id);
+        setSelectedSectorIds(existing);
+      } else {
+        setSelectedSectorIds([]);
+      }
     }
-  }, [open, training]);
+  }, [open, training, sectorRules]);
+
+  const toggleSector = (sectorId: string) => {
+    setSelectedSectorIds(prev =>
+      prev.includes(sectorId) ? prev.filter(id => id !== sectorId) : [...prev, sectorId]
+    );
+  };
 
   const handleSave = () => {
     if (!name.trim()) return;
@@ -42,7 +60,12 @@ export function TrainingDrawer({ open, onOpenChange, training }: Props) {
       validity_months: hasExpiry ? validityMonths : null,
       alert_days_before: alertDays,
     }, {
-      onSuccess: () => onOpenChange(false),
+      onSuccess: (trainingId) => {
+        if (trainingId) {
+          saveSectorRules.mutate({ trainingId, sectorIds: selectedSectorIds });
+        }
+        onOpenChange(false);
+      },
     });
   };
 
@@ -70,6 +93,29 @@ export function TrainingDrawer({ open, onOpenChange, training }: Props) {
               </div>
             </>
           )}
+
+          <div className="space-y-2">
+            <Label>Setores obrigatórios</Label>
+            <p className="text-xs text-muted-foreground">
+              Todos os cargos vinculados aos setores selecionados terão este treinamento como obrigatório.
+            </p>
+            {sectors.length === 0 ? (
+              <p className="text-sm text-muted-foreground italic">Nenhum setor cadastrado. Crie setores na tela de Cargos.</p>
+            ) : (
+              <div className="space-y-2 max-h-48 overflow-y-auto border rounded-md p-3">
+                {sectors.map((s: any) => (
+                  <div key={s.id} className="flex items-center gap-2">
+                    <Checkbox
+                      id={`sector-${s.id}`}
+                      checked={selectedSectorIds.includes(s.id)}
+                      onCheckedChange={() => toggleSector(s.id)}
+                    />
+                    <label htmlFor={`sector-${s.id}`} className="text-sm cursor-pointer">{s.name}</label>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
         <DrawerFooter className="flex-row gap-2">
           <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>Cancelar</Button>

@@ -1,27 +1,32 @@
 import { useState } from "react";
-import { useJobPositions, useSaveJobPosition, useSectors } from "@/hooks/useTrainings";
+import { useJobPositions, useSaveJobPosition, useSectors, useSaveSector, useDeleteSector } from "@/hooks/useTrainings";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Search, Briefcase } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Briefcase, Building2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { Badge } from "@/components/ui/badge";
 
 export default function TreinamentosCargos() {
   const { company } = useAuth();
   const { data: positions = [], isLoading } = useJobPositions();
   const { data: sectors = [] } = useSectors();
   const save = useSaveJobPosition();
+  const saveSector = useSaveSector();
+  const deleteSector = useDeleteSector();
   const { toast } = useToast();
   const qc = useQueryClient();
   const isExpired = company?.plan === "expired";
+
+  const [newSectorName, setNewSectorName] = useState("");
 
   const [search, setSearch] = useState("");
   const [newName, setNewName] = useState("");
@@ -92,8 +97,55 @@ export default function TreinamentosCargos() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Add + Search bar */}
+    <div className="space-y-8">
+      {/* Sector Management */}
+      <div className="space-y-3">
+        <h3 className="text-lg font-semibold flex items-center gap-2"><Building2 className="h-5 w-5" />Setores</h3>
+        <div className="flex gap-2 items-center">
+          <Input
+            placeholder="Nome do novo setor"
+            value={newSectorName}
+            onChange={(e) => setNewSectorName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && newSectorName.trim()) {
+                saveSector.mutate({ name: newSectorName.trim() }, { onSuccess: () => { setNewSectorName(""); toast({ title: "Setor criado" }); } });
+              }
+            }}
+            disabled={isExpired}
+            className="w-64"
+          />
+          <Button
+            onClick={() => {
+              if (!newSectorName.trim()) return;
+              saveSector.mutate({ name: newSectorName.trim() }, { onSuccess: () => { setNewSectorName(""); toast({ title: "Setor criado" }); } });
+            }}
+            disabled={!newSectorName.trim() || saveSector.isPending || isExpired}
+            size="sm"
+          >
+            <Plus className="h-4 w-4 mr-1" />Adicionar
+          </Button>
+        </div>
+        {sectors.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {sectors.map((s: any) => (
+              <Badge key={s.id} variant="secondary" className="text-sm py-1 px-3 gap-1.5">
+                {s.name}
+                <button
+                  onClick={() => deleteSector.mutate(s.id)}
+                  className="ml-1 hover:text-destructive"
+                  disabled={isExpired}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </button>
+              </Badge>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Positions Section */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold flex items-center gap-2"><Briefcase className="h-5 w-5" />Cargos</h3>
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -261,6 +313,7 @@ export default function TreinamentosCargos() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      </div>
     </div>
   );
 }

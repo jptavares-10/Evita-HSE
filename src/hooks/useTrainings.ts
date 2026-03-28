@@ -136,14 +136,38 @@ export function useSaveTrainingSectorRules() {
   return useMutation({
     mutationFn: async ({ trainingId, sectorIds }: { trainingId: string; sectorIds: string[] }) => {
       if (!company) throw new Error("Sem empresa");
-      // Delete existing rules for this training
+
+      // 1. Delete existing sector rules for this training
       const { error: delError } = await supabase.from("training_sector_rules").delete().eq("training_id", trainingId);
       if (delError) throw delError;
-      // Insert new rules
+
+      // 2. Insert new sector rules
       if (sectorIds.length > 0) {
         const rows = sectorIds.map(sid => ({ company_id: company.id, training_id: trainingId, sector_id: sid }));
         const { error } = await supabase.from("training_sector_rules").insert(rows);
         if (error) throw error;
+      }
+
+      // 3. Sync training_matrix: get all job positions for the selected sectors
+      // First, remove matrix entries that were auto-created by sector rules (positions in sectors that are no longer selected)
+      const { data: allPositions } = await supabase.from("job_positions").select("id, sector_id").eq("company_id", company.id);
+      if (!allPositions) return;
+
+      const sectorSet = new Set(sectorIds);
+      const positionsInSelectedSectors = allPositions.filter(p => p.sector_id && sectorSet.has(p.sector_id));
+
+      // Get existing matrix entries for this training
+      const { data: existingMatrix } = await supabase.from("training_matrix").select("id, job_position_id").eq("training_id", trainingId).eq("company_id", company.id);
+      const existingPositionIds = new Set((existingMatrix ?? []).map(m => m.job_position_id));
+
+      // Insert missing matrix entries for positions in selected sectors
+      const toInsert = positionsInSelectedSectors
+        .filter(p => !existingPositionIds.has(p.id))
+        .map(p => ({ company_id: company.id, training_id: trainingId, job_position_id: p.id }));
+
+      if (toInsert.length > 0) {
+        const { error: insertErr } = await supabase.from("training_matrix").insert(toInsert);
+        if (insertErr) throw insertErr;
       }
     },
     onSuccess: () => {
@@ -232,10 +256,21 @@ export function useDeleteEmployee() {
   const { toast } = useToast();
   return useMutation({
     mutationFn: async (id: string) => {
+      // Delete training records first
+      const { error: recErr } = await supabase.from("employee_training_records").delete().eq("employee_id", id);
+      if (recErr) throw recErr;
+      // Delete occurrence_employees links
+      const { error: occErr } = await supabase.from("occurrence_employees").delete().eq("employee_id", id);
+      if (occErr) throw occErr;
       const { error } = await supabase.from("employees").delete().eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["employees"] }); toast({ title: "Colaborador excluído" }); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["employees"] });
+      qc.invalidateQueries({ queryKey: ["employee-records"] });
+      qc.invalidateQueries({ queryKey: ["all-training-records"] });
+      toast({ title: "Colaborador excluído" });
+    },
     onError: () => { toast({ title: "Erro ao excluir colaborador", variant: "destructive" }); },
   });
 }

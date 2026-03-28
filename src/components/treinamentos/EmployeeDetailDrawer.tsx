@@ -6,7 +6,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTrainings, useTrainingMatrix, useEmployeeRecords } from "@/hooks/useTrainings";
 import { useAuth } from "@/contexts/AuthContext";
 import { getRecordStatus, getRecordStatusInfo, MISSING_STATUS_INFO, formatDateBR } from "@/lib/trainings";
-import { Pencil, Plus, FileText, Download } from "lucide-react";
+import { Pencil, Plus, FileText, Download, Trash2 } from "lucide-react";
+import { useDeleteEmployee } from "@/hooks/useTrainings";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { RegisterCertificateModal } from "./RegisterCertificateModal";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getSignedUrl } from "@/lib/storage-utils";
@@ -38,7 +40,9 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
   const { data: trainings = [] } = useTrainings();
   const { data: matrix = [] } = useTrainingMatrix();
   const { data: records = [] } = useEmployeeRecords(employee?.id ?? null);
+  const deleteEmployee = useDeleteEmployee();
   const [certModal, setCertModal] = useState<{ trainingId: string; trainingName: string; validityMonths: number; hasExpiry: boolean } | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const requiredTrainingIds = useMemo(() => {
     if (!employee) return [];
@@ -82,7 +86,35 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
               <DrawerTitle>{employee?.name}</DrawerTitle>
               <p className="text-sm text-muted-foreground">{employee?.job_positions?.name} {employee?.job_positions?.sectors?.name ? `· ${employee.job_positions.sectors.name}` : ""}</p>
             </div>
-            <ActionBtn variant="outline" onClick={() => onEdit(employee)}><Pencil className="h-3.5 w-3.5 mr-1" />Editar</ActionBtn>
+            <div className="flex items-center gap-2">
+              <ActionBtn variant="outline" onClick={() => onEdit(employee)}><Pencil className="h-3.5 w-3.5 mr-1" />Editar</ActionBtn>
+              <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="text-destructive border-destructive/30 hover:bg-destructive/10" disabled={isExpired}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Excluir colaborador?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      O colaborador <strong>{employee?.name}</strong> e todos os seus registros de treinamento serão excluídos permanentemente.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      onClick={() => {
+                        deleteEmployee.mutate(employee.id, {
+                          onSuccess: () => { setDeleteOpen(false); onClose(); },
+                        });
+                      }}
+                    >Excluir</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </DrawerHeader>
 
           <Tabs defaultValue="trainings" className="flex-1 flex flex-col overflow-hidden">

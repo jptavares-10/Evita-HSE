@@ -30,9 +30,11 @@ export function useSaveTraining() {
       if (v.id) {
         const { error } = await supabase.from("trainings").update(payload).eq("id", v.id);
         if (error) throw error;
+        return v.id;
       } else {
-        const { error } = await supabase.from("trainings").insert(payload);
+        const { data, error } = await supabase.from("trainings").insert(payload).select("id").single();
         if (error) throw error;
+        return data.id as string;
       }
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["trainings"] }); toast({ title: "Treinamento salvo" }); },

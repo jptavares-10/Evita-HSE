@@ -148,17 +148,28 @@ export function useSaveTrainingSectorRules() {
         if (error) throw error;
       }
 
-      // 3. Sync training_matrix: get all job positions for the selected sectors
-      // First, remove matrix entries that were auto-created by sector rules (positions in sectors that are no longer selected)
+      // 3. Sync training_matrix
       const { data: allPositions } = await supabase.from("job_positions").select("id, sector_id").eq("company_id", company.id);
       if (!allPositions) return;
 
+      // Get old sector rules to know which sectors were removed
+      const { data: existingMatrix } = await supabase.from("training_matrix").select("id, job_position_id").eq("training_id", trainingId).eq("company_id", company.id);
+
       const sectorSet = new Set(sectorIds);
       const positionsInSelectedSectors = allPositions.filter(p => p.sector_id && sectorSet.has(p.sector_id));
-
-      // Get existing matrix entries for this training
-      const { data: existingMatrix } = await supabase.from("training_matrix").select("id, job_position_id").eq("training_id", trainingId).eq("company_id", company.id);
+      const positionIdsInSelectedSectors = new Set(positionsInSelectedSectors.map(p => p.id));
       const existingPositionIds = new Set((existingMatrix ?? []).map(m => m.job_position_id));
+
+      // Remove matrix entries for positions whose sector was removed
+      const positionsInRemovedSectors = allPositions.filter(p => p.sector_id && !sectorSet.has(p.sector_id));
+      const toRemoveIds = (existingMatrix ?? [])
+        .filter(m => positionsInRemovedSectors.some(p => p.id === m.job_position_id))
+        .map(m => m.id);
+
+      if (toRemoveIds.length > 0) {
+        const { error: rmErr } = await supabase.from("training_matrix").delete().in("id", toRemoveIds);
+        if (rmErr) throw rmErr;
+      }
 
       // Insert missing matrix entries for positions in selected sectors
       const toInsert = positionsInSelectedSectors

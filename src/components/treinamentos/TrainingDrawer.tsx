@@ -35,7 +35,6 @@ export function TrainingDrawer({ open, onOpenChange, training }: Props) {
       setHasExpiry(training?.has_expiry !== false);
       setValidityMonths(training?.validity_months || 24);
       setAlertDays(training?.alert_days_before || 30);
-      // Load existing sector rules for this training
       if (training?.id) {
         const existing = sectorRules.filter((r: any) => r.training_id === training.id).map((r: any) => r.sector_id);
         setSelectedSectorIds(existing);
@@ -61,58 +60,13 @@ export function TrainingDrawer({ open, onOpenChange, training }: Props) {
       validity_months: hasExpiry ? validityMonths : null,
       alert_days_before: alertDays,
     }, {
-      onSuccess: (_, variables) => {
-        // For new trainings, we need the ID to save sector rules
-        // For existing, use the training id
-        const trainingId = variables.id;
+      onSuccess: (trainingId) => {
         if (trainingId) {
           saveSectorRules.mutate({ trainingId, sectorIds: selectedSectorIds });
         }
         onOpenChange(false);
       },
     });
-  };
-
-  // For new trainings, save sector rules after creation
-  // We need to modify save to return the ID
-  const handleSaveNew = () => {
-    if (!name.trim()) return;
-    if (training?.id) {
-      // Editing existing
-      save.mutate({
-        id: training.id,
-        name: name.trim(),
-        description: description.trim() || null,
-        has_expiry: hasExpiry,
-        validity_months: hasExpiry ? validityMonths : null,
-        alert_days_before: alertDays,
-      }, {
-        onSuccess: () => {
-          saveSectorRules.mutate({ trainingId: training.id, sectorIds: selectedSectorIds });
-          onOpenChange(false);
-        },
-      });
-    } else {
-      // Creating new - need to get the ID back
-      save.mutate({
-        name: name.trim(),
-        description: description.trim() || null,
-        has_expiry: hasExpiry,
-        validity_months: hasExpiry ? validityMonths : null,
-        alert_days_before: alertDays,
-      }, {
-        onSuccess: async () => {
-          // Query the newly created training by name to get the ID
-          // This is a workaround since the mutation doesn't return ID
-          const { supabase } = await import("@/integrations/supabase/client");
-          const { data } = await supabase.from("trainings").select("id").eq("name", name.trim()).order("created_at", { ascending: false }).limit(1).single();
-          if (data?.id && selectedSectorIds.length > 0) {
-            saveSectorRules.mutate({ trainingId: data.id, sectorIds: selectedSectorIds });
-          }
-          onOpenChange(false);
-        },
-      });
-    }
   };
 
   return (
@@ -140,7 +94,6 @@ export function TrainingDrawer({ open, onOpenChange, training }: Props) {
             </>
           )}
 
-          {/* Sector selection */}
           <div className="space-y-2">
             <Label>Setores obrigatórios</Label>
             <p className="text-xs text-muted-foreground">
@@ -166,7 +119,7 @@ export function TrainingDrawer({ open, onOpenChange, training }: Props) {
         </div>
         <DrawerFooter className="flex-row gap-2">
           <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>Cancelar</Button>
-          <Button className="flex-1" onClick={handleSaveNew} disabled={!name.trim() || save.isPending}>Salvar</Button>
+          <Button className="flex-1" onClick={handleSave} disabled={!name.trim() || save.isPending}>Salvar</Button>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

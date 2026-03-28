@@ -148,17 +148,28 @@ export function useSaveTrainingSectorRules() {
         if (error) throw error;
       }
 
-      // 3. Sync training_matrix: get all job positions for the selected sectors
-      // First, remove matrix entries that were auto-created by sector rules (positions in sectors that are no longer selected)
+      // 3. Sync training_matrix
       const { data: allPositions } = await supabase.from("job_positions").select("id, sector_id").eq("company_id", company.id);
       if (!allPositions) return;
 
+      // Get old sector rules to know which sectors were removed
+      const { data: existingMatrix } = await supabase.from("training_matrix").select("id, job_position_id").eq("training_id", trainingId).eq("company_id", company.id);
+
       const sectorSet = new Set(sectorIds);
       const positionsInSelectedSectors = allPositions.filter(p => p.sector_id && sectorSet.has(p.sector_id));
-
-      // Get existing matrix entries for this training
-      const { data: existingMatrix } = await supabase.from("training_matrix").select("id, job_position_id").eq("training_id", trainingId).eq("company_id", company.id);
+      const positionIdsInSelectedSectors = new Set(positionsInSelectedSectors.map(p => p.id));
       const existingPositionIds = new Set((existingMatrix ?? []).map(m => m.job_position_id));
+
+      // Remove matrix entries for positions whose sector was removed
+      const positionsInRemovedSectors = allPositions.filter(p => p.sector_id && !sectorSet.has(p.sector_id));
+      const toRemoveIds = (existingMatrix ?? [])
+        .filter(m => positionsInRemovedSectors.some(p => p.id === m.job_position_id))
+        .map(m => m.id);
+
+      if (toRemoveIds.length > 0) {
+        const { error: rmErr } = await supabase.from("training_matrix").delete().in("id", toRemoveIds);
+        if (rmErr) throw rmErr;
+      }
 
       // Insert missing matrix entries for positions in selected sectors
       const toInsert = positionsInSelectedSectors
@@ -201,16 +212,39 @@ export function useSaveJobPosition() {
     mutationFn: async (v: { id?: string; name: string; sector_id?: string | null }) => {
       if (!company) throw new Error("Sem empresa");
       const sectorId = v.sector_id && v.sector_id !== "none" ? v.sector_id : null;
+      let positionId: string | undefined;
+
       if (v.id) {
         const { error } = await supabase.from("job_positions").update({ name: v.name, sector_id: sectorId }).eq("id", v.id);
         if (error) throw error;
+        positionId = v.id;
       } else {
         const { data, error } = await supabase.from("job_positions").insert({ company_id: company.id, name: v.name, sector_id: sectorId }).select("id").single();
         if (error) throw error;
-        return data.id;
+        positionId = data.id;
       }
+
+      // Auto-link trainings from sector rules to the matrix
+      if (sectorId && positionId) {
+        const { data: sectorRules } = await supabase.from("training_sector_rules").select("training_id").eq("sector_id", sectorId).eq("company_id", company.id);
+        if (sectorRules && sectorRules.length > 0) {
+          const { data: existingMatrix } = await supabase.from("training_matrix").select("training_id").eq("job_position_id", positionId).eq("company_id", company.id);
+          const existingTrainingIds = new Set((existingMatrix ?? []).map(m => m.training_id));
+          const toInsert = sectorRules
+            .filter(r => !existingTrainingIds.has(r.training_id))
+            .map(r => ({ company_id: company.id, job_position_id: positionId!, training_id: r.training_id }));
+          if (toInsert.length > 0) {
+            await supabase.from("training_matrix").insert(toInsert);
+          }
+        }
+      }
+
+      return positionId;
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["job-positions"] }); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["job-positions"] });
+      qc.invalidateQueries({ queryKey: ["training-matrix"] });
+    },
     onError: () => { toast({ title: "Erro ao salvar cargo", variant: "destructive" }); },
   });
 }

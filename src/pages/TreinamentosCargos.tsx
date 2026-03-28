@@ -313,6 +313,7 @@ export default function TreinamentosCargos() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      </div>
     </div>
   );
 }

@@ -20,9 +20,13 @@ export default function TreinamentosCargos() {
   const { data: positions = [], isLoading } = useJobPositions();
   const { data: sectors = [] } = useSectors();
   const save = useSaveJobPosition();
+  const saveSector = useSaveSector();
+  const deleteSector = useDeleteSector();
   const { toast } = useToast();
   const qc = useQueryClient();
   const isExpired = company?.plan === "expired";
+
+  const [newSectorName, setNewSectorName] = useState("");
 
   const [search, setSearch] = useState("");
   const [newName, setNewName] = useState("");

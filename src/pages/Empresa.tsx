@@ -88,6 +88,24 @@ export default function Empresa() {
     setUploading(false);
   };
 
+  const handleRemoveLogo = async () => {
+    if (!company?.logo_url) return;
+    setUploading(true);
+    const { data: files } = await supabase.storage.from("company-logos").list(company.id);
+    if (files?.length) {
+      await supabase.storage.from("company-logos").remove(files.map((f) => `${company.id}/${f.name}`));
+    }
+    await supabase.rpc("update_company_safe_fields", {
+      p_name: company.name,
+      p_cnpj: company.cnpj,
+      p_segment: company.segment,
+      p_logo_url: "",
+    });
+    toast({ title: "Logo removida!" });
+    await refreshCompany();
+    setUploading(false);
+  };
+
   return (
     <div className="max-w-xl mx-auto space-y-6 animate-fade-up">
       <div>

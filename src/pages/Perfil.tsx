@@ -89,11 +89,21 @@ export default function Perfil() {
             <AvatarImage src={profile?.avatar_url ?? undefined} />
             <AvatarFallback className="text-lg">{initials}</AvatarFallback>
           </Avatar>
-          <div>
+          <div className="flex flex-col gap-1">
             <Label htmlFor="avatar" className="cursor-pointer text-sm text-primary font-medium hover:underline underline-offset-2">
               {uploading ? "Enviando..." : "Alterar foto"}
             </Label>
             <input id="avatar" type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} disabled={uploading} />
+            {profile?.avatar_url && (
+              <button
+                type="button"
+                onClick={handleRemoveAvatar}
+                className="flex items-center gap-1 text-xs text-destructive hover:underline underline-offset-2"
+              >
+                <Trash2 className="h-3 w-3" />
+                Remover foto
+              </button>
+            )}
           </div>
         </div>
 

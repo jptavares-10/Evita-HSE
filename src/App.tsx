@@ -34,6 +34,7 @@ import FornecedorDocumentos from "./pages/FornecedorDocumentos";
 import PortalFornecedor from "./pages/PortalFornecedor";
 import Incidentes from "./pages/Incidentes";
 import Licencas from "./pages/Licencas";
+import Documentos from "./pages/Documentos";
 const queryClient = new QueryClient();
 
 const App = () => (

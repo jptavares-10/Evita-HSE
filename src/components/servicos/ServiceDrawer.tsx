@@ -272,6 +272,13 @@ export function ServiceDrawer({ open, onOpenChange, editingService }: Props) {
               </div>
             </section>
 
+            {/* Documentos relacionados */}
+            <ServiceDocumentsSection
+              serviceId={editingService?.id ?? null}
+              companyId={company?.id ?? null}
+              profileId={profile?.id ?? null}
+            />
+
             {/* Attachments */}
             <section className="space-y-3">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Anexos</h3>

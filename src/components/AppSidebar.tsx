@@ -17,7 +17,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import {
   LayoutDashboard, ClipboardList, ShieldAlert, GraduationCap, Recycle, Truck,
   Building2, Users, CreditCard, LogOut, ChevronDown, ChevronLeft, ChevronRight,
-  Shield, HeartPulse, Leaf, Eye, BookOpen, Grid3X3, Briefcase
+  Shield, HeartPulse, Leaf, Eye, BookOpen, Grid3X3, Briefcase, ScrollText
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

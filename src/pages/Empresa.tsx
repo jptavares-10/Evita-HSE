@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Upload } from "lucide-react";
+import { Upload, Trash2 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const SEGMENTS = [
@@ -88,6 +88,24 @@ export default function Empresa() {
     setUploading(false);
   };
 
+  const handleRemoveLogo = async () => {
+    if (!company?.logo_url) return;
+    setUploading(true);
+    const { data: files } = await supabase.storage.from("company-logos").list(company.id);
+    if (files?.length) {
+      await supabase.storage.from("company-logos").remove(files.map((f) => `${company.id}/${f.name}`));
+    }
+    await supabase.rpc("update_company_safe_fields", {
+      p_name: company.name,
+      p_cnpj: company.cnpj,
+      p_segment: company.segment,
+      p_logo_url: "",
+    });
+    toast({ title: "Logo removida!" });
+    await refreshCompany();
+    setUploading(false);
+  };
+
   return (
     <div className="max-w-xl mx-auto space-y-6 animate-fade-up">
       <div>
@@ -105,12 +123,22 @@ export default function Empresa() {
               <Upload className="h-6 w-6 text-muted-foreground" />
             )}
           </div>
-          <div>
+          <div className="flex flex-col gap-1">
             <Label htmlFor="logo" className="cursor-pointer text-sm text-primary font-medium hover:underline underline-offset-2">
               {uploading ? "Enviando..." : "Alterar logo"}
             </Label>
             <input id="logo" type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} disabled={uploading} />
             <p className="text-xs text-muted-foreground">JPG, PNG. Máx 2MB.</p>
+            {company?.logo_url && isAdmin && (
+              <button
+                type="button"
+                onClick={handleRemoveLogo}
+                className="flex items-center gap-1 text-xs text-destructive hover:underline underline-offset-2"
+              >
+                <Trash2 className="h-3 w-3" />
+                Remover logo
+              </button>
+            )}
           </div>
         </div>
 

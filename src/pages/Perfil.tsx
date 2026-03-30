@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
+import { Trash2 } from "lucide-react";
 
 export default function Perfil() {
   const { profile, refreshProfile } = useAuth();
@@ -61,6 +62,21 @@ export default function Perfil() {
     setUploading(false);
   };
 
+  const handleRemoveAvatar = async () => {
+    if (!profile?.avatar_url) return;
+    setUploading(true);
+    // Remove from storage - list files in the user's folder and delete them
+    const { data: files } = await supabase.storage.from("avatars").list(profile.id);
+    if (files?.length) {
+      await supabase.storage.from("avatars").remove(files.map((f) => `${profile.id}/${f.name}`));
+    }
+    // Clear avatar_url in profile
+    await supabase.from("profiles").update({ avatar_url: null }).eq("id", profile.id);
+    toast({ title: "Foto removida!" });
+    await refreshProfile();
+    setUploading(false);
+  };
+
   const handleResetPassword = async () => {
     if (!profile?.email) return;
     const { error } = await supabase.auth.resetPasswordForEmail(profile.email, {
@@ -86,11 +102,21 @@ export default function Perfil() {
             <AvatarImage src={profile?.avatar_url ?? undefined} />
             <AvatarFallback className="text-lg">{initials}</AvatarFallback>
           </Avatar>
-          <div>
+          <div className="flex flex-col gap-1">
             <Label htmlFor="avatar" className="cursor-pointer text-sm text-primary font-medium hover:underline underline-offset-2">
               {uploading ? "Enviando..." : "Alterar foto"}
             </Label>
             <input id="avatar" type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} disabled={uploading} />
+            {profile?.avatar_url && (
+              <button
+                type="button"
+                onClick={handleRemoveAvatar}
+                className="flex items-center gap-1 text-xs text-destructive hover:underline underline-offset-2"
+              >
+                <Trash2 className="h-3 w-3" />
+                Remover foto
+              </button>
+            )}
           </div>
         </div>
 

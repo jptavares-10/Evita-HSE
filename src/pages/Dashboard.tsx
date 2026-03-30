@@ -155,9 +155,15 @@ export default function Dashboard() {
       const st = getServiceStatus(s.next_due_at, s.alert_days_before);
       if (st === "warning") items.push({ icon: ClipboardList, iconColor: "text-yellow-600", text: s.name, badge: "Vencendo", badgeColor: "bg-yellow-100 text-yellow-700", link: "/servicos", priority: 5 });
     });
+    // Expired/expiring licenses
+    licenseList.forEach((l: any) => {
+      const st = computeLicenseStatus(l.has_expiry, l.expires_at, l.alert_days_before, l.status);
+      if (st === "expired") items.push({ icon: ScrollText, iconColor: "text-destructive", text: `${l.license_number} — ${l.title}`, badge: "Vencida", badgeColor: "bg-destructive/10 text-destructive", link: "/licencas", priority: 1.5 });
+      else if (st === "expiring") items.push({ icon: ScrollText, iconColor: "text-yellow-600", text: `${l.license_number} — ${l.title}`, badge: "Vencendo", badgeColor: "bg-yellow-100 text-yellow-700", link: "/licencas", priority: 3.5 });
+    });
 
     return items.sort((a, b) => a.priority - b.priority).slice(0, 8);
-  }, [services, mtrList, occurrenceList]);
+  }, [services, mtrList, occurrenceList, licenseList]);
 
   const today = format(new Date(), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR });
   const todayCapitalized = today.charAt(0).toUpperCase() + today.slice(1);

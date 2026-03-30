@@ -64,6 +64,21 @@ export default function Perfil() {
     setUploading(false);
   };
 
+  const handleRemoveAvatar = async () => {
+    if (!profile?.avatar_url) return;
+    setUploading(true);
+    // Remove from storage - list files in the user's folder and delete them
+    const { data: files } = await supabase.storage.from("avatars").list(profile.id);
+    if (files?.length) {
+      await supabase.storage.from("avatars").remove(files.map((f) => `${profile.id}/${f.name}`));
+    }
+    // Clear avatar_url in profile
+    await supabase.from("profiles").update({ avatar_url: null }).eq("id", profile.id);
+    toast({ title: "Foto removida!" });
+    await refreshProfile();
+    setUploading(false);
+  };
+
   const handleResetPassword = async () => {
     if (!profile?.email) return;
     const { error } = await supabase.auth.resetPasswordForEmail(profile.email, {

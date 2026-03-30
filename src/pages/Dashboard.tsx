@@ -54,8 +54,9 @@ export default function Dashboard() {
   const { data: supplierList = [], isLoading: loadingSuppliers } = useSuppliers();
   const { data: occurrenceList = [], isLoading: loadingOccurrences } = useOccurrences();
   const { data: allCorrectiveActions = [] } = useAllCorrectiveActions();
+  const { data: licenseList = [], isLoading: loadingLicenses } = useEnvironmentalLicenses();
 
-  const isLoading = loadingServices || loadingEmployees || loadingMtr || loadingSuppliers || loadingOccurrences;
+  const isLoading = loadingServices || loadingEmployees || loadingMtr || loadingSuppliers || loadingOccurrences || loadingLicenses;
 
   // Services stats
   const serviceStats = useMemo(() => {

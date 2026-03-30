@@ -21,6 +21,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PRESET_COLORS } from "@/lib/services";
 import { useToast } from "@/hooks/use-toast";
+import { ServiceDocumentsSection } from "./ServiceDocuments";
 
 interface Service {
   id: string;
@@ -271,6 +272,13 @@ export function ServiceDrawer({ open, onOpenChange, editingService }: Props) {
                 </p>
               </div>
             </section>
+
+            {/* Documentos relacionados */}
+            <ServiceDocumentsSection
+              serviceId={editingService?.id ?? null}
+              companyId={company?.id ?? null}
+              profileId={profile?.id ?? null}
+            />
 
             {/* Attachments */}
             <section className="space-y-3">

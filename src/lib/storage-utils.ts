@@ -11,6 +11,7 @@ const PRIVATE_BUCKETS = [
   "supplier-documents",
   "service-attachments",
   "environmental-licenses",
+  "documents-library",
 ] as const;
 
 export type PrivateBucket = (typeof PRIVATE_BUCKETS)[number];

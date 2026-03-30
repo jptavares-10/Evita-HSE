@@ -127,6 +127,234 @@ export type Database = {
           },
         ]
       }
+      document_revisions: {
+        Row: {
+          company_id: string
+          document_id: string
+          file_name: string
+          file_url: string
+          id: string
+          notes: string | null
+          revision_date: string
+          revision_number: string
+          uploaded_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          company_id: string
+          document_id: string
+          file_name: string
+          file_url: string
+          id?: string
+          notes?: string | null
+          revision_date: string
+          revision_number: string
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          company_id?: string
+          document_id?: string
+          file_name?: string
+          file_url?: string
+          id?: string
+          notes?: string | null
+          revision_date?: string
+          revision_number?: string
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_revisions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_revisions_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_revisions_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_service_links: {
+        Row: {
+          company_id: string
+          document_id: string
+          id: string
+          linked_at: string
+          linked_by: string | null
+          service_id: string
+        }
+        Insert: {
+          company_id: string
+          document_id: string
+          id?: string
+          linked_at?: string
+          linked_by?: string | null
+          service_id: string
+        }
+        Update: {
+          company_id?: string
+          document_id?: string
+          id?: string
+          linked_at?: string
+          linked_by?: string | null
+          service_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_service_links_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_service_links_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_service_links_linked_by_fkey"
+            columns: ["linked_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_service_links_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "periodic_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_types: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          is_default: boolean
+          name: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_types_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
+        Row: {
+          area: string | null
+          code: string | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          current_file_name: string | null
+          current_file_url: string | null
+          current_revision: string
+          current_revision_date: string
+          description: string | null
+          document_type_id: string | null
+          id: string
+          responsible: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          area?: string | null
+          code?: string | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          current_file_name?: string | null
+          current_file_url?: string | null
+          current_revision: string
+          current_revision_date: string
+          description?: string | null
+          document_type_id?: string | null
+          id?: string
+          responsible?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          area?: string | null
+          code?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          current_file_name?: string | null
+          current_file_url?: string | null
+          current_revision?: string
+          current_revision_date?: string
+          description?: string | null
+          document_type_id?: string | null
+          id?: string
+          responsible?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_document_type_id_fkey"
+            columns: ["document_type_id"]
+            isOneToOne: false
+            referencedRelation: "document_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employee_training_records: {
         Row: {
           certificate_name: string | null
@@ -1611,6 +1839,10 @@ export type Database = {
       get_user_company_id: { Args: never; Returns: string }
       remove_member: { Args: { p_member_id: string }; Returns: Json }
       seed_default_categories: {
+        Args: { p_company_id: string }
+        Returns: undefined
+      }
+      seed_default_document_types: {
         Args: { p_company_id: string }
         Returns: undefined
       }

@@ -1,84 +1,84 @@
 
 
-## Problem
+## Módulo de Biblioteca de Documentos
 
-The `remove_member` RPC function fails with a **foreign key constraint violation** (HTTP 409). The error:
+### Visão geral
 
-```
-Key (id)=(e77735a4-...) is still referenced from table "corrective_actions"
-```
+Novo módulo completo acessível em `/documentos`, dentro do grupo SEGURANÇA na sidebar. Segue os mesmos padrões de arquitetura dos módulos existentes (Licenças, Serviços). Inclui vinculação bidirecional com Serviços Periódicos.
 
-Multiple tables reference `profiles.id` via foreign keys, and several of them lack `ON DELETE` actions (defaulting to `RESTRICT`), which blocks the DELETE.
+---
 
-### Foreign keys that block deletion (no ON DELETE clause = RESTRICT):
+### 1. Banco de dados (1 migration)
 
-| Table | Column | Current ON DELETE |
-|---|---|---|
-| `corrective_actions` | `completed_by` | RESTRICT |
-| `corrective_actions` | `created_by` | RESTRICT |
-| `employee_training_records` | `registered_by` | RESTRICT |
-| `mtrs` | `registered_by` | RESTRICT |
-| `occurrences` | `registered_by` | RESTRICT |
-| `occurrence_attachments` | `uploaded_by` | RESTRICT |
+**Tabelas:**
 
-### Foreign keys that already handle deletion:
-- `invitations.invited_by` → ON DELETE CASCADE
-- `periodic_services.created_by` → ON DELETE SET NULL
-- `service_attachments.uploaded_by` → ON DELETE SET NULL
-- `service_history.registered_by` → ON DELETE SET NULL
-- `service_history.notes_edited_by` → (need to check, but likely RESTRICT)
-- `suppliers.created_by` → ON DELETE SET NULL
+- `document_types` — id, company_id, name, is_default, created_at
+- `documents` — id, company_id, code, title, document_type_id, description, responsible, area, status, current_revision, current_revision_date, current_file_url, current_file_name, created_by, created_at, updated_at
+- `document_revisions` — id, document_id, company_id, revision_number, revision_date, file_url, file_name, notes, uploaded_by, uploaded_at
+- `document_service_links` — id, document_id, service_id, company_id, linked_by, linked_at, UNIQUE(document_id, service_id)
 
-## Fix
+**Storage:** bucket `documents-library` (privado)
 
-**One migration** to alter the 6+ blocking foreign keys to use `ON DELETE SET NULL`. This preserves the data records (corrective actions, MTRs, occurrences, etc.) while allowing the member profile to be deleted. The `registered_by`/`completed_by`/`uploaded_by` columns are already nullable, so SET NULL is safe.
+**RLS:** padrão company_id com `get_user_company_id()` para SELECT/INSERT/UPDATE/DELETE em todas as tabelas.
 
-### Migration SQL
+**Função:** `seed_default_document_types(p_company_id)` — cria os 4 tipos padrão (IT, APR, PGR/PPRA, PCMSO) se não existirem.
 
-```sql
--- corrective_actions.completed_by
-ALTER TABLE public.corrective_actions DROP CONSTRAINT corrective_actions_completed_by_fkey;
-ALTER TABLE public.corrective_actions ADD CONSTRAINT corrective_actions_completed_by_fkey
-  FOREIGN KEY (completed_by) REFERENCES public.profiles(id) ON DELETE SET NULL;
+**Índices:** nos campos company_id, document_type_id, document_id, service_id conforme especificado.
 
--- corrective_actions.created_by
-ALTER TABLE public.corrective_actions DROP CONSTRAINT corrective_actions_created_by_fkey;
-ALTER TABLE public.corrective_actions ADD CONSTRAINT corrective_actions_created_by_fkey
-  FOREIGN KEY (created_by) REFERENCES public.profiles(id) ON DELETE SET NULL;
+**FK cascades:** `document_revisions.document_id` e `document_service_links.document_id` com `ON DELETE CASCADE`.
 
--- employee_training_records.registered_by
-ALTER TABLE public.employee_training_records DROP CONSTRAINT employee_training_records_registered_by_fkey;
-ALTER TABLE public.employee_training_records ADD CONSTRAINT employee_training_records_registered_by_fkey
-  FOREIGN KEY (registered_by) REFERENCES public.profiles(id) ON DELETE SET NULL;
+---
 
--- mtrs.registered_by
-ALTER TABLE public.mtrs DROP CONSTRAINT mtrs_registered_by_fkey;
-ALTER TABLE public.mtrs ADD CONSTRAINT mtrs_registered_by_fkey
-  FOREIGN KEY (registered_by) REFERENCES public.profiles(id) ON DELETE SET NULL;
+### 2. Navegação e rotas
 
--- occurrences.registered_by
-ALTER TABLE public.occurrences DROP CONSTRAINT occurrences_registered_by_fkey;
-ALTER TABLE public.occurrences ADD CONSTRAINT occurrences_registered_by_fkey
-  FOREIGN KEY (registered_by) REFERENCES public.profiles(id) ON DELETE SET NULL;
+- **AppSidebar:** adicionar "Biblioteca de Docs" no grupo SEGURANÇA, abaixo de IC & NC, ícone `FileText` (lucide)
+- **App.tsx:** rota `/documentos` → `Documentos`
 
--- occurrence_attachments.uploaded_by
-ALTER TABLE public.occurrence_attachments DROP CONSTRAINT occurrence_attachments_uploaded_by_fkey;
-ALTER TABLE public.occurrence_attachments ADD CONSTRAINT occurrence_attachments_uploaded_by_fkey
-  FOREIGN KEY (uploaded_by) REFERENCES public.profiles(id) ON DELETE SET NULL;
+---
 
--- service_history.notes_edited_by (also likely RESTRICT)
-ALTER TABLE public.service_history DROP CONSTRAINT service_history_notes_edited_by_fkey;
-ALTER TABLE public.service_history ADD CONSTRAINT service_history_notes_edited_by_fkey
-  FOREIGN KEY (notes_edited_by) REFERENCES public.profiles(id) ON DELETE SET NULL;
-```
+### 3. Arquivos novos do módulo
 
-Additionally, improve the `remove_member` function error handling to surface the actual DB error message to the frontend, and update the frontend toast to show it.
+| Arquivo | Descrição |
+|---|---|
+| `src/lib/documents.ts` | Helpers: formatação, status badges, sugestão de próxima revisão |
+| `src/hooks/useDocuments.ts` | Hooks: `useDocumentTypes`, `useDocuments`, `useDocumentRevisions`, `useDocumentServiceLinks`, `useSaveDocument`, `useNewRevision`, `useDeleteDocument` |
+| `src/pages/Documentos.tsx` | Página principal com KPIs, filtros, tabela |
+| `src/components/documentos/DocumentKpiCards.tsx` | 4 KPI cards |
+| `src/components/documentos/DocumentFilters.tsx` | Barra de filtros |
+| `src/components/documentos/DocumentDrawer.tsx` | Drawer cadastro/edição |
+| `src/components/documentos/DocumentDetailDrawer.tsx` | Drawer detalhes (2 abas: Documento + Histórico) |
+| `src/components/documentos/NewRevisionModal.tsx` | Modal de nova revisão |
+| `src/components/documentos/DeleteDocumentDialog.tsx` | Confirmação de exclusão |
+| `src/components/documentos/ManageDocumentTypesModal.tsx` | Gerenciar tipos |
 
-### Frontend change (Usuarios.tsx)
+---
 
-Update `handleRemoveUser` to also read the Supabase `error.message` when the RPC returns a non-success response, so the user sees a meaningful error instead of a generic message.
+### 4. Vinculação com Serviços Periódicos
 
-### Files changed
-1. **New migration** — alter 7 foreign key constraints to `ON DELETE SET NULL`
-2. **src/pages/Usuarios.tsx** — improve error message display in `handleRemoveUser`
+- **ServiceDrawer.tsx:** nova seção "Documentos relacionados" com select múltiplo buscando documentos vigentes. Ao salvar, sincronizar `document_service_links`.
+- **ServiceDetailDrawer.tsx:** seção "Documentos relacionados" na aba Detalhes mostrando documentos vinculados com visualizar/baixar via signed URL.
+- **useServices.ts:** adicionar hook `useDocumentServiceLinksForService(serviceId)`.
+
+---
+
+### 5. Storage
+
+Adicionar `documents-library` ao `PRIVATE_BUCKETS` em `src/lib/storage-utils.ts`.
+
+---
+
+### 6. Restrições de plano
+
+Botões de criar/editar/revisar/excluir/vincular desabilitados quando `company.plan === 'expired'` com tooltip "Seu plano expirou. Faça upgrade para continuar."
+
+---
+
+### Arquivos alterados (existentes)
+
+- `src/App.tsx` — nova rota
+- `src/components/AppSidebar.tsx` — novo item no grupo SEGURANÇA
+- `src/components/servicos/ServiceDrawer.tsx` — seção documentos relacionados
+- `src/components/servicos/ServiceDetailDrawer.tsx` — seção documentos relacionados
+- `src/lib/storage-utils.ts` — novo bucket
+- `src/integrations/supabase/types.ts` — atualizado automaticamente
 

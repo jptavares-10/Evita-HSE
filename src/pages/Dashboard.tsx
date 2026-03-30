@@ -219,6 +219,14 @@ export default function Dashboard() {
           link="/mtr" linkLabel="Ver todos"
         />
         <DashboardCard
+          icon={ScrollText} iconColor="text-primary" title="Licenças Ambientais"
+          items={[
+            { label: "Vigentes", value: licenseStats.active },
+            { label: "Vencendo/Vencidas", value: licenseStats.alertCount, color: licenseStats.alertCount > 0 ? "text-destructive" : "" },
+          ]}
+          link="/licencas" linkLabel="Ver todas"
+        />
+        <DashboardCard
           icon={Truck} iconColor="text-primary" title="Fornecedores"
           items={[
             { label: "Ativos", value: activeSuppliers },

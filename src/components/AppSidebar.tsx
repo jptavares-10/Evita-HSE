@@ -4,6 +4,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { usePeriodicServices } from "@/hooks/useServices";
 import { useOccurrences } from "@/hooks/useOccurrences";
+import { useEnvironmentalLicenses } from "@/hooks/useLicenses";
+import { computeLicenseStatus } from "@/lib/licenses";
 import { useEmployees, useTrainingMatrix, useAllRecords } from "@/hooks/useTrainings";
 import { useMtrs } from "@/hooks/useMTR";
 import { useSuppliers } from "@/hooks/useSuppliers";
@@ -15,7 +17,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import {
   LayoutDashboard, ClipboardList, ShieldAlert, GraduationCap, Recycle, Truck,
   Building2, Users, CreditCard, LogOut, ChevronDown, ChevronLeft, ChevronRight,
-  Shield, HeartPulse, Leaf, Eye, BookOpen, Grid3X3, Briefcase
+  Shield, HeartPulse, Leaf, Eye, BookOpen, Grid3X3, Briefcase, ScrollText
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -174,6 +176,7 @@ export function AppSidebar() {
   const { data: allRecords = [] } = useAllRecords();
   const { data: mtrList = [] } = useMtrs();
   const { data: supplierList = [] } = useSuppliers();
+  const { data: licenseList = [] } = useEnvironmentalLicenses();
 
   const serviceBadge = useMemo(() => {
     let count = 0;
@@ -209,9 +212,18 @@ export function AppSidebar() {
     return count;
   }, [mtrList]);
 
+  const licenseBadge = useMemo(() => {
+    let count = 0;
+    licenseList.forEach((l: any) => {
+      const st = computeLicenseStatus(l.has_expiry, l.expires_at, l.alert_days_before, l.status);
+      if (st === "expiring" || st === "expired") count++;
+    });
+    return count;
+  }, [licenseList]);
+
   const segurancaBadge = serviceBadge + incidentBadge;
   const saudeBadge = trainingBadge;
-  const meioAmbienteBadge = mtrBadge;
+  const meioAmbienteBadge = mtrBadge + licenseBadge;
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -338,6 +350,7 @@ export function AppSidebar() {
           {(groups.meio_ambiente ?? true) && (
             <div className={cn("space-y-0.5", !collapsed && "relative ml-4 pl-2 border-l border-[#1F2937]")}>
               <SidebarItem to="/mtr" icon={Recycle} label="Gestão de MTR" badge={mtrBadge} active={path.startsWith("/mtr")} collapsed={collapsed} />
+              <SidebarItem to="/licencas" icon={ScrollText} label="Licenças Ambientais" badge={licenseBadge} active={path === "/licencas"} collapsed={collapsed} />
               <SidebarItem to="/fornecedores" icon={Truck} label="Fornecedores" active={path.startsWith("/fornecedores")} collapsed={collapsed} />
             </div>
           )}

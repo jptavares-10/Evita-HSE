@@ -33,7 +33,7 @@ import Fornecedores from "./pages/Fornecedores";
 import FornecedorDocumentos from "./pages/FornecedorDocumentos";
 import PortalFornecedor from "./pages/PortalFornecedor";
 import Incidentes from "./pages/Incidentes";
-
+import Licencas from "./pages/Licencas";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -74,6 +74,7 @@ const App = () => (
               <Route path="/fornecedores" element={<Fornecedores />} />
               <Route path="/fornecedores/:id" element={<FornecedorDocumentos />} />
               <Route path="/incidentes" element={<Incidentes />} />
+              <Route path="/licencas" element={<Licencas />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />

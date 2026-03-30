@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { ClipboardList, GraduationCap, Recycle, Truck, AlertTriangle, CheckCircle2, XCircle, ArrowRight, Users, ShieldAlert, CreditCard, Calendar } from "lucide-react";
+import { ClipboardList, GraduationCap, Recycle, Truck, AlertTriangle, CheckCircle2, XCircle, ArrowRight, Users, ShieldAlert, CreditCard, Calendar, ScrollText } from "lucide-react";
 import { usePeriodicServices } from "@/hooks/useServices";
 import { getServiceStatus, getStatusInfo, formatDateBR } from "@/lib/services";
 import { useEmployees, useTrainingMatrix, useAllRecords } from "@/hooks/useTrainings";
@@ -8,6 +8,8 @@ import { useMtrs } from "@/hooks/useMTR";
 import { getCdfDisplayStatus, getDaysRemainingLabel, formatDateBR as formatDateMtr } from "@/lib/mtr";
 import { useSuppliers } from "@/hooks/useSuppliers";
 import { useOccurrences, useAllCorrectiveActions } from "@/hooks/useOccurrences";
+import { useEnvironmentalLicenses } from "@/hooks/useLicenses";
+import { computeLicenseStatus, getDaysRemainingInfo, formatDateBR as formatDateLic } from "@/lib/licenses";
 import { getTypeInfo, getSeverityInfo, formatDateTimeBR } from "@/lib/occurrences";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
@@ -52,8 +54,9 @@ export default function Dashboard() {
   const { data: supplierList = [], isLoading: loadingSuppliers } = useSuppliers();
   const { data: occurrenceList = [], isLoading: loadingOccurrences } = useOccurrences();
   const { data: allCorrectiveActions = [] } = useAllCorrectiveActions();
+  const { data: licenseList = [], isLoading: loadingLicenses } = useEnvironmentalLicenses();
 
-  const isLoading = loadingServices || loadingEmployees || loadingMtr || loadingSuppliers || loadingOccurrences;
+  const isLoading = loadingServices || loadingEmployees || loadingMtr || loadingSuppliers || loadingOccurrences || loadingLicenses;
 
   // Services stats
   const serviceStats = useMemo(() => {
@@ -107,6 +110,17 @@ export default function Dashboard() {
   const openOccs = occurrenceList.filter((o: any) => o.status === "open" || o.status === "in_progress").length;
   const pendingActions = allCorrectiveActions.filter((a: any) => a.status !== "completed").length;
 
+  // License stats
+  const licenseStats = useMemo(() => {
+    let active = 0, alertCount = 0;
+    licenseList.forEach((l: any) => {
+      const st = computeLicenseStatus(l.has_expiry, l.expires_at, l.alert_days_before, l.status);
+      if (st === "active" || st === "permanent") active++;
+      if (st === "expiring" || st === "expired") alertCount++;
+    });
+    return { active, alertCount };
+  }, [licenseList]);
+
   // Plan info
   const planLabel = company?.plan === "trial" ? "Trial" : company?.plan === "basic" ? "Basic" : company?.plan === "pro" ? "Pro" : company?.plan ?? "—";
   const trialDaysLeft = company?.trial_ends_at ? Math.max(0, differenceInDays(parseISO(company.trial_ends_at), new Date())) : null;
@@ -141,9 +155,15 @@ export default function Dashboard() {
       const st = getServiceStatus(s.next_due_at, s.alert_days_before);
       if (st === "warning") items.push({ icon: ClipboardList, iconColor: "text-yellow-600", text: s.name, badge: "Vencendo", badgeColor: "bg-yellow-100 text-yellow-700", link: "/servicos", priority: 5 });
     });
+    // Expired/expiring licenses
+    licenseList.forEach((l: any) => {
+      const st = computeLicenseStatus(l.has_expiry, l.expires_at, l.alert_days_before, l.status);
+      if (st === "expired") items.push({ icon: ScrollText, iconColor: "text-destructive", text: `${l.license_number} — ${l.title}`, badge: "Vencida", badgeColor: "bg-destructive/10 text-destructive", link: "/licencas", priority: 1.5 });
+      else if (st === "expiring") items.push({ icon: ScrollText, iconColor: "text-yellow-600", text: `${l.license_number} — ${l.title}`, badge: "Vencendo", badgeColor: "bg-yellow-100 text-yellow-700", link: "/licencas", priority: 3.5 });
+    });
 
     return items.sort((a, b) => a.priority - b.priority).slice(0, 8);
-  }, [services, mtrList, occurrenceList]);
+  }, [services, mtrList, occurrenceList, licenseList]);
 
   const today = format(new Date(), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR });
   const todayCapitalized = today.charAt(0).toUpperCase() + today.slice(1);
@@ -197,6 +217,14 @@ export default function Dashboard() {
             { label: "Vencidos", value: mtrStats.overdue, color: mtrStats.overdue > 0 ? "text-destructive" : "" },
           ]}
           link="/mtr" linkLabel="Ver todos"
+        />
+        <DashboardCard
+          icon={ScrollText} iconColor="text-primary" title="Licenças Ambientais"
+          items={[
+            { label: "Vigentes", value: licenseStats.active },
+            { label: "Vencendo/Vencidas", value: licenseStats.alertCount, color: licenseStats.alertCount > 0 ? "text-destructive" : "" },
+          ]}
+          link="/licencas" linkLabel="Ver todas"
         />
         <DashboardCard
           icon={Truck} iconColor="text-primary" title="Fornecedores"

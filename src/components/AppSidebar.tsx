@@ -350,6 +350,7 @@ export function AppSidebar() {
           {(groups.meio_ambiente ?? true) && (
             <div className={cn("space-y-0.5", !collapsed && "relative ml-4 pl-2 border-l border-[#1F2937]")}>
               <SidebarItem to="/mtr" icon={Recycle} label="Gestão de MTR" badge={mtrBadge} active={path.startsWith("/mtr")} collapsed={collapsed} />
+              <SidebarItem to="/licencas" icon={ScrollText} label="Licenças Ambientais" badge={licenseBadge} active={path === "/licencas"} collapsed={collapsed} />
               <SidebarItem to="/fornecedores" icon={Truck} label="Fornecedores" active={path.startsWith("/fornecedores")} collapsed={collapsed} />
             </div>
           )}

@@ -79,7 +79,7 @@ export default function MtrAnalise() {
   const mtrsWithoutCdf = mtrs.filter((m: any) => m.cdf_status !== "received").length;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 animate-fade-up">
+    <div className="space-y-6 animate-fade-up">
       <div className="flex items-center gap-3">
         <Link to="/mtr"><Button variant="ghost" size="sm"><ArrowLeft className="h-4 w-4 mr-1" />Voltar</Button></Link>
         <div>

@@ -181,7 +181,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6 animate-fade-up">
+    <div className="space-y-6 animate-fade-up">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold">Olá, {profile?.full_name?.split(" ")[0]} 👋</h1>

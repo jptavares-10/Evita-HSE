@@ -67,7 +67,7 @@ export default function Mtr() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 animate-fade-up">
+    <div className="space-y-6 animate-fade-up">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Gestão de MTR</h1>

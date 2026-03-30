@@ -176,6 +176,7 @@ export function AppSidebar() {
   const { data: allRecords = [] } = useAllRecords();
   const { data: mtrList = [] } = useMtrs();
   const { data: supplierList = [] } = useSuppliers();
+  const { data: licenseList = [] } = useEnvironmentalLicenses();
 
   const serviceBadge = useMemo(() => {
     let count = 0;
@@ -211,9 +212,18 @@ export function AppSidebar() {
     return count;
   }, [mtrList]);
 
+  const licenseBadge = useMemo(() => {
+    let count = 0;
+    licenseList.forEach((l: any) => {
+      const st = computeLicenseStatus(l.has_expiry, l.expires_at, l.alert_days_before, l.status);
+      if (st === "expiring" || st === "expired") count++;
+    });
+    return count;
+  }, [licenseList]);
+
   const segurancaBadge = serviceBadge + incidentBadge;
   const saudeBadge = trainingBadge;
-  const meioAmbienteBadge = mtrBadge;
+  const meioAmbienteBadge = mtrBadge + licenseBadge;
 
   const handleLogout = async () => {
     await supabase.auth.signOut();

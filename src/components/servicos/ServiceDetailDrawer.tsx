@@ -197,6 +197,8 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
               </div>
             )}
 
+            <ServiceDocumentsDetail serviceId={service.id} />
+
             <Button variant="outline" onClick={onEdit} className="w-full">
               <Pencil className="h-4 w-4 mr-2" /> Editar serviço
             </Button>

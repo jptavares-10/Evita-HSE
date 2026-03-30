@@ -21,6 +21,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PRESET_COLORS } from "@/lib/services";
 import { useToast } from "@/hooks/use-toast";
+import { ServiceDocumentsSection } from "./ServiceDocuments";
 
 interface Service {
   id: string;

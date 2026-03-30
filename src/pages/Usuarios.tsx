@@ -128,7 +128,11 @@ export default function Usuarios() {
   const handleRemoveUser = async (userId: string) => {
     const { data, error } = await supabase.rpc("remove_member", { p_member_id: userId });
     const result = data as any;
-    if (error || !result?.success) {
+    if (error) {
+      toast({ title: "Erro", description: error.message || "Erro ao remover usuário.", variant: "destructive" });
+      return;
+    }
+    if (!result?.success) {
       toast({ title: "Erro", description: result?.error || "Erro ao remover usuário.", variant: "destructive" });
       return;
     }

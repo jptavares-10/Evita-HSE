@@ -33,7 +33,7 @@ import Fornecedores from "./pages/Fornecedores";
 import FornecedorDocumentos from "./pages/FornecedorDocumentos";
 import PortalFornecedor from "./pages/PortalFornecedor";
 import Incidentes from "./pages/Incidentes";
-
+import Licencas from "./pages/Licencas";
 const queryClient = new QueryClient();
 
 const App = () => (

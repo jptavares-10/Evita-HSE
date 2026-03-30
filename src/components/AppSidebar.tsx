@@ -4,6 +4,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { usePeriodicServices } from "@/hooks/useServices";
 import { useOccurrences } from "@/hooks/useOccurrences";
+import { useEnvironmentalLicenses } from "@/hooks/useLicenses";
+import { computeLicenseStatus } from "@/lib/licenses";
 import { useEmployees, useTrainingMatrix, useAllRecords } from "@/hooks/useTrainings";
 import { useMtrs } from "@/hooks/useMTR";
 import { useSuppliers } from "@/hooks/useSuppliers";

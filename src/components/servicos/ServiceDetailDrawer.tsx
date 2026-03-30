@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useServiceAttachments, useServiceHistory } from "@/hooks/useServices";
 import { formatDateBR, getFrequencyLabel, getStatusInfo, FILE_TYPE_LABELS, FILE_TYPE_BADGE_COLORS } from "@/lib/services";
 import { ExternalLink, Pencil, FileText, Clock, X, Check, Download, Calendar, Building2, Bell, MessageSquare, Paperclip, AlertTriangle } from "lucide-react";
+import { ServiceDocumentsDetail } from "./ServiceDocuments";
 import { supabase } from "@/integrations/supabase/client";
 import { useSignedUrls } from "@/hooks/useSignedUrl";
 import { useAuth } from "@/contexts/AuthContext";

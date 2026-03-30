@@ -60,7 +60,7 @@ export type Database = {
           completed_by: string | null
           completion_notes: string | null
           created_at: string
-          created_by: string
+          created_by: string | null
           description: string
           evidence_name: string | null
           evidence_url: string | null
@@ -74,7 +74,7 @@ export type Database = {
           completed_by?: string | null
           completion_notes?: string | null
           created_at?: string
-          created_by: string
+          created_by?: string | null
           description: string
           evidence_name?: string | null
           evidence_url?: string | null
@@ -88,7 +88,7 @@ export type Database = {
           completed_by?: string | null
           completion_notes?: string | null
           created_at?: string
-          created_by?: string
+          created_by?: string | null
           description?: string
           evidence_name?: string | null
           evidence_url?: string | null

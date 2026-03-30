@@ -1,0 +1,1 @@
+ALTER TABLE public.corrective_actions ALTER COLUMN created_by DROP NOT NULL;

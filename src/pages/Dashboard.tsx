@@ -110,6 +110,17 @@ export default function Dashboard() {
   const openOccs = occurrenceList.filter((o: any) => o.status === "open" || o.status === "in_progress").length;
   const pendingActions = allCorrectiveActions.filter((a: any) => a.status !== "completed").length;
 
+  // License stats
+  const licenseStats = useMemo(() => {
+    let active = 0, alertCount = 0;
+    licenseList.forEach((l: any) => {
+      const st = computeLicenseStatus(l.has_expiry, l.expires_at, l.alert_days_before, l.status);
+      if (st === "active" || st === "permanent") active++;
+      if (st === "expiring" || st === "expired") alertCount++;
+    });
+    return { active, alertCount };
+  }, [licenseList]);
+
   // Plan info
   const planLabel = company?.plan === "trial" ? "Trial" : company?.plan === "basic" ? "Basic" : company?.plan === "pro" ? "Pro" : company?.plan ?? "—";
   const trialDaysLeft = company?.trial_ends_at ? Math.max(0, differenceInDays(parseISO(company.trial_ends_at), new Date())) : null;

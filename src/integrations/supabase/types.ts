@@ -253,6 +253,94 @@ export type Database = {
           },
         ]
       }
+      environmental_licenses: {
+        Row: {
+          alert_days_before: number
+          company_id: string
+          conditionants: string | null
+          created_at: string
+          expires_at: string | null
+          file_name: string | null
+          file_url: string | null
+          has_expiry: boolean
+          id: string
+          issued_at: string
+          issuing_body: string
+          license_number: string
+          license_type_id: string | null
+          notes: string | null
+          registered_by: string | null
+          sphere: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          alert_days_before?: number
+          company_id: string
+          conditionants?: string | null
+          created_at?: string
+          expires_at?: string | null
+          file_name?: string | null
+          file_url?: string | null
+          has_expiry?: boolean
+          id?: string
+          issued_at: string
+          issuing_body: string
+          license_number: string
+          license_type_id?: string | null
+          notes?: string | null
+          registered_by?: string | null
+          sphere: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          alert_days_before?: number
+          company_id?: string
+          conditionants?: string | null
+          created_at?: string
+          expires_at?: string | null
+          file_name?: string | null
+          file_url?: string | null
+          has_expiry?: boolean
+          id?: string
+          issued_at?: string
+          issuing_body?: string
+          license_number?: string
+          license_type_id?: string | null
+          notes?: string | null
+          registered_by?: string | null
+          sphere?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "environmental_licenses_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "environmental_licenses_license_type_id_fkey"
+            columns: ["license_type_id"]
+            isOneToOne: false
+            referencedRelation: "license_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "environmental_licenses_registered_by_fkey"
+            columns: ["registered_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invitations: {
         Row: {
           company_id: string
@@ -336,6 +424,99 @@ export type Database = {
             columns: ["sector_id"]
             isOneToOne: false
             referencedRelation: "sectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      license_renewals: {
+        Row: {
+          company_id: string
+          expires_at: string | null
+          file_name: string
+          file_url: string
+          id: string
+          issued_at: string
+          license_id: string
+          license_number: string | null
+          notes: string | null
+          registered_at: string
+          registered_by: string | null
+        }
+        Insert: {
+          company_id: string
+          expires_at?: string | null
+          file_name: string
+          file_url: string
+          id?: string
+          issued_at: string
+          license_id: string
+          license_number?: string | null
+          notes?: string | null
+          registered_at?: string
+          registered_by?: string | null
+        }
+        Update: {
+          company_id?: string
+          expires_at?: string | null
+          file_name?: string
+          file_url?: string
+          id?: string
+          issued_at?: string
+          license_id?: string
+          license_number?: string | null
+          notes?: string | null
+          registered_at?: string
+          registered_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "license_renewals_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "license_renewals_license_id_fkey"
+            columns: ["license_id"]
+            isOneToOne: false
+            referencedRelation: "environmental_licenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "license_renewals_registered_by_fkey"
+            columns: ["registered_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      license_types: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "license_types_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
         ]

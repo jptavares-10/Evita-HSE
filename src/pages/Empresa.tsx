@@ -123,12 +123,22 @@ export default function Empresa() {
               <Upload className="h-6 w-6 text-muted-foreground" />
             )}
           </div>
-          <div>
+          <div className="flex flex-col gap-1">
             <Label htmlFor="logo" className="cursor-pointer text-sm text-primary font-medium hover:underline underline-offset-2">
               {uploading ? "Enviando..." : "Alterar logo"}
             </Label>
             <input id="logo" type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} disabled={uploading} />
             <p className="text-xs text-muted-foreground">JPG, PNG. Máx 2MB.</p>
+            {company?.logo_url && isAdmin && (
+              <button
+                type="button"
+                onClick={handleRemoveLogo}
+                className="flex items-center gap-1 text-xs text-destructive hover:underline underline-offset-2"
+              >
+                <Trash2 className="h-3 w-3" />
+                Remover logo
+              </button>
+            )}
           </div>
         </div>
 

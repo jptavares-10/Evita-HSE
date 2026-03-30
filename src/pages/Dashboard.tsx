@@ -8,6 +8,8 @@ import { useMtrs } from "@/hooks/useMTR";
 import { getCdfDisplayStatus, getDaysRemainingLabel, formatDateBR as formatDateMtr } from "@/lib/mtr";
 import { useSuppliers } from "@/hooks/useSuppliers";
 import { useOccurrences, useAllCorrectiveActions } from "@/hooks/useOccurrences";
+import { useEnvironmentalLicenses } from "@/hooks/useLicenses";
+import { computeLicenseStatus, getDaysRemainingInfo, formatDateBR as formatDateLic } from "@/lib/licenses";
 import { getTypeInfo, getSeverityInfo, formatDateTimeBR } from "@/lib/occurrences";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";

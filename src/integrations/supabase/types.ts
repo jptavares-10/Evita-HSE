@@ -1175,7 +1175,7 @@ export type Database = {
             foreignKeyName: "inspection_models_default_responsible_id_fkey"
             columns: ["default_responsible_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {

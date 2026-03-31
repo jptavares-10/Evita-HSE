@@ -16,9 +16,10 @@ interface Props {
   onOpenChange: (v: boolean) => void;
   editing: any | null;
   employees: any[];
+  sectors: any[];
 }
 
-export function InspectionModelDrawer({ open, onOpenChange, editing, employees }: Props) {
+export function InspectionModelDrawer({ open, onOpenChange, editing, employees, sectors }: Props) {
   const { company } = useAuth();
   const saveModel = useSaveInspectionModel();
   const { data: allDocs = [] } = useDocuments();

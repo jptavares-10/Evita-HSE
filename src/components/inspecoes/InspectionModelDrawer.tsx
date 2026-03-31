@@ -5,31 +5,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
 import { useSaveInspectionModel } from "@/hooks/useInspections";
 import { useDocuments } from "@/hooks/useDocuments";
 import { useAuth } from "@/contexts/AuthContext";
 import { FREQUENCY_TYPES } from "@/lib/inspections";
-import { X, FileText, ExternalLink } from "lucide-react";
-import { useSignedUrl } from "@/hooks/useSignedUrl";
+import { X, FileText } from "lucide-react";
 
 interface Props {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   editing: any | null;
-  sectors: any[];
-  profiles: any[];
+  employees: any[];
 }
 
-export function InspectionModelDrawer({ open, onOpenChange, editing, sectors, profiles }: Props) {
-  const { company, profile } = useAuth();
+export function InspectionModelDrawer({ open, onOpenChange, editing, employees }: Props) {
+  const { company } = useAuth();
   const saveModel = useSaveInspectionModel();
   const { data: allDocs = [] } = useDocuments();
   const activeDocs = allDocs.filter((d: any) => d.status === "active");
 
   const [name, setName] = useState("");
-  const [relatedNr, setRelatedNr] = useState("");
-  const [sectorId, setSectorId] = useState("");
   const [frequencyType, setFrequencyType] = useState("daily");
   const [frequencyDays, setFrequencyDays] = useState<number>(7);
   const [responsibleId, setResponsibleId] = useState("");
@@ -40,8 +35,6 @@ export function InspectionModelDrawer({ open, onOpenChange, editing, sectors, pr
   const resetForm = () => {
     if (editing) {
       setName(editing.name || "");
-      setRelatedNr(editing.related_nr || "");
-      setSectorId(editing.sector_id || "");
       setFrequencyType(editing.frequency_type || "daily");
       setFrequencyDays(editing.frequency_days || 7);
       setResponsibleId(editing.default_responsible_id || "");
@@ -50,8 +43,6 @@ export function InspectionModelDrawer({ open, onOpenChange, editing, sectors, pr
       setIsActive(editing.status === "active");
     } else {
       setName("");
-      setRelatedNr("");
-      setSectorId("");
       setFrequencyType("daily");
       setFrequencyDays(7);
       setResponsibleId("");
@@ -71,8 +62,6 @@ export function InspectionModelDrawer({ open, onOpenChange, editing, sectors, pr
     await saveModel.mutateAsync({
       id: editing?.id,
       name: name.trim(),
-      related_nr: relatedNr.trim() || null,
-      sector_id: sectorId || null,
       frequency_type: frequencyType,
       frequency_days: frequencyType === "custom" ? frequencyDays : null,
       default_responsible_id: responsibleId || null,
@@ -99,24 +88,6 @@ export function InspectionModelDrawer({ open, onOpenChange, editing, sectors, pr
             <div className="space-y-2">
               <Label>Nome da inspeção *</Label>
               <Input placeholder="Ex: Inspeção Diária de EPIs" value={name} onChange={(e) => setName(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label>NR relacionada</Label>
-              <Input placeholder="Ex: NR-5, NR-12, NR-35" value={relatedNr} onChange={(e) => setRelatedNr(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label>Setor / Área</Label>
-              <Select value={sectorId || "__none__"} onValueChange={(v) => setSectorId(v === "__none__" ? "" : v)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o setor..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none__">Nenhum</SelectItem>
-                  {sectors.map((s: any) => (
-                    <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
           </section>
 
@@ -160,8 +131,8 @@ export function InspectionModelDrawer({ open, onOpenChange, editing, sectors, pr
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__none__">Nenhum</SelectItem>
-                  {profiles.map((p: any) => (
-                    <SelectItem key={p.id} value={p.id}>{p.full_name}</SelectItem>
+                  {employees.map((e: any) => (
+                    <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

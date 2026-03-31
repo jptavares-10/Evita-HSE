@@ -40,6 +40,7 @@ import EpiVisaoGeral from "./pages/EpiVisaoGeral";
 import EpiCatalogo from "./pages/EpiCatalogo";
 import EpiEstoque from "./pages/EpiEstoque";
 import EpiEntregas from "./pages/EpiEntregas";
+import Aso from "./pages/Aso";
 const queryClient = new QueryClient();
 
 const App = () => (

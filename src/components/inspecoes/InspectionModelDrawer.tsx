@@ -66,6 +66,7 @@ export function InspectionModelDrawer({ open, onOpenChange, editing, employees, 
     await saveModel.mutateAsync({
       id: editing?.id,
       name: name.trim(),
+      sector_id: sectorId || null,
       frequency_type: frequencyType,
       frequency_days: frequencyType === "custom" ? frequencyDays : null,
       default_responsible_id: responsibleId || null,

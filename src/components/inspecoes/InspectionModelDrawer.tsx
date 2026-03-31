@@ -111,7 +111,7 @@ export function InspectionModelDrawer({ open, onOpenChange, editing, sectors, pr
                   <SelectValue placeholder="Selecione o setor..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Nenhum</SelectItem>
+                  <SelectItem value="__none__">Nenhum</SelectItem>
                   {sectors.map((s: any) => (
                     <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                   ))}

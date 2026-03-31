@@ -325,6 +325,15 @@ export default function Dashboard() {
           link="/incidentes" linkLabel="Ver ocorrências"
         />
         <DashboardCard
+          icon={ClipboardCheck} iconColor="text-primary" title="Inspeções"
+          items={[
+            { label: "Pendentes hoje", value: inspectionStats.pendingToday, color: inspectionStats.pendingToday > 0 ? "text-yellow-600" : "" },
+            { label: "Em andamento", value: inspectionStats.inProgress, color: "text-blue-600" },
+            { label: "Vencidas", value: inspectionStats.overdue, color: inspectionStats.overdue > 0 ? "text-destructive" : "" },
+            { label: "Concluídas (semana)", value: inspectionStats.completedWeek, color: "text-green-600" },
+          ]}
+          link="/inspecoes" linkLabel="Ver execuções"
+        <DashboardCard
           icon={Stethoscope} iconColor="text-primary" title="ASO / Exames"
           items={[
             { label: "Em dia", value: asoStats.ok, color: "text-green-600" },

@@ -61,8 +61,8 @@ export function NewExecutionModal({ open, onOpenChange, onCreated, profiles }: P
             <Label>Data prevista *</Label>
             <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
           </div>
-          {selectedModel?.profiles && (
-            <p className="text-xs text-muted-foreground">Responsável padrão: {selectedModel.profiles.full_name}</p>
+          {selectedModel?.default_responsible && (
+            <p className="text-xs text-muted-foreground">Responsável padrão: {(selectedModel.default_responsible as any)?.full_name}</p>
           )}
           <div className="flex gap-3 pt-2">
             <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>Cancelar</Button>

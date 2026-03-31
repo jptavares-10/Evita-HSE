@@ -79,7 +79,7 @@ export function useSaveInspection() {
         return values.id;
       } else {
         payload.created_by = profile.id;
-        const { data, error } = await supabase.from("inspections").insert(payload).select("id").single();
+        const { data, error } = await supabase.from("inspections").insert(payload as any).select("id").single();
         if (error) throw error;
         return data.id;
       }

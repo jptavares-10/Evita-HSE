@@ -321,6 +321,36 @@ export function AppSidebar() {
             <div className={cn("space-y-0.5", !collapsed && "relative ml-4 pl-2 border-l border-[#1F2937]")}>
               <SidebarItem to="/servicos" icon={ClipboardList} label="Serviços Periódicos" badge={serviceBadge} active={path === "/servicos"} collapsed={collapsed} />
               <SidebarItem to="/incidentes" icon={ShieldAlert} label="IC & NC" badge={incidentBadge} active={path === "/incidentes"} collapsed={collapsed} />
+              {collapsed ? (
+                <SidebarItem to="/inspecoes" icon={ClipboardCheck} label="Inspeções" badge={inspectionBadge} active={path.startsWith("/inspecoes")} collapsed={collapsed} />
+              ) : (
+                <>
+                  <button
+                    onClick={() => setInspecoesExpanded((v) => !v)}
+                    className={cn(
+                      "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm w-full transition-colors",
+                      path.startsWith("/inspecoes")
+                        ? "bg-[#1D4ED8] text-white font-medium"
+                        : "text-[#D1D5DB] hover:bg-[#1F2937] hover:text-white"
+                    )}
+                  >
+                    <ClipboardCheck className="h-4 w-4 flex-shrink-0" />
+                    <span className="flex-1 text-left truncate">Inspeções</span>
+                    {inspectionBadge > 0 && (
+                      <span className="bg-red-500 text-white rounded-full h-5 min-w-[20px] px-1.5 text-[10px] font-bold flex items-center justify-center mr-1">
+                        {inspectionBadge}
+                      </span>
+                    )}
+                    <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", inspecoesExpanded ? "" : "-rotate-90")} />
+                  </button>
+                  {inspecoesExpanded && (
+                    <div className="space-y-0.5 ml-2 pl-2 border-l border-[#1F2937]">
+                      <SidebarItem to="/inspecoes" icon={Eye} label="Execuções" active={path === "/inspecoes"} sub />
+                      <SidebarItem to="/inspecoes/modelos" icon={BookOpen} label="Modelos" active={path === "/inspecoes/modelos"} sub />
+                    </div>
+                  )}
+                </>
+              )}
               <SidebarItem to="/epi" icon={HardHat} label="EPIs" badge={epiBadge} active={path.startsWith("/epi")} collapsed={collapsed} />
               <SidebarItem to="/documentos" icon={FileText} label="Biblioteca de Docs" active={path === "/documentos"} collapsed={collapsed} />
             </div>

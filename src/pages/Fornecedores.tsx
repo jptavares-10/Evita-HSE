@@ -147,7 +147,7 @@ export default function Fornecedores() {
                     ) : <span className="text-muted-foreground text-xs">—</span>}
                   </TableCell>
                   <TableCell className="text-center">
-                    <span className="tabular-nums text-sm">—</span>
+                    <span className="tabular-nums text-sm">{docCounts[s.id] || 0}</span>
                   </TableCell>
                   <TableCell>
                     <Badge variant={s.status === "active" ? "default" : "secondary"}>

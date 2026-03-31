@@ -298,6 +298,7 @@ export function AppSidebar() {
             <div className={cn("space-y-0.5", !collapsed && "relative ml-4 pl-2 border-l border-[#1F2937]")}>
               <SidebarItem to="/servicos" icon={ClipboardList} label="Serviços Periódicos" badge={serviceBadge} active={path === "/servicos"} collapsed={collapsed} />
               <SidebarItem to="/incidentes" icon={ShieldAlert} label="IC & NC" badge={incidentBadge} active={path === "/incidentes"} collapsed={collapsed} />
+              <SidebarItem to="/epi" icon={HardHat} label="EPIs" badge={epiBadge} active={path.startsWith("/epi")} collapsed={collapsed} />
               <SidebarItem to="/documentos" icon={FileText} label="Biblioteca de Docs" active={path === "/documentos"} collapsed={collapsed} />
             </div>
           )}

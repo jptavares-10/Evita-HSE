@@ -94,6 +94,20 @@ export function InspectionModelDrawer({ open, onOpenChange, editing, employees, 
               <Label>Nome da inspeção *</Label>
               <Input placeholder="Ex: Inspeção Diária de EPIs" value={name} onChange={(e) => setName(e.target.value)} />
             </div>
+            <div className="space-y-2">
+              <Label>Setor / Área</Label>
+              <Select value={sectorId || "__none__"} onValueChange={(v) => setSectorId(v === "__none__" ? "" : v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o setor..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">Nenhum</SelectItem>
+                  {sectors.map((s: any) => (
+                    <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </section>
 
           {/* Periodicidade */}

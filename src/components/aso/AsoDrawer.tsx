@@ -20,9 +20,10 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   editRecord?: any;
+  preselectedEmployeeId?: string;
 }
 
-export function AsoDrawer({ open, onOpenChange, editRecord }: Props) {
+export function AsoDrawer({ open, onOpenChange, editRecord, preselectedEmployeeId }: Props) {
   const { company } = useAuth();
   const { toast } = useToast();
   const save = useSaveAsoRecord();

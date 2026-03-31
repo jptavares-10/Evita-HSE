@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from "react";
-import { useDocuments, useInspectionDocumentLinksQuery } from "./useInspectionDocLinks";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";

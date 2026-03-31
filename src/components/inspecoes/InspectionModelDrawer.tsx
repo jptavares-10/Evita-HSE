@@ -46,6 +46,7 @@ export function InspectionModelDrawer({ open, onOpenChange, editing, employees, 
       setIsActive(editing.status === "active");
     } else {
       setName("");
+      setSectorId("");
       setFrequencyType("daily");
       setFrequencyDays(7);
       setResponsibleId("");

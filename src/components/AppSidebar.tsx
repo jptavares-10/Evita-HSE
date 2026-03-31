@@ -370,6 +370,7 @@ export function AppSidebar() {
                   )}
                 </>
               )}
+              <SidebarItem to="/aso" icon={Stethoscope} label="ASO / Exames" badge={asoBadge} active={path === "/aso"} collapsed={collapsed} />
             </div>
           )}
 

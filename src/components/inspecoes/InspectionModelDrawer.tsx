@@ -106,12 +106,12 @@ export function InspectionModelDrawer({ open, onOpenChange, editing, sectors, pr
             </div>
             <div className="space-y-2">
               <Label>Setor / Área</Label>
-              <Select value={sectorId} onValueChange={setSectorId}>
+              <Select value={sectorId || "__none__"} onValueChange={(v) => setSectorId(v === "__none__" ? "" : v)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o setor..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Nenhum</SelectItem>
+                  <SelectItem value="__none__">Nenhum</SelectItem>
                   {sectors.map((s: any) => (
                     <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                   ))}
@@ -154,12 +154,12 @@ export function InspectionModelDrawer({ open, onOpenChange, editing, sectors, pr
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Responsável</h3>
             <div className="space-y-2">
               <Label>Responsável padrão</Label>
-              <Select value={responsibleId} onValueChange={setResponsibleId}>
+              <Select value={responsibleId || "__none__"} onValueChange={(v) => setResponsibleId(v === "__none__" ? "" : v)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Nenhum</SelectItem>
+                  <SelectItem value="__none__">Nenhum</SelectItem>
                   {profiles.map((p: any) => (
                     <SelectItem key={p.id} value={p.id}>{p.full_name}</SelectItem>
                   ))}

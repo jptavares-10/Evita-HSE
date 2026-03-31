@@ -103,6 +103,7 @@ export function useSaveOccurrence() {
       cause_analysis?: string | null;
       body_part_affected?: string | null;
       with_leave?: boolean | null;
+      lost_days?: number;
       status?: string;
       employees: { employee_id?: string | null; employee_name: string }[];
       attachmentFiles?: File[];

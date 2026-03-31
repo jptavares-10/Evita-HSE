@@ -1,44 +1,78 @@
 
 
-# Fase 1: Dias de Afastamento + Indicadores TF/TG
+# Plano de Implementacao — Modulo EPI
 
-## O que será entregue
-1. Novo campo **"Dias de afastamento"** (`lost_days`) nas ocorrências, visível quando `with_leave = true`
-2. Indicadores **Taxa de Frequência (TF)** e **Taxa de Gravidade (TG)** no Dashboard, calculados com base nos dados existentes
+## Resumo
+Criar o modulo completo de EPI seguindo o padrao de Treinamentos (layout com tabs + Outlet), com catalogo de EPIs, controle de estoque, entregas a colaboradores e controle de CA.
 
-## Detalhes técnicos
+---
 
-### 1. Migration: adicionar coluna `lost_days`
-- Adicionar `lost_days integer default 0` na tabela `occurrences`
-- Campo simples, sem impacto em RLS (já coberto pelas policies existentes)
+## 1. Migration SQL
 
-### 2. OccurrenceDrawer — campo condicional
-- Adicionar estado `lostDays` no formulário
-- Exibir campo numérico "Dias de afastamento" quando `type === "incident"` e `withLeave === true`
-- Incluir `lost_days` no payload de save
+Criar 3 tabelas + bucket de storage + RLS:
 
-### 3. OccurrenceDetailDrawer — exibir dias
-- Na seção "Com afastamento", mostrar `{occurrence.lost_days} dia(s)` quando > 0
+**`epi_types`** — Catalogo de EPIs
+- id, company_id, name, description, ca_number, ca_expires_at, ca_alert_days_before (default 60), ca_file_url, ca_file_name, unit (default 'un'), minimum_stock (default 0), created_at
 
-### 4. useSaveOccurrence — incluir `lost_days`
-- Adicionar `lost_days` ao payload do mutation (0 quando não aplicável)
+**`epi_stock_movements`** — Movimentacoes de estoque
+- id, company_id, epi_type_id (FK epi_types), movement_type (entry/exit), quantity, notes, moved_at (date), registered_by, delivery_id (FK epi_deliveries, nullable), created_at
 
-### 5. Dashboard — card TF/TG
-- Substituir o card "Seu plano" (que será movido para a sidebar ou mantido menor) ou adicionar um novo card ao grid
-- **TF** = (N° de incidentes com afastamento × 1.000.000) / HHT
-  - HHT será estimado com base em número de colaboradores ativos × 200h/mês × 12
-- **TG** = (Soma de dias perdidos × 1.000.000) / HHT
-- Ambos calculados para o ano corrente
-- Card com ícone `Activity`, mostrando TF e TG lado a lado
+**`epi_deliveries`** — Entregas a colaboradores
+- id, company_id, epi_type_id (FK epi_types), employee_id (FK employees), delivered_at, quantity (default 1), reason, returned_at, notes, registered_by, created_at
 
-### 6. Supabase types
-- O campo `lost_days` será disponibilizado automaticamente após a migration
+RLS: padrao `company_id = get_user_company_id()` para SELECT/INSERT/UPDATE/DELETE em todas as 3 tabelas.
 
-## Arquivos modificados
-- `supabase/migrations/` — nova migration com `ALTER TABLE occurrences ADD COLUMN lost_days`
-- `src/components/incidentes/OccurrenceDrawer.tsx` — campo dias de afastamento
-- `src/components/incidentes/OccurrenceDetailDrawer.tsx` — exibir dias
-- `src/hooks/useOccurrences.ts` — incluir lost_days no save
-- `src/pages/Dashboard.tsx` — novo card TF/TG
-- `src/lib/occurrences.ts` — funções auxiliares para cálculo TF/TG
+Storage bucket: `epi-certificates` (privado) para docs de CA.
+
+---
+
+## 2. Arquivos a criar
+
+### Backend/Hooks
+- **`src/hooks/useEpi.ts`** — hooks: useEpiTypes, useSaveEpiType, useDeleteEpiType, useEpiStockMovements, useSaveStockMovement, useEpiDeliveries, useSaveDelivery, useEpiStock (calculo saldo)
+- **`src/lib/epi.ts`** — funcoes utilitarias: computeCaStatus, computeStockStatus, formatDateBR
+
+### Paginas (layout tabs como Treinamentos)
+- **`src/pages/Epi.tsx`** — Layout com tabs (Visao Geral, Catalogo, Estoque, Entregas) + Outlet
+- **`src/pages/EpiVisaoGeral.tsx`** — KPIs + alertas (CAs vencendo, estoque baixo)
+- **`src/pages/EpiCatalogo.tsx`** — CRUD de EPIs com drawer, tabela com CA status e estoque atual
+- **`src/pages/EpiEstoque.tsx`** — Historico de movimentacoes + registrar entrada/saida
+- **`src/pages/EpiEntregas.tsx`** — Registrar entregas a colaboradores (select de employees via useEmployees) + historico
+
+### Componentes
+- **`src/components/epi/EpiKpiCards.tsx`** — Cards: EPIs cadastrados, Estoque baixo, CAs vencendo, Entregas no mes
+- **`src/components/epi/EpiDrawer.tsx`** — Criar/editar EPI com upload de doc CA
+- **`src/components/epi/StockMovementDrawer.tsx`** — Registrar entrada/saida manual
+- **`src/components/epi/DeliveryDrawer.tsx`** — Registrar entrega (select colaborador via useEmployees)
+- **`src/components/epi/DeleteEpiDialog.tsx`** — Confirmacao de exclusao
+
+---
+
+## 3. Arquivos a editar
+
+- **`src/App.tsx`** — Adicionar rotas: /epi (layout), /epi (index → EpiVisaoGeral), /epi/catalogo, /epi/estoque, /epi/entregas
+- **`src/components/AppSidebar.tsx`** — Adicionar item "EPIs" no grupo Seguranca com icone HardHat e badge de CAs vencidos + estoque baixo
+- **`src/lib/storage-utils.ts`** — Adicionar "epi-certificates" ao PRIVATE_BUCKETS
+- **`src/integrations/supabase/types.ts`** — Sera atualizado automaticamente apos migration
+
+---
+
+## 4. Comportamentos-chave
+
+- **Entrega gera saida automatica**: ao salvar delivery, hook cria um stock_movement com movement_type='exit' e delivery_id vinculado
+- **Estoque = SUM(entry) - SUM(exit)**: calculado via query ou no hook, sem coluna de saldo
+- **CA status**: ok (> alert_days), warning (<= alert_days), expired (vencido) — mesmo padrao de licencas
+- **Colaboradores**: reutiliza useEmployees() de useTrainings.ts — select com nome do colaborador
+- **Upload CA**: mesmo padrao de training-certificates, bucket privado, signed URLs
+
+---
+
+## 5. Ordem de implementacao
+
+1. Migration SQL (tabelas + RLS + bucket)
+2. src/lib/epi.ts + src/hooks/useEpi.ts
+3. Componentes (KPI, Drawers, Delete)
+4. Paginas (Epi, EpiVisaoGeral, EpiCatalogo, EpiEstoque, EpiEntregas)
+5. Integrar no App.tsx (rotas) e AppSidebar.tsx (menu + badge)
+6. Atualizar storage-utils.ts
 

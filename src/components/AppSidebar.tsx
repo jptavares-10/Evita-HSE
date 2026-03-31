@@ -8,6 +8,8 @@ import { useEnvironmentalLicenses } from "@/hooks/useLicenses";
 import { computeLicenseStatus } from "@/lib/licenses";
 import { useEpiTypes, useEpiStock } from "@/hooks/useEpi";
 import { computeCaStatus, computeStockStatus } from "@/lib/epi";
+import { useAsoRecords, useAsoExamTypes } from "@/hooks/useAso";
+import { computeAsoStatus } from "@/lib/aso";
 import { useEmployees, useTrainingMatrix, useAllRecords } from "@/hooks/useTrainings";
 import { useMtrs } from "@/hooks/useMTR";
 import { useSuppliers } from "@/hooks/useSuppliers";

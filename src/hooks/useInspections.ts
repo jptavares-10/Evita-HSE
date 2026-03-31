@@ -74,7 +74,7 @@ export function useSaveInspection() {
       };
 
       if (values.id) {
-        const { error } = await supabase.from("inspections").update(payload).eq("id", values.id);
+        const { error } = await supabase.from("inspections").update(payload as any).eq("id", values.id);
         if (error) throw error;
         return values.id;
       } else {

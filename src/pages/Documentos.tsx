@@ -45,8 +45,11 @@ export default function Documentos() {
   }, [documents]);
 
   const counts = useMemo(() => {
-    const c = { active: 0, under_review: 0, obsolete: 0 };
-    documents.forEach((d: any) => { c[d.status as keyof typeof c]++; });
+    const c = { active: 0, under_review: 0, obsolete: 0, revision_overdue: 0 };
+    documents.forEach((d: any) => {
+      c[d.status as keyof typeof c]++;
+      if (getRevisionCycleStatus(d) === "overdue") c.revision_overdue++;
+    });
     return c;
   }, [documents]);
 

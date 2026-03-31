@@ -167,6 +167,30 @@ export default function Dashboard() {
     return { ok, warning, expired, conformity };
   }, [employees, asoRecords]);
 
+  // Inspection stats
+  const inspectionStats = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    let pendingToday = 0, inProgress = 0, overdue = 0, completedWeek = 0;
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Monday
+    inspExecs.forEach((e: any) => {
+      const displayStatus = getExecutionDisplayStatus(e.status, e.due_date);
+      if (displayStatus === "overdue") overdue++;
+      else if (displayStatus === "in_progress") inProgress++;
+      else if (displayStatus === "pending") {
+        const due = new Date(e.due_date);
+        due.setHours(0, 0, 0, 0);
+        if (due.getTime() === today.getTime()) pendingToday++;
+      }
+      if ((e.status === "completed" || e.status === "completed_with_issues") && e.completed_at) {
+        const completedDate = new Date(e.completed_at);
+        if (completedDate >= startOfWeek) completedWeek++;
+      }
+    });
+    return { pendingToday, inProgress, overdue, completedWeek };
+  }, [inspExecs]);
+
   // Plan info
   const planLabel = company?.plan === "trial" ? "Trial" : company?.plan === "basic" ? "Basic" : company?.plan === "pro" ? "Pro" : company?.plan ?? "—";
   const trialDaysLeft = company?.trial_ends_at ? Math.max(0, differenceInDays(parseISO(company.trial_ends_at), new Date())) : null;

@@ -239,8 +239,26 @@ export function AppSidebar() {
     return count;
   }, [epiTypeList, epiStockMap]);
 
+  const asoBadge = useMemo(() => {
+    let count = 0;
+    // Group by employee, find latest with expiry
+    const byEmployee: Record<string, any[]> = {};
+    asoRecords.forEach((r: any) => {
+      if (!byEmployee[r.employee_id]) byEmployee[r.employee_id] = [];
+      byEmployee[r.employee_id].push(r);
+    });
+    Object.values(byEmployee).forEach((recs) => {
+      const withExpiry = recs.filter((r) => r.expires_at).sort((a, b) => b.exam_date.localeCompare(a.exam_date));
+      if (withExpiry.length > 0) {
+        const st = computeAsoStatus(withExpiry[0].expires_at);
+        if (st === "warning" || st === "expired") count++;
+      }
+    });
+    return count;
+  }, [asoRecords]);
+
   const segurancaBadge = serviceBadge + incidentBadge + epiBadge;
-  const saudeBadge = trainingBadge;
+  const saudeBadge = trainingBadge + asoBadge;
   const meioAmbienteBadge = mtrBadge + licenseBadge;
 
   const handleLogout = async () => {

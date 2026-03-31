@@ -163,6 +163,7 @@ export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(getCollapsedState);
   const [groups, setGroups] = useState(getGroupState);
   const [treinoExpanded, setTreinoExpanded] = useState(path.startsWith("/treinamentos"));
+  const [inspecoesExpanded, setInspecoesExpanded] = useState(path.startsWith("/inspecoes"));
 
   useEffect(() => saveGroupState(groups), [groups]);
   useEffect(() => {

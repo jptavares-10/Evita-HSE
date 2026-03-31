@@ -41,6 +41,10 @@ import EpiCatalogo from "./pages/EpiCatalogo";
 import EpiEstoque from "./pages/EpiEstoque";
 import EpiEntregas from "./pages/EpiEntregas";
 import Aso from "./pages/Aso";
+import Inspecoes from "./pages/Inspecoes";
+import InspecoesExecucoes from "./pages/InspecoesExecucoes";
+import InspecoesModelos from "./pages/InspecoesModelos";
+import InspecaoDetalhe from "./pages/InspecaoDetalhe";
 const queryClient = new QueryClient();
 
 const App = () => (

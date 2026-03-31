@@ -67,6 +67,7 @@ export function OccurrenceDrawer({ open, onOpenChange, occurrence, planExpired }
       setCauseAnalysis("");
       setBodyPart("");
       setWithLeave(false);
+      setLostDays(0);
       setSelectedEmployees([]);
       setFiles([]);
     }

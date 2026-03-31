@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { ClipboardList, GraduationCap, Recycle, Truck, AlertTriangle, CheckCircle2, XCircle, ArrowRight, Users, ShieldAlert, CreditCard, Calendar, ScrollText, Activity } from "lucide-react";
+import { ClipboardList, GraduationCap, Recycle, Truck, AlertTriangle, CheckCircle2, XCircle, ArrowRight, Users, ShieldAlert, CreditCard, Calendar, ScrollText, Activity, Stethoscope } from "lucide-react";
 import { usePeriodicServices } from "@/hooks/useServices";
 import { getServiceStatus, getStatusInfo, formatDateBR } from "@/lib/services";
 import { useEmployees, useTrainingMatrix, useAllRecords } from "@/hooks/useTrainings";
@@ -11,6 +11,8 @@ import { useOccurrences, useAllCorrectiveActions } from "@/hooks/useOccurrences"
 import { useEnvironmentalLicenses } from "@/hooks/useLicenses";
 import { computeLicenseStatus, getDaysRemainingInfo, formatDateBR as formatDateLic } from "@/lib/licenses";
 import { getTypeInfo, getSeverityInfo, formatDateTimeBR } from "@/lib/occurrences";
+import { useAsoRecords } from "@/hooks/useAso";
+import { computeAsoStatus } from "@/lib/aso";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -55,6 +57,7 @@ export default function Dashboard() {
   const { data: occurrenceList = [], isLoading: loadingOccurrences } = useOccurrences();
   const { data: allCorrectiveActions = [] } = useAllCorrectiveActions();
   const { data: licenseList = [], isLoading: loadingLicenses } = useEnvironmentalLicenses();
+  const { data: asoRecords = [] } = useAsoRecords();
 
   const isLoading = loadingServices || loadingEmployees || loadingMtr || loadingSuppliers || loadingOccurrences || loadingLicenses;
 
@@ -137,6 +140,29 @@ export default function Dashboard() {
     return { active, alertCount };
   }, [licenseList]);
 
+  // ASO stats
+  const asoStats = useMemo(() => {
+    const activeEmps = employees.filter((e: any) => e.status === "active");
+    const total = activeEmps.length;
+    let ok = 0, warning = 0, expired = 0;
+    for (const emp of activeEmps) {
+      const empRecords = asoRecords.filter((r: any) => r.employee_id === emp.id);
+      const withExpiry = empRecords.filter((r: any) => r.expires_at).sort((a: any, b: any) => b.exam_date.localeCompare(a.exam_date));
+      if (withExpiry.length > 0) {
+        const st = computeAsoStatus(withExpiry[0].expires_at);
+        if (st === "ok") ok++;
+        else if (st === "warning") warning++;
+        else if (st === "expired") expired++;
+      } else if (empRecords.length > 0) {
+        ok++; // no expiry = ok
+      } else {
+        expired++; // no record
+      }
+    }
+    const conformity = total > 0 ? Math.round((ok / total) * 100) : 0;
+    return { ok, warning, expired, conformity };
+  }, [employees, asoRecords]);
+
   // Plan info
   const planLabel = company?.plan === "trial" ? "Trial" : company?.plan === "basic" ? "Basic" : company?.plan === "pro" ? "Pro" : company?.plan ?? "—";
   const trialDaysLeft = company?.trial_ends_at ? Math.max(0, differenceInDays(parseISO(company.trial_ends_at), new Date())) : null;
@@ -177,9 +203,22 @@ export default function Dashboard() {
       if (st === "expired") items.push({ icon: ScrollText, iconColor: "text-destructive", text: `${l.license_number} — ${l.title}`, badge: "Vencida", badgeColor: "bg-destructive/10 text-destructive", link: "/licencas", priority: 1.5 });
       else if (st === "expiring") items.push({ icon: ScrollText, iconColor: "text-yellow-600", text: `${l.license_number} — ${l.title}`, badge: "Vencendo", badgeColor: "bg-yellow-100 text-yellow-700", link: "/licencas", priority: 3.5 });
     });
+    // ASO expired
+    const activeEmps = employees.filter((e: any) => e.status === "active");
+    for (const emp of activeEmps) {
+      const empRecords = asoRecords.filter((r: any) => r.employee_id === emp.id);
+      const withExpiry = empRecords.filter((r: any) => r.expires_at).sort((a: any, b: any) => b.exam_date.localeCompare(a.exam_date));
+      if (withExpiry.length > 0) {
+        const st = computeAsoStatus(withExpiry[0].expires_at);
+        if (st === "expired") items.push({ icon: Stethoscope, iconColor: "text-destructive", text: `ASO — ${emp.name}`, badge: "Vencido", badgeColor: "bg-destructive/10 text-destructive", link: "/aso", priority: 1.5 });
+        else if (st === "warning") items.push({ icon: Stethoscope, iconColor: "text-yellow-600", text: `ASO — ${emp.name}`, badge: "Vencendo", badgeColor: "bg-yellow-100 text-yellow-700", link: "/aso", priority: 3.5 });
+      } else if (empRecords.length === 0) {
+        // no record at all — could add but might be noisy, skip for now
+      }
+    }
 
     return items.sort((a, b) => a.priority - b.priority).slice(0, 8);
-  }, [services, mtrList, occurrenceList, licenseList]);
+  }, [services, mtrList, occurrenceList, licenseList, employees, asoRecords]);
 
   const today = format(new Date(), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR });
   const todayCapitalized = today.charAt(0).toUpperCase() + today.slice(1);
@@ -256,6 +295,16 @@ export default function Dashboard() {
             { label: "Ações pendentes", value: pendingActions, color: pendingActions > 0 ? "text-yellow-600" : "" },
           ]}
           link="/incidentes" linkLabel="Ver ocorrências"
+        />
+        <DashboardCard
+          icon={Stethoscope} iconColor="text-primary" title="ASO / Exames"
+          items={[
+            { label: "Em dia", value: asoStats.ok, color: "text-green-600" },
+            { label: "Vencendo", value: asoStats.warning, color: asoStats.warning > 0 ? "text-yellow-600" : "" },
+            { label: "Vencidos", value: asoStats.expired, color: asoStats.expired > 0 ? "text-destructive" : "" },
+            { label: "Conformidade", value: `${asoStats.conformity}%` },
+          ]}
+          link="/aso" linkLabel="Ver ASOs"
         />
         <DashboardCard
           icon={Activity} iconColor="text-primary" title="Indicadores HSE"

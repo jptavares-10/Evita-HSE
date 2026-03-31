@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAsoRecords, useAsoExamTypes } from "@/hooks/useAso";
 import { useEmployees } from "@/hooks/useTrainings";
-import { computeAsoStatus, getAsoStatusBadge, getResultBadge, formatDateBR } from "@/lib/aso";
+import { computeAsoStatus, getAsoStatusBadge, formatDateBR } from "@/lib/aso";
 import { AsoKpiCards } from "@/components/aso/AsoKpiCards";
 import { AsoDrawer } from "@/components/aso/AsoDrawer";
 import { ManageExamTypesModal } from "@/components/aso/ManageExamTypesModal";
@@ -12,8 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Settings, Pencil, Trash2, FileDown } from "lucide-react";
-import { useSignedUrl } from "@/hooks/useSignedUrl";
+import { Plus, Search, Settings, Pencil } from "lucide-react";
 
 export default function Aso() {
   usePageTitle("ASO — Evita HSE");
@@ -25,26 +24,26 @@ export default function Aso() {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editRecord, setEditRecord] = useState<any>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
   const [typesOpen, setTypesOpen] = useState(false);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const [filterType, setFilterType] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
 
-  // For each active employee, compute latest ASO status (latest periodic or any with expiry)
+  // For each active employee, compute latest ASO status
   const employeeAsoMap = useMemo(() => {
-    const map: Record<string, { status: string; record: any }> = {};
+    const map: Record<string, { status: string; record: any; latestDate: string | null }> = {};
     for (const emp of activeEmployees) {
       const empRecords = records.filter((r: any) => r.employee_id === emp.id);
-      // Find latest record with expiry
       const withExpiry = empRecords.filter((r: any) => r.expires_at).sort((a: any, b: any) => b.exam_date.localeCompare(a.exam_date));
       if (withExpiry.length > 0) {
         const st = computeAsoStatus(withExpiry[0].expires_at);
-        map[emp.id] = { status: st, record: withExpiry[0] };
+        map[emp.id] = { status: st, record: withExpiry[0], latestDate: withExpiry[0].expires_at };
       } else if (empRecords.length > 0) {
-        map[emp.id] = { status: "no_expiry", record: empRecords[0] };
+        map[emp.id] = { status: "no_expiry", record: empRecords[0], latestDate: null };
       } else {
-        map[emp.id] = { status: "no_record", record: null };
+        map[emp.id] = { status: "no_record", record: null, latestDate: null };
       }
     }
     return map;
@@ -62,19 +61,40 @@ export default function Aso() {
     return { total, ok, warning, expired, conformity };
   }, [activeEmployees, employeeAsoMap]);
 
+  // Build enriched employee list with ASO status
+  const enrichedEmployees = useMemo(() => {
+    return activeEmployees.map((emp: any) => {
+      const aso = employeeAsoMap[emp.id] || { status: "no_record", record: null, latestDate: null };
+      return { ...emp, asoStatus: aso.status, asoRecord: aso.record, asoExpiry: aso.latestDate };
+    });
+  }, [activeEmployees, employeeAsoMap]);
+
   const filtered = useMemo(() => {
-    return records.filter((r: any) => {
-      const empName = r.employees?.name || "";
-      const typeName = r.aso_exam_types?.name || "";
-      if (search && !empName.toLowerCase().includes(search.toLowerCase()) && !typeName.toLowerCase().includes(search.toLowerCase())) return false;
-      if (filterType !== "all" && r.exam_type_id !== filterType) return false;
-      if (filterStatus !== "all") {
-        const st = computeAsoStatus(r.expires_at);
-        if (filterStatus !== st) return false;
-      }
+    return enrichedEmployees.filter((e: any) => {
+      if (search && !e.name.toLowerCase().includes(search.toLowerCase())) return false;
+      if (filterStatus === "ok" && e.asoStatus !== "ok" && e.asoStatus !== "no_expiry") return false;
+      if (filterStatus === "warning" && e.asoStatus !== "warning") return false;
+      if (filterStatus === "expired" && e.asoStatus !== "expired" && e.asoStatus !== "no_record") return false;
       return true;
     });
-  }, [records, search, filterType, filterStatus]);
+  }, [enrichedEmployees, search, filterStatus]);
+
+  const totalPages = Math.ceil(filtered.length / pageSize);
+  const paged = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  // Reset page on filter change
+  useMemo(() => { setCurrentPage(1); }, [search, filterStatus]);
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "ok": return <Badge variant="outline" className="bg-green-100 text-green-700 border-green-200">Em dia</Badge>;
+      case "no_expiry": return <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-200">Sem validade</Badge>;
+      case "warning": return <Badge variant="outline" className="bg-yellow-100 text-yellow-700 border-yellow-200">Vencendo</Badge>;
+      case "expired": return <Badge variant="outline" className="bg-red-100 text-red-700 border-red-200">Vencido</Badge>;
+      case "no_record": return <Badge variant="outline" className="bg-gray-100 text-gray-700 border-gray-200">Sem ASO</Badge>;
+      default: return null;
+    }
+  };
 
   return (
     <div className="space-y-6 animate-fade-up">
@@ -87,7 +107,7 @@ export default function Aso() {
           <Button variant="outline" size="sm" onClick={() => setTypesOpen(true)}>
             <Settings className="h-4 w-4 mr-1" /> Tipos de Exame
           </Button>
-          <Button size="sm" onClick={() => { setEditRecord(null); setDrawerOpen(true); }}>
+          <Button size="sm" onClick={() => { setEditRecord(null); setSelectedEmployee(null); setDrawerOpen(true); }}>
             <Plus className="h-4 w-4 mr-1" /> Novo ASO
           </Button>
         </div>
@@ -105,94 +125,71 @@ export default function Aso() {
       <div className="flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar colaborador ou tipo..." className="pl-9" />
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar colaborador..." className="pl-9" />
         </div>
-        <Select value={filterType} onValueChange={setFilterType}>
-          <SelectTrigger className="w-[180px]"><SelectValue placeholder="Tipo" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos os tipos</SelectItem>
-            {examTypes.map((t: any) => (
-              <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
         <Select value={filterStatus} onValueChange={setFilterStatus}>
           <SelectTrigger className="w-[160px]"><SelectValue placeholder="Status" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos</SelectItem>
             <SelectItem value="ok">Em dia</SelectItem>
             <SelectItem value="warning">Vencendo</SelectItem>
-            <SelectItem value="expired">Vencido</SelectItem>
-            <SelectItem value="no_expiry">Sem validade</SelectItem>
+            <SelectItem value="expired">Vencido / Sem ASO</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      {/* Table */}
+      {/* Employee-centric Table */}
       <div className="border rounded-lg overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Colaborador</TableHead>
-              <TableHead>Tipo</TableHead>
-              <TableHead>Data</TableHead>
+              <TableHead>Cargo</TableHead>
+              <TableHead>Último ASO</TableHead>
               <TableHead>Vencimento</TableHead>
-              <TableHead>Resultado</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">Carregando...</TableCell></TableRow>
-            ) : filtered.length === 0 ? (
-              <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">Nenhum ASO registrado.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Carregando...</TableCell></TableRow>
+            ) : paged.length === 0 ? (
+              <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Nenhum colaborador encontrado.</TableCell></TableRow>
             ) : (
-              filtered.map((r: any) => {
-                const st = computeAsoStatus(r.expires_at);
-                const stBadge = getAsoStatusBadge(st);
-                const resBadge = getResultBadge(r.result);
-                return (
-                  <TableRow key={r.id}>
-                    <TableCell className="font-medium">{r.employees?.name || "—"}</TableCell>
-                    <TableCell>{r.aso_exam_types?.name || "—"}</TableCell>
-                    <TableCell>{formatDateBR(r.exam_date)}</TableCell>
-                    <TableCell>{formatDateBR(r.expires_at)}</TableCell>
-                    <TableCell><Badge variant="outline" className={resBadge.className}>{resBadge.label}</Badge></TableCell>
-                    <TableCell><Badge variant="outline" className={stBadge.className}>{stBadge.label}</Badge></TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        {r.file_url && <DownloadButton fileUrl={r.file_url} />}
-                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setEditRecord(r); setDrawerOpen(true); }}>
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => setDeleteId(r.id)}>
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })
+              paged.map((emp: any) => (
+                <TableRow key={emp.id}>
+                  <TableCell className="font-medium">{emp.name}</TableCell>
+                  <TableCell>{emp.job_positions?.name || "—"}</TableCell>
+                  <TableCell>{emp.asoRecord ? formatDateBR(emp.asoRecord.exam_date) : "—"}</TableCell>
+                  <TableCell>{emp.asoExpiry ? formatDateBR(emp.asoExpiry) : "—"}</TableCell>
+                  <TableCell>{getStatusBadge(emp.asoStatus)}</TableCell>
+                  <TableCell className="text-right">
+                    <Button size="sm" variant="ghost" onClick={() => { setSelectedEmployee(emp); setEditRecord(emp.asoRecord); setDrawerOpen(true); }}>
+                      <Pencil className="h-3.5 w-3.5 mr-1" />
+                      {emp.asoRecord ? "Editar" : "Registrar"}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
             )}
           </TableBody>
         </Table>
       </div>
 
-      <AsoDrawer open={drawerOpen} onOpenChange={setDrawerOpen} editRecord={editRecord} />
-      <ManageExamTypesModal open={typesOpen} onOpenChange={setTypesOpen} />
-      <DeleteAsoDialog open={!!deleteId} onOpenChange={(o) => { if (!o) setDeleteId(null); }} recordId={deleteId} />
-    </div>
-  );
-}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-muted-foreground">{filtered.length} colaborador{filtered.length !== 1 ? "es" : ""}</p>
+          <div className="flex items-center gap-1">
+            <Button variant="outline" size="sm" disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>Anterior</Button>
+            <span className="text-xs px-2">{currentPage} / {totalPages}</span>
+            <Button variant="outline" size="sm" disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)}>Próxima</Button>
+          </div>
+        </div>
+      )}
 
-function DownloadButton({ fileUrl }: { fileUrl: string }) {
-  const signedUrl = useSignedUrl("aso-files", fileUrl);
-  return (
-    <Button size="icon" variant="ghost" className="h-8 w-8" asChild>
-      <a href={signedUrl || "#"} target="_blank" rel="noopener noreferrer">
-        <FileDown className="h-3.5 w-3.5" />
-      </a>
-    </Button>
+      <AsoDrawer open={drawerOpen} onOpenChange={setDrawerOpen} editRecord={editRecord} preselectedEmployeeId={selectedEmployee?.id} />
+      <ManageExamTypesModal open={typesOpen} onOpenChange={setTypesOpen} />
+    </div>
   );
 }

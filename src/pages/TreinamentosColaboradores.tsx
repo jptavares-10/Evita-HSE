@@ -30,6 +30,8 @@ export default function TreinamentosColaboradores() {
   const [editEmployee, setEditEmployee] = useState<any>(null);
   const [detailEmployee, setDetailEmployee] = useState<any>(null);
   const [importOpen, setImportOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
 
   const trainingsMap = useMemo(() => {
     const map = new Map<string, { has_expiry: boolean }>();
@@ -56,6 +58,13 @@ export default function TreinamentosColaboradores() {
       return true;
     });
   }, [enriched, search, filterPosition, filterStatus, filterConformity]);
+
+  // Reset page when filters change
+  const totalPages = Math.ceil(filtered.length / pageSize);
+  const paged = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  // Reset to page 1 when filters change
+  useMemo(() => { setCurrentPage(1); }, [search, filterPosition, filterStatus, filterConformity]);
 
   const downloadTemplate = () => {
     const csv = "Nome,Cargo,Setor\nJoão Silva,Operador,Produção\n";
@@ -120,42 +129,54 @@ export default function TreinamentosColaboradores() {
           <ActionButton onClick={() => { setEditEmployee(null); setDrawerOpen(true); }}>Cadastrar primeiro colaborador</ActionButton>
         </div>
       ) : (
-        <div className="border rounded-lg">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Cargo</TableHead>
-                <TableHead>Setor</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Conformidade</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((emp: any) => (
-                <TableRow key={emp.id} className="cursor-pointer hover:bg-muted/50" onClick={() => setDetailEmployee(emp)}>
-                  <TableCell className="font-medium">{emp.name}</TableCell>
-                  <TableCell>{emp.job_positions?.name || "—"}</TableCell>
-                  <TableCell>{emp.job_positions?.sectors?.name || emp.sector || "—"}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={emp.status === "active" ? "bg-green-100 text-green-700 border-green-200" : "bg-gray-100 text-gray-700 border-gray-200"}>
-                      {emp.status === "active" ? "Ativo" : "Inativo"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {emp.compliance.required === 0 ? (
-                      <span className="text-xs text-muted-foreground">Sem obrigações</span>
-                    ) : emp.compliance.isCompliant ? (
-                      <Badge variant="outline" className="bg-green-100 text-green-700 border-green-200">✅ Em dia</Badge>
-                    ) : (
-                      <Badge variant="outline" className="bg-red-100 text-red-700 border-red-200">⚠️ {emp.compliance.pending} pendência{emp.compliance.pending > 1 ? "s" : ""}</Badge>
-                    )}
-                  </TableCell>
+        <>
+          <div className="border rounded-lg">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nome</TableHead>
+                  <TableHead>Cargo</TableHead>
+                  <TableHead>Setor</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Conformidade</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {paged.map((emp: any) => (
+                  <TableRow key={emp.id} className="cursor-pointer hover:bg-muted/50" onClick={() => setDetailEmployee(emp)}>
+                    <TableCell className="font-medium">{emp.name}</TableCell>
+                    <TableCell>{emp.job_positions?.name || "—"}</TableCell>
+                    <TableCell>{emp.job_positions?.sectors?.name || emp.sector || "—"}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={emp.status === "active" ? "bg-green-100 text-green-700 border-green-200" : "bg-gray-100 text-gray-700 border-gray-200"}>
+                        {emp.status === "active" ? "Ativo" : "Inativo"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {emp.compliance.required === 0 ? (
+                        <span className="text-xs text-muted-foreground">Sem obrigações</span>
+                      ) : emp.compliance.isCompliant ? (
+                        <Badge variant="outline" className="bg-green-100 text-green-700 border-green-200">✅ Em dia</Badge>
+                      ) : (
+                        <Badge variant="outline" className="bg-red-100 text-red-700 border-red-200">⚠️ {emp.compliance.pending} pendência{emp.compliance.pending > 1 ? "s" : ""}</Badge>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between pt-2">
+              <p className="text-xs text-muted-foreground">{filtered.length} colaborador{filtered.length !== 1 ? "es" : ""}</p>
+              <div className="flex items-center gap-1">
+                <Button variant="outline" size="sm" disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>Anterior</Button>
+                <span className="text-xs px-2">{currentPage} / {totalPages}</span>
+                <Button variant="outline" size="sm" disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)}>Próxima</Button>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       <EmployeeDrawer open={drawerOpen} onOpenChange={setDrawerOpen} employee={editEmployee} />

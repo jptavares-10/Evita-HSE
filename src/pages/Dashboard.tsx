@@ -333,6 +333,7 @@ export default function Dashboard() {
             { label: "Concluídas (semana)", value: inspectionStats.completedWeek, color: "text-green-600" },
           ]}
           link="/inspecoes" linkLabel="Ver execuções"
+        />
         <DashboardCard
           icon={Stethoscope} iconColor="text-primary" title="ASO / Exames"
           items={[

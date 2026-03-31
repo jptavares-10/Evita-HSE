@@ -41,6 +41,7 @@ import EpiCatalogo from "./pages/EpiCatalogo";
 import EpiEstoque from "./pages/EpiEstoque";
 import EpiEntregas from "./pages/EpiEntregas";
 import Aso from "./pages/Aso";
+import Inspecoes from "./pages/Inspecoes";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -84,6 +85,7 @@ const App = () => (
               <Route path="/licencas" element={<Licencas />} />
               <Route path="/documentos" element={<Documentos />} />
               <Route path="/aso" element={<Aso />} />
+              <Route path="/inspecoes" element={<Inspecoes />} />
               <Route path="/epi" element={<Epi />}>
                 <Route index element={<EpiVisaoGeral />} />
                 <Route path="catalogo" element={<EpiCatalogo />} />

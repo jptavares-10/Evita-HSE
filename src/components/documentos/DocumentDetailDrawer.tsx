@@ -3,9 +3,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useDocumentRevisions, useDocumentServiceLinks } from "@/hooks/useDocuments";
-import { getDocStatusBadgeInfo, formatDateBR, formatDateTimeBR } from "@/lib/documents";
+import { getDocStatusBadgeInfo, formatDateBR, formatDateTimeBR, getRevisionCycleStatus, getRevisionCycleBadgeInfo, formatFrequencyDays } from "@/lib/documents";
 import { useSignedUrl } from "@/hooks/useSignedUrl";
-import { Pencil, FileText, Clock, Download, ExternalLink, Link2 } from "lucide-react";
+import { Pencil, FileText, Clock, Download, ExternalLink, Link2, CalendarClock } from "lucide-react";
 import { useMemo } from "react";
 import { getSignedUrl } from "@/lib/storage-utils";
 
@@ -25,6 +25,8 @@ export function DocumentDetailDrawer({ open, onOpenChange, document: doc, onEdit
 
   if (!doc) return null;
   const statusInfo = getDocStatusBadgeInfo(doc.status);
+  const revCycleStatus = getRevisionCycleStatus(doc);
+  const revCycleBadge = getRevisionCycleBadgeInfo(revCycleStatus);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -71,6 +73,32 @@ export function DocumentDetailDrawer({ open, onOpenChange, document: doc, onEdit
                 <p className="font-medium">{doc.area || "—"}</p>
               </div>
             </div>
+
+            {/* Revision cycle info */}
+            {doc.has_revision_cycle && (
+              <div className="space-y-2 border-t pt-4">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                  <CalendarClock className="h-3.5 w-3.5" />Ciclo de revisão
+                </p>
+                <div className="bg-muted/50 rounded-md p-3 space-y-1.5 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Periodicidade</span>
+                    <span className="font-medium">{formatFrequencyDays(doc.revision_frequency_days)}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Próxima revisão</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{formatDateBR(doc.next_revision_at)}</span>
+                      {revCycleBadge && (
+                        <Badge variant="outline" className={`text-[10px] ${revCycleBadge.className}`}>
+                          {revCycleBadge.label}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {doc.description && (
               <div className="space-y-1.5 border-t pt-4">

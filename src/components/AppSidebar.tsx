@@ -261,7 +261,17 @@ export function AppSidebar() {
     return count;
   }, [asoRecords]);
 
-  const segurancaBadge = serviceBadge + incidentBadge + epiBadge;
+  const inspectionBadge = useMemo(() => {
+    let count = 0;
+    inspectionList.forEach((i: any) => {
+      if (i.status !== "active" || !i.next_due_at) return;
+      const st = getInspectionStatus(i.next_due_at, i.alert_days_before);
+      if (st === "warning" || st === "expired") count++;
+    });
+    return count + inspectionPendingActions.length;
+  }, [inspectionList, inspectionPendingActions]);
+
+  const segurancaBadge = serviceBadge + incidentBadge + epiBadge + inspectionBadge;
   const saudeBadge = trainingBadge + asoBadge;
   const meioAmbienteBadge = mtrBadge + licenseBadge;
 

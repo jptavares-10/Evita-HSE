@@ -108,7 +108,6 @@ export default function InspecoesModelos() {
               {filtered.map((m: any) => (
                 <TableRow key={m.id}>
                   <TableCell className="font-medium">{m.name}</TableCell>
-                  <TableCell>{m.related_nr ? <Badge variant="outline" className="text-xs">{m.related_nr}</Badge> : "—"}</TableCell>
                   <TableCell className="text-sm">{m.sectors?.name || "—"}</TableCell>
                   <TableCell className="text-sm">{getFrequencyLabel(m.frequency_type, m.frequency_days)}</TableCell>
                   <TableCell className="text-sm">{m.default_responsible?.name || "—"}</TableCell>

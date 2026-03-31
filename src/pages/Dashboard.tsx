@@ -12,6 +12,8 @@ import { useEnvironmentalLicenses } from "@/hooks/useLicenses";
 import { computeLicenseStatus, getDaysRemainingInfo, formatDateBR as formatDateLic } from "@/lib/licenses";
 import { getTypeInfo, getSeverityInfo, formatDateTimeBR } from "@/lib/occurrences";
 import { useAsoRecords } from "@/hooks/useAso";
+import { useInspectionBadgeCount, useInspectionExecutions } from "@/hooks/useInspections";
+import { getExecutionDisplayStatus } from "@/lib/inspections";
 import { computeAsoStatus } from "@/lib/aso";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";

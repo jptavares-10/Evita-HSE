@@ -95,14 +95,13 @@ export default function InspecoesModelos() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>NR</TableHead>
-                <TableHead>Setor</TableHead>
-                <TableHead>Periodicidade</TableHead>
-                <TableHead>Responsável</TableHead>
-                <TableHead>Doc.</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
+                 <TableHead>Nome</TableHead>
+                 <TableHead>Setor</TableHead>
+                 <TableHead>Periodicidade</TableHead>
+                 <TableHead>Responsável</TableHead>
+                 <TableHead>Doc.</TableHead>
+                 <TableHead>Status</TableHead>
+                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

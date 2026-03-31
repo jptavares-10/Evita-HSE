@@ -30,6 +30,7 @@ export function OccurrenceDrawer({ open, onOpenChange, occurrence, planExpired }
   const [causeAnalysis, setCauseAnalysis] = useState("");
   const [bodyPart, setBodyPart] = useState("");
   const [withLeave, setWithLeave] = useState(false);
+  const [lostDays, setLostDays] = useState(0);
   const [selectedEmployees, setSelectedEmployees] = useState<{ employee_id?: string | null; employee_name: string }[]>([]);
   const [empSearch, setEmpSearch] = useState("");
   const [customName, setCustomName] = useState("");
@@ -54,6 +55,7 @@ export function OccurrenceDrawer({ open, onOpenChange, occurrence, planExpired }
       setCauseAnalysis(occurrence.cause_analysis || "");
       setBodyPart(occurrence.body_part_affected || "");
       setWithLeave(occurrence.with_leave ?? false);
+      setLostDays(occurrence.lost_days ?? 0);
       setFiles([]);
     } else if (open) {
       setType("incident");
@@ -65,6 +67,7 @@ export function OccurrenceDrawer({ open, onOpenChange, occurrence, planExpired }
       setCauseAnalysis("");
       setBodyPart("");
       setWithLeave(false);
+      setLostDays(0);
       setSelectedEmployees([]);
       setFiles([]);
     }
@@ -118,6 +121,7 @@ export function OccurrenceDrawer({ open, onOpenChange, occurrence, planExpired }
         cause_analysis: causeAnalysis.trim() || null,
         body_part_affected: bodyPart || null,
         with_leave: withLeave,
+        lost_days: withLeave ? lostDays : 0,
         employees: selectedEmployees,
         attachmentFiles: files,
       },
@@ -244,6 +248,12 @@ export function OccurrenceDrawer({ open, onOpenChange, occurrence, planExpired }
                 <Switch checked={withLeave} onCheckedChange={setWithLeave} />
                 <Label>Com afastamento</Label>
               </div>
+              {withLeave && (
+                <div className="space-y-2">
+                  <Label>Dias de afastamento</Label>
+                  <Input type="number" min={0} value={lostDays} onChange={(e) => setLostDays(Math.max(0, parseInt(e.target.value) || 0))} placeholder="0" />
+                </div>
+              )}
             </div>
           )}
 

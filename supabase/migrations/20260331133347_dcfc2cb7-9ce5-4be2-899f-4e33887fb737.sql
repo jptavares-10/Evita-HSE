@@ -1,0 +1,1 @@
+ALTER TABLE public.occurrences ADD COLUMN lost_days integer NOT NULL DEFAULT 0;

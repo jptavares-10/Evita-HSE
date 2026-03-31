@@ -103,6 +103,7 @@ export function useSaveOccurrence() {
       cause_analysis?: string | null;
       body_part_affected?: string | null;
       with_leave?: boolean | null;
+      lost_days?: number;
       status?: string;
       employees: { employee_id?: string | null; employee_name: string }[];
       attachmentFiles?: File[];
@@ -119,6 +120,7 @@ export function useSaveOccurrence() {
         cause_analysis: values.cause_analysis || null,
         body_part_affected: values.type === "incident" ? (values.body_part_affected || null) : null,
         with_leave: values.type === "incident" ? (values.with_leave ?? null) : null,
+        lost_days: (values.type === "incident" && values.with_leave) ? (values.lost_days ?? 0) : 0,
         registered_by: profile.id,
         updated_at: new Date().toISOString(),
       };

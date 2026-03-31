@@ -124,7 +124,11 @@ export function OccurrenceDetailDrawer({ open, onOpenChange, occurrence, onEdit,
                     <div><p className="text-xs font-semibold text-muted-foreground uppercase mb-0.5">Parte do corpo</p><p className="text-sm">{getBodyPartLabel(occurrence.body_part_affected)}</p></div>
                   )}
                   {occurrence.with_leave !== null && (
-                    <p className="text-sm">{occurrence.with_leave ? "Com afastamento" : "Sem afastamento"}</p>
+                    <p className="text-sm">
+                      {occurrence.with_leave
+                        ? `Com afastamento${occurrence.lost_days > 0 ? ` — ${occurrence.lost_days} dia(s)` : ""}`
+                        : "Sem afastamento"}
+                    </p>
                   )}
                 </div>
               )}

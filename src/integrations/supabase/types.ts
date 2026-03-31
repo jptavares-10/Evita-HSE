@@ -989,6 +989,7 @@ export type Database = {
           description: string
           id: string
           location: string
+          lost_days: number
           occurred_at: string
           registered_by: string | null
           severity: string
@@ -1005,6 +1006,7 @@ export type Database = {
           description: string
           id?: string
           location: string
+          lost_days?: number
           occurred_at: string
           registered_by?: string | null
           severity: string
@@ -1021,6 +1023,7 @@ export type Database = {
           description?: string
           id?: string
           location?: string
+          lost_days?: number
           occurred_at?: string
           registered_by?: string | null
           severity?: string

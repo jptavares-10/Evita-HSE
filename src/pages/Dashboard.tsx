@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { ClipboardList, GraduationCap, Recycle, Truck, AlertTriangle, CheckCircle2, XCircle, ArrowRight, Users, ShieldAlert, CreditCard, Calendar, ScrollText } from "lucide-react";
+import { ClipboardList, GraduationCap, Recycle, Truck, AlertTriangle, CheckCircle2, XCircle, ArrowRight, Users, ShieldAlert, CreditCard, Calendar, ScrollText, Activity } from "lucide-react";
 import { usePeriodicServices } from "@/hooks/useServices";
 import { getServiceStatus, getStatusInfo, formatDateBR } from "@/lib/services";
 import { useEmployees, useTrainingMatrix, useAllRecords } from "@/hooks/useTrainings";
@@ -109,6 +109,22 @@ export default function Dashboard() {
   // Occurrence stats
   const openOccs = occurrenceList.filter((o: any) => o.status === "open" || o.status === "in_progress").length;
   const pendingActions = allCorrectiveActions.filter((a: any) => a.status !== "completed").length;
+
+  // TF/TG indicators
+  const tfTgStats = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    const yearOccs = occurrenceList.filter((o: any) => new Date(o.occurred_at).getFullYear() === currentYear);
+    const incidentsWithLeave = yearOccs.filter((o: any) => o.type === "incident" && o.with_leave);
+    const totalLostDays = yearOccs.reduce((sum: number, o: any) => sum + (o.lost_days ?? 0), 0);
+
+    const activeCount = employees.filter((e: any) => e.status === "active").length;
+    const hht = activeCount * 200 * 12; // estimated HHT
+
+    const tf = hht > 0 ? (incidentsWithLeave.length * 1_000_000) / hht : 0;
+    const tg = hht > 0 ? (totalLostDays * 1_000_000) / hht : 0;
+
+    return { tf: tf.toFixed(1), tg: tg.toFixed(1), hht, activeCount };
+  }, [occurrenceList, employees]);
 
   // License stats
   const licenseStats = useMemo(() => {
@@ -238,6 +254,15 @@ export default function Dashboard() {
           items={[
             { label: "Abertas", value: openOccs, color: openOccs > 0 ? "text-destructive" : "" },
             { label: "Ações pendentes", value: pendingActions, color: pendingActions > 0 ? "text-yellow-600" : "" },
+          ]}
+          link="/incidentes" linkLabel="Ver ocorrências"
+        />
+        <DashboardCard
+          icon={Activity} iconColor="text-primary" title="Indicadores HSE"
+          items={[
+            { label: "TF (freq.)", value: tfTgStats.tf },
+            { label: "TG (grav.)", value: tfTgStats.tg },
+            { label: "Colab. ativos", value: tfTgStats.activeCount },
           ]}
           link="/incidentes" linkLabel="Ver ocorrências"
         />

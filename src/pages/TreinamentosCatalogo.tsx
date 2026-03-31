@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useTrainings, useDeleteTraining, useTrainingMatrix, useAllRecords } from "@/hooks/useTrainings";
+import { useDocuments } from "@/hooks/useDocuments";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatValidityLabel } from "@/lib/trainings";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";

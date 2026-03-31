@@ -6,7 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSaveTraining, useSectors, useTrainingSectorRules, useSaveTrainingSectorRules } from "@/hooks/useTrainings";
+import { useDocuments } from "@/hooks/useDocuments";
 import { formatValidityLabel } from "@/lib/trainings";
 
 interface Props {
@@ -20,6 +22,7 @@ export function TrainingDrawer({ open, onOpenChange, training }: Props) {
   const saveSectorRules = useSaveTrainingSectorRules();
   const { data: sectors = [] } = useSectors();
   const { data: sectorRules = [] } = useTrainingSectorRules();
+  const { data: documents = [] } = useDocuments();
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -27,6 +30,8 @@ export function TrainingDrawer({ open, onOpenChange, training }: Props) {
   const [validityMonths, setValidityMonths] = useState(24);
   const [alertDays, setAlertDays] = useState(30);
   const [selectedSectorIds, setSelectedSectorIds] = useState<string[]>([]);
+  const [referenceStandard, setReferenceStandard] = useState("");
+  const [referenceDocumentId, setReferenceDocumentId] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -35,6 +40,8 @@ export function TrainingDrawer({ open, onOpenChange, training }: Props) {
       setHasExpiry(training?.has_expiry !== false);
       setValidityMonths(training?.validity_months || 24);
       setAlertDays(training?.alert_days_before || 30);
+      setReferenceStandard(training?.reference_standard || "");
+      setReferenceDocumentId(training?.reference_document_id || null);
       if (training?.id) {
         const existing = sectorRules.filter((r: any) => r.training_id === training.id).map((r: any) => r.sector_id);
         setSelectedSectorIds(existing);
@@ -59,6 +66,8 @@ export function TrainingDrawer({ open, onOpenChange, training }: Props) {
       has_expiry: hasExpiry,
       validity_months: hasExpiry ? validityMonths : null,
       alert_days_before: alertDays,
+      reference_standard: referenceStandard.trim() || null,
+      reference_document_id: referenceDocumentId || null,
     }, {
       onSuccess: (trainingId) => {
         if (trainingId) {
@@ -69,6 +78,8 @@ export function TrainingDrawer({ open, onOpenChange, training }: Props) {
     });
   };
 
+  const activeDocuments = documents.filter((d: any) => d.status === "active");
+
   return (
     <Drawer open={open} onOpenChange={onOpenChange} direction="right">
         <DrawerContent className="fixed right-0 top-0 bottom-0 w-full max-w-md rounded-none border-l flex flex-col mb-0 mx-[850px] mt-0 ml-[850px]">
@@ -76,6 +87,31 @@ export function TrainingDrawer({ open, onOpenChange, training }: Props) {
         <div className="flex-1 overflow-y-auto px-6 space-y-4">
           <div><Label>Nome *</Label><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex: NR-35 — Trabalho em altura" /></div>
           <div><Label>Descrição</Label><Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Descrição opcional" rows={3} /></div>
+
+          <div>
+            <Label>Norma de referência (NR / ISO)</Label>
+            <Input value={referenceStandard} onChange={(e) => setReferenceStandard(e.target.value)} placeholder="Ex: NR-35, ISO 45001, NR-10" />
+            <p className="text-xs text-muted-foreground mt-1">Norma regulamentadora ou padrão ISO associado</p>
+          </div>
+
+          <div>
+            <Label>Documento de referência (biblioteca)</Label>
+            <Select value={referenceDocumentId ?? "none"} onValueChange={(v) => setReferenceDocumentId(v === "none" ? null : v)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Nenhum documento vinculado" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Nenhum</SelectItem>
+                {activeDocuments.map((d: any) => (
+                  <SelectItem key={d.id} value={d.id}>
+                    {d.code ? `${d.code} — ${d.title}` : d.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground mt-1">Vincule a um procedimento ou documento interno</p>
+          </div>
+
           <div className="flex items-center gap-3">
             <Switch checked={hasExpiry} onCheckedChange={setHasExpiry} />
             <Label>{hasExpiry ? "Possui vencimento" : "Sem vencimento"}</Label>

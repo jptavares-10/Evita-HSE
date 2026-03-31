@@ -121,6 +121,7 @@ export function OccurrenceDrawer({ open, onOpenChange, occurrence, planExpired }
         cause_analysis: causeAnalysis.trim() || null,
         body_part_affected: bodyPart || null,
         with_leave: withLeave,
+        lost_days: withLeave ? lostDays : 0,
         employees: selectedEmployees,
         attachmentFiles: files,
       },

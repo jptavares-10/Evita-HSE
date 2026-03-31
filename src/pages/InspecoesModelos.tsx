@@ -150,7 +150,7 @@ export default function InspecoesModelos() {
         </div>
       )}
 
-      <InspectionModelDrawer open={drawerOpen} onOpenChange={setDrawerOpen} editing={editing} employees={employees} />
+      <InspectionModelDrawer open={drawerOpen} onOpenChange={setDrawerOpen} editing={editing} employees={employees} sectors={sectors} />
       <ModelHistoryDrawer open={!!historyModel} onOpenChange={(v) => !v && setHistoryModel(null)} model={historyModel} />
       <ConfirmDialog
         open={!!deleteTarget}

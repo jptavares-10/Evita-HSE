@@ -30,6 +30,7 @@ export function OccurrenceDrawer({ open, onOpenChange, occurrence, planExpired }
   const [causeAnalysis, setCauseAnalysis] = useState("");
   const [bodyPart, setBodyPart] = useState("");
   const [withLeave, setWithLeave] = useState(false);
+  const [lostDays, setLostDays] = useState(0);
   const [selectedEmployees, setSelectedEmployees] = useState<{ employee_id?: string | null; employee_name: string }[]>([]);
   const [empSearch, setEmpSearch] = useState("");
   const [customName, setCustomName] = useState("");

@@ -3,16 +3,22 @@ import { Users, FileText, AlertTriangle } from "lucide-react";
 
 interface Props {
   suppliers: any[];
+  docCounts?: Record<string, number>;
 }
 
-export function SupplierKpiCards({ suppliers }: Props) {
+export function SupplierKpiCards({ suppliers, docCounts = {} }: Props) {
   const stats = useMemo(() => {
-    const active = suppliers.filter((s: any) => s.status === "active").length;
-    return { total: active };
-  }, [suppliers]);
+    const active = suppliers.filter((s: any) => s.status === "active");
+    const activeCount = active.length;
+    const totalDocs = Object.values(docCounts).reduce((sum, c) => sum + c, 0);
+    const withoutDocs = active.filter((s: any) => !docCounts[s.id]).length;
+    return { activeCount, totalDocs, withoutDocs };
+  }, [suppliers, docCounts]);
 
   const cards = [
-    { label: "Fornecedores ativos", value: stats.total, icon: Users, color: "text-primary" },
+    { label: "Fornecedores ativos", value: stats.activeCount, icon: Users, color: "text-primary" },
+    { label: "Documentos recebidos", value: stats.totalDocs, icon: FileText, color: "text-primary" },
+    { label: "Sem documentos", value: stats.withoutDocs, icon: AlertTriangle, color: "text-yellow-600" },
   ];
 
   return (

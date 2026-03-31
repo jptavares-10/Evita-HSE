@@ -254,6 +254,26 @@ export function useDeleteSupplierFolder() {
 
 // ── Documents ──
 
+export function useAllSupplierDocumentCounts() {
+  const { company } = useAuth();
+  return useQuery({
+    queryKey: ["supplier-document-counts", company?.id],
+    queryFn: async () => {
+      if (!company) return {};
+      const { data, error } = await supabase
+        .from("supplier_documents")
+        .select("supplier_id");
+      if (error) throw error;
+      const counts: Record<string, number> = {};
+      (data ?? []).forEach((d: any) => {
+        counts[d.supplier_id] = (counts[d.supplier_id] || 0) + 1;
+      });
+      return counts;
+    },
+    enabled: !!company,
+  });
+}
+
 export function useSupplierDocuments(supplierId: string | null) {
   return useQuery({
     queryKey: ["supplier-documents", supplierId],

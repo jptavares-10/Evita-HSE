@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useSuppliers, useSupplierCategories, useDeleteSupplier } from "@/hooks/useSuppliers";
-import { useSupplierDocuments } from "@/hooks/useSuppliers";
+import { useSuppliers, useSupplierCategories, useDeleteSupplier, useAllSupplierDocumentCounts } from "@/hooks/useSuppliers";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -34,18 +33,7 @@ export default function Fornecedores() {
   const [editingSupplier, setEditingSupplier] = useState<any>(null);
   const [categoriesModalOpen, setCategoriesModalOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
-
-  // Count documents per supplier (we'll use a simple approach)
-  const [docCounts, setDocCounts] = useState<Record<string, number>>({});
-
-  // We need doc counts - fetch all supplier documents for the company
-  const { data: allDocs = [] } = useSupplierDocuments(null);
-
-  const supplierDocCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    // We'll compute from suppliers query since we can't easily get all docs
-    return counts;
-  }, []);
+  const { data: docCounts = {} } = useAllSupplierDocumentCounts();
 
   const filtered = useMemo(() => {
     let result = [...suppliers];
@@ -82,7 +70,7 @@ export default function Fornecedores() {
         </div>
       </div>
 
-      <SupplierKpiCards suppliers={suppliers} />
+      <SupplierKpiCards suppliers={suppliers} docCounts={docCounts} />
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
@@ -159,7 +147,7 @@ export default function Fornecedores() {
                     ) : <span className="text-muted-foreground text-xs">—</span>}
                   </TableCell>
                   <TableCell className="text-center">
-                    <span className="tabular-nums text-sm">—</span>
+                    <span className="tabular-nums text-sm">{docCounts[s.id] || 0}</span>
                   </TableCell>
                   <TableCell>
                     <Badge variant={s.status === "active" ? "default" : "secondary"}>

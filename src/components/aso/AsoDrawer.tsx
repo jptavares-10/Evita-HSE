@@ -56,7 +56,7 @@ export function AsoDrawer({ open, onOpenChange, editRecord, preselectedEmployeeI
       setExistingFileName(editRecord.file_name);
       setFile(null);
     } else if (open) {
-      setEmployeeId("");
+      setEmployeeId(preselectedEmployeeId || "");
       setExamTypeId("");
       setExamDate(undefined);
       setResult("apto");

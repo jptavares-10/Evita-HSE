@@ -885,6 +885,315 @@ export type Database = {
           },
         ]
       }
+      inspection_corrective_actions: {
+        Row: {
+          company_id: string
+          completed_at: string | null
+          completed_by: string | null
+          completion_notes: string | null
+          created_at: string
+          created_by: string | null
+          description: string
+          due_date: string
+          evidence_name: string | null
+          evidence_url: string | null
+          execution_id: string
+          id: string
+          priority: string
+          responsible_employee_id: string | null
+          responsible_name: string | null
+          status: string
+        }
+        Insert: {
+          company_id: string
+          completed_at?: string | null
+          completed_by?: string | null
+          completion_notes?: string | null
+          created_at?: string
+          created_by?: string | null
+          description: string
+          due_date: string
+          evidence_name?: string | null
+          evidence_url?: string | null
+          execution_id: string
+          id?: string
+          priority?: string
+          responsible_employee_id?: string | null
+          responsible_name?: string | null
+          status?: string
+        }
+        Update: {
+          company_id?: string
+          completed_at?: string | null
+          completed_by?: string | null
+          completion_notes?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          due_date?: string
+          evidence_name?: string | null
+          evidence_url?: string | null
+          execution_id?: string
+          id?: string
+          priority?: string
+          responsible_employee_id?: string | null
+          responsible_name?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inspection_corrective_actions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_corrective_actions_completed_by_fkey"
+            columns: ["completed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_corrective_actions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_corrective_actions_execution_id_fkey"
+            columns: ["execution_id"]
+            isOneToOne: false
+            referencedRelation: "inspection_executions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_corrective_actions_responsible_employee_id_fkey"
+            columns: ["responsible_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inspection_entries: {
+        Row: {
+          company_id: string
+          created_at: string
+          employee_id: string | null
+          employee_name: string
+          executed_at: string
+          execution_id: string
+          file_name: string
+          file_url: string
+          id: string
+          notes: string | null
+          registered_by: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          employee_id?: string | null
+          employee_name: string
+          executed_at?: string
+          execution_id: string
+          file_name: string
+          file_url: string
+          id?: string
+          notes?: string | null
+          registered_by?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          employee_id?: string | null
+          employee_name?: string
+          executed_at?: string
+          execution_id?: string
+          file_name?: string
+          file_url?: string
+          id?: string
+          notes?: string | null
+          registered_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inspection_entries_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_entries_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_entries_execution_id_fkey"
+            columns: ["execution_id"]
+            isOneToOne: false
+            referencedRelation: "inspection_executions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_entries_registered_by_fkey"
+            columns: ["registered_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inspection_executions: {
+        Row: {
+          company_id: string
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          due_date: string
+          id: string
+          model_id: string
+          reference: string
+          status: string
+        }
+        Insert: {
+          company_id: string
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          due_date: string
+          id?: string
+          model_id: string
+          reference?: string
+          status?: string
+        }
+        Update: {
+          company_id?: string
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          due_date?: string
+          id?: string
+          model_id?: string
+          reference?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inspection_executions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_executions_completed_by_fkey"
+            columns: ["completed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_executions_model_id_fkey"
+            columns: ["model_id"]
+            isOneToOne: false
+            referencedRelation: "inspection_models"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inspection_models: {
+        Row: {
+          alert_hours_before: number
+          company_id: string
+          created_at: string
+          created_by: string | null
+          default_responsible_id: string | null
+          document_id: string | null
+          frequency_days: number | null
+          frequency_type: string
+          id: string
+          name: string
+          related_nr: string | null
+          sector_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          alert_hours_before?: number
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          default_responsible_id?: string | null
+          document_id?: string | null
+          frequency_days?: number | null
+          frequency_type?: string
+          id?: string
+          name: string
+          related_nr?: string | null
+          sector_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          alert_hours_before?: number
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          default_responsible_id?: string | null
+          document_id?: string | null
+          frequency_days?: number | null
+          frequency_type?: string
+          id?: string
+          name?: string
+          related_nr?: string | null
+          sector_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inspection_models_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_models_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_models_default_responsible_id_fkey"
+            columns: ["default_responsible_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_models_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_models_sector_id_fkey"
+            columns: ["sector_id"]
+            isOneToOne: false
+            referencedRelation: "sectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invitations: {
         Row: {
           company_id: string

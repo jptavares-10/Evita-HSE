@@ -141,7 +141,7 @@ export default function TreinamentosColaboradores() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((emp: any) => (
+              {paged.map((emp: any) => (
                 <TableRow key={emp.id} className="cursor-pointer hover:bg-muted/50" onClick={() => setDetailEmployee(emp)}>
                   <TableCell className="font-medium">{emp.name}</TableCell>
                   <TableCell>{emp.job_positions?.name || "—"}</TableCell>

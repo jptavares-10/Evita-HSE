@@ -57,6 +57,7 @@ export default function Dashboard() {
   const { data: occurrenceList = [], isLoading: loadingOccurrences } = useOccurrences();
   const { data: allCorrectiveActions = [] } = useAllCorrectiveActions();
   const { data: licenseList = [], isLoading: loadingLicenses } = useEnvironmentalLicenses();
+  const { data: asoRecords = [] } = useAsoRecords();
 
   const isLoading = loadingServices || loadingEmployees || loadingMtr || loadingSuppliers || loadingOccurrences || loadingLicenses;
 

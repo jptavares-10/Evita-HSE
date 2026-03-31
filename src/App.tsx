@@ -35,6 +35,11 @@ import PortalFornecedor from "./pages/PortalFornecedor";
 import Incidentes from "./pages/Incidentes";
 import Licencas from "./pages/Licencas";
 import Documentos from "./pages/Documentos";
+import Epi from "./pages/Epi";
+import EpiVisaoGeral from "./pages/EpiVisaoGeral";
+import EpiCatalogo from "./pages/EpiCatalogo";
+import EpiEstoque from "./pages/EpiEstoque";
+import EpiEntregas from "./pages/EpiEntregas";
 const queryClient = new QueryClient();
 
 const App = () => (

@@ -145,6 +145,8 @@ export default function Documentos() {
             <TableBody>
               {filtered.map((d: any) => {
                 const statusInfo = getDocStatusBadgeInfo(d.status);
+                const revCycleStatus = getRevisionCycleStatus(d);
+                const revCycleBadge = getRevisionCycleBadgeInfo(revCycleStatus);
                 return (
                   <TableRow key={d.id}>
                     <TableCell className="text-xs text-muted-foreground font-mono">{d.code || "—"}</TableCell>

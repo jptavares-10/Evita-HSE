@@ -110,6 +110,22 @@ export default function Dashboard() {
   const openOccs = occurrenceList.filter((o: any) => o.status === "open" || o.status === "in_progress").length;
   const pendingActions = allCorrectiveActions.filter((a: any) => a.status !== "completed").length;
 
+  // TF/TG indicators
+  const tfTgStats = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    const yearOccs = occurrenceList.filter((o: any) => new Date(o.occurred_at).getFullYear() === currentYear);
+    const incidentsWithLeave = yearOccs.filter((o: any) => o.type === "incident" && o.with_leave);
+    const totalLostDays = yearOccs.reduce((sum: number, o: any) => sum + (o.lost_days ?? 0), 0);
+
+    const activeCount = employees.filter((e: any) => e.status === "active").length;
+    const hht = activeCount * 200 * 12; // estimated HHT
+
+    const tf = hht > 0 ? (incidentsWithLeave.length * 1_000_000) / hht : 0;
+    const tg = hht > 0 ? (totalLostDays * 1_000_000) / hht : 0;
+
+    return { tf: tf.toFixed(1), tg: tg.toFixed(1), hht, activeCount };
+  }, [occurrenceList, employees]);
+
   // License stats
   const licenseStats = useMemo(() => {
     let active = 0, alertCount = 0;

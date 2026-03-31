@@ -225,7 +225,19 @@ export function AppSidebar() {
     return count;
   }, [licenseList]);
 
-  const segurancaBadge = serviceBadge + incidentBadge;
+  const epiBadge = useMemo(() => {
+    let count = 0;
+    epiTypeList.forEach((e: any) => {
+      const cs = computeCaStatus(e.ca_expires_at, e.ca_alert_days_before);
+      if (cs === "warning" || cs === "expired") count++;
+      const currentStock = epiStockMap[e.id] ?? 0;
+      const ss = computeStockStatus(currentStock, e.minimum_stock);
+      if (ss === "low" || ss === "out") count++;
+    });
+    return count;
+  }, [epiTypeList, epiStockMap]);
+
+  const segurancaBadge = serviceBadge + incidentBadge + epiBadge;
   const saudeBadge = trainingBadge;
   const meioAmbienteBadge = mtrBadge + licenseBadge;
 

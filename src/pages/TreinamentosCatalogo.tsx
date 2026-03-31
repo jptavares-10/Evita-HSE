@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useTrainings, useDeleteTraining, useTrainingMatrix, useAllRecords } from "@/hooks/useTrainings";
+import { useDocuments } from "@/hooks/useDocuments";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatValidityLabel } from "@/lib/trainings";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -16,7 +17,14 @@ export default function TreinamentosCatalogo() {
   const { data: trainings = [] } = useTrainings();
   const { data: matrix = [] } = useTrainingMatrix();
   const { data: allRecords = [] } = useAllRecords();
+  const { data: documents = [] } = useDocuments();
   const deleteTraining = useDeleteTraining();
+
+  const docsMap = useMemo(() => {
+    const m = new Map<string, any>();
+    documents.forEach((d: any) => m.set(d.id, d));
+    return m;
+  }, [documents]);
 
   const [search, setSearch] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -68,15 +76,24 @@ export default function TreinamentosCatalogo() {
             <TableHeader>
               <TableRow>
                 <TableHead>Nome</TableHead>
+                <TableHead>Referência</TableHead>
                 <TableHead>Validade</TableHead>
                 <TableHead>Cargos</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((t: any) => (
+              {filtered.map((t: any) => {
+                const refParts: string[] = [];
+                if (t.reference_standard) refParts.push(t.reference_standard);
+                if (t.reference_document_id) {
+                  const doc = docsMap.get(t.reference_document_id);
+                  if (doc) refParts.push(doc.code ? `${doc.code}` : doc.title);
+                }
+                return (
                 <TableRow key={t.id}>
                   <TableCell className="font-medium">{t.name}</TableCell>
+                  <TableCell className="text-muted-foreground text-sm">{refParts.length > 0 ? refParts.join(" · ") : "—"}</TableCell>
                   <TableCell>{t.has_expiry === false ? "Sem vencimento" : formatValidityLabel(t.validity_months)}</TableCell>
                   <TableCell>{t.positionCount} cargo{t.positionCount !== 1 ? "s" : ""}</TableCell>
                   <TableCell className="text-right space-x-1">
@@ -88,7 +105,8 @@ export default function TreinamentosCatalogo() {
                     </ActionButton>
                   </TableCell>
                 </TableRow>
-              ))}
+                );
+              })}
             </TableBody>
           </Table>
         </div>

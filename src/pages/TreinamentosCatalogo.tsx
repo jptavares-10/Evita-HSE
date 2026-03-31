@@ -105,7 +105,8 @@ export default function TreinamentosCatalogo() {
                     </ActionButton>
                   </TableCell>
                 </TableRow>
-              ))}
+                );
+              })}
             </TableBody>
           </Table>
         </div>

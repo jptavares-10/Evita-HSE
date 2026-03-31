@@ -163,9 +163,22 @@ export default function Documentos() {
                     <TableCell className="text-sm">{d.responsible || "—"}</TableCell>
                     <TableCell className="text-sm font-mono">{d.current_revision}</TableCell>
                     <TableCell className="text-sm tabular-nums">{formatDateBR(d.current_revision_date)}</TableCell>
+                    <TableCell className="text-sm tabular-nums">
+                      {d.has_revision_cycle && d.next_revision_at ? (
+                        <div className="flex items-center gap-1.5">
+                          <span>{formatDateBR(d.next_revision_at)}</span>
+                          {revCycleBadge && (
+                            <Badge variant="outline" className={`text-[10px] ${revCycleBadge.className}`}>
+                              {revCycleBadge.label}
+                            </Badge>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <Badge variant="outline" className={`text-[10px] ${statusInfo.className}`}>{statusInfo.label}</Badge>
-                    </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
                         <Tooltip><TooltipTrigger asChild><div>

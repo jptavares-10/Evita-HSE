@@ -1686,6 +1686,8 @@ export type Database = {
           has_expiry: boolean
           id: string
           name: string
+          reference_document_id: string | null
+          reference_standard: string | null
           validity_months: number | null
         }
         Insert: {
@@ -1696,6 +1698,8 @@ export type Database = {
           has_expiry?: boolean
           id?: string
           name: string
+          reference_document_id?: string | null
+          reference_standard?: string | null
           validity_months?: number | null
         }
         Update: {
@@ -1706,6 +1710,8 @@ export type Database = {
           has_expiry?: boolean
           id?: string
           name?: string
+          reference_document_id?: string | null
+          reference_standard?: string | null
           validity_months?: number | null
         }
         Relationships: [
@@ -1714,6 +1720,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trainings_reference_document_id_fkey"
+            columns: ["reference_document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
             referencedColumns: ["id"]
           },
         ]

@@ -187,7 +187,7 @@ export default function Aso() {
 }
 
 function DownloadButton({ fileUrl }: { fileUrl: string }) {
-  const { data: signedUrl } = useSignedUrl("aso-files", fileUrl);
+  const signedUrl = useSignedUrl("aso-files", fileUrl);
   return (
     <Button size="icon" variant="ghost" className="h-8 w-8" asChild>
       <a href={signedUrl || "#"} target="_blank" rel="noopener noreferrer">

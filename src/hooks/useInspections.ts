@@ -14,7 +14,7 @@ export function useInspectionModels() {
       if (!company) return [];
       const { data, error } = await supabase
         .from("inspection_models")
-        .select("*, sectors(id, name), profiles:default_responsible_id(id, full_name), documents:document_id(id, code, title, current_file_url, current_file_name)")
+        .select("*, sectors(id, name), default_responsible:profiles!inspection_models_default_responsible_id_fkey(id, full_name), linked_document:documents!inspection_models_document_id_fkey(id, code, title, current_file_url, current_file_name)")
         .order("name");
       if (error) throw error;
       return data ?? [];

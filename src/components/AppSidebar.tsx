@@ -3,6 +3,7 @@ import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { usePeriodicServices } from "@/hooks/useServices";
+import { useInspectionBadgeCount } from "@/hooks/useInspections";
 import { useOccurrences } from "@/hooks/useOccurrences";
 import { useEnvironmentalLicenses } from "@/hooks/useLicenses";
 import { computeLicenseStatus } from "@/lib/licenses";

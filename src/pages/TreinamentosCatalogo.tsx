@@ -17,7 +17,14 @@ export default function TreinamentosCatalogo() {
   const { data: trainings = [] } = useTrainings();
   const { data: matrix = [] } = useTrainingMatrix();
   const { data: allRecords = [] } = useAllRecords();
+  const { data: documents = [] } = useDocuments();
   const deleteTraining = useDeleteTraining();
+
+  const docsMap = useMemo(() => {
+    const m = new Map<string, any>();
+    documents.forEach((d: any) => m.set(d.id, d));
+    return m;
+  }, [documents]);
 
   const [search, setSearch] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);

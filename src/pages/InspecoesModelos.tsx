@@ -108,7 +108,7 @@ export default function InspecoesModelos() {
                   <TableCell>{m.related_nr ? <Badge variant="outline" className="text-xs">{m.related_nr}</Badge> : "—"}</TableCell>
                   <TableCell className="text-sm">{m.sectors?.name || "—"}</TableCell>
                   <TableCell className="text-sm">{getFrequencyLabel(m.frequency_type, m.frequency_days)}</TableCell>
-                  <TableCell className="text-sm">{m.default_responsible?.full_name || "—"}</TableCell>
+                  <TableCell className="text-sm">{m.default_responsible?.name || "—"}</TableCell>
                   <TableCell>{m.linked_document ? <FileText className="h-4 w-4 text-primary" /> : "—"}</TableCell>
                   <TableCell>
                     <Switch checked={m.status === "active"} onCheckedChange={() => handleToggleStatus(m)} disabled={!!isExpired} />

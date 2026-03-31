@@ -8,8 +8,6 @@ import { useEnvironmentalLicenses } from "@/hooks/useLicenses";
 import { computeLicenseStatus } from "@/lib/licenses";
 import { useEpiTypes, useEpiStock } from "@/hooks/useEpi";
 import { computeCaStatus, computeStockStatus } from "@/lib/epi";
-import { useInspections, useAllInspectionActions } from "@/hooks/useInspections";
-import { getInspectionStatus } from "@/lib/inspections";
 import { useAsoRecords, useAsoExamTypes } from "@/hooks/useAso";
 import { computeAsoStatus } from "@/lib/aso";
 import { useEmployees, useTrainingMatrix, useAllRecords } from "@/hooks/useTrainings";
@@ -23,7 +21,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import {
   LayoutDashboard, ClipboardList, ShieldAlert, GraduationCap, Recycle, Truck,
   Building2, Users, CreditCard, LogOut, ChevronDown, ChevronLeft, ChevronRight,
-  Shield, HeartPulse, Leaf, Eye, BookOpen, Grid3X3, Briefcase, ScrollText, FileText, HardHat, Stethoscope, ClipboardCheck
+  Shield, HeartPulse, Leaf, Eye, BookOpen, Grid3X3, Briefcase, ScrollText, FileText, HardHat, Stethoscope
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -186,8 +184,6 @@ export function AppSidebar() {
   const { data: epiTypeList = [] } = useEpiTypes();
   const { data: epiStockMap = {} } = useEpiStock();
   const { data: asoRecords = [] } = useAsoRecords();
-  const { data: inspectionList = [] } = useInspections();
-  const { data: inspectionPendingActions = [] } = useAllInspectionActions();
   const serviceBadge = useMemo(() => {
     let count = 0;
     services.forEach((s: any) => {
@@ -261,17 +257,7 @@ export function AppSidebar() {
     return count;
   }, [asoRecords]);
 
-  const inspectionBadge = useMemo(() => {
-    let count = 0;
-    inspectionList.forEach((i: any) => {
-      if (i.status !== "active" || !i.next_due_at) return;
-      const st = getInspectionStatus(i.next_due_at, i.alert_days_before);
-      if (st === "warning" || st === "expired") count++;
-    });
-    return count + inspectionPendingActions.length;
-  }, [inspectionList, inspectionPendingActions]);
-
-  const segurancaBadge = serviceBadge + incidentBadge + epiBadge + inspectionBadge;
+  const segurancaBadge = serviceBadge + incidentBadge + epiBadge;
   const saudeBadge = trainingBadge + asoBadge;
   const meioAmbienteBadge = mtrBadge + licenseBadge;
 
@@ -333,7 +319,6 @@ export function AppSidebar() {
               <SidebarItem to="/servicos" icon={ClipboardList} label="Serviços Periódicos" badge={serviceBadge} active={path === "/servicos"} collapsed={collapsed} />
               <SidebarItem to="/incidentes" icon={ShieldAlert} label="IC & NC" badge={incidentBadge} active={path === "/incidentes"} collapsed={collapsed} />
               <SidebarItem to="/epi" icon={HardHat} label="EPIs" badge={epiBadge} active={path.startsWith("/epi")} collapsed={collapsed} />
-              <SidebarItem to="/inspecoes" icon={ClipboardCheck} label="Inspeções" badge={inspectionBadge} active={path === "/inspecoes"} collapsed={collapsed} />
               <SidebarItem to="/documentos" icon={FileText} label="Biblioteca de Docs" active={path === "/documentos"} collapsed={collapsed} />
             </div>
           )}

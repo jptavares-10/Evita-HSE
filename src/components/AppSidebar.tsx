@@ -179,6 +179,8 @@ export function AppSidebar() {
   const { data: mtrList = [] } = useMtrs();
   const { data: supplierList = [] } = useSuppliers();
   const { data: licenseList = [] } = useEnvironmentalLicenses();
+  const { data: epiTypeList = [] } = useEpiTypes();
+  const { data: epiStockMap = {} } = useEpiStock();
 
   const serviceBadge = useMemo(() => {
     let count = 0;

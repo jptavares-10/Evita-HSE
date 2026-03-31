@@ -186,6 +186,8 @@ export function AppSidebar() {
   const { data: epiTypeList = [] } = useEpiTypes();
   const { data: epiStockMap = {} } = useEpiStock();
   const { data: asoRecords = [] } = useAsoRecords();
+  const { data: inspectionList = [] } = useInspections();
+  const { data: inspectionPendingActions = [] } = useAllInspectionActions();
   const serviceBadge = useMemo(() => {
     let count = 0;
     services.forEach((s: any) => {

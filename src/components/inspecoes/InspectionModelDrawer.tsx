@@ -159,7 +159,7 @@ export function InspectionModelDrawer({ open, onOpenChange, editing, sectors, pr
                   <SelectValue placeholder="Selecione..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Nenhum</SelectItem>
+                  <SelectItem value="__none__">Nenhum</SelectItem>
                   {profiles.map((p: any) => (
                     <SelectItem key={p.id} value={p.id}>{p.full_name}</SelectItem>
                   ))}

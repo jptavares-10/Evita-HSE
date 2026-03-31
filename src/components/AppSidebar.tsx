@@ -8,6 +8,8 @@ import { useEnvironmentalLicenses } from "@/hooks/useLicenses";
 import { computeLicenseStatus } from "@/lib/licenses";
 import { useEpiTypes, useEpiStock } from "@/hooks/useEpi";
 import { computeCaStatus, computeStockStatus } from "@/lib/epi";
+import { useAsoRecords, useAsoExamTypes } from "@/hooks/useAso";
+import { computeAsoStatus } from "@/lib/aso";
 import { useEmployees, useTrainingMatrix, useAllRecords } from "@/hooks/useTrainings";
 import { useMtrs } from "@/hooks/useMTR";
 import { useSuppliers } from "@/hooks/useSuppliers";
@@ -19,7 +21,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import {
   LayoutDashboard, ClipboardList, ShieldAlert, GraduationCap, Recycle, Truck,
   Building2, Users, CreditCard, LogOut, ChevronDown, ChevronLeft, ChevronRight,
-  Shield, HeartPulse, Leaf, Eye, BookOpen, Grid3X3, Briefcase, ScrollText, FileText, HardHat
+  Shield, HeartPulse, Leaf, Eye, BookOpen, Grid3X3, Briefcase, ScrollText, FileText, HardHat, Stethoscope
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -181,7 +183,7 @@ export function AppSidebar() {
   const { data: licenseList = [] } = useEnvironmentalLicenses();
   const { data: epiTypeList = [] } = useEpiTypes();
   const { data: epiStockMap = {} } = useEpiStock();
-
+  const { data: asoRecords = [] } = useAsoRecords();
   const serviceBadge = useMemo(() => {
     let count = 0;
     services.forEach((s: any) => {
@@ -237,8 +239,26 @@ export function AppSidebar() {
     return count;
   }, [epiTypeList, epiStockMap]);
 
+  const asoBadge = useMemo(() => {
+    let count = 0;
+    // Group by employee, find latest with expiry
+    const byEmployee: Record<string, any[]> = {};
+    asoRecords.forEach((r: any) => {
+      if (!byEmployee[r.employee_id]) byEmployee[r.employee_id] = [];
+      byEmployee[r.employee_id].push(r);
+    });
+    Object.values(byEmployee).forEach((recs) => {
+      const withExpiry = recs.filter((r) => r.expires_at).sort((a, b) => b.exam_date.localeCompare(a.exam_date));
+      if (withExpiry.length > 0) {
+        const st = computeAsoStatus(withExpiry[0].expires_at);
+        if (st === "warning" || st === "expired") count++;
+      }
+    });
+    return count;
+  }, [asoRecords]);
+
   const segurancaBadge = serviceBadge + incidentBadge + epiBadge;
-  const saudeBadge = trainingBadge;
+  const saudeBadge = trainingBadge + asoBadge;
   const meioAmbienteBadge = mtrBadge + licenseBadge;
 
   const handleLogout = async () => {
@@ -350,6 +370,7 @@ export function AppSidebar() {
                   )}
                 </>
               )}
+              <SidebarItem to="/aso" icon={Stethoscope} label="ASO / Exames" badge={asoBadge} active={path === "/aso"} collapsed={collapsed} />
             </div>
           )}
 

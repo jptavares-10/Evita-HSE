@@ -14,6 +14,121 @@ export type Database = {
   }
   public: {
     Tables: {
+      aso_exam_types: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          is_default: boolean
+          name: string
+          validity_months: number | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name: string
+          validity_months?: number | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name?: string
+          validity_months?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aso_exam_types_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      aso_records: {
+        Row: {
+          company_id: string
+          created_at: string
+          crm: string | null
+          doctor_name: string | null
+          employee_id: string
+          exam_date: string
+          exam_type_id: string
+          expires_at: string | null
+          file_name: string | null
+          file_url: string | null
+          id: string
+          notes: string | null
+          registered_by: string | null
+          result: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          crm?: string | null
+          doctor_name?: string | null
+          employee_id: string
+          exam_date: string
+          exam_type_id: string
+          expires_at?: string | null
+          file_name?: string | null
+          file_url?: string | null
+          id?: string
+          notes?: string | null
+          registered_by?: string | null
+          result?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          crm?: string | null
+          doctor_name?: string | null
+          employee_id?: string
+          exam_date?: string
+          exam_type_id?: string
+          expires_at?: string | null
+          file_name?: string | null
+          file_url?: string | null
+          id?: string
+          notes?: string | null
+          registered_by?: string | null
+          result?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aso_records_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "aso_records_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "aso_records_exam_type_id_fkey"
+            columns: ["exam_type_id"]
+            isOneToOne: false
+            referencedRelation: "aso_exam_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "aso_records_registered_by_fkey"
+            columns: ["registered_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           cnpj: string | null
@@ -2046,6 +2161,10 @@ export type Database = {
       get_supplier_portal_data: { Args: { p_token: string }; Returns: Json }
       get_user_company_id: { Args: never; Returns: string }
       remove_member: { Args: { p_member_id: string }; Returns: Json }
+      seed_default_aso_exam_types: {
+        Args: { p_company_id: string }
+        Returns: undefined
+      }
       seed_default_categories: {
         Args: { p_company_id: string }
         Returns: undefined

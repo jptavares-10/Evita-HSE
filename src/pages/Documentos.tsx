@@ -53,7 +53,7 @@ export default function Documentos() {
     return c;
   }, [documents]);
 
-  const activeStatus = kpiFilter || (statusFilter !== "all" ? statusFilter : null);
+  const activeStatus = kpiFilter === "revision_overdue" ? null : (kpiFilter || (statusFilter !== "all" ? statusFilter : null));
 
   const filtered = useMemo(() => {
     let result = documents;
@@ -67,9 +67,10 @@ export default function Documentos() {
     }
     if (typeFilter !== "all") result = result.filter((d: any) => d.document_type_id === typeFilter);
     if (activeStatus) result = result.filter((d: any) => d.status === activeStatus);
+    if (kpiFilter === "revision_overdue") result = result.filter((d: any) => getRevisionCycleStatus(d) === "overdue");
     if (areaFilter !== "all") result = result.filter((d: any) => d.area === areaFilter);
     return result;
-  }, [documents, search, typeFilter, activeStatus, areaFilter]);
+  }, [documents, search, typeFilter, activeStatus, kpiFilter, areaFilter]);
 
   const handleKpiClick = (status: string | null) => {
     setKpiFilter(status);

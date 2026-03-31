@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useInspectionExecutions, useInspectionModels } from "@/hooks/useInspections";
+import { useInspectionExecutions, useInspectionModels, useAutoGenerateExecutions } from "@/hooks/useInspections";
 import { getExecutionDisplayStatus, STATUS_CONFIG, formatDateBR, getFrequencyLabel } from "@/lib/inspections";
 import { InspectionKpiCards } from "@/components/inspecoes/InspectionKpiCards";
 import { NewExecutionModal } from "@/components/inspecoes/NewExecutionModal";

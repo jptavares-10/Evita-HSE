@@ -32,19 +32,7 @@ export default function Fornecedores() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState<any>(null);
   const [categoriesModalOpen, setCategoriesModalOpen] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<any>(null);
-
-  // Count documents per supplier (we'll use a simple approach)
-  const [docCounts, setDocCounts] = useState<Record<string, number>>({});
-
-  // We need doc counts - fetch all supplier documents for the company
-  const { data: allDocs = [] } = useSupplierDocuments(null);
-
-  const supplierDocCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    // We'll compute from suppliers query since we can't easily get all docs
-    return counts;
-  }, []);
+  const { data: docCounts = {} } = useAllSupplierDocumentCounts();
 
   const filtered = useMemo(() => {
     let result = [...suppliers];

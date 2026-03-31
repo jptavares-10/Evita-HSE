@@ -88,6 +88,11 @@ const App = () => (
               <Route path="/licencas" element={<Licencas />} />
               <Route path="/documentos" element={<Documentos />} />
               <Route path="/aso" element={<Aso />} />
+              <Route path="/inspecoes" element={<Inspecoes />}>
+                <Route index element={<InspecoesExecucoes />} />
+                <Route path="modelos" element={<InspecoesModelos />} />
+              </Route>
+              <Route path="/inspecoes/:id" element={<InspecaoDetalhe />} />
               <Route path="/epi" element={<Epi />}>
                 <Route index element={<EpiVisaoGeral />} />
                 <Route path="catalogo" element={<EpiCatalogo />} />

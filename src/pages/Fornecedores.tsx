@@ -32,6 +32,7 @@ export default function Fornecedores() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState<any>(null);
   const [categoriesModalOpen, setCategoriesModalOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const { data: docCounts = {} } = useAllSupplierDocumentCounts();
 
   const filtered = useMemo(() => {

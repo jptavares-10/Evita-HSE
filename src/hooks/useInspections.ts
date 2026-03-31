@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { useEffect, useRef } from "react";
+import { getFrequencyDays } from "@/lib/inspections";
 
 // ── Models ──
 
@@ -444,9 +446,87 @@ export function useInspectionBadgeCount() {
         .select("id, status, due_date")
         .in("status", ["pending", "in_progress"]);
       if (error) return 0;
-      // Count pending (including overdue) + in_progress
       return data?.length ?? 0;
     },
     enabled: !!company,
   });
+}
+
+// ── Auto-generate executions on page load ──
+export function useAutoGenerateExecutions() {
+  const { company } = useAuth();
+  const qc = useQueryClient();
+  const ran = useRef(false);
+
+  useEffect(() => {
+    if (!company || ran.current) return;
+    ran.current = true;
+
+    (async () => {
+      try {
+        const { data: models } = await supabase
+          .from("inspection_models")
+          .select("id, name, frequency_type, frequency_days")
+          .eq("status", "active");
+
+        if (!models || models.length === 0) return;
+
+        const todayStr = format(new Date(), "yyyy-MM-dd");
+        let created = 0;
+
+        for (const model of models) {
+          const freqDays = getFrequencyDays(model.frequency_type, model.frequency_days);
+
+          const { data: latestExec } = await supabase
+            .from("inspection_executions")
+            .select("due_date")
+            .eq("model_id", model.id)
+            .order("due_date", { ascending: false })
+            .limit(1);
+
+          let nextDue: string;
+          if (latestExec && latestExec.length > 0) {
+            const lastDate = new Date(latestExec[0].due_date);
+            lastDate.setDate(lastDate.getDate() + freqDays);
+            nextDue = format(lastDate, "yyyy-MM-dd");
+          } else {
+            nextDue = todayStr;
+          }
+
+          while (nextDue <= todayStr) {
+            const { data: existing } = await supabase
+              .from("inspection_executions")
+              .select("id")
+              .eq("model_id", model.id)
+              .eq("due_date", nextDue)
+              .limit(1);
+
+            if (!existing || existing.length === 0) {
+              const dueDate = new Date(nextDue + "T12:00:00");
+              const ref = `${model.name} — ${dueDate.toLocaleDateString("pt-BR")}`;
+              await supabase.from("inspection_executions").insert({
+                company_id: company.id,
+                model_id: model.id,
+                due_date: nextDue,
+                reference: ref,
+                status: "pending",
+              });
+              created++;
+            }
+
+            const d = new Date(nextDue + "T12:00:00");
+            d.setDate(d.getDate() + freqDays);
+            nextDue = format(d, "yyyy-MM-dd");
+          }
+        }
+
+        if (created > 0) {
+          qc.invalidateQueries({ queryKey: ["inspection-executions"] });
+          qc.invalidateQueries({ queryKey: ["inspection-badge"] });
+        }
+      } catch (err) {
+        console.error("Auto-generate inspections error:", err);
+      }
+    })();
+  }, [company]);
 }

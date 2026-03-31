@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { ClipboardList, GraduationCap, Recycle, Truck, AlertTriangle, CheckCircle2, XCircle, ArrowRight, Users, ShieldAlert, CreditCard, Calendar, ScrollText, Activity, Stethoscope } from "lucide-react";
+import { ClipboardList, GraduationCap, Recycle, Truck, AlertTriangle, CheckCircle2, XCircle, ArrowRight, Users, ShieldAlert, CreditCard, Calendar, ScrollText, Activity, Stethoscope, ClipboardCheck } from "lucide-react";
 import { usePeriodicServices } from "@/hooks/useServices";
 import { getServiceStatus, getStatusInfo, formatDateBR } from "@/lib/services";
 import { useEmployees, useTrainingMatrix, useAllRecords } from "@/hooks/useTrainings";
@@ -12,6 +12,8 @@ import { useEnvironmentalLicenses } from "@/hooks/useLicenses";
 import { computeLicenseStatus, getDaysRemainingInfo, formatDateBR as formatDateLic } from "@/lib/licenses";
 import { getTypeInfo, getSeverityInfo, formatDateTimeBR } from "@/lib/occurrences";
 import { useAsoRecords } from "@/hooks/useAso";
+import { useInspectionBadgeCount, useInspectionExecutions } from "@/hooks/useInspections";
+import { getExecutionDisplayStatus } from "@/lib/inspections";
 import { computeAsoStatus } from "@/lib/aso";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
@@ -58,6 +60,8 @@ export default function Dashboard() {
   const { data: allCorrectiveActions = [] } = useAllCorrectiveActions();
   const { data: licenseList = [], isLoading: loadingLicenses } = useEnvironmentalLicenses();
   const { data: asoRecords = [] } = useAsoRecords();
+
+  const { data: inspExecs = [] } = useInspectionExecutions();
 
   const isLoading = loadingServices || loadingEmployees || loadingMtr || loadingSuppliers || loadingOccurrences || loadingLicenses;
 
@@ -162,6 +166,30 @@ export default function Dashboard() {
     const conformity = total > 0 ? Math.round((ok / total) * 100) : 0;
     return { ok, warning, expired, conformity };
   }, [employees, asoRecords]);
+
+  // Inspection stats
+  const inspectionStats = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    let pendingToday = 0, inProgress = 0, overdue = 0, completedWeek = 0;
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Monday
+    inspExecs.forEach((e: any) => {
+      const displayStatus = getExecutionDisplayStatus(e.status, e.due_date);
+      if (displayStatus === "overdue") overdue++;
+      else if (displayStatus === "in_progress") inProgress++;
+      else if (displayStatus === "pending") {
+        const due = new Date(e.due_date);
+        due.setHours(0, 0, 0, 0);
+        if (due.getTime() === today.getTime()) pendingToday++;
+      }
+      if ((e.status === "completed" || e.status === "completed_with_issues") && e.completed_at) {
+        const completedDate = new Date(e.completed_at);
+        if (completedDate >= startOfWeek) completedWeek++;
+      }
+    });
+    return { pendingToday, inProgress, overdue, completedWeek };
+  }, [inspExecs]);
 
   // Plan info
   const planLabel = company?.plan === "trial" ? "Trial" : company?.plan === "basic" ? "Basic" : company?.plan === "pro" ? "Pro" : company?.plan ?? "—";
@@ -295,6 +323,16 @@ export default function Dashboard() {
             { label: "Ações pendentes", value: pendingActions, color: pendingActions > 0 ? "text-yellow-600" : "" },
           ]}
           link="/incidentes" linkLabel="Ver ocorrências"
+        />
+        <DashboardCard
+          icon={ClipboardCheck} iconColor="text-primary" title="Inspeções"
+          items={[
+            { label: "Pendentes hoje", value: inspectionStats.pendingToday, color: inspectionStats.pendingToday > 0 ? "text-yellow-600" : "" },
+            { label: "Em andamento", value: inspectionStats.inProgress, color: "text-blue-600" },
+            { label: "Vencidas", value: inspectionStats.overdue, color: inspectionStats.overdue > 0 ? "text-destructive" : "" },
+            { label: "Concluídas (semana)", value: inspectionStats.completedWeek, color: "text-green-600" },
+          ]}
+          link="/inspecoes" linkLabel="Ver execuções"
         />
         <DashboardCard
           icon={Stethoscope} iconColor="text-primary" title="ASO / Exames"

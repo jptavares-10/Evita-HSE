@@ -92,6 +92,7 @@ export default function Documentos() {
         active={counts.active}
         underReview={counts.under_review}
         obsolete={counts.obsolete}
+        revisionOverdue={counts.revision_overdue}
         activeFilter={kpiFilter}
         onFilterClick={handleKpiClick}
       />

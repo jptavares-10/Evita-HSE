@@ -21,6 +21,7 @@ export default function InspecoesExecucoes() {
   const { data: models = [] } = useInspectionModels();
   const navigate = useNavigate();
   const isExpired = company?.plan === "expired";
+  useAutoGenerateExecutions();
 
   const [search, setSearch] = useState("");
   const [modelFilter, setModelFilter] = useState("all");

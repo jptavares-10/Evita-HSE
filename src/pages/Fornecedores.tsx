@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useSuppliers, useSupplierCategories, useDeleteSupplier } from "@/hooks/useSuppliers";
-import { useSupplierDocuments } from "@/hooks/useSuppliers";
+import { useSuppliers, useSupplierCategories, useDeleteSupplier, useAllSupplierDocumentCounts } from "@/hooks/useSuppliers";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

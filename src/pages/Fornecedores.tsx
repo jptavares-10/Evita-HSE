@@ -70,7 +70,7 @@ export default function Fornecedores() {
         </div>
       </div>
 
-      <SupplierKpiCards suppliers={suppliers} />
+      <SupplierKpiCards suppliers={suppliers} docCounts={docCounts} />
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">

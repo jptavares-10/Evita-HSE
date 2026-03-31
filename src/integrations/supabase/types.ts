@@ -569,6 +569,198 @@ export type Database = {
           },
         ]
       }
+      epi_deliveries: {
+        Row: {
+          company_id: string
+          created_at: string
+          delivered_at: string
+          employee_id: string
+          epi_type_id: string
+          id: string
+          notes: string | null
+          quantity: number
+          reason: string | null
+          registered_by: string | null
+          returned_at: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          delivered_at: string
+          employee_id: string
+          epi_type_id: string
+          id?: string
+          notes?: string | null
+          quantity?: number
+          reason?: string | null
+          registered_by?: string | null
+          returned_at?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          delivered_at?: string
+          employee_id?: string
+          epi_type_id?: string
+          id?: string
+          notes?: string | null
+          quantity?: number
+          reason?: string | null
+          registered_by?: string | null
+          returned_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "epi_deliveries_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "epi_deliveries_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "epi_deliveries_epi_type_id_fkey"
+            columns: ["epi_type_id"]
+            isOneToOne: false
+            referencedRelation: "epi_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "epi_deliveries_registered_by_fkey"
+            columns: ["registered_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      epi_stock_movements: {
+        Row: {
+          company_id: string
+          created_at: string
+          delivery_id: string | null
+          epi_type_id: string
+          id: string
+          moved_at: string
+          movement_type: string
+          notes: string | null
+          quantity: number
+          registered_by: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          delivery_id?: string | null
+          epi_type_id: string
+          id?: string
+          moved_at: string
+          movement_type?: string
+          notes?: string | null
+          quantity: number
+          registered_by?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          delivery_id?: string | null
+          epi_type_id?: string
+          id?: string
+          moved_at?: string
+          movement_type?: string
+          notes?: string | null
+          quantity?: number
+          registered_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "epi_stock_movements_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "epi_stock_movements_delivery_id_fkey"
+            columns: ["delivery_id"]
+            isOneToOne: false
+            referencedRelation: "epi_deliveries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "epi_stock_movements_epi_type_id_fkey"
+            columns: ["epi_type_id"]
+            isOneToOne: false
+            referencedRelation: "epi_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "epi_stock_movements_registered_by_fkey"
+            columns: ["registered_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      epi_types: {
+        Row: {
+          ca_alert_days_before: number
+          ca_expires_at: string | null
+          ca_file_name: string | null
+          ca_file_url: string | null
+          ca_number: string | null
+          company_id: string
+          created_at: string
+          description: string | null
+          id: string
+          minimum_stock: number
+          name: string
+          unit: string
+        }
+        Insert: {
+          ca_alert_days_before?: number
+          ca_expires_at?: string | null
+          ca_file_name?: string | null
+          ca_file_url?: string | null
+          ca_number?: string | null
+          company_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          minimum_stock?: number
+          name: string
+          unit?: string
+        }
+        Update: {
+          ca_alert_days_before?: number
+          ca_expires_at?: string | null
+          ca_file_name?: string | null
+          ca_file_url?: string | null
+          ca_number?: string | null
+          company_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          minimum_stock?: number
+          name?: string
+          unit?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "epi_types_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invitations: {
         Row: {
           company_id: string

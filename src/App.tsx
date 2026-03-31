@@ -35,6 +35,11 @@ import PortalFornecedor from "./pages/PortalFornecedor";
 import Incidentes from "./pages/Incidentes";
 import Licencas from "./pages/Licencas";
 import Documentos from "./pages/Documentos";
+import Epi from "./pages/Epi";
+import EpiVisaoGeral from "./pages/EpiVisaoGeral";
+import EpiCatalogo from "./pages/EpiCatalogo";
+import EpiEstoque from "./pages/EpiEstoque";
+import EpiEntregas from "./pages/EpiEntregas";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -77,6 +82,12 @@ const App = () => (
               <Route path="/incidentes" element={<Incidentes />} />
               <Route path="/licencas" element={<Licencas />} />
               <Route path="/documentos" element={<Documentos />} />
+              <Route path="/epi" element={<Epi />}>
+                <Route index element={<EpiVisaoGeral />} />
+                <Route path="catalogo" element={<EpiCatalogo />} />
+                <Route path="estoque" element={<EpiEstoque />} />
+                <Route path="entregas" element={<EpiEntregas />} />
+              </Route>
             </Route>
 
             <Route path="*" element={<NotFound />} />

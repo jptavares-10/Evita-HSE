@@ -6,6 +6,8 @@ import { usePeriodicServices } from "@/hooks/useServices";
 import { useOccurrences } from "@/hooks/useOccurrences";
 import { useEnvironmentalLicenses } from "@/hooks/useLicenses";
 import { computeLicenseStatus } from "@/lib/licenses";
+import { useEpiTypes, useEpiStock } from "@/hooks/useEpi";
+import { computeCaStatus, computeStockStatus } from "@/lib/epi";
 import { useEmployees, useTrainingMatrix, useAllRecords } from "@/hooks/useTrainings";
 import { useMtrs } from "@/hooks/useMTR";
 import { useSuppliers } from "@/hooks/useSuppliers";
@@ -17,7 +19,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import {
   LayoutDashboard, ClipboardList, ShieldAlert, GraduationCap, Recycle, Truck,
   Building2, Users, CreditCard, LogOut, ChevronDown, ChevronLeft, ChevronRight,
-  Shield, HeartPulse, Leaf, Eye, BookOpen, Grid3X3, Briefcase, ScrollText, FileText
+  Shield, HeartPulse, Leaf, Eye, BookOpen, Grid3X3, Briefcase, ScrollText, FileText, HardHat
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -177,6 +179,8 @@ export function AppSidebar() {
   const { data: mtrList = [] } = useMtrs();
   const { data: supplierList = [] } = useSuppliers();
   const { data: licenseList = [] } = useEnvironmentalLicenses();
+  const { data: epiTypeList = [] } = useEpiTypes();
+  const { data: epiStockMap = {} } = useEpiStock();
 
   const serviceBadge = useMemo(() => {
     let count = 0;
@@ -221,7 +225,19 @@ export function AppSidebar() {
     return count;
   }, [licenseList]);
 
-  const segurancaBadge = serviceBadge + incidentBadge;
+  const epiBadge = useMemo(() => {
+    let count = 0;
+    epiTypeList.forEach((e: any) => {
+      const cs = computeCaStatus(e.ca_expires_at, e.ca_alert_days_before);
+      if (cs === "warning" || cs === "expired") count++;
+      const currentStock = epiStockMap[e.id] ?? 0;
+      const ss = computeStockStatus(currentStock, e.minimum_stock);
+      if (ss === "low" || ss === "out") count++;
+    });
+    return count;
+  }, [epiTypeList, epiStockMap]);
+
+  const segurancaBadge = serviceBadge + incidentBadge + epiBadge;
   const saudeBadge = trainingBadge;
   const meioAmbienteBadge = mtrBadge + licenseBadge;
 
@@ -282,6 +298,7 @@ export function AppSidebar() {
             <div className={cn("space-y-0.5", !collapsed && "relative ml-4 pl-2 border-l border-[#1F2937]")}>
               <SidebarItem to="/servicos" icon={ClipboardList} label="Serviços Periódicos" badge={serviceBadge} active={path === "/servicos"} collapsed={collapsed} />
               <SidebarItem to="/incidentes" icon={ShieldAlert} label="IC & NC" badge={incidentBadge} active={path === "/incidentes"} collapsed={collapsed} />
+              <SidebarItem to="/epi" icon={HardHat} label="EPIs" badge={epiBadge} active={path.startsWith("/epi")} collapsed={collapsed} />
               <SidebarItem to="/documentos" icon={FileText} label="Biblioteca de Docs" active={path === "/documentos"} collapsed={collapsed} />
             </div>
           )}

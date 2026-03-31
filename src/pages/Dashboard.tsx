@@ -257,6 +257,15 @@ export default function Dashboard() {
           ]}
           link="/incidentes" linkLabel="Ver ocorrências"
         />
+        <DashboardCard
+          icon={Activity} iconColor="text-primary" title="Indicadores HSE"
+          items={[
+            { label: "TF (freq.)", value: tfTgStats.tf },
+            { label: "TG (grav.)", value: tfTgStats.tg },
+            { label: "Colab. ativos", value: tfTgStats.activeCount },
+          ]}
+          link="/incidentes" linkLabel="Ver ocorrências"
+        />
         <div className="bg-card border rounded-lg p-5 flex flex-col">
           <div className="flex items-center gap-2 mb-4">
             <CreditCard className="h-5 w-5 text-primary" />

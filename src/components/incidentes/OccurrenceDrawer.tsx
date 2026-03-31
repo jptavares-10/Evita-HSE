@@ -248,6 +248,12 @@ export function OccurrenceDrawer({ open, onOpenChange, occurrence, planExpired }
                 <Switch checked={withLeave} onCheckedChange={setWithLeave} />
                 <Label>Com afastamento</Label>
               </div>
+              {withLeave && (
+                <div className="space-y-2">
+                  <Label>Dias de afastamento</Label>
+                  <Input type="number" min={0} value={lostDays} onChange={(e) => setLostDays(Math.max(0, parseInt(e.target.value) || 0))} placeholder="0" />
+                </div>
+              )}
             </div>
           )}
 

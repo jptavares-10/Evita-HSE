@@ -404,8 +404,11 @@ export type Database = {
           current_revision_date: string
           description: string | null
           document_type_id: string | null
+          has_revision_cycle: boolean
           id: string
+          next_revision_at: string | null
           responsible: string | null
+          revision_frequency_days: number | null
           status: string
           title: string
           updated_at: string
@@ -422,8 +425,11 @@ export type Database = {
           current_revision_date: string
           description?: string | null
           document_type_id?: string | null
+          has_revision_cycle?: boolean
           id?: string
+          next_revision_at?: string | null
           responsible?: string | null
+          revision_frequency_days?: number | null
           status?: string
           title: string
           updated_at?: string
@@ -440,8 +446,11 @@ export type Database = {
           current_revision_date?: string
           description?: string | null
           document_type_id?: string | null
+          has_revision_cycle?: boolean
           id?: string
+          next_revision_at?: string | null
           responsible?: string | null
+          revision_frequency_days?: number | null
           status?: string
           title?: string
           updated_at?: string

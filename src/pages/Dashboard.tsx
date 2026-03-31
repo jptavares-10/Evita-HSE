@@ -203,9 +203,22 @@ export default function Dashboard() {
       if (st === "expired") items.push({ icon: ScrollText, iconColor: "text-destructive", text: `${l.license_number} — ${l.title}`, badge: "Vencida", badgeColor: "bg-destructive/10 text-destructive", link: "/licencas", priority: 1.5 });
       else if (st === "expiring") items.push({ icon: ScrollText, iconColor: "text-yellow-600", text: `${l.license_number} — ${l.title}`, badge: "Vencendo", badgeColor: "bg-yellow-100 text-yellow-700", link: "/licencas", priority: 3.5 });
     });
+    // ASO expired
+    const activeEmps = employees.filter((e: any) => e.status === "active");
+    for (const emp of activeEmps) {
+      const empRecords = asoRecords.filter((r: any) => r.employee_id === emp.id);
+      const withExpiry = empRecords.filter((r: any) => r.expires_at).sort((a: any, b: any) => b.exam_date.localeCompare(a.exam_date));
+      if (withExpiry.length > 0) {
+        const st = computeAsoStatus(withExpiry[0].expires_at);
+        if (st === "expired") items.push({ icon: Stethoscope, iconColor: "text-destructive", text: `ASO — ${emp.name}`, badge: "Vencido", badgeColor: "bg-destructive/10 text-destructive", link: "/aso", priority: 1.5 });
+        else if (st === "warning") items.push({ icon: Stethoscope, iconColor: "text-yellow-600", text: `ASO — ${emp.name}`, badge: "Vencendo", badgeColor: "bg-yellow-100 text-yellow-700", link: "/aso", priority: 3.5 });
+      } else if (empRecords.length === 0) {
+        // no record at all — could add but might be noisy, skip for now
+      }
+    }
 
     return items.sort((a, b) => a.priority - b.priority).slice(0, 8);
-  }, [services, mtrList, occurrenceList, licenseList]);
+  }, [services, mtrList, occurrenceList, licenseList, employees, asoRecords]);
 
   const today = format(new Date(), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR });
   const todayCapitalized = today.charAt(0).toUpperCase() + today.slice(1);

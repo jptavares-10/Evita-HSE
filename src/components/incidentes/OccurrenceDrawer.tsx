@@ -55,6 +55,7 @@ export function OccurrenceDrawer({ open, onOpenChange, occurrence, planExpired }
       setCauseAnalysis(occurrence.cause_analysis || "");
       setBodyPart(occurrence.body_part_affected || "");
       setWithLeave(occurrence.with_leave ?? false);
+      setLostDays(occurrence.lost_days ?? 0);
       setFiles([]);
     } else if (open) {
       setType("incident");

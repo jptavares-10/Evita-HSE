@@ -31,19 +31,14 @@ export default function InspecoesModelos() {
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [historyModel, setHistoryModel] = useState<any>(null);
 
-  // Get sectors and profiles from models
-  const sectors = useMemo(() => {
-    const map = new Map();
-    models.forEach((m: any) => { if (m.sectors) map.set(m.sectors.id, m.sectors); });
-    return Array.from(map.values());
-  }, [models]);
-
-  // Fetch profiles for dropdown
-  const [profiles, setProfiles] = useState<any[]>([]);
+  // Fetch employees for dropdown
+  const [employees, setEmployees] = useState<any[]>([]);
   useState(() => {
-    supabase.from("profiles").select("id, full_name").then(({ data }) => {
-      if (data) setProfiles(data);
-    });
+    if (company?.id) {
+      supabase.from("employees").select("id, name").eq("company_id", company.id).eq("status", "active").order("name").then(({ data }) => {
+        if (data) setEmployees(data);
+      });
+    }
   });
 
   const filtered = useMemo(() => {
@@ -113,7 +108,7 @@ export default function InspecoesModelos() {
                   <TableCell>{m.related_nr ? <Badge variant="outline" className="text-xs">{m.related_nr}</Badge> : "—"}</TableCell>
                   <TableCell className="text-sm">{m.sectors?.name || "—"}</TableCell>
                   <TableCell className="text-sm">{getFrequencyLabel(m.frequency_type, m.frequency_days)}</TableCell>
-                  <TableCell className="text-sm">{m.default_responsible?.full_name || "—"}</TableCell>
+                  <TableCell className="text-sm">{m.default_responsible?.name || "—"}</TableCell>
                   <TableCell>{m.linked_document ? <FileText className="h-4 w-4 text-primary" /> : "—"}</TableCell>
                   <TableCell>
                     <Switch checked={m.status === "active"} onCheckedChange={() => handleToggleStatus(m)} disabled={!!isExpired} />
@@ -153,7 +148,7 @@ export default function InspecoesModelos() {
         </div>
       )}
 
-      <InspectionModelDrawer open={drawerOpen} onOpenChange={setDrawerOpen} editing={editing} sectors={sectors} profiles={profiles} />
+      <InspectionModelDrawer open={drawerOpen} onOpenChange={setDrawerOpen} editing={editing} employees={employees} />
       <ModelHistoryDrawer open={!!historyModel} onOpenChange={(v) => !v && setHistoryModel(null)} model={historyModel} />
       <ConfirmDialog
         open={!!deleteTarget}

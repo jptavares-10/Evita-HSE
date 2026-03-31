@@ -183,7 +183,7 @@ export default function InspecoesExecucoes() {
                     </TableCell>
                     <TableCell className="text-sm">{model?.sectors?.name || "—"}</TableCell>
                     <TableCell className="text-sm tabular-nums">{formatDateBR(exec.due_date)}</TableCell>
-                    <TableCell className="text-sm">{model?.default_responsible?.full_name || "—"}</TableCell>
+                    <TableCell className="text-sm">{model?.default_responsible?.name || "—"}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className={`text-xs ${cfg?.bgColor} ${cfg?.color}`}>{cfg?.label}</Badge>
                     </TableCell>

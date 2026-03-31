@@ -133,7 +133,7 @@ export default function InspecaoDetalhe() {
           </div>
           <div className="flex flex-wrap gap-4 mt-3 text-sm text-muted-foreground">
             <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />Prevista: {formatDateBR(execution.due_date)}</span>
-            {model?.default_responsible?.full_name && <span className="flex items-center gap-1"><User className="h-3.5 w-3.5" />{model.default_responsible.full_name}</span>}
+            {model?.default_responsible?.name && <span className="flex items-center gap-1"><User className="h-3.5 w-3.5" />{model.default_responsible.name}</span>}
           </div>
           {docSignedUrl && (
             <a href={docSignedUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline mt-2">

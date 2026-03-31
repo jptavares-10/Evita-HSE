@@ -284,6 +284,16 @@ export default function Dashboard() {
           link="/incidentes" linkLabel="Ver ocorrências"
         />
         <DashboardCard
+          icon={Stethoscope} iconColor="text-primary" title="ASO / Exames"
+          items={[
+            { label: "Em dia", value: asoStats.ok, color: "text-green-600" },
+            { label: "Vencendo", value: asoStats.warning, color: asoStats.warning > 0 ? "text-yellow-600" : "" },
+            { label: "Vencidos", value: asoStats.expired, color: asoStats.expired > 0 ? "text-destructive" : "" },
+            { label: "Conformidade", value: `${asoStats.conformity}%` },
+          ]}
+          link="/aso" linkLabel="Ver ASOs"
+        />
+        <DashboardCard
           icon={Activity} iconColor="text-primary" title="Indicadores HSE"
           items={[
             { label: "TF (freq.)", value: tfTgStats.tf },

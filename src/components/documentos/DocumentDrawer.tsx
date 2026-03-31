@@ -7,9 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Switch } from "@/components/ui/switch";
 import { CalendarIcon, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useDocumentTypes, useSaveDocument } from "@/hooks/useDocuments";
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,6 +18,15 @@ import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
+const FREQUENCY_PRESETS = [
+  { label: "Mensal (30 dias)", value: 30 },
+  { label: "Trimestral (90 dias)", value: 90 },
+  { label: "Semestral (180 dias)", value: 180 },
+  { label: "Anual (365 dias)", value: 365 },
+  { label: "Bienal (730 dias)", value: 730 },
+  { label: "Personalizado", value: -1 },
+];
 
 interface Props {
   open: boolean;
@@ -46,6 +56,11 @@ export function DocumentDrawer({ open, onOpenChange, editingDocument }: Props) {
   const [showNewType, setShowNewType] = useState(false);
   const [newTypeName, setNewTypeName] = useState("");
 
+  // Revision cycle fields
+  const [hasRevisionCycle, setHasRevisionCycle] = useState(false);
+  const [frequencyPreset, setFrequencyPreset] = useState<string>("365");
+  const [customDays, setCustomDays] = useState("");
+
   useEffect(() => {
     if (open) {
       if (editingDocument) {
@@ -56,20 +71,51 @@ export function DocumentDrawer({ open, onOpenChange, editingDocument }: Props) {
         setResponsible(editingDocument.responsible || "");
         setArea(editingDocument.area || "");
         setStatus(editingDocument.status);
+        setHasRevisionCycle(editingDocument.has_revision_cycle || false);
+        const days = editingDocument.revision_frequency_days;
+        if (days) {
+          const preset = FREQUENCY_PRESETS.find(p => p.value === days);
+          if (preset) {
+            setFrequencyPreset(String(days));
+            setCustomDays("");
+          } else {
+            setFrequencyPreset("-1");
+            setCustomDays(String(days));
+          }
+        } else {
+          setFrequencyPreset("365");
+          setCustomDays("");
+        }
       } else {
         setCode(""); setTitle(""); setTypeId(""); setDescription("");
         setResponsible(""); setArea(""); setStatus("active");
         setRevNumber("Rev. 01"); setRevDate(new Date()); setRevNotes("");
+        setHasRevisionCycle(false); setFrequencyPreset("365"); setCustomDays("");
       }
       setFile(null);
     }
   }, [open, editingDocument]);
+
+  const getFrequencyDays = (): number | null => {
+    if (!hasRevisionCycle) return null;
+    const preset = parseInt(frequencyPreset, 10);
+    if (preset === -1) {
+      const d = parseInt(customDays, 10);
+      return isNaN(d) || d <= 0 ? null : d;
+    }
+    return preset;
+  };
 
   const handleSubmit = async () => {
     if (!title.trim()) { toast({ title: "Título é obrigatório", variant: "destructive" }); return; }
     if (!typeId) { toast({ title: "Tipo é obrigatório", variant: "destructive" }); return; }
     if (!isEdit && !file) { toast({ title: "Arquivo é obrigatório no cadastro", variant: "destructive" }); return; }
     if (!isEdit && !revNumber.trim()) { toast({ title: "Número da revisão é obrigatório", variant: "destructive" }); return; }
+    if (hasRevisionCycle && !getFrequencyDays()) { toast({ title: "Informe a periodicidade de revisão", variant: "destructive" }); return; }
+
+    const freqDays = getFrequencyDays();
+    const baseDate = isEdit ? (editingDocument.current_revision_date || new Date().toISOString()) : format(revDate, "yyyy-MM-dd");
+    const nextRevAt = hasRevisionCycle && freqDays ? format(addDays(parseISO(typeof baseDate === 'string' ? baseDate : format(baseDate, "yyyy-MM-dd")), freqDays), "yyyy-MM-dd") : null;
 
     await saveDocument.mutateAsync({
       id: editingDocument?.id,
@@ -84,6 +130,9 @@ export function DocumentDrawer({ open, onOpenChange, editingDocument }: Props) {
       revision_date: format(revDate, "yyyy-MM-dd"),
       revision_notes: revNotes || null,
       file: isEdit ? null : file,
+      has_revision_cycle: hasRevisionCycle,
+      revision_frequency_days: freqDays,
+      next_revision_at: nextRevAt,
     });
     onOpenChange(false);
   };
@@ -159,6 +208,45 @@ export function DocumentDrawer({ open, onOpenChange, editingDocument }: Props) {
                   </SelectContent>
                 </Select>
               </div>
+            </section>
+
+            {/* Revision cycle section */}
+            <section className="space-y-3">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Ciclo de revisão</h3>
+              <div className="flex items-center justify-between gap-3 bg-muted/50 rounded-md px-3 py-2">
+                <div>
+                  <p className="text-sm font-medium">Revisão programada</p>
+                  <p className="text-xs text-muted-foreground">Ativar ciclo de revisão periódica para este documento</p>
+                </div>
+                <Switch checked={hasRevisionCycle} onCheckedChange={setHasRevisionCycle} />
+              </div>
+              {hasRevisionCycle && (
+                <div className="space-y-3 pl-1">
+                  <div className="space-y-2">
+                    <Label>Periodicidade</Label>
+                    <Select value={frequencyPreset} onValueChange={setFrequencyPreset}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {FREQUENCY_PRESETS.map((p) => (
+                          <SelectItem key={p.value} value={String(p.value)}>{p.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {frequencyPreset === "-1" && (
+                    <div className="space-y-2">
+                      <Label>Quantidade de dias</Label>
+                      <Input
+                        type="number"
+                        min={1}
+                        value={customDays}
+                        onChange={(e) => setCustomDays(e.target.value)}
+                        placeholder="Ex: 45"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
             </section>
 
             {!isEdit && (

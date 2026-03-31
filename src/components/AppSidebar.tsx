@@ -333,6 +333,7 @@ export function AppSidebar() {
               <SidebarItem to="/servicos" icon={ClipboardList} label="Serviços Periódicos" badge={serviceBadge} active={path === "/servicos"} collapsed={collapsed} />
               <SidebarItem to="/incidentes" icon={ShieldAlert} label="IC & NC" badge={incidentBadge} active={path === "/incidentes"} collapsed={collapsed} />
               <SidebarItem to="/epi" icon={HardHat} label="EPIs" badge={epiBadge} active={path.startsWith("/epi")} collapsed={collapsed} />
+              <SidebarItem to="/inspecoes" icon={ClipboardCheck} label="Inspeções" badge={inspectionBadge} active={path === "/inspecoes"} collapsed={collapsed} />
               <SidebarItem to="/documentos" icon={FileText} label="Biblioteca de Docs" active={path === "/documentos"} collapsed={collapsed} />
             </div>
           )}

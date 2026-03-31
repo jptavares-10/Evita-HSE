@@ -259,7 +259,8 @@ export function AppSidebar() {
     return count;
   }, [asoRecords]);
 
-  const segurancaBadge = serviceBadge + incidentBadge + epiBadge;
+  const { data: inspectionBadge = 0 } = useInspectionBadgeCount();
+  const segurancaBadge = serviceBadge + incidentBadge + epiBadge + inspectionBadge;
   const saudeBadge = trainingBadge + asoBadge;
   const meioAmbienteBadge = mtrBadge + licenseBadge;
 

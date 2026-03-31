@@ -31,12 +31,16 @@ export default function InspecoesModelos() {
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [historyModel, setHistoryModel] = useState<any>(null);
 
-  // Fetch employees for dropdown
+  // Fetch employees and sectors for dropdown
   const [employees, setEmployees] = useState<any[]>([]);
+  const [sectors, setSectors] = useState<any[]>([]);
   useState(() => {
     if (company?.id) {
       supabase.from("employees").select("id, name").eq("company_id", company.id).eq("status", "active").order("name").then(({ data }) => {
         if (data) setEmployees(data);
+      });
+      supabase.from("sectors").select("id, name").eq("company_id", company.id).order("name").then(({ data }) => {
+        if (data) setSectors(data);
       });
     }
   });

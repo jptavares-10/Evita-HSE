@@ -183,7 +183,7 @@ export function AppSidebar() {
   const { data: licenseList = [] } = useEnvironmentalLicenses();
   const { data: epiTypeList = [] } = useEpiTypes();
   const { data: epiStockMap = {} } = useEpiStock();
-
+  const { data: asoRecords = [] } = useAsoRecords();
   const serviceBadge = useMemo(() => {
     let count = 0;
     services.forEach((s: any) => {

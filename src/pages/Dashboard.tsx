@@ -140,6 +140,29 @@ export default function Dashboard() {
     return { active, alertCount };
   }, [licenseList]);
 
+  // ASO stats
+  const asoStats = useMemo(() => {
+    const activeEmps = employees.filter((e: any) => e.status === "active");
+    const total = activeEmps.length;
+    let ok = 0, warning = 0, expired = 0;
+    for (const emp of activeEmps) {
+      const empRecords = asoRecords.filter((r: any) => r.employee_id === emp.id);
+      const withExpiry = empRecords.filter((r: any) => r.expires_at).sort((a: any, b: any) => b.exam_date.localeCompare(a.exam_date));
+      if (withExpiry.length > 0) {
+        const st = computeAsoStatus(withExpiry[0].expires_at);
+        if (st === "ok") ok++;
+        else if (st === "warning") warning++;
+        else if (st === "expired") expired++;
+      } else if (empRecords.length > 0) {
+        ok++; // no expiry = ok
+      } else {
+        expired++; // no record
+      }
+    }
+    const conformity = total > 0 ? Math.round((ok / total) * 100) : 0;
+    return { ok, warning, expired, conformity };
+  }, [employees, asoRecords]);
+
   // Plan info
   const planLabel = company?.plan === "trial" ? "Trial" : company?.plan === "basic" ? "Basic" : company?.plan === "pro" ? "Pro" : company?.plan ?? "—";
   const trialDaysLeft = company?.trial_ends_at ? Math.max(0, differenceInDays(parseISO(company.trial_ends_at), new Date())) : null;

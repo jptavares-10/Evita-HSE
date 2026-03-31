@@ -61,6 +61,8 @@ export default function Dashboard() {
   const { data: licenseList = [], isLoading: loadingLicenses } = useEnvironmentalLicenses();
   const { data: asoRecords = [] } = useAsoRecords();
 
+  const { data: inspExecs = [] } = useInspectionExecutions();
+
   const isLoading = loadingServices || loadingEmployees || loadingMtr || loadingSuppliers || loadingOccurrences || loadingLicenses;
 
   // Services stats

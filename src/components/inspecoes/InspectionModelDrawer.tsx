@@ -26,6 +26,7 @@ export function InspectionModelDrawer({ open, onOpenChange, editing, employees, 
   const activeDocs = allDocs.filter((d: any) => d.status === "active");
 
   const [name, setName] = useState("");
+  const [sectorId, setSectorId] = useState("");
   const [frequencyType, setFrequencyType] = useState("daily");
   const [frequencyDays, setFrequencyDays] = useState<number>(7);
   const [responsibleId, setResponsibleId] = useState("");

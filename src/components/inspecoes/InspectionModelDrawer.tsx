@@ -37,6 +37,7 @@ export function InspectionModelDrawer({ open, onOpenChange, editing, employees, 
   const resetForm = () => {
     if (editing) {
       setName(editing.name || "");
+      setSectorId(editing.sector_id || "");
       setFrequencyType(editing.frequency_type || "daily");
       setFrequencyDays(editing.frequency_days || 7);
       setResponsibleId(editing.default_responsible_id || "");

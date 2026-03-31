@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDocuments, useDocumentTypes, useDeleteDocument } from "@/hooks/useDocuments";
-import { getDocStatusBadgeInfo, formatDateBR } from "@/lib/documents";
+import { getDocStatusBadgeInfo, formatDateBR, getRevisionCycleStatus, getRevisionCycleBadgeInfo } from "@/lib/documents";
 import { DocumentKpiCards } from "@/components/documentos/DocumentKpiCards";
 import { DocumentFilters } from "@/components/documentos/DocumentFilters";
 import { DocumentDrawer } from "@/components/documentos/DocumentDrawer";

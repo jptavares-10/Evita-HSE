@@ -76,15 +76,24 @@ export default function TreinamentosCatalogo() {
             <TableHeader>
               <TableRow>
                 <TableHead>Nome</TableHead>
+                <TableHead>Referência</TableHead>
                 <TableHead>Validade</TableHead>
                 <TableHead>Cargos</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((t: any) => (
+              {filtered.map((t: any) => {
+                const refParts: string[] = [];
+                if (t.reference_standard) refParts.push(t.reference_standard);
+                if (t.reference_document_id) {
+                  const doc = docsMap.get(t.reference_document_id);
+                  if (doc) refParts.push(doc.code ? `${doc.code}` : doc.title);
+                }
+                return (
                 <TableRow key={t.id}>
                   <TableCell className="font-medium">{t.name}</TableCell>
+                  <TableCell className="text-muted-foreground text-sm">{refParts.length > 0 ? refParts.join(" · ") : "—"}</TableCell>
                   <TableCell>{t.has_expiry === false ? "Sem vencimento" : formatValidityLabel(t.validity_months)}</TableCell>
                   <TableCell>{t.positionCount} cargo{t.positionCount !== 1 ? "s" : ""}</TableCell>
                   <TableCell className="text-right space-x-1">

@@ -31,12 +31,16 @@ export default function InspecoesModelos() {
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [historyModel, setHistoryModel] = useState<any>(null);
 
-  // Fetch employees for dropdown
+  // Fetch employees and sectors for dropdown
   const [employees, setEmployees] = useState<any[]>([]);
+  const [sectors, setSectors] = useState<any[]>([]);
   useState(() => {
     if (company?.id) {
       supabase.from("employees").select("id, name").eq("company_id", company.id).eq("status", "active").order("name").then(({ data }) => {
         if (data) setEmployees(data);
+      });
+      supabase.from("sectors").select("id, name").eq("company_id", company.id).order("name").then(({ data }) => {
+        if (data) setSectors(data);
       });
     }
   });
@@ -91,21 +95,19 @@ export default function InspecoesModelos() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>NR</TableHead>
-                <TableHead>Setor</TableHead>
-                <TableHead>Periodicidade</TableHead>
-                <TableHead>Responsável</TableHead>
-                <TableHead>Doc.</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
+                 <TableHead>Nome</TableHead>
+                 <TableHead>Setor</TableHead>
+                 <TableHead>Periodicidade</TableHead>
+                 <TableHead>Responsável</TableHead>
+                 <TableHead>Doc.</TableHead>
+                 <TableHead>Status</TableHead>
+                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filtered.map((m: any) => (
                 <TableRow key={m.id}>
                   <TableCell className="font-medium">{m.name}</TableCell>
-                  <TableCell>{m.related_nr ? <Badge variant="outline" className="text-xs">{m.related_nr}</Badge> : "—"}</TableCell>
                   <TableCell className="text-sm">{m.sectors?.name || "—"}</TableCell>
                   <TableCell className="text-sm">{getFrequencyLabel(m.frequency_type, m.frequency_days)}</TableCell>
                   <TableCell className="text-sm">{m.default_responsible?.name || "—"}</TableCell>
@@ -148,7 +150,7 @@ export default function InspecoesModelos() {
         </div>
       )}
 
-      <InspectionModelDrawer open={drawerOpen} onOpenChange={setDrawerOpen} editing={editing} employees={employees} />
+      <InspectionModelDrawer open={drawerOpen} onOpenChange={setDrawerOpen} editing={editing} employees={employees} sectors={sectors} />
       <ModelHistoryDrawer open={!!historyModel} onOpenChange={(v) => !v && setHistoryModel(null)} model={historyModel} />
       <ConfirmDialog
         open={!!deleteTarget}

@@ -16,15 +16,17 @@ interface Props {
   onOpenChange: (v: boolean) => void;
   editing: any | null;
   employees: any[];
+  sectors: any[];
 }
 
-export function InspectionModelDrawer({ open, onOpenChange, editing, employees }: Props) {
+export function InspectionModelDrawer({ open, onOpenChange, editing, employees, sectors }: Props) {
   const { company } = useAuth();
   const saveModel = useSaveInspectionModel();
   const { data: allDocs = [] } = useDocuments();
   const activeDocs = allDocs.filter((d: any) => d.status === "active");
 
   const [name, setName] = useState("");
+  const [sectorId, setSectorId] = useState("");
   const [frequencyType, setFrequencyType] = useState("daily");
   const [frequencyDays, setFrequencyDays] = useState<number>(7);
   const [responsibleId, setResponsibleId] = useState("");
@@ -35,6 +37,7 @@ export function InspectionModelDrawer({ open, onOpenChange, editing, employees }
   const resetForm = () => {
     if (editing) {
       setName(editing.name || "");
+      setSectorId(editing.sector_id || "");
       setFrequencyType(editing.frequency_type || "daily");
       setFrequencyDays(editing.frequency_days || 7);
       setResponsibleId(editing.default_responsible_id || "");
@@ -43,6 +46,7 @@ export function InspectionModelDrawer({ open, onOpenChange, editing, employees }
       setIsActive(editing.status === "active");
     } else {
       setName("");
+      setSectorId("");
       setFrequencyType("daily");
       setFrequencyDays(7);
       setResponsibleId("");
@@ -62,6 +66,7 @@ export function InspectionModelDrawer({ open, onOpenChange, editing, employees }
     await saveModel.mutateAsync({
       id: editing?.id,
       name: name.trim(),
+      sector_id: sectorId || null,
       frequency_type: frequencyType,
       frequency_days: frequencyType === "custom" ? frequencyDays : null,
       default_responsible_id: responsibleId || null,
@@ -88,6 +93,20 @@ export function InspectionModelDrawer({ open, onOpenChange, editing, employees }
             <div className="space-y-2">
               <Label>Nome da inspeção *</Label>
               <Input placeholder="Ex: Inspeção Diária de EPIs" value={name} onChange={(e) => setName(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label>Setor / Área</Label>
+              <Select value={sectorId || "__none__"} onValueChange={(v) => setSectorId(v === "__none__" ? "" : v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o setor..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">Nenhum</SelectItem>
+                  {sectors.map((s: any) => (
+                    <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </section>
 

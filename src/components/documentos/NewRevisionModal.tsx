@@ -48,6 +48,7 @@ export function NewRevisionModal({ open, onOpenChange, document: doc }: Props) {
       revision_date: format(revDate, "yyyy-MM-dd"),
       file,
       notes: notes || null,
+      revision_frequency_days: doc.has_revision_cycle ? doc.revision_frequency_days : null,
     });
     onOpenChange(false);
   };

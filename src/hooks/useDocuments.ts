@@ -9,7 +9,6 @@ export function useDocumentTypes() {
     queryKey: ["document-types", company?.id],
     queryFn: async () => {
       if (!company) return [];
-      // Seed defaults for existing companies
       try {
         await supabase.rpc("seed_default_document_types", { p_company_id: company.id });
       } catch (e) {
@@ -111,6 +110,9 @@ export function useSaveDocument() {
       revision_date: string;
       revision_notes: string | null;
       file?: File | null;
+      has_revision_cycle?: boolean;
+      revision_frequency_days?: number | null;
+      next_revision_at?: string | null;
     }) => {
       if (!company || !profile) throw new Error("Sem empresa");
 
@@ -126,6 +128,9 @@ export function useSaveDocument() {
         area: values.area || null,
         status: values.status,
         updated_at: new Date().toISOString(),
+        has_revision_cycle: values.has_revision_cycle ?? false,
+        revision_frequency_days: values.revision_frequency_days ?? null,
+        next_revision_at: values.next_revision_at ?? null,
       };
 
       if (isNew) {
@@ -197,6 +202,7 @@ export function useNewRevision() {
       revision_date: string;
       file: File;
       notes: string | null;
+      revision_frequency_days?: number | null;
     }) => {
       if (!company || !profile) throw new Error("Sem empresa");
 
@@ -218,13 +224,22 @@ export function useNewRevision() {
       });
       if (insErr) throw insErr;
 
-      const { error: updErr } = await supabase.from("documents").update({
+      // Recalculate next_revision_at if document has a cycle
+      const updatePayload: any = {
         current_revision: values.revision_number,
         current_revision_date: values.revision_date,
         current_file_url: path,
         current_file_name: values.file.name,
         updated_at: new Date().toISOString(),
-      }).eq("id", values.documentId);
+      };
+
+      if (values.revision_frequency_days) {
+        const nextDate = new Date(values.revision_date);
+        nextDate.setDate(nextDate.getDate() + values.revision_frequency_days);
+        updatePayload.next_revision_at = nextDate.toISOString().split("T")[0];
+      }
+
+      const { error: updErr } = await supabase.from("documents").update(updatePayload).eq("id", values.documentId);
       if (updErr) throw updErr;
 
       return values.revision_number;
@@ -246,7 +261,6 @@ export function useDeleteDocument() {
 
   return useMutation({
     mutationFn: async (doc: { id: string; company_id: string }) => {
-      // Remove storage files
       const prefixPath = `${doc.company_id}/${doc.id}`;
       const { data: files } = await supabase.storage.from("documents-library").list(prefixPath, { limit: 100 });
       if (files?.length) {
@@ -263,7 +277,6 @@ export function useDeleteDocument() {
         }
       }
 
-      // CASCADE handles revisions and service links
       const { error } = await supabase.from("documents").delete().eq("id", doc.id);
       if (error) throw error;
     },

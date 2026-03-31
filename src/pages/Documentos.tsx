@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDocuments, useDocumentTypes, useDeleteDocument } from "@/hooks/useDocuments";
-import { getDocStatusBadgeInfo, formatDateBR } from "@/lib/documents";
+import { getDocStatusBadgeInfo, formatDateBR, getRevisionCycleStatus, getRevisionCycleBadgeInfo } from "@/lib/documents";
 import { DocumentKpiCards } from "@/components/documentos/DocumentKpiCards";
 import { DocumentFilters } from "@/components/documentos/DocumentFilters";
 import { DocumentDrawer } from "@/components/documentos/DocumentDrawer";
@@ -45,12 +45,15 @@ export default function Documentos() {
   }, [documents]);
 
   const counts = useMemo(() => {
-    const c = { active: 0, under_review: 0, obsolete: 0 };
-    documents.forEach((d: any) => { c[d.status as keyof typeof c]++; });
+    const c = { active: 0, under_review: 0, obsolete: 0, revision_overdue: 0 };
+    documents.forEach((d: any) => {
+      c[d.status as keyof typeof c]++;
+      if (getRevisionCycleStatus(d) === "overdue") c.revision_overdue++;
+    });
     return c;
   }, [documents]);
 
-  const activeStatus = kpiFilter || (statusFilter !== "all" ? statusFilter : null);
+  const activeStatus = kpiFilter === "revision_overdue" ? null : (kpiFilter || (statusFilter !== "all" ? statusFilter : null));
 
   const filtered = useMemo(() => {
     let result = documents;
@@ -64,9 +67,10 @@ export default function Documentos() {
     }
     if (typeFilter !== "all") result = result.filter((d: any) => d.document_type_id === typeFilter);
     if (activeStatus) result = result.filter((d: any) => d.status === activeStatus);
+    if (kpiFilter === "revision_overdue") result = result.filter((d: any) => getRevisionCycleStatus(d) === "overdue");
     if (areaFilter !== "all") result = result.filter((d: any) => d.area === areaFilter);
     return result;
-  }, [documents, search, typeFilter, activeStatus, areaFilter]);
+  }, [documents, search, typeFilter, activeStatus, kpiFilter, areaFilter]);
 
   const handleKpiClick = (status: string | null) => {
     setKpiFilter(status);
@@ -88,6 +92,7 @@ export default function Documentos() {
         active={counts.active}
         underReview={counts.under_review}
         obsolete={counts.obsolete}
+        revisionOverdue={counts.revision_overdue}
         activeFilter={kpiFilter}
         onFilterClick={handleKpiClick}
       />
@@ -132,6 +137,7 @@ export default function Documentos() {
                 <TableHead>Responsável</TableHead>
                 <TableHead>Revisão</TableHead>
                 <TableHead>Data emissão</TableHead>
+                <TableHead>Próxima revisão</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
@@ -139,6 +145,8 @@ export default function Documentos() {
             <TableBody>
               {filtered.map((d: any) => {
                 const statusInfo = getDocStatusBadgeInfo(d.status);
+                const revCycleStatus = getRevisionCycleStatus(d);
+                const revCycleBadge = getRevisionCycleBadgeInfo(revCycleStatus);
                 return (
                   <TableRow key={d.id}>
                     <TableCell className="text-xs text-muted-foreground font-mono">{d.code || "—"}</TableCell>
@@ -155,6 +163,20 @@ export default function Documentos() {
                     <TableCell className="text-sm">{d.responsible || "—"}</TableCell>
                     <TableCell className="text-sm font-mono">{d.current_revision}</TableCell>
                     <TableCell className="text-sm tabular-nums">{formatDateBR(d.current_revision_date)}</TableCell>
+                    <TableCell className="text-sm tabular-nums">
+                      {d.has_revision_cycle && d.next_revision_at ? (
+                        <div className="flex items-center gap-1.5">
+                          <span>{formatDateBR(d.next_revision_at)}</span>
+                          {revCycleBadge && (
+                            <Badge variant="outline" className={`text-[10px] ${revCycleBadge.className}`}>
+                              {revCycleBadge.label}
+                            </Badge>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <Badge variant="outline" className={`text-[10px] ${statusInfo.className}`}>{statusInfo.label}</Badge>
                     </TableCell>

@@ -137,6 +137,7 @@ export default function Documentos() {
                 <TableHead>Responsável</TableHead>
                 <TableHead>Revisão</TableHead>
                 <TableHead>Data emissão</TableHead>
+                <TableHead>Próxima revisão</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>

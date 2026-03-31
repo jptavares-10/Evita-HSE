@@ -116,7 +116,7 @@ export function useInspectionExecutions() {
       if (!company) return [];
       const { data, error } = await supabase
         .from("inspection_executions")
-        .select("*, inspection_models(id, name, related_nr, sector_id, frequency_type, frequency_days, default_responsible_id, document_id, sectors(id, name), profiles:default_responsible_id(id, full_name), documents:document_id(id, code, title, current_file_url, current_file_name))")
+        .select("*, inspection_models(id, name, related_nr, sector_id, frequency_type, frequency_days, default_responsible_id, document_id, sectors(id, name), default_responsible:profiles!inspection_models_default_responsible_id_fkey(id, full_name), linked_document:documents!inspection_models_document_id_fkey(id, code, title, current_file_url, current_file_name))")
         .order("due_date", { ascending: true });
       if (error) throw error;
       return data ?? [];

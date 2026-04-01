@@ -430,9 +430,8 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-          </div>
-        </div>
-      </section>
+
+
 
       {/* ── DEPOIMENTOS ─────────────────────────────── */}
       <section className="py-24 px-[5%]" style={{ background: "linear-gradient(135deg, hsl(214 100% 97%) 0%, hsl(214 95% 93%) 100%)" }}>

@@ -115,7 +115,9 @@ export function MtrDetailDrawer({ open, onOpenChange, mtr, onEdit }: Props) {
               <User className="h-3.5 w-3.5" />Registrado por {mtr.profiles?.full_name || "—"} em {formatDateBR(mtr.created_at?.split("T")[0])}
             </div>
 
-            <Button variant="outline" className="w-full" onClick={onEdit}><Edit className="h-4 w-4 mr-2" />Editar MTR</Button>
+            {canEdit && (
+              <Button variant="outline" className="w-full" onClick={onEdit}><Edit className="h-4 w-4 mr-2" />Editar MTR</Button>
+            )}
           </TabsContent>
 
           <TabsContent value="history" className="mt-4 space-y-4">

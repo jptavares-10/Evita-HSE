@@ -139,14 +139,16 @@ export function DocumentDetailDrawer({ open, onOpenChange, document: doc, onEdit
               Registrado por {doc.profiles?.full_name || "—"} em {formatDateBR(doc.created_at)}
             </p>
 
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={onEdit} className="flex-1" disabled={isExpired}>
-                <Pencil className="h-4 w-4 mr-2" />Editar documento
-              </Button>
-              <Button variant="outline" onClick={onNewRevision} className="flex-1" disabled={isExpired}>
-                <FileText className="h-4 w-4 mr-2" />Nova revisão
-              </Button>
-            </div>
+            {canEdit && (
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={onEdit} className="flex-1" disabled={isExpired}>
+                  <Pencil className="h-4 w-4 mr-2" />Editar documento
+                </Button>
+                <Button variant="outline" onClick={onNewRevision} className="flex-1" disabled={isExpired}>
+                  <FileText className="h-4 w-4 mr-2" />Nova revisão
+                </Button>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="history" className="flex-1 overflow-y-auto px-6 pb-6 mt-4">

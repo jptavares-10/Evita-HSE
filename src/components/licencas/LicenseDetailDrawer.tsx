@@ -105,30 +105,32 @@ export function LicenseDetailDrawer({ open, onOpenChange, license, onEdit, onRen
               </p>
             )}
 
-            <div className="flex gap-2 pt-2">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div>
-                    <Button variant="outline" onClick={onEdit} disabled={isExpired}>
-                      <Pencil className="h-4 w-4 mr-1" />Editar licença
-                    </Button>
-                  </div>
-                </TooltipTrigger>
-                {isExpired && <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>}
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div>
-                    <Button onClick={onRenew} disabled={isPermanent || isExpired}>
-                      <RotateCw className="h-4 w-4 mr-1" />Registrar renovação
-                    </Button>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {isExpired ? "Seu plano expirou." : isPermanent ? "Licença permanente" : "Registrar nova renovação"}
-                </TooltipContent>
-              </Tooltip>
-            </div>
+            {canEdit && (
+              <div className="flex gap-2 pt-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <Button variant="outline" onClick={onEdit} disabled={isExpired}>
+                        <Pencil className="h-4 w-4 mr-1" />Editar licença
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  {isExpired && <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>}
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <Button onClick={onRenew} disabled={isPermanent || isExpired}>
+                        <RotateCw className="h-4 w-4 mr-1" />Registrar renovação
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {isExpired ? "Seu plano expirou." : isPermanent ? "Licença permanente" : "Registrar nova renovação"}
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="history" className="mt-4">

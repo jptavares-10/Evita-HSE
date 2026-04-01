@@ -293,16 +293,18 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
                               ) : (
                                 <p className="text-muted-foreground/60 italic flex-1">Nenhuma observação registrada</p>
                               )}
-                              <button
-                                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-muted mt-0.5"
-                                onClick={() => {
-                                  setEditingNoteId(h.id);
-                                  setEditingNoteText(h.notes || "");
-                                }}
-                                title="Editar observação"
-                              >
-                                <Pencil className="h-3 w-3 text-muted-foreground" />
-                              </button>
+                              {canEdit && (
+                                <button
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-muted mt-0.5"
+                                  onClick={() => {
+                                    setEditingNoteId(h.id);
+                                    setEditingNoteText(h.notes || "");
+                                  }}
+                                  title="Editar observação"
+                                >
+                                  <Pencil className="h-3 w-3 text-muted-foreground" />
+                                </button>
+                              )}
                             </div>
                           )}
 

@@ -281,7 +281,7 @@ export default function FornecedorDocumentos() {
   );
 }
 
-function SupplierDocRow({ doc, planExpired, onDelete }: { doc: any; planExpired: boolean; onDelete: () => void }) {
+function SupplierDocRow({ doc, planExpired, onDelete, canEdit }: { doc: any; planExpired: boolean; onDelete: () => void; canEdit: boolean }) {
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
   useEffect(() => {
     let cancelled = false;
@@ -308,7 +308,7 @@ function SupplierDocRow({ doc, planExpired, onDelete }: { doc: any; planExpired:
         <a href={signedUrl || "#"} download={doc.file_name}>
           <Button variant="ghost" size="icon" className="h-8 w-8"><Download className="h-4 w-4" /></Button>
         </a>
-        {!planExpired && (
+        {canEdit && !planExpired && (
           <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={onDelete}>
             <Trash2 className="h-4 w-4" />
           </Button>

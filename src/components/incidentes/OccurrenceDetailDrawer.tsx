@@ -227,23 +227,25 @@ export function OccurrenceDetailDrawer({ open, onOpenChange, occurrence, onEdit,
                           )}
                         </div>
                       )}
-                      <div className="flex gap-1.5">
-                        {action.status === "pending" && (
-                          <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => updateAction.mutate({ actionId: action.id, occurrenceId: occurrence.id, newStatus: "in_progress" })} disabled={planExpired}>
-                            <Play className="h-3 w-3 mr-1" />Iniciar
-                          </Button>
-                        )}
-                        {(action.status === "pending" || action.status === "in_progress") && (
-                          <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setCompleteActionId(action.id)} disabled={planExpired}>
-                            <CheckCircle2 className="h-3 w-3 mr-1" />Concluir
-                          </Button>
-                        )}
-                        {action.status !== "completed" && (
-                          <Button size="sm" variant="ghost" className="h-7 text-xs text-destructive" onClick={() => deleteAction.mutate({ actionId: action.id, occurrenceId: occurrence.id })} disabled={planExpired}>
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        )}
-                      </div>
+                      {canEdit && (
+                        <div className="flex gap-1.5">
+                          {action.status === "pending" && (
+                            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => updateAction.mutate({ actionId: action.id, occurrenceId: occurrence.id, newStatus: "in_progress" })} disabled={planExpired}>
+                              <Play className="h-3 w-3 mr-1" />Iniciar
+                            </Button>
+                          )}
+                          {(action.status === "pending" || action.status === "in_progress") && (
+                            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setCompleteActionId(action.id)} disabled={planExpired}>
+                              <CheckCircle2 className="h-3 w-3 mr-1" />Concluir
+                            </Button>
+                          )}
+                          {action.status !== "completed" && (
+                            <Button size="sm" variant="ghost" className="h-7 text-xs text-destructive" onClick={() => deleteAction.mutate({ actionId: action.id, occurrenceId: occurrence.id })} disabled={planExpired}>
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })}

@@ -74,6 +74,7 @@ export default function Fornecedores() {
           <h1 className="text-2xl font-bold text-foreground">Fornecedores</h1>
           <p className="text-muted-foreground text-sm mt-1">Gerencie seus fornecedores e documentos</p>
         </div>
+        {!canEdit && <ViewerBadge />}
       </div>
 
       <SupplierKpiCards suppliers={suppliers} docCounts={docCounts} />

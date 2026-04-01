@@ -78,7 +78,7 @@ export default function TreinamentosMatriz() {
                       <Checkbox
                         checked={checked}
                         onCheckedChange={() => handleToggle(p.id, t.id)}
-                        disabled={isExpired}
+                        disabled={isDisabled}
                       />
                     </td>
                   );

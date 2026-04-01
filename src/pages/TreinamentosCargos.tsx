@@ -288,7 +288,7 @@ export default function TreinamentosCargos() {
                               </Button>
                             </span>
                           </TooltipTrigger>
-                          {isExpired && <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>}
+                          {isDisabled && <TooltipContent>Sem permissão de edição.</TooltipContent>}
                         </Tooltip>
                       </div>
                     )}

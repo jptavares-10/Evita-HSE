@@ -81,11 +81,11 @@ export default function TreinamentosColaboradores() {
   };
 
   const ActionButton = ({ children, onClick, ...props }: any) => {
-    if (isExpired) {
+    if (isDisabled) {
       return (
         <Tooltip>
           <TooltipTrigger asChild><span><Button disabled {...props}>{children}</Button></span></TooltipTrigger>
-          <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>
+          <TooltipContent>{!canEdit ? "Você tem acesso somente leitura neste módulo." : "Seu plano expirou. Faça upgrade para continuar."}</TooltipContent>
         </Tooltip>
       );
     }

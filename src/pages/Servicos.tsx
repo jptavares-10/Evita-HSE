@@ -115,9 +115,12 @@ export default function Servicos() {
 
   return (
     <div className="space-y-6 animate-fade-up">
-      <div>
-        <h1 className="text-2xl font-bold">Serviços Periódicos</h1>
-        <p className="text-muted-foreground text-sm mt-1">Gerencie seus serviços, vencimentos e histórico.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Serviços Periódicos</h1>
+          <p className="text-muted-foreground text-sm mt-1">Gerencie seus serviços, vencimentos e histórico.</p>
+        </div>
+        {!canEdit && <ViewerBadge />}
       </div>
 
       <KpiCards

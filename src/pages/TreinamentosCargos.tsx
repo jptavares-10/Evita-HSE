@@ -27,6 +27,8 @@ export default function TreinamentosCargos() {
   const { toast } = useToast();
   const qc = useQueryClient();
   const isExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("trainings");
+  const isDisabled = isExpired || !canEdit;
 
   const [newSectorName, setNewSectorName] = useState("");
 

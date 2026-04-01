@@ -25,6 +25,8 @@ export default function InspecaoDetalhe() {
   const navigate = useNavigate();
   const { company, profile } = useAuth();
   const isExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("inspections");
+  const isDisabled = !!isExpired || !canEdit;
 
   const { data: execution, isLoading } = useInspectionExecution(id ?? null);
   const { data: entries = [] } = useInspectionEntries(id ?? null);

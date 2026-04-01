@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { formatDateBR, getCdfStatusInfo, formatTons } from "@/lib/mtr";
 import { Download, Edit, FileText, User, Calendar } from "lucide-react";
 import { useSignedUrls } from "@/hooks/useSignedUrl";
+import { usePermission } from "@/hooks/usePermission";
 
 interface Props {
   open: boolean;

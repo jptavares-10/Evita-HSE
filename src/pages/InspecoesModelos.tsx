@@ -20,6 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function InspecoesModelos() {
+  const navigate = useNavigate();
   const { company } = useAuth();
   const { data: models = [], isLoading } = useInspectionModels();
   const deleteModel = useDeleteInspectionModel();

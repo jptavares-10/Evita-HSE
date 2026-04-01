@@ -18,6 +18,7 @@ import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding"
 import { useNavigate } from "react-router-dom";
 
 export default function Aso() {
+  const navigate = useNavigate();
   usePageTitle("ASO — Evita HSE");
 
   const { data: records = [], isLoading } = useAsoRecords();

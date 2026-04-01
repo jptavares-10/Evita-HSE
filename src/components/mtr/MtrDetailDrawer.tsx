@@ -16,6 +16,7 @@ interface Props {
 }
 
 export function MtrDetailDrawer({ open, onOpenChange, mtr, onEdit }: Props) {
+  const { canEdit } = usePermission("mtr");
   const fileUrls = useMemo(() => {
     if (!mtr) return [];
     return [mtr.mtr_file_url, mtr.cdf_file_url].filter(Boolean);

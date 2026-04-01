@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from "@/components/ui/drawer";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,12 +39,17 @@ export function EmployeeDrawer({ open, onOpenChange, employee }: Props) {
   };
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange} direction="right">
-      <DrawerContent className="fixed right-0 top-0 bottom-0 w-full max-w-md rounded-none border-l flex flex-col my-0 mt-0 ml-[850px]">
-        <DrawerHeader><DrawerTitle>{employee ? "Editar colaborador" : "Novo colaborador"}</DrawerTitle></DrawerHeader>
-        <div className="flex-1 overflow-y-auto px-6 space-y-4">
-          <div><Label>Nome completo *</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>
-          <div>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="sm:max-w-md flex flex-col p-0">
+        <SheetHeader className="px-6 pt-6 pb-2">
+          <SheetTitle>{employee ? "Editar colaborador" : "Novo colaborador"}</SheetTitle>
+        </SheetHeader>
+        <div className="flex-1 overflow-y-auto px-6 space-y-4 py-4">
+          <div className="space-y-1.5">
+            <Label>Nome completo *</Label>
+            <Input value={name} onChange={(e) => setName(e.target.value)} />
+          </div>
+          <div className="space-y-1.5">
             <Label>Cargo *</Label>
             <Select value={positionId} onValueChange={setPositionId}>
               <SelectTrigger><SelectValue placeholder="Selecione o cargo" /></SelectTrigger>
@@ -54,10 +59,10 @@ export function EmployeeDrawer({ open, onOpenChange, employee }: Props) {
             </Select>
           </div>
           {sectorName && (
-            <div>
+            <div className="space-y-1.5">
               <Label>Setor</Label>
               <Input value={sectorName} disabled className="bg-muted" />
-              <p className="text-xs text-muted-foreground mt-1">Definido pelo cargo selecionado</p>
+              <p className="text-xs text-muted-foreground">Definido pelo cargo selecionado</p>
             </div>
           )}
           <div className="flex items-center gap-3">
@@ -65,11 +70,11 @@ export function EmployeeDrawer({ open, onOpenChange, employee }: Props) {
             <Label>{active ? "Ativo" : "Inativo"}</Label>
           </div>
         </div>
-        <DrawerFooter className="flex-row gap-2">
+        <SheetFooter className="px-6 pb-6 pt-2 flex-row gap-2 sm:flex-row">
           <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>Cancelar</Button>
           <Button className="flex-1" onClick={handleSave} disabled={!name.trim() || !positionId || save.isPending}>Salvar</Button>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 }

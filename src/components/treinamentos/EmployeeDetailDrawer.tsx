@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -79,43 +79,45 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
 
   return (
     <>
-      <Drawer open={!!employee} onOpenChange={(v) => !v && onClose()} direction="right">
-        <DrawerContent className="fixed right-0 top-0 bottom-0 w-full max-w-lg rounded-none border-l flex flex-col mt-[96px] ml-[800px]">
-          <DrawerHeader className="flex items-center justify-between">
-            <div>
-              <DrawerTitle>{employee?.name}</DrawerTitle>
-              <p className="text-sm text-muted-foreground">{employee?.job_positions?.name} {employee?.job_positions?.sectors?.name ? `· ${employee.job_positions.sectors.name}` : ""}</p>
+      <Sheet open={!!employee} onOpenChange={(v) => !v && onClose()}>
+        <SheetContent side="right" className="sm:max-w-lg flex flex-col p-0">
+          <SheetHeader className="px-6 pt-6 pb-2">
+            <div className="flex items-center justify-between pr-8">
+              <div>
+                <SheetTitle>{employee?.name}</SheetTitle>
+                <p className="text-sm text-muted-foreground">{employee?.job_positions?.name} {employee?.job_positions?.sectors?.name ? `· ${employee.job_positions.sectors.name}` : ""}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <ActionBtn variant="outline" onClick={() => onEdit(employee)}><Pencil className="h-3.5 w-3.5 mr-1" />Editar</ActionBtn>
+                <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="text-destructive border-destructive/30 hover:bg-destructive/10" disabled={isExpired}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Excluir colaborador?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        O colaborador <strong>{employee?.name}</strong> e todos os seus registros de treinamento serão excluídos permanentemente.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        onClick={() => {
+                          deleteEmployee.mutate(employee.id, {
+                            onSuccess: () => { setDeleteOpen(false); onClose(); },
+                          });
+                        }}
+                      >Excluir</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <ActionBtn variant="outline" onClick={() => onEdit(employee)}><Pencil className="h-3.5 w-3.5 mr-1" />Editar</ActionBtn>
-              <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-                <AlertDialogTrigger asChild>
-                  <Button variant="outline" size="sm" className="text-destructive border-destructive/30 hover:bg-destructive/10" disabled={isExpired}>
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Excluir colaborador?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      O colaborador <strong>{employee?.name}</strong> e todos os seus registros de treinamento serão excluídos permanentemente.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                      onClick={() => {
-                        deleteEmployee.mutate(employee.id, {
-                          onSuccess: () => { setDeleteOpen(false); onClose(); },
-                        });
-                      }}
-                    >Excluir</AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          </DrawerHeader>
+          </SheetHeader>
 
           <Tabs defaultValue="trainings" className="flex-1 flex flex-col overflow-hidden">
             <TabsList className="mx-6">
@@ -185,7 +187,6 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
 
               <div className="pt-2">
                 <ActionBtn variant="outline" onClick={() => {
-                  // Open cert modal with a picker — simplified: use first available training
                   const available = trainings.filter((t: any) => !requiredTrainingIds.includes(t.id) && !extraRecordTrainingIds.includes(t.id));
                   if (available.length > 0) {
                    setCertModal({ trainingId: available[0].id, trainingName: available[0].name, validityMonths: available[0].validity_months, hasExpiry: available[0].has_expiry !== false });
@@ -220,8 +221,8 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
               )}
             </TabsContent>
           </Tabs>
-        </DrawerContent>
-      </Drawer>
+        </SheetContent>
+      </Sheet>
 
       {certModal && employee && (
         <RegisterCertificateModal

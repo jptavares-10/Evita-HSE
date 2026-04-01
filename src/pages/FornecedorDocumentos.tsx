@@ -24,6 +24,7 @@ export default function FornecedorDocumentos() {
   const isAdmin = profile?.role === "admin";
   const { toast } = useToast();
   const planExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("suppliers");
 
   const { data: suppliers = [] } = useSuppliers();
   const supplier = suppliers.find((s: any) => s.id === supplierId);

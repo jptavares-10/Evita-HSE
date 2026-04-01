@@ -25,8 +25,9 @@ export default function Documentos() {
   const { company } = useAuth();
   const { data: documents = [], isLoading } = useDocuments();
   const { data: types = [] } = useDocumentTypes();
-  const deleteDocument = useDeleteDocument();
   const isExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("document_library");
+  const isDisabled = isExpired || !canEdit;
 
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");

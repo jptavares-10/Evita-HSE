@@ -18,6 +18,7 @@ export default function EpiCatalogo() {
   const { data: epiTypes = [], isLoading } = useEpiTypes();
   const { data: stock = {} } = useEpiStock();
   const deleteEpi = useDeleteEpiType();
+  const { canEdit } = usePermission("epi");
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editData, setEditData] = useState<any>(null);

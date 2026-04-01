@@ -7,6 +7,7 @@ import { FileText, Download, ExternalLink, Calendar, Clock, User, Pencil, Rotate
 import { computeLicenseStatus, getStatusBadgeInfo, getSphereBadgeInfo, getDaysRemainingInfo, formatDateBR, formatDateTimeBR } from "@/lib/licenses";
 import { useLicenseRenewals } from "@/hooks/useLicenses";
 import { useSignedUrl } from "@/hooks/useSignedUrl";
+import { usePermission } from "@/hooks/usePermission";
 
 interface Props {
   open: boolean;

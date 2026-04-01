@@ -119,7 +119,7 @@ export default function Documentos() {
           description="Organize seus documentos técnicos, controle revisões e vínculos."
           icon={FileTextIcon}
           steps={[
-            { title: "Criar tipos de documento", description: "Defina categorias como Procedimento, Instrução, Manual", icon: Tags, actionLabel: "Criar tipos", action: () => setTypesModalOpen(true), completed: types.length > 0 },
+            { title: "Criar tipos de documento", description: "Defina categorias como Procedimento, Instrução, Manual", icon: Tags, actionLabel: "Criar tipos", action: () => setTypesModalOpen(true), completed: types.some((t: any) => !t.is_default) },
             { title: "Cadastrar primeiro documento", description: "Registre título, revisão e arquivo do documento", icon: Plus, actionLabel: "Cadastrar", action: openNew, completed: false },
           ] as OnboardingStep[]}
         />

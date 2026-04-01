@@ -108,7 +108,7 @@ export default function Aso() {
         icon={Stethoscope}
         steps={[
           { title: "Cadastrar colaboradores", description: "Necessário para vincular exames ocupacionais", icon: Users, actionLabel: "Ir para colaboradores", action: () => navigate("/treinamentos/colaboradores"), completed: false },
-          { title: "Configurar tipos de exame", description: "Defina admissional, periódico, demissional, etc.", icon: Tags, actionLabel: "Configurar", action: () => setTypesOpen(true), completed: examTypes.length > 0 },
+          { title: "Configurar tipos de exame", description: "Defina admissional, periódico, demissional, etc.", icon: Tags, actionLabel: "Configurar", action: () => setTypesOpen(true), completed: examTypes.some((t: any) => !t.is_default) },
           { title: "Registrar primeiro ASO", description: "Vincule um exame a um colaborador com data e vencimento", icon: Plus, actionLabel: "Registrar", action: () => { setEditRecord(null); setSelectedEmployee(null); setDrawerOpen(true); }, completed: false },
         ] as OnboardingStep[]}
       />

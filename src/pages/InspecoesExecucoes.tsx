@@ -14,6 +14,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Eye, Plus, Search, ClipboardCheck } from "lucide-react";
 import { startOfWeek, endOfWeek, parseISO, isWithinInterval, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { TableSkeleton } from "@/components/TableSkeleton";
 
 export default function InspecoesExecucoes() {
   const { company } = useAuth();

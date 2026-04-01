@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Shield, Calendar, GraduationCap, FileText, Users, AlertTriangle, Recycle, ChevronDown, Check, Menu, X, ArrowRight } from "lucide-react";
+import { Shield, Calendar, GraduationCap, FileText, Users, AlertTriangle, Recycle, ChevronDown, Check, Menu, X, ArrowRight, ClipboardCheck, HardHat, Stethoscope, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect, useRef } from "react";
 
@@ -40,11 +40,15 @@ const steps = [
 
 const modules = [
   { icon: Calendar, tag: "Segurança", tagColor: "bg-red-50 text-red-700", accent: "bg-red-500", name: "Serviços Periódicos", desc: "Controle extintores, limpeza de cisterna, dedetização e qualquer serviço recorrente com alertas configuráveis." },
-  { icon: GraduationCap, tag: "Saúde", tagColor: "bg-amber-50 text-amber-700", accent: "bg-amber-500", name: "Treinamentos", desc: "Matriz por cargo, certificados com validade e dashboard de conformidade. Saiba quem está em dia com as NRs." },
-  { icon: Recycle, tag: "Meio Ambiente", tagColor: "bg-emerald-50 text-emerald-700", accent: "bg-emerald-500", name: "Gestão de MTR", desc: "MTR com prazo de CDF monitorado e alerta automático. Gráficos de geração mensal por categoria de resíduo." },
-  { icon: Users, tag: "Segurança", tagColor: "bg-blue-50 text-blue-700", accent: "bg-blue-500", name: "Portal de Fornecedores", desc: "Link único para o fornecedor enviar documentos. Sem WhatsApp, sem e-mail. Pastas organizadas." },
+  { icon: ClipboardCheck, tag: "Segurança", tagColor: "bg-red-50 text-red-700", accent: "bg-red-500", name: "Inspeções", desc: "Modelos de inspeção com frequência automática. Execuções, registros fotográficos e ações corretivas rastreáveis." },
   { icon: AlertTriangle, tag: "Segurança", tagColor: "bg-purple-50 text-purple-700", accent: "bg-purple-500", name: "IC & NC", desc: "Registre incidentes e não conformidades. Plano de ação corretiva com status, evidências e rastreabilidade." },
+  { icon: HardHat, tag: "Segurança", tagColor: "bg-orange-50 text-orange-700", accent: "bg-orange-500", name: "EPIs", desc: "Catálogo com CA, controle de estoque, entregas por colaborador e alertas de vencimento de certificado." },
+  { icon: BookOpen, tag: "Segurança", tagColor: "bg-blue-50 text-blue-700", accent: "bg-blue-500", name: "Biblioteca de Documentos", desc: "Centralize PGR, PCMSO, procedimentos e políticas. Controle de revisões com ciclo automático." },
+  { icon: GraduationCap, tag: "Saúde", tagColor: "bg-amber-50 text-amber-700", accent: "bg-amber-500", name: "Treinamentos", desc: "Matriz por cargo, certificados com validade e dashboard de conformidade. Saiba quem está em dia com as NRs." },
+  { icon: Stethoscope, tag: "Saúde", tagColor: "bg-amber-50 text-amber-700", accent: "bg-amber-500", name: "ASO / Exames", desc: "Registre exames admissionais, periódicos e demissionais. Alerta de vencimento e histórico por colaborador." },
+  { icon: Recycle, tag: "Meio Ambiente", tagColor: "bg-emerald-50 text-emerald-700", accent: "bg-emerald-500", name: "Gestão de MTR", desc: "MTR com prazo de CDF monitorado e alerta automático. Gráficos de geração mensal por categoria de resíduo." },
   { icon: FileText, tag: "Meio Ambiente", tagColor: "bg-cyan-50 text-cyan-700", accent: "bg-cyan-500", name: "Licenças Ambientais", desc: "LO, LI, outorgas e autorizações com histórico de renovações. Alertas de vencimento configuráveis." },
+  { icon: Users, tag: "Meio Ambiente", tagColor: "bg-emerald-50 text-emerald-700", accent: "bg-emerald-500", name: "Portal de Fornecedores", desc: "Link único para o fornecedor enviar documentos. Sem WhatsApp, sem e-mail. Pastas organizadas." },
 ];
 
 const testimonials = [
@@ -177,7 +181,7 @@ export default function LandingPage() {
               <span className="bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">HSE.</span>
             </h1>
             <p className="text-lg text-slate-400 leading-relaxed mb-9 max-w-[480px]">
-              Centralize treinamentos, licenças, MTRs, fornecedores e ocorrências em uma plataforma simples. Nunca mais seja pego de surpresa por uma fiscalização.
+              Centralize treinamentos, inspeções, EPIs, licenças, MTRs, documentos e fornecedores em uma plataforma simples. Nunca mais seja pego de surpresa por uma fiscalização.
             </p>
             <div className="flex flex-wrap gap-3 mb-10">
               <Link to="/cadastro">
@@ -235,12 +239,25 @@ export default function LandingPage() {
                       <span className="ml-auto bg-red-500 text-white text-[0.5rem] font-bold px-1.5 rounded-full">3</span>
                     </div>
                     <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> Inspeções
+                      <span className="ml-auto bg-red-500 text-white text-[0.5rem] font-bold px-1.5 rounded-full">2</span>
+                    </div>
+                    <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> IC & NC
+                    </div>
+                    <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> EPIs
+                    </div>
+                    <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> Documentos
                     </div>
                     <div className="px-4 mt-2 mb-1 text-[0.5rem] text-white/25 tracking-widest uppercase">Saúde</div>
                     <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> Treinamentos
                       <span className="ml-auto bg-red-500 text-white text-[0.5rem] font-bold px-1.5 rounded-full">5</span>
+                    </div>
+                    <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> ASO
                     </div>
                     <div className="px-4 mt-2 mb-1 text-[0.5rem] text-white/25 tracking-widest uppercase">Meio Amb.</div>
                     <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
@@ -249,6 +266,9 @@ export default function LandingPage() {
                     </div>
                     <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> Licenças
+                    </div>
+                    <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> Fornecedores
                     </div>
                   </div>
                   {/* Main */}
@@ -379,7 +399,7 @@ export default function LandingPage() {
           <Reveal>
             <span className="text-[0.72rem] font-bold tracking-[0.12em] uppercase text-primary mb-4 block">Módulos</span>
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight mb-4">Tudo que sua operação<br />HSE precisa</h2>
-            <p className="text-lg text-muted-foreground leading-relaxed max-w-[560px]">Seis módulos integrados em uma plataforma. Cada um resolve uma dor específica do dia a dia.</p>
+            <p className="text-lg text-muted-foreground leading-relaxed max-w-[560px]">Dez módulos integrados em uma plataforma. Cada um resolve uma dor específica do dia a dia.</p>
           </Reveal>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-12">
             {modules.map((m, i) => (

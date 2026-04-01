@@ -34,6 +34,7 @@ export default function Servicos() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("next_due_at");
   const [kpiFilter, setKpiFilter] = useState<string | null>(null);
+  const [showInactive, setShowInactive] = useState(false);
 
   // Modals/drawers
   const [drawerOpen, setDrawerOpen] = useState(false);

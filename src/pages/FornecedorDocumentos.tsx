@@ -172,7 +172,7 @@ export default function FornecedorDocumentos() {
             <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
               {selectedFolderId ? folders.find((f: any) => f.id === selectedFolderId)?.name : "Todos os documentos"}
             </h2>
-            {!planExpired && (
+            {canEdit && !planExpired && (
               <Button size="sm" onClick={() => { setUploadFolderId(selectedFolderId || "root"); setUploadOpen(true); }}>
                 <Upload className="h-4 w-4 mr-1" />Enviar documento
               </Button>

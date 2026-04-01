@@ -212,38 +212,44 @@ export default function Licencas() {
                           </TooltipTrigger>
                           <TooltipContent>Ver detalhes</TooltipContent>
                         </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div>
-                              <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isPermanent || !!isExpired} onClick={() => setRenewalLicense(l)}>
-                                <RotateCw className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            {isExpired ? "Seu plano expirou." : isPermanent ? "Licença permanente" : "Registrar renovação"}
-                          </TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div>
-                              <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!!isExpired} onClick={() => openEdit(l)}>
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>{isExpired ? "Seu plano expirou." : "Editar"}</TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" disabled={!!isExpired} onClick={() => setDeleteTarget(l)}>
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>{isExpired ? "Seu plano expirou." : "Excluir"}</TooltipContent>
-                        </Tooltip>
+                        {canEdit && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div>
+                                <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isPermanent || isDisabled} onClick={() => setRenewalLicense(l)}>
+                                  <RotateCw className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              {isDisabled ? "Sem permissão" : isPermanent ? "Licença permanente" : "Registrar renovação"}
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                        {canEdit && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div>
+                                <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isDisabled} onClick={() => openEdit(l)}>
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>Editar</TooltipContent>
+                          </Tooltip>
+                        )}
+                        {canEdit && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" disabled={isDisabled} onClick={() => setDeleteTarget(l)}>
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>Excluir</TooltipContent>
+                          </Tooltip>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

@@ -38,7 +38,10 @@ export default function EpiCatalogo() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Buscar EPI ou CA..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
         </div>
-        <Button onClick={() => { setEditData(null); setDrawerOpen(true); }}><Plus className="h-4 w-4 mr-2" />Novo EPI</Button>
+        <div className="flex items-center gap-2">
+          {!canEdit && <ViewerBadge />}
+          <PermissionButton canEdit={canEdit} onClick={() => { setEditData(null); setDrawerOpen(true); }}><Plus className="h-4 w-4 mr-2" />Novo EPI</PermissionButton>
+        </div>
       </div>
 
       {isLoading ? (

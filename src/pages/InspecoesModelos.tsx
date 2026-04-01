@@ -29,6 +29,8 @@ export default function InspecoesModelos() {
   const saveModel = useSaveInspectionModel();
   const qc = useQueryClient();
   const isExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("inspections");
+  const isDisabled = !!isExpired || !canEdit;
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");

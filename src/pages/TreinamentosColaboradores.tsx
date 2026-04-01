@@ -12,10 +12,15 @@ import { Plus, Search, Upload, Download, Users } from "lucide-react";
 import { EmployeeDrawer } from "@/components/treinamentos/EmployeeDrawer";
 import { EmployeeDetailDrawer } from "@/components/treinamentos/EmployeeDetailDrawer";
 import { ImportEmployeesModal } from "@/components/treinamentos/ImportEmployeesModal";
+import { usePermission } from "@/hooks/usePermission";
+import { PermissionButton } from "@/components/PermissionButton";
+import { ViewerBadge } from "@/components/ViewerBadge";
 
 export default function TreinamentosColaboradores() {
   const { company } = useAuth();
   const isExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("trainings");
+  const isDisabled = isExpired || !canEdit;
   const { data: employees = [] } = useEmployees();
   const { data: positions = [] } = useJobPositions();
   const { data: matrix = [] } = useTrainingMatrix();
@@ -76,11 +81,11 @@ export default function TreinamentosColaboradores() {
   };
 
   const ActionButton = ({ children, onClick, ...props }: any) => {
-    if (isExpired) {
+    if (isDisabled) {
       return (
         <Tooltip>
           <TooltipTrigger asChild><span><Button disabled {...props}>{children}</Button></span></TooltipTrigger>
-          <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>
+          <TooltipContent>{!canEdit ? "Você tem acesso somente leitura neste módulo." : "Seu plano expirou. Faça upgrade para continuar."}</TooltipContent>
         </Tooltip>
       );
     }

@@ -16,11 +16,16 @@ import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding"
 import { getTypeInfo, getSeverityInfo, getStatusInfo, formatDateTimeBR, OCCURRENCE_TYPES, SEVERITY_LEVELS, STATUS_OPTIONS } from "@/lib/occurrences";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { TableSkeleton } from "@/components/TableSkeleton";
+import { usePermission } from "@/hooks/usePermission";
+import { ViewerBadge } from "@/components/ViewerBadge";
+import { PermissionButton } from "@/components/PermissionButton";
 
 export default function Incidentes() {
   usePageTitle("IC & NC — Evita HSE");
   const { company } = useAuth();
   const planExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("ic_nc");
+  const isDisabled = planExpired || !canEdit;
   const { data: occurrences = [], isLoading } = useOccurrences();
   const { data: allActions = [] } = useAllCorrectiveActions();
 
@@ -69,16 +74,12 @@ export default function Incidentes() {
           <h1 className="text-2xl font-bold text-foreground">IC & NC — Incidentes e Não Conformidades</h1>
           <p className="text-muted-foreground text-sm mt-1">Gerencie ocorrências e ações corretivas</p>
         </div>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span>
-              <Button onClick={() => { setEditingOcc(null); setDrawerOpen(true); }} disabled={planExpired}>
-                <Plus className="h-4 w-4 mr-2" />Registrar ocorrência
-              </Button>
-            </span>
-          </TooltipTrigger>
-          {planExpired && <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>}
-        </Tooltip>
+        <div className="flex items-center gap-3">
+          {!canEdit && <ViewerBadge />}
+          <PermissionButton canEdit={canEdit} onClick={() => { setEditingOcc(null); setDrawerOpen(true); }} disabled={isDisabled}>
+            <Plus className="h-4 w-4 mr-2" />Registrar ocorrência
+          </PermissionButton>
+        </div>
       </div>
 
       <OccurrenceKpiCards occurrences={occurrences} actions={allActions} />
@@ -173,11 +174,11 @@ export default function Incidentes() {
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
                         <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setSelectedOcc(occ); setDetailOpen(true); }}><Eye className="h-3.5 w-3.5" /></Button>
-                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setEditingOcc(occ); setDrawerOpen(true); }} disabled={planExpired}><Pencil className="h-3.5 w-3.5" /></Button>
-                        {occ.status !== "closed" && (
-                          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => closeOcc.mutate(occ.id)} disabled={planExpired}><XCircle className="h-3.5 w-3.5" /></Button>
+                        {canEdit && <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setEditingOcc(occ); setDrawerOpen(true); }} disabled={isDisabled}><Pencil className="h-3.5 w-3.5" /></Button>}
+                        {canEdit && occ.status !== "closed" && (
+                          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => closeOcc.mutate(occ.id)} disabled={isDisabled}><XCircle className="h-3.5 w-3.5" /></Button>
                         )}
-                        <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => { setSelectedOcc(occ); setDeleteOpen(true); }} disabled={planExpired || occ.status === "closed"}><Trash2 className="h-3.5 w-3.5" /></Button>
+                        {canEdit && <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => { setSelectedOcc(occ); setDeleteOpen(true); }} disabled={isDisabled || occ.status === "closed"}><Trash2 className="h-3.5 w-3.5" /></Button>}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -194,7 +195,7 @@ export default function Incidentes() {
         onOpenChange={setDetailOpen}
         occurrence={selectedOcc}
         onEdit={() => { setDetailOpen(false); setEditingOcc(selectedOcc); setDrawerOpen(true); }}
-        planExpired={planExpired}
+        planExpired={isDisabled}
       />
       <DeleteOccurrenceDialog open={deleteOpen} onOpenChange={setDeleteOpen} occurrence={selectedOcc} />
     </div>

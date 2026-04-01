@@ -10,10 +10,14 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Plus, Search, Pencil, Trash2, GraduationCap } from "lucide-react";
 import { TrainingDrawer } from "@/components/treinamentos/TrainingDrawer";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { usePermission } from "@/hooks/usePermission";
+import { PermissionButton } from "@/components/PermissionButton";
 
 export default function TreinamentosCatalogo() {
   const { company } = useAuth();
   const isExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("trainings");
+  const isDisabled = isExpired || !canEdit;
   const { data: trainings = [] } = useTrainings();
   const { data: matrix = [] } = useTrainingMatrix();
   const { data: allRecords = [] } = useAllRecords();
@@ -45,10 +49,10 @@ export default function TreinamentosCatalogo() {
   }, [enriched, search]);
 
   const ActionButton = ({ children, onClick, ...props }: any) => {
-    if (isExpired) {
+    if (isDisabled) {
       return (
         <Tooltip><TooltipTrigger asChild><span><Button disabled {...props}>{children}</Button></span></TooltipTrigger>
-        <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent></Tooltip>
+        <TooltipContent>{!canEdit ? "Você tem acesso somente leitura neste módulo." : "Seu plano expirou."}</TooltipContent></Tooltip>
       );
     }
     return <Button onClick={onClick} {...props}>{children}</Button>;

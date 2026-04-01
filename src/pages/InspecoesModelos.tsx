@@ -18,6 +18,8 @@ import { useNavigate } from "react-router-dom";
 import { TableSkeleton } from "@/components/TableSkeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
+import { usePermission } from "@/hooks/usePermission";
+import { PermissionButton } from "@/components/PermissionButton";
 
 export default function InspecoesModelos() {
   const navigate = useNavigate();
@@ -27,6 +29,8 @@ export default function InspecoesModelos() {
   const saveModel = useSaveInspectionModel();
   const qc = useQueryClient();
   const isExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("inspections");
+  const isDisabled = !!isExpired || !canEdit;
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -79,10 +83,10 @@ export default function InspecoesModelos() {
             <SelectItem value="inactive">Inativo</SelectItem>
           </SelectContent>
         </Select>
-        <Button onClick={() => { setEditing(null); setDrawerOpen(true); }} disabled={!!isExpired}>
+        <PermissionButton canEdit={canEdit} onClick={() => { setEditing(null); setDrawerOpen(true); }} disabled={isDisabled}>
           <Plus className="h-4 w-4 mr-1.5" />
           Novo modelo
-        </Button>
+        </PermissionButton>
       </div>
 
       {/* Table */}
@@ -126,7 +130,7 @@ export default function InspecoesModelos() {
                   <TableCell className="text-sm">{m.default_responsible?.name || "—"}</TableCell>
                   <TableCell>{m.linked_document ? <FileText className="h-4 w-4 text-primary" /> : "—"}</TableCell>
                   <TableCell>
-                    <Switch checked={m.status === "active"} onCheckedChange={() => handleToggleStatus(m)} disabled={!!isExpired} />
+                    <Switch checked={m.status === "active"} onCheckedChange={() => handleToggleStatus(m)} disabled={isDisabled} />
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
@@ -138,22 +142,26 @@ export default function InspecoesModelos() {
                         </TooltipTrigger>
                         <TooltipContent>Ver histórico</TooltipContent>
                       </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!!isExpired} onClick={() => { setEditing(m); setDrawerOpen(true); }}>
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Editar</TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" disabled={!!isExpired} onClick={() => setDeleteTarget(m)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Excluir</TooltipContent>
-                      </Tooltip>
+                      {canEdit && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isDisabled} onClick={() => { setEditing(m); setDrawerOpen(true); }}>
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Editar</TooltipContent>
+                        </Tooltip>
+                      )}
+                      {canEdit && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" disabled={isDisabled} onClick={() => setDeleteTarget(m)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Excluir</TooltipContent>
+                        </Tooltip>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

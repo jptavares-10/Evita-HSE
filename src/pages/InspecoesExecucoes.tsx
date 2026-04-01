@@ -15,6 +15,9 @@ import { Eye, Plus, Search, ClipboardCheck } from "lucide-react";
 import { startOfWeek, endOfWeek, parseISO, isWithinInterval, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { TableSkeleton } from "@/components/TableSkeleton";
+import { usePermission } from "@/hooks/usePermission";
+import { ViewerBadge } from "@/components/ViewerBadge";
+import { PermissionButton } from "@/components/PermissionButton";
 
 export default function InspecoesExecucoes() {
   const { company } = useAuth();
@@ -22,6 +25,8 @@ export default function InspecoesExecucoes() {
   const { data: models = [] } = useInspectionModels();
   const navigate = useNavigate();
   const isExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("inspections");
+  const isDisabled = !!isExpired || !canEdit;
   useAutoGenerateExecutions();
 
   const [search, setSearch] = useState("");
@@ -141,10 +146,11 @@ export default function InspecoesExecucoes() {
             <SelectItem value="completed_with_issues">Concluída c/ pendências</SelectItem>
           </SelectContent>
         </Select>
-        <Button variant="outline" onClick={() => setNewExecOpen(true)} disabled={!!isExpired}>
+        <PermissionButton canEdit={canEdit} variant="outline" onClick={() => setNewExecOpen(true)} disabled={isDisabled}>
           <Plus className="h-4 w-4 mr-1.5" />
           Nova execução manual
-        </Button>
+        </PermissionButton>
+        {!canEdit && <ViewerBadge />}
       </div>
 
       {/* Table */}

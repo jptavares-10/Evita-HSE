@@ -6,10 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Upload, Download, LayoutGrid } from "lucide-react";
 import { ImportMatrixModal } from "@/components/treinamentos/ImportMatrixModal";
+import { usePermission } from "@/hooks/usePermission";
 
 export default function TreinamentosMatriz() {
   const { company } = useAuth();
   const isExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("trainings");
+  const isDisabled = isExpired || !canEdit;
   const { data: positions = [] } = useJobPositions();
   const { data: trainings = [] } = useTrainings();
   const { data: matrix = [] } = useTrainingMatrix();
@@ -17,7 +20,7 @@ export default function TreinamentosMatriz() {
   const [importOpen, setImportOpen] = useState(false);
 
   const handleToggle = (jobPositionId: string, trainingId: string) => {
-    if (isExpired) return;
+    if (isDisabled) return;
     const existing = matrix.find((m: any) => m.job_position_id === jobPositionId && m.training_id === trainingId);
     toggleEntry.mutate({ jobPositionId, trainingId, exists: !!existing, entryId: existing?.id });
   };
@@ -44,9 +47,9 @@ export default function TreinamentosMatriz() {
     <div className="space-y-4">
       <div className="flex items-center gap-3 justify-end">
         <Button variant="outline" size="sm" onClick={downloadTemplate}><Download className="h-4 w-4 mr-1" />Modelo CSV</Button>
-        {isExpired ? (
+        {isDisabled ? (
           <Tooltip><TooltipTrigger asChild><span><Button variant="outline" size="sm" disabled><Upload className="h-4 w-4 mr-1" />Importar</Button></span></TooltipTrigger>
-          <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent></Tooltip>
+          <TooltipContent>{!canEdit ? "Somente leitura" : "Plano expirado"}</TooltipContent></Tooltip>
         ) : (
           <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}><Upload className="h-4 w-4 mr-1" />Importar</Button>
         )}
@@ -75,7 +78,7 @@ export default function TreinamentosMatriz() {
                       <Checkbox
                         checked={checked}
                         onCheckedChange={() => handleToggle(p.id, t.id)}
-                        disabled={isExpired}
+                        disabled={isDisabled}
                       />
                     </td>
                   );

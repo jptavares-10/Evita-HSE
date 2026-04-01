@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { TableSkeleton } from "@/components/TableSkeleton";
 import { Badge } from "@/components/ui/badge";
+import { usePermission } from "@/hooks/usePermission";
 
 export default function TreinamentosCargos() {
   const { company } = useAuth();
@@ -26,6 +27,8 @@ export default function TreinamentosCargos() {
   const { toast } = useToast();
   const qc = useQueryClient();
   const isExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("trainings");
+  const isDisabled = isExpired || !canEdit;
 
   const [newSectorName, setNewSectorName] = useState("");
 
@@ -112,7 +115,7 @@ export default function TreinamentosCargos() {
                 saveSector.mutate({ name: newSectorName.trim() }, { onSuccess: () => { setNewSectorName(""); toast({ title: "Setor criado" }); } });
               }
             }}
-            disabled={isExpired}
+            disabled={isDisabled}
             className="w-64"
           />
           <Button
@@ -120,7 +123,7 @@ export default function TreinamentosCargos() {
               if (!newSectorName.trim()) return;
               saveSector.mutate({ name: newSectorName.trim() }, { onSuccess: () => { setNewSectorName(""); toast({ title: "Setor criado" }); } });
             }}
-            disabled={!newSectorName.trim() || saveSector.isPending || isExpired}
+            disabled={!newSectorName.trim() || saveSector.isPending || isDisabled}
             size="sm"
           >
             <Plus className="h-4 w-4 mr-1" />Adicionar
@@ -134,7 +137,7 @@ export default function TreinamentosCargos() {
                 <button
                   onClick={() => deleteSector.mutate(s.id)}
                   className="ml-1 hover:text-destructive"
-                  disabled={isExpired}
+                   disabled={isDisabled}
                 >
                   <Trash2 className="h-3 w-3" />
                 </button>
@@ -164,7 +167,7 @@ export default function TreinamentosCargos() {
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-              disabled={isExpired}
+               disabled={isDisabled}
               className="w-56"
             />
           </div>
@@ -178,12 +181,12 @@ export default function TreinamentosCargos() {
           <Tooltip>
             <TooltipTrigger asChild>
               <span>
-                <Button onClick={handleAdd} disabled={!newName.trim() || save.isPending || isExpired}>
+                <Button onClick={handleAdd} disabled={!newName.trim() || save.isPending || isDisabled}>
                   <Plus className="h-4 w-4 mr-1" /> Adicionar
                 </Button>
               </span>
             </TooltipTrigger>
-            {isExpired && <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>}
+             {isDisabled && <TooltipContent>Sem permissão de edição.</TooltipContent>}
           </Tooltip>
         </div>
       </div>
@@ -262,14 +265,14 @@ export default function TreinamentosCargos() {
                                 size="icon"
                                 variant="ghost"
                                 className="h-8 w-8"
-                                disabled={isExpired}
+                                 disabled={isDisabled}
                                 onClick={() => { setEditingId(pos.id); setEditingName(pos.name); setEditingSectorId(pos.sector_id || "none"); }}
                               >
                                 <Pencil className="h-3.5 w-3.5" />
                               </Button>
                             </span>
                           </TooltipTrigger>
-                          {isExpired && <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>}
+                           {isDisabled && <TooltipContent>Sem permissão de edição.</TooltipContent>}
                         </Tooltip>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -278,14 +281,14 @@ export default function TreinamentosCargos() {
                                 size="icon"
                                 variant="ghost"
                                 className="h-8 w-8 text-destructive hover:text-destructive"
-                                disabled={isExpired}
+                                disabled={isDisabled}
                                 onClick={() => setDeleteTarget(pos)}
                               >
                                 <Trash2 className="h-3.5 w-3.5" />
                               </Button>
                             </span>
                           </TooltipTrigger>
-                          {isExpired && <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>}
+                          {isDisabled && <TooltipContent>Sem permissão de edição.</TooltipContent>}
                         </Tooltip>
                       </div>
                     )}

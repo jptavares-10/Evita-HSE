@@ -17,6 +17,9 @@ import { Eye, RotateCw, Pencil, Trash2, FileText, Plus, Tags } from "lucide-reac
 import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { PageSkeleton } from "@/components/TableSkeleton";
+import { usePermission } from "@/hooks/usePermission";
+import { ViewerBadge } from "@/components/ViewerBadge";
+import { PermissionButton } from "@/components/PermissionButton";
 
 export default function Licencas() {
   usePageTitle("Licenças Ambientais — Evita HSE");
@@ -25,6 +28,8 @@ export default function Licencas() {
   const { data: types = [] } = useLicenseTypes();
   const deleteLicense = useDeleteLicense();
   const isExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("environmental_licenses");
+  const isDisabled = !!isExpired || !canEdit;
 
   // Filters
   const [search, setSearch] = useState("");
@@ -102,9 +107,12 @@ export default function Licencas() {
 
   return (
     <div className="space-y-6 animate-fade-up">
-      <div>
-        <h1 className="text-2xl font-bold">Licenças Ambientais</h1>
-        <p className="text-muted-foreground text-sm mt-1">Gerencie suas licenças, vencimentos e renovações.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Licenças Ambientais</h1>
+          <p className="text-muted-foreground text-sm mt-1">Gerencie suas licenças, vencimentos e renovações.</p>
+        </div>
+        {!canEdit && <ViewerBadge />}
       </div>
 
       <LicenseKpiCards
@@ -125,7 +133,7 @@ export default function Licencas() {
         types={types as any}
         onManageTypes={() => setTypesModalOpen(true)}
         onNewLicense={openNew}
-        isExpired={!!isExpired}
+        isExpired={isDisabled}
       />
 
       {isLoading ? (
@@ -204,38 +212,44 @@ export default function Licencas() {
                           </TooltipTrigger>
                           <TooltipContent>Ver detalhes</TooltipContent>
                         </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div>
-                              <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isPermanent || !!isExpired} onClick={() => setRenewalLicense(l)}>
-                                <RotateCw className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            {isExpired ? "Seu plano expirou." : isPermanent ? "Licença permanente" : "Registrar renovação"}
-                          </TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div>
-                              <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!!isExpired} onClick={() => openEdit(l)}>
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>{isExpired ? "Seu plano expirou." : "Editar"}</TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" disabled={!!isExpired} onClick={() => setDeleteTarget(l)}>
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>{isExpired ? "Seu plano expirou." : "Excluir"}</TooltipContent>
-                        </Tooltip>
+                        {canEdit && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div>
+                                <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isPermanent || isDisabled} onClick={() => setRenewalLicense(l)}>
+                                  <RotateCw className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              {isDisabled ? "Sem permissão" : isPermanent ? "Licença permanente" : "Registrar renovação"}
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                        {canEdit && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div>
+                                <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isDisabled} onClick={() => openEdit(l)}>
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>Editar</TooltipContent>
+                          </Tooltip>
+                        )}
+                        {canEdit && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" disabled={isDisabled} onClick={() => setDeleteTarget(l)}>
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>Excluir</TooltipContent>
+                          </Tooltip>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -251,7 +265,7 @@ export default function Licencas() {
         open={detailOpen} onOpenChange={setDetailOpen} license={detailLicense}
         onEdit={() => openEdit(detailLicense)}
         onRenew={() => { setRenewalLicense(detailLicense); setDetailOpen(false); }}
-        isExpired={!!isExpired}
+        isExpired={isDisabled}
       />
       <RegisterRenewalModal open={!!renewalLicense} onOpenChange={(v) => !v && setRenewalLicense(null)} license={renewalLicense} />
       <DeleteLicenseDialog

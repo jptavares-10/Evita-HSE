@@ -17,12 +17,16 @@ import { ArrowLeft, Plus, FileText, Download, User, Calendar, Clock, CheckCircle
 import { useSignedUrl, useSignedUrls } from "@/hooks/useSignedUrl";
 import { useEmployees } from "@/hooks/useTrainings";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { usePermission } from "@/hooks/usePermission";
+import { ViewerBadge } from "@/components/ViewerBadge";
 
 export default function InspecaoDetalhe() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { company, profile } = useAuth();
   const isExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("inspections");
+  const isDisabled = !!isExpired || !canEdit;
 
   const { data: execution, isLoading } = useInspectionExecution(id ?? null);
   const { data: entries = [] } = useInspectionEntries(id ?? null);
@@ -152,12 +156,13 @@ export default function InspecaoDetalhe() {
             Registros de Execução
             <Badge variant="secondary" className="text-xs">{entries.length}</Badge>
           </h2>
-          {!isCompleted && (
-            <Button size="sm" onClick={() => setEntryModalOpen(true)} disabled={!!isExpired}>
+          {!isCompleted && canEdit && (
+            <Button size="sm" onClick={() => setEntryModalOpen(true)} disabled={isDisabled}>
               <Plus className="h-4 w-4 mr-1" />
               Adicionar Registro
             </Button>
           )}
+          {!canEdit && <ViewerBadge />}
         </div>
 
         {entries.length === 0 ? (
@@ -200,8 +205,8 @@ export default function InspecaoDetalhe() {
             Ações Corretivas
             {openActions.length > 0 && <Badge variant="outline" className="bg-orange-100 text-orange-700 border-orange-200 text-xs">{openActions.length} abertas</Badge>}
           </h2>
-          {!isCompleted && !showActionForm && (
-            <Button size="sm" variant="outline" onClick={() => setShowActionForm(true)} disabled={!!isExpired}>
+          {!isCompleted && !showActionForm && canEdit && (
+            <Button size="sm" variant="outline" onClick={() => setShowActionForm(true)} disabled={isDisabled}>
               <Plus className="h-4 w-4 mr-1" />
               Adicionar Ação Corretiva
             </Button>
@@ -300,19 +305,21 @@ export default function InspecaoDetalhe() {
                   )}
                   {action.status !== "completed" && (
                     <div className="flex gap-2 pt-1">
-                      {action.status === "open" && (
-                        <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => updateActionStatus.mutate({ actionId: action.id, status: "in_progress" })} disabled={!!isExpired}>
+                      {canEdit && action.status === "open" && (
+                        <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => updateActionStatus.mutate({ actionId: action.id, status: "in_progress" })} disabled={isDisabled}>
                           <Play className="h-3 w-3 mr-1" />Iniciar
                         </Button>
                       )}
-                      {action.status === "in_progress" && (
-                        <Button size="sm" variant="default" className="h-7 text-xs" onClick={() => setCompleteActionTarget(action)} disabled={!!isExpired}>
+                      {canEdit && action.status === "in_progress" && (
+                        <Button size="sm" variant="default" className="h-7 text-xs" onClick={() => setCompleteActionTarget(action)} disabled={isDisabled}>
                           <CheckCircle2 className="h-3 w-3 mr-1" />Concluir
                         </Button>
                       )}
-                      <Button size="sm" variant="ghost" className="h-7 text-xs text-destructive" onClick={() => setDeleteActionTarget(action)} disabled={!!isExpired}>
-                        <Trash2 className="h-3 w-3 mr-1" />Excluir
-                      </Button>
+                      {canEdit && (
+                        <Button size="sm" variant="ghost" className="h-7 text-xs text-destructive" onClick={() => setDeleteActionTarget(action)} disabled={isDisabled}>
+                          <Trash2 className="h-3 w-3 mr-1" />Excluir
+                        </Button>
+                      )}
                     </div>
                   )}
                 </div>
@@ -323,9 +330,9 @@ export default function InspecaoDetalhe() {
       </section>
 
       {/* Complete button */}
-      {!isCompleted && (
+      {!isCompleted && canEdit && (
         <div className="sticky bottom-0 bg-background border-t py-4 -mx-6 px-6">
-          <Button className="w-full bg-green-600 hover:bg-green-700 text-white" onClick={handleComplete} disabled={!!isExpired || completeExecution.isPending}>
+          <Button className="w-full bg-green-600 hover:bg-green-700 text-white" onClick={handleComplete} disabled={isDisabled || completeExecution.isPending}>
             <CheckCircle2 className="h-4 w-4 mr-2" />
             Concluir Execução
           </Button>

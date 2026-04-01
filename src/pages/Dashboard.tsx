@@ -200,7 +200,7 @@ export default function Dashboard() {
     const items: { icon: any; iconColor: string; text: string; badge: string; badgeColor: string; link: string; priority: number }[] = [];
 
     // Expired services
-    services.forEach((s: any) => {
+    services.filter((s: any) => s.status !== "inactive").forEach((s: any) => {
       const st = getServiceStatus(s.next_due_at, s.alert_days_before);
       if (st === "expired") items.push({ icon: ClipboardList, iconColor: "text-destructive", text: s.name, badge: "Vencido", badgeColor: "bg-destructive/10 text-destructive", link: "/servicos", priority: 0 });
     });

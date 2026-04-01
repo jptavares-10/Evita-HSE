@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Settings, Pencil } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Aso() {
   usePageTitle("ASO — Evita HSE");

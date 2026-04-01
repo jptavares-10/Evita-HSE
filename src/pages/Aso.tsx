@@ -22,6 +22,7 @@ import { ViewerBadge } from "@/components/ViewerBadge";
 export default function Aso() {
   const navigate = useNavigate();
   usePageTitle("ASO — Evita HSE");
+  const { canEdit } = usePermission("aso");
 
   const { data: records = [], isLoading } = useAsoRecords();
   const { data: examTypes = [] } = useAsoExamTypes();

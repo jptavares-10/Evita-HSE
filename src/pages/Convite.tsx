@@ -8,6 +8,36 @@ import { Label } from "@/components/ui/label";
 import { Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+async function waitForSession(maxMs = 5000, intervalMs = 500) {
+  const start = Date.now();
+  while (Date.now() - start < maxMs) {
+    const { data } = await supabase.auth.getSession();
+    if (data.session) return data.session;
+    await new Promise((resolve) => setTimeout(resolve, intervalMs));
+  }
+  return null;
+}
+
+function translateInvitationAcceptanceError(error?: string) {
+  switch (error) {
+    case "not_authenticated":
+      return "Erro ao iniciar sessão. Tente novamente.";
+    case "invalid_token":
+    case "invitation_not_found":
+      return "Convite não encontrado ou já utilizado.";
+    case "invitation_expired":
+      return "Este convite expirou. Solicite um novo convite.";
+    case "email_mismatch":
+      return "Este convite pertence a outro e-mail. Entre com a conta convidada.";
+    case "account_already_linked_other_company":
+      return "Esta conta já está vinculada a outra empresa.";
+    case "profile_already_exists":
+      return "Esta conta já possui um perfil. Faça login para continuar.";
+    default:
+      return "Não foi possível concluir o convite. Tente novamente.";
+  }
+}
+
 export default function Convite() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
@@ -48,7 +78,7 @@ export default function Convite() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!invitation) return;
+    if (!invitation || !token) return;
 
     if (password.length < 8) {
       setError("A senha deve ter no mínimo 8 caracteres.");
@@ -62,54 +92,80 @@ export default function Convite() {
     setSubmitting(true);
     setError("");
 
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: invitation.email,
-      password,
-      options: { emailRedirectTo: window.location.origin },
-    });
+    try {
+      const invitedEmail = String(invitation.email ?? "").trim().toLowerCase();
+      const { data: currentSessionData } = await supabase.auth.getSession();
+      let activeSession = currentSessionData.session;
 
-    if (authError || !authData.user) {
-      setError(translateSupabaseError(authError?.message ?? "Erro ao criar conta."));
+      if (activeSession?.user.email?.trim().toLowerCase() !== invitedEmail) {
+        if (activeSession) {
+          await supabase.auth.signOut();
+          activeSession = null;
+        }
+
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: invitation.email,
+          password,
+          options: { emailRedirectTo: window.location.origin },
+        });
+
+        if (authError) {
+          const alreadyRegistered = /already registered/i.test(authError.message);
+
+          if (!alreadyRegistered) {
+            setError(translateSupabaseError(authError.message));
+            setSubmitting(false);
+            return;
+          }
+
+          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            email: invitation.email,
+            password,
+          });
+
+          if (signInError) {
+            setError("Este e-mail já está cadastrado. Faça login com a senha definida para concluir o convite.");
+            setSubmitting(false);
+            return;
+          }
+
+          activeSession = signInData.session ?? await waitForSession();
+        } else {
+          activeSession = authData.session ?? await waitForSession();
+        }
+      }
+
+      if (!activeSession) {
+        setError("Erro ao iniciar sessão. Tente novamente.");
+        setSubmitting(false);
+        return;
+      }
+
+      const { data, error: acceptError } = await supabase.rpc("accept_invitation_membership" as any, {
+        p_token: token,
+        p_full_name: fullName.trim(),
+      });
+
+      if (acceptError) {
+        setError(translateSupabaseError(acceptError.message));
+        setSubmitting(false);
+        return;
+      }
+
+      const result = data as any;
+      if (!result?.success) {
+        setError(translateInvitationAcceptanceError(result?.error));
+        setSubmitting(false);
+        return;
+      }
+
+      toast({ title: "Conta criada com sucesso!", description: "Bem-vindo ao Evita HSE." });
+      navigate("/dashboard", { replace: true });
+    } catch {
+      setError("Não foi possível concluir o convite. Tente novamente.");
+    } finally {
       setSubmitting(false);
-      return;
     }
-
-    // Wait for session to be active before inserting profile
-    let activeSession = null;
-    const start = Date.now();
-    while (Date.now() - start < 5000) {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) { activeSession = data.session; break; }
-      await new Promise((r) => setTimeout(r, 500));
-    }
-
-    if (!activeSession) {
-      setError("Erro ao iniciar sessão. Tente novamente.");
-      setSubmitting(false);
-      return;
-    }
-
-    const { error: profileError } = await supabase.from("profiles").insert({
-      id: authData.user.id,
-      company_id: invitation.company_id,
-      full_name: fullName.trim(),
-      email: invitation.email,
-      role: "member",
-    });
-
-    if (profileError) {
-      setError("Erro ao criar perfil.");
-      setSubmitting(false);
-      return;
-    }
-
-    await supabase
-      .from("invitations")
-      .update({ status: "accepted" })
-      .eq("id", invitation.id);
-
-    toast({ title: "Conta criada com sucesso!", description: "Bem-vindo ao Evita HSE." });
-    navigate("/dashboard");
   };
 
   if (loading) {

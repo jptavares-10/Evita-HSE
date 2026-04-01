@@ -27,7 +27,7 @@ const steps = [
   { num: "03", icon: Target, title: "Monitore sem perder prazos", desc: "O dashboard centraliza tudo. Alertas visuais mostram o que precisa de atenção." },
 ];
 
-const moduleGroups: Record<string, typeof modules> = {
+const moduleGroups: Record<string, Array<{ icon: any; accent: string; name: string; desc: string }>> = {
   "Segurança": [
     { icon: Calendar, accent: "bg-red-500", name: "Serviços Periódicos", desc: "Controle extintores, limpeza de cisterna, dedetização e qualquer serviço recorrente com alertas configuráveis." },
     { icon: ClipboardCheck, accent: "bg-red-500", name: "Inspeções", desc: "Modelos de inspeção com frequência automática. Execuções, registros fotográficos e ações corretivas rastreáveis." },

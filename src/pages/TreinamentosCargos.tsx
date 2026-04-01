@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { TableSkeleton } from "@/components/TableSkeleton";
 import { Badge } from "@/components/ui/badge";
+import { usePermission } from "@/hooks/usePermission";
 
 export default function TreinamentosCargos() {
   const { company } = useAuth();

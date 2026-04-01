@@ -96,7 +96,7 @@ export default function Mtr() {
         categories={[]} categoryFilter={[]} onCategoryChange={() => {}}
         onManageCategories={() => setCatModalOpen(true)}
         onNewMtr={handleNewMtr}
-        isExpired={isExpired}
+        isExpired={isDisabled}
       />
 
       {isLoading ? (

@@ -79,9 +79,12 @@ export default function Mtr() {
           <h1 className="text-2xl font-bold">Gestão de MTR</h1>
           <p className="text-muted-foreground text-sm">Manifesto de Transporte de Resíduos</p>
         </div>
-        <Link to="/mtr/analise">
-          <Button variant="outline" size="sm"><BarChart3 className="h-4 w-4 mr-1" />Ver análise</Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          {!canEdit && <ViewerBadge />}
+          <Link to="/mtr/analise">
+            <Button variant="outline" size="sm"><BarChart3 className="h-4 w-4 mr-1" />Ver análise</Button>
+          </Link>
+        </div>
       </div>
 
       <MtrKpiCards mtrs={mtrs} activeFilter={kpiFilter} onFilter={setKpiFilter} />

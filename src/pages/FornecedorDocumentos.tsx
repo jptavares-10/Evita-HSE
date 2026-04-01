@@ -15,6 +15,7 @@ import { ArrowLeft, FolderPlus, Upload, Folder, FolderOpen, ChevronRight, Eye, D
 import { formatDateBR, getFileIcon, getFileExtension } from "@/lib/suppliers";
 import { useToast } from "@/hooks/use-toast";
 import { SupplierDrawer } from "@/components/fornecedores/SupplierDrawer";
+import { usePermission } from "@/hooks/usePermission";
 
 export default function FornecedorDocumentos() {
   const { id: supplierId } = useParams<{ id: string }>();

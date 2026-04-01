@@ -101,12 +101,12 @@ export default function Fornecedores() {
         </Select>
         <Button variant="outline" onClick={() => setCategoriesModalOpen(true)}>Categorias</Button>
         <div className="ml-auto">
-          {planExpired ? (
+          {isDisabled ? (
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button disabled><Plus className="h-4 w-4 mr-2" />Novo Fornecedor</Button>
               </TooltipTrigger>
-              <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>
+              <TooltipContent>{!canEdit ? "Você tem acesso somente leitura neste módulo." : "Seu plano expirou. Faça upgrade para continuar."}</TooltipContent>
             </Tooltip>
           ) : (
             <Button onClick={handleNew}><Plus className="h-4 w-4 mr-2" />Novo Fornecedor</Button>

@@ -1,5 +1,8 @@
 import { useState, useMemo } from "react";
 import { useEpiTypes, useEpiStock, useDeleteEpiType } from "@/hooks/useEpi";
+import { usePermission } from "@/hooks/usePermission";
+import { ViewerBadge } from "@/components/ViewerBadge";
+import { PermissionButton } from "@/components/PermissionButton";
 import { computeCaStatus, getCaStatusBadge, computeStockStatus, getStockStatusBadge, formatDateBR } from "@/lib/epi";
 import { EpiDrawer } from "@/components/epi/EpiDrawer";
 import { DeleteEpiDialog } from "@/components/epi/DeleteEpiDialog";
@@ -15,6 +18,7 @@ export default function EpiCatalogo() {
   const { data: epiTypes = [], isLoading } = useEpiTypes();
   const { data: stock = {} } = useEpiStock();
   const deleteEpi = useDeleteEpiType();
+  const { canEdit } = usePermission("epi");
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editData, setEditData] = useState<any>(null);
@@ -34,7 +38,10 @@ export default function EpiCatalogo() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Buscar EPI ou CA..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
         </div>
-        <Button onClick={() => { setEditData(null); setDrawerOpen(true); }}><Plus className="h-4 w-4 mr-2" />Novo EPI</Button>
+        <div className="flex items-center gap-2">
+          {!canEdit && <ViewerBadge />}
+          <PermissionButton canEdit={canEdit} onClick={() => { setEditData(null); setDrawerOpen(true); }}><Plus className="h-4 w-4 mr-2" />Novo EPI</PermissionButton>
+        </div>
       </div>
 
       {isLoading ? (
@@ -57,7 +64,7 @@ export default function EpiCatalogo() {
                 <TableHead>Status CA</TableHead>
                 <TableHead className="text-right">Estoque</TableHead>
                 <TableHead>Status Estoque</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
+                {canEdit && <TableHead className="text-right">Ações</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -75,12 +82,14 @@ export default function EpiCatalogo() {
                     <TableCell><Badge variant="outline" className={caBadge.className}>{caBadge.label}</Badge></TableCell>
                     <TableCell className="text-right">{currentStock} {e.unit}</TableCell>
                     <TableCell><Badge variant="outline" className={stockBadge.className}>{stockBadge.label}</Badge></TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" size="icon" onClick={() => { setEditData(e); setDrawerOpen(true); }}><Pencil className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" onClick={() => setDeleteTarget(e)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                      </div>
-                    </TableCell>
+                    {canEdit && (
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button variant="ghost" size="icon" onClick={() => { setEditData(e); setDrawerOpen(true); }}><Pencil className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="icon" onClick={() => setDeleteTarget(e)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                        </div>
+                      </TableCell>
+                    )}
                   </TableRow>
                 );
               })}

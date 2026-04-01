@@ -1,5 +1,8 @@
 import { useState, useMemo } from "react";
 import { useEpiStockMovements } from "@/hooks/useEpi";
+import { usePermission } from "@/hooks/usePermission";
+import { ViewerBadge } from "@/components/ViewerBadge";
+import { PermissionButton } from "@/components/PermissionButton";
 import { StockMovementDrawer } from "@/components/epi/StockMovementDrawer";
 import { formatDateBR } from "@/lib/epi";
 import { Button } from "@/components/ui/button";
@@ -13,6 +16,7 @@ import { TableSkeleton } from "@/components/TableSkeleton";
 
 export default function EpiEstoque() {
   const { data: movements = [], isLoading } = useEpiStockMovements();
+  const { canEdit } = usePermission("epi");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -44,7 +48,10 @@ export default function EpiEstoque() {
             </SelectContent>
           </Select>
         </div>
-        <Button onClick={() => setDrawerOpen(true)}><Plus className="h-4 w-4 mr-2" />Nova Movimentação</Button>
+        <div className="flex items-center gap-2">
+          {!canEdit && <ViewerBadge />}
+          <PermissionButton canEdit={canEdit} onClick={() => setDrawerOpen(true)}><Plus className="h-4 w-4 mr-2" />Nova Movimentação</PermissionButton>
+        </div>
       </div>
 
       {isLoading ? (

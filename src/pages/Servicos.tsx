@@ -46,19 +46,27 @@ export default function Servicos() {
   const [categoriesModalOpen, setCategoriesModalOpen] = useState(false);
 
   // Status counts
+  // Split active vs inactive
+  const activeServices = useMemo(() => services.filter((s: any) => s.status !== "inactive"), [services]);
+  const inactiveServices = useMemo(() => services.filter((s: any) => s.status === "inactive"), [services]);
+
   const enrichedServices = useMemo(() => {
-    return services.map((s: any) => ({
+    const source = showInactive ? services : activeServices;
+    return source.map((s: any) => ({
       ...s,
-      _status: getServiceStatus(s.next_due_at, s.alert_days_before),
-      _statusInfo: getStatusInfo(s.next_due_at, s.alert_days_before),
+      _status: s.status === "inactive" ? "inactive" as const : getServiceStatus(s.next_due_at, s.alert_days_before),
+      _statusInfo: s.status === "inactive" ? { status: "inactive", label: "Inativo", color: "text-muted-foreground" } : getStatusInfo(s.next_due_at, s.alert_days_before),
     }));
-  }, [services]);
+  }, [services, activeServices, showInactive]);
 
   const counts = useMemo(() => {
     const c = { ok: 0, warning: 0, expired: 0 };
-    enrichedServices.forEach((s: any) => { c[s._status as keyof typeof c]++; });
+    activeServices.forEach((s: any) => {
+      const st = getServiceStatus(s.next_due_at, s.alert_days_before);
+      c[st as keyof typeof c]++;
+    });
     return c;
-  }, [enrichedServices]);
+  }, [activeServices]);
 
   // Active status filter (KPI cards override status select)
   const activeStatus = kpiFilter || (statusFilter !== "all" ? statusFilter : null);

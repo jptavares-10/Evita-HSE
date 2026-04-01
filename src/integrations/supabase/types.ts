@@ -1884,6 +1884,7 @@ export type Database = {
           company_id: string
           created_at: string
           id: string
+          is_default: boolean
           name: string
         }
         Insert: {
@@ -1891,6 +1892,7 @@ export type Database = {
           company_id: string
           created_at?: string
           id?: string
+          is_default?: boolean
           name: string
         }
         Update: {
@@ -1898,6 +1900,7 @@ export type Database = {
           company_id?: string
           created_at?: string
           id?: string
+          is_default?: boolean
           name?: string
         }
         Relationships: [

@@ -146,7 +146,7 @@ export default function Servicos() {
           description="Configure seus serviços periódicos para acompanhar vencimentos e manter a conformidade."
           icon={ClipboardList}
           steps={[
-            { title: "Criar categorias de serviço", description: "Organize seus serviços por tipo (ex: Manutenção, Calibração)", icon: Tags, actionLabel: "Criar categoria", action: () => setCategoriesModalOpen(true), completed: categories.length > 0 },
+            { title: "Criar categorias de serviço", description: "Organize seus serviços por tipo (ex: Manutenção, Calibração)", icon: Tags, actionLabel: "Criar categoria", action: () => setCategoriesModalOpen(true), completed: categories.some((c: any) => !c.is_default) },
             { title: "Cadastrar primeiro serviço", description: "Registre um serviço periódico com frequência e alertas", icon: Plus, actionLabel: "Criar serviço", action: openNew, completed: false },
           ] as OnboardingStep[]}
         />

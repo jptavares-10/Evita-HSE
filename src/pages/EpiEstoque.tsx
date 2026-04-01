@@ -1,5 +1,8 @@
 import { useState, useMemo } from "react";
 import { useEpiStockMovements } from "@/hooks/useEpi";
+import { usePermission } from "@/hooks/usePermission";
+import { ViewerBadge } from "@/components/ViewerBadge";
+import { PermissionButton } from "@/components/PermissionButton";
 import { StockMovementDrawer } from "@/components/epi/StockMovementDrawer";
 import { formatDateBR } from "@/lib/epi";
 import { Button } from "@/components/ui/button";

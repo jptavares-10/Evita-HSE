@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Shield, Calendar, GraduationCap, FileText, Users, AlertTriangle, Recycle, ChevronDown, Check, Menu, X, ArrowRight, ClipboardCheck, HardHat, Stethoscope, BookOpen } from "lucide-react";
+import { Shield, Calendar, GraduationCap, FileText, Users, AlertTriangle, Recycle, ChevronDown, Check, Menu, X, ArrowRight, ClipboardCheck, HardHat, Stethoscope, BookOpen, Building2, Settings, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect, useRef } from "react";
 
@@ -14,41 +14,44 @@ const trustSegments = [
   "🌿 Meio Ambiente",
 ];
 
-const painOld = [
-  "Planilha desatualizada por falta de tempo",
-  "Certificado vencido descoberto na fiscalização",
-  "WhatsApp lotado de documentos de fornecedores",
-  "MTR sem CDF e multa ambiental",
-  "Ninguém sabe quem fez qual treinamento",
-  "Licença ambiental vencida sem aviso",
-];
-
-const painNew = [
-  "Dashboard centralizado e sempre atualizado",
-  "Alerta automático antes de qualquer vencimento",
-  "Fornecedor envia documentos pelo portal próprio",
-  "MTR e CDF controlados com prazo preciso",
-  "Matriz de treinamentos por cargo automática",
-  "Licenças com histórico completo de renovações",
+const painPoints = [
+  { old: "Certificado vencido descoberto na fiscalização", new: "Alerta automático antes de qualquer vencimento" },
+  { old: "WhatsApp lotado de documentos de fornecedores", new: "Fornecedor envia pelo portal próprio" },
+  { old: "Ninguém sabe quem fez qual treinamento", new: "Matriz por cargo com status em tempo real" },
+  { old: "MTR sem CDF e multa ambiental", new: "CDF monitorado com prazo e alerta" },
 ];
 
 const steps = [
-  { num: "01", icon: "🏢", title: "Cadastre sua empresa", desc: "Crie sua conta em menos de 2 minutos. Sem configuração técnica. Sem cartão de crédito." },
-  { num: "02", icon: "⚙️", title: "Configure seus módulos", desc: "Adicione colaboradores, treinamentos, serviços e documentos. Sem consultoria." },
-  { num: "03", icon: "🎯", title: "Monitore sem perder prazos", desc: "O dashboard centraliza tudo. Alertas visuais mostram o que precisa de atenção." },
+  { num: "01", icon: Building2, title: "Cadastre sua empresa", desc: "Crie sua conta em menos de 2 minutos. Sem configuração técnica. Sem cartão de crédito." },
+  { num: "02", icon: Settings, title: "Configure seus módulos", desc: "Adicione colaboradores, treinamentos, serviços e documentos. Sem consultoria." },
+  { num: "03", icon: Target, title: "Monitore sem perder prazos", desc: "O dashboard centraliza tudo. Alertas visuais mostram o que precisa de atenção." },
 ];
 
-const modules = [
-  { icon: Calendar, tag: "Segurança", tagColor: "bg-red-50 text-red-700", accent: "bg-red-500", name: "Serviços Periódicos", desc: "Controle extintores, limpeza de cisterna, dedetização e qualquer serviço recorrente com alertas configuráveis." },
-  { icon: ClipboardCheck, tag: "Segurança", tagColor: "bg-red-50 text-red-700", accent: "bg-red-500", name: "Inspeções", desc: "Modelos de inspeção com frequência automática. Execuções, registros fotográficos e ações corretivas rastreáveis." },
-  { icon: AlertTriangle, tag: "Segurança", tagColor: "bg-purple-50 text-purple-700", accent: "bg-purple-500", name: "IC & NC", desc: "Registre incidentes e não conformidades. Plano de ação corretiva com status, evidências e rastreabilidade." },
-  { icon: HardHat, tag: "Segurança", tagColor: "bg-orange-50 text-orange-700", accent: "bg-orange-500", name: "EPIs", desc: "Catálogo com CA, controle de estoque, entregas por colaborador e alertas de vencimento de certificado." },
-  { icon: BookOpen, tag: "Segurança", tagColor: "bg-blue-50 text-blue-700", accent: "bg-blue-500", name: "Biblioteca de Documentos", desc: "Centralize PGR, PCMSO, procedimentos e políticas. Controle de revisões com ciclo automático." },
-  { icon: GraduationCap, tag: "Saúde", tagColor: "bg-amber-50 text-amber-700", accent: "bg-amber-500", name: "Treinamentos", desc: "Matriz por cargo, certificados com validade e dashboard de conformidade. Saiba quem está em dia com as NRs." },
-  { icon: Stethoscope, tag: "Saúde", tagColor: "bg-amber-50 text-amber-700", accent: "bg-amber-500", name: "ASO / Exames", desc: "Registre exames admissionais, periódicos e demissionais. Alerta de vencimento e histórico por colaborador." },
-  { icon: Recycle, tag: "Meio Ambiente", tagColor: "bg-emerald-50 text-emerald-700", accent: "bg-emerald-500", name: "Gestão de MTR", desc: "MTR com prazo de CDF monitorado e alerta automático. Gráficos de geração mensal por categoria de resíduo." },
-  { icon: FileText, tag: "Meio Ambiente", tagColor: "bg-cyan-50 text-cyan-700", accent: "bg-cyan-500", name: "Licenças Ambientais", desc: "LO, LI, outorgas e autorizações com histórico de renovações. Alertas de vencimento configuráveis." },
-  { icon: Users, tag: "Meio Ambiente", tagColor: "bg-emerald-50 text-emerald-700", accent: "bg-emerald-500", name: "Portal de Fornecedores", desc: "Link único para o fornecedor enviar documentos. Sem WhatsApp, sem e-mail. Pastas organizadas." },
+const moduleGroups: Record<string, Array<{ icon: any; accent: string; name: string; desc: string }>> = {
+  "Segurança": [
+    { icon: Calendar, accent: "bg-red-500", name: "Serviços Periódicos", desc: "Controle extintores, limpeza de cisterna, dedetização e qualquer serviço recorrente com alertas configuráveis." },
+    { icon: ClipboardCheck, accent: "bg-red-500", name: "Inspeções", desc: "Modelos de inspeção com frequência automática. Execuções, registros fotográficos e ações corretivas rastreáveis." },
+    { icon: AlertTriangle, accent: "bg-red-500", name: "IC & NC", desc: "Registre incidentes e não conformidades. Plano de ação corretiva com status, evidências e rastreabilidade." },
+    { icon: HardHat, accent: "bg-orange-500", name: "EPIs", desc: "Catálogo com CA, controle de estoque, entregas por colaborador e alertas de vencimento de certificado." },
+    { icon: BookOpen, accent: "bg-blue-500", name: "Biblioteca de Documentos", desc: "Centralize PGR, PCMSO, procedimentos e políticas. Controle de revisões com ciclo automático." },
+  ],
+  "Saúde": [
+    { icon: GraduationCap, accent: "bg-amber-500", name: "Treinamentos", desc: "Matriz por cargo, certificados com validade e dashboard de conformidade. Saiba quem está em dia com as NRs." },
+    { icon: Stethoscope, accent: "bg-amber-500", name: "ASO / Exames", desc: "Registre exames admissionais, periódicos e demissionais. Alerta de vencimento e histórico por colaborador." },
+  ],
+  "Meio Ambiente": [
+    { icon: Recycle, accent: "bg-emerald-500", name: "Gestão de MTR", desc: "MTR com prazo de CDF monitorado e alerta automático. Gráficos de geração mensal por categoria de resíduo." },
+    { icon: FileText, accent: "bg-cyan-500", name: "Licenças Ambientais", desc: "LO, LI, outorgas e autorizações com histórico de renovações. Alertas de vencimento configuráveis." },
+    { icon: Users, accent: "bg-emerald-500", name: "Portal de Fornecedores", desc: "Link único para o fornecedor enviar documentos. Sem WhatsApp, sem e-mail. Pastas organizadas." },
+  ],
+};
+
+const modules = Object.values(moduleGroups).flat();
+
+const groupTabs = [
+  { key: "Segurança", color: "bg-red-500", textColor: "text-red-600", borderColor: "border-red-500" },
+  { key: "Saúde", color: "bg-amber-500", textColor: "text-amber-600", borderColor: "border-amber-500" },
+  { key: "Meio Ambiente", color: "bg-emerald-500", textColor: "text-emerald-600", borderColor: "border-emerald-500" },
 ];
 
 const testimonials = [
@@ -105,6 +108,7 @@ export default function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [activeGroup, setActiveGroup] = useState("Segurança");
 
   useEffect(() => {
     const handle = () => setScrolled(window.scrollY > 40);
@@ -323,41 +327,30 @@ export default function LandingPage() {
 
       {/* ── DOR vs SOLUÇÃO ─────────────────────────── */}
       <section id="problema" className="py-24 px-[5%] bg-muted/30">
-        <div className="max-w-[1200px] mx-auto">
-          <Reveal>
+        <div className="max-w-[900px] mx-auto">
+          <Reveal className="text-center">
             <span className="text-[0.72rem] font-bold tracking-[0.12em] uppercase text-primary mb-4 block">O Problema</span>
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight mb-4">Sua gestão de HSE ainda<br />depende de planilha?</h2>
-            <p className="text-lg text-muted-foreground leading-relaxed max-w-[560px]">A maioria das empresas perde prazos críticos porque os dados estão espalhados em Excel, WhatsApp e e-mail.</p>
+            <p className="text-lg text-muted-foreground leading-relaxed max-w-[560px] mx-auto">A maioria das empresas perde prazos críticos porque os dados estão espalhados.</p>
           </Reveal>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
-            <Reveal delay={0.1}>
-              <div className="bg-card border rounded-2xl overflow-hidden shadow-sm">
-                <div className="px-6 py-4 bg-red-50 border-b border-red-200 font-display font-bold text-red-800 flex items-center gap-2.5">
-                  😰 Do jeito antigo
+          <div className="mt-14 space-y-4">
+            {painPoints.map((p, i) => (
+              <Reveal key={i} delay={i * 0.08}>
+                <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center gap-4 md:gap-6">
+                  <div className="bg-red-50/80 border border-red-100 rounded-xl px-5 py-4 flex items-center gap-3">
+                    <X className="h-4 w-4 text-red-400 flex-shrink-0" />
+                    <span className="text-sm text-red-700">{p.old}</span>
+                  </div>
+                  <div className="hidden md:flex">
+                    <ArrowRight className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="bg-emerald-50/80 border border-emerald-100 rounded-xl px-5 py-4 flex items-center gap-3">
+                    <Check className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                    <span className="text-sm text-emerald-700 font-medium">{p.new}</span>
+                  </div>
                 </div>
-                <div className="px-6 py-5 space-y-0">
-                  {painOld.map((p) => (
-                    <div key={p} className="flex items-start gap-3 py-2.5 border-b border-border last:border-0 text-sm text-muted-foreground">
-                      <X className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" /> {p}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </Reveal>
-            <Reveal delay={0.2}>
-              <div className="bg-card border rounded-2xl overflow-hidden shadow-sm">
-                <div className="px-6 py-4 bg-emerald-50 border-b border-emerald-200 font-display font-bold text-emerald-800 flex items-center gap-2.5">
-                  ✅ Com o Evita HSE
-                </div>
-                <div className="px-6 py-5 space-y-0">
-                  {painNew.map((p) => (
-                    <div key={p} className="flex items-start gap-3 py-2.5 border-b border-border last:border-0 text-sm text-emerald-700">
-                      <Check className="h-4 w-4 text-emerald-500 mt-0.5 flex-shrink-0" /> {p}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </Reveal>
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>
@@ -369,19 +362,22 @@ export default function LandingPage() {
             <span className="text-[0.72rem] font-bold tracking-[0.12em] uppercase text-primary mb-4 block">Como funciona</span>
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight">Do cadastro ao controle<br />em minutos</h2>
           </Reveal>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-14 relative">
-            {/* Line */}
-            <div className="hidden md:block absolute top-9 left-[calc(16.66%+24px)] right-[calc(16.66%+24px)] h-px bg-gradient-to-r from-blue-100 via-primary to-blue-100" />
-            {steps.map((s, i) => (
-              <Reveal key={s.num} delay={i * 0.1} className="text-center px-6 py-8 relative">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 font-display text-7xl font-extrabold text-blue-50 select-none pointer-events-none">{s.num}</div>
-                <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-2xl mx-auto mb-6 relative z-10 shadow-[0_8px_24px_rgba(37,99,235,0.3)]">
-                  {s.icon}
-                </div>
-                <h3 className="font-display font-bold text-lg mb-2">{s.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
-              </Reveal>
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 mt-14 relative">
+            {/* Connector line */}
+            <div className="hidden md:block absolute top-[52px] left-[calc(16.66%+32px)] right-[calc(16.66%+32px)] h-[2px] bg-gradient-to-r from-primary/20 via-primary/40 to-primary/20" />
+            {steps.map((s, i) => {
+              const StepIcon = s.icon;
+              return (
+                <Reveal key={s.num} delay={i * 0.12} className="text-center px-8 py-8 relative">
+                  <div className="absolute top-2 left-1/2 -translate-x-1/2 font-display text-[5.5rem] font-extrabold text-primary/[0.04] select-none pointer-events-none leading-none">{s.num}</div>
+                  <div className="w-[72px] h-[72px] bg-gradient-to-br from-primary to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-7 relative z-10 shadow-[0_12px_32px_rgba(37,99,235,0.3)] ring-4 ring-primary/10">
+                    <StepIcon className="h-7 w-7 text-white" />
+                  </div>
+                  <h3 className="font-display font-bold text-lg mb-2.5">{s.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed max-w-[280px] mx-auto">{s.desc}</p>
+                </Reveal>
+              );
+            })}
           </div>
           <Reveal className="text-center mt-12">
             <Link to="/cadastro">
@@ -399,25 +395,43 @@ export default function LandingPage() {
           <Reveal>
             <span className="text-[0.72rem] font-bold tracking-[0.12em] uppercase text-primary mb-4 block">Módulos</span>
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight mb-4">Tudo que sua operação<br />HSE precisa</h2>
-            <p className="text-lg text-muted-foreground leading-relaxed max-w-[560px]">Dez módulos integrados em uma plataforma. Cada um resolve uma dor específica do dia a dia.</p>
+            <p className="text-lg text-muted-foreground leading-relaxed max-w-[560px]">Dez módulos integrados. Navegue por área para conhecer cada um.</p>
           </Reveal>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-12">
-            {modules.map((m, i) => (
-              <Reveal key={m.name} delay={(i % 3) * 0.1}>
-                <div className="bg-card border rounded-2xl overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-transparent group">
-                  <div className={`h-1 ${m.accent} group-hover:h-1.5 transition-all`} />
-                  <div className="p-6 pt-7">
-                    <m.icon className="h-7 w-7 text-muted-foreground mb-3.5" />
-                    <span className={`inline-block text-[0.65rem] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full mb-2.5 ${m.tagColor}`}>{m.tag}</span>
-                    <h3 className="font-display font-bold text-base mb-2">{m.name}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{m.desc}</p>
-                  </div>
+
+          {/* Tabs */}
+          <div className="flex flex-wrap gap-2 mt-10 mb-8">
+            {groupTabs.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveGroup(tab.key)}
+                className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 border-2 ${
+                  activeGroup === tab.key
+                    ? `${tab.color} text-white border-transparent shadow-md`
+                    : `bg-white ${tab.textColor} ${tab.borderColor} hover:bg-muted/50`
+                }`}
+              >
+                {tab.key}
+              </button>
+            ))}
+          </div>
+
+          {/* Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {(moduleGroups[activeGroup] || []).map((m, i) => (
+              <div key={m.name} className="bg-card border rounded-2xl overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-transparent group animate-fade-in">
+                <div className={`h-1 ${m.accent} group-hover:h-1.5 transition-all`} />
+                <div className="p-6 pt-7">
+                  <m.icon className="h-7 w-7 text-muted-foreground mb-3.5" />
+                  <h3 className="font-display font-bold text-base mb-2">{m.name}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{m.desc}</p>
                 </div>
-              </Reveal>
+              </div>
             ))}
           </div>
         </div>
       </section>
+
+
 
       {/* ── DEPOIMENTOS ─────────────────────────────── */}
       <section className="py-24 px-[5%]" style={{ background: "linear-gradient(135deg, hsl(214 100% 97%) 0%, hsl(214 95% 93%) 100%)" }}>

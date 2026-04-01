@@ -13,7 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Eye, FileText as FileTextIcon, Pencil, Trash2, Plus } from "lucide-react";
+import { Eye, FileText as FileTextIcon, Pencil, Trash2, Plus, Tags } from "lucide-react";
+import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { PageSkeleton } from "@/components/TableSkeleton";
 
@@ -113,18 +114,15 @@ export default function Documentos() {
       {isLoading ? (
         <PageSkeleton columns={9} />
       ) : documents.length === 0 ? (
-        <div className="text-center py-16 space-y-3">
-          <FileTextIcon className="h-12 w-12 mx-auto text-muted-foreground/40" />
-          <p className="text-muted-foreground">Nenhum documento cadastrado ainda.</p>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="inline-block">
-                <Button onClick={openNew} disabled={!!isExpired}><Plus className="h-4 w-4 mr-1" />Cadastrar primeiro documento</Button>
-              </div>
-            </TooltipTrigger>
-            {isExpired && <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>}
-          </Tooltip>
-        </div>
+        <ModuleOnboarding
+          title="Biblioteca de Documentos"
+          description="Organize seus documentos técnicos, controle revisões e vínculos."
+          icon={FileTextIcon}
+          steps={[
+            { title: "Criar tipos de documento", description: "Defina categorias como Procedimento, Instrução, Manual", icon: Tags, actionLabel: "Criar tipos", action: () => setTypesModalOpen(true), completed: types.length > 0 },
+            { title: "Cadastrar primeiro documento", description: "Registre título, revisão e arquivo do documento", icon: Plus, actionLabel: "Cadastrar", action: openNew, completed: false },
+          ] as OnboardingStep[]}
+        />
       ) : filtered.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">Nenhum documento encontrado com os filtros aplicados.</div>
       ) : (

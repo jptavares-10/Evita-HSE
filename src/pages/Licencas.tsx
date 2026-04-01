@@ -13,7 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Eye, RotateCw, Pencil, Trash2, FileText, Plus } from "lucide-react";
+import { Eye, RotateCw, Pencil, Trash2, FileText, Plus, Tags } from "lucide-react";
+import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { PageSkeleton } from "@/components/TableSkeleton";
 
@@ -130,20 +131,15 @@ export default function Licencas() {
       {isLoading ? (
         <PageSkeleton columns={8} />
       ) : enriched.length === 0 ? (
-        <div className="text-center py-16 space-y-3">
-          <FileText className="h-12 w-12 mx-auto text-muted-foreground/40" />
-          <p className="text-muted-foreground">Nenhuma licença ambiental cadastrada.</p>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="inline-block">
-                <Button onClick={openNew} disabled={!!isExpired}>
-                  <Plus className="h-4 w-4 mr-1" />Cadastrar primeira licença
-                </Button>
-              </div>
-            </TooltipTrigger>
-            {isExpired && <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>}
-          </Tooltip>
-        </div>
+        <ModuleOnboarding
+          title="Licenças Ambientais"
+          description="Gerencie suas licenças, vencimentos e renovações em um só lugar."
+          icon={FileText}
+          steps={[
+            { title: "Criar tipos de licença", description: "Defina categorias como LO, LI, LP, etc.", icon: Tags, actionLabel: "Criar tipos", action: () => setTypesModalOpen(true), completed: types.length > 0 },
+            { title: "Cadastrar primeira licença", description: "Registre número, órgão emissor e vencimento", icon: Plus, actionLabel: "Cadastrar", action: openNew, completed: false },
+          ] as OnboardingStep[]}
+        />
       ) : filtered.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">Nenhuma licença encontrada com os filtros aplicados.</div>
       ) : (

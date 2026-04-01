@@ -12,10 +12,13 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Settings, Pencil } from "lucide-react";
+import { Plus, Search, Settings, Pencil, Stethoscope, Users, Tags } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
+import { useNavigate } from "react-router-dom";
 
 export default function Aso() {
+  const navigate = useNavigate();
   usePageTitle("ASO — Evita HSE");
 
   const { data: records = [], isLoading } = useAsoRecords();
@@ -96,6 +99,21 @@ export default function Aso() {
       default: return null;
     }
   };
+
+  if (activeEmployees.length === 0 && records.length === 0) {
+    return (
+      <ModuleOnboarding
+        title="Exames Ocupacionais (ASO)"
+        description="Controle ASOs e vencimentos de exames dos seus colaboradores."
+        icon={Stethoscope}
+        steps={[
+          { title: "Cadastrar colaboradores", description: "Necessário para vincular exames ocupacionais", icon: Users, actionLabel: "Ir para colaboradores", action: () => navigate("/treinamentos/colaboradores"), completed: false },
+          { title: "Configurar tipos de exame", description: "Defina admissional, periódico, demissional, etc.", icon: Tags, actionLabel: "Configurar", action: () => setTypesOpen(true), completed: examTypes.length > 0 },
+          { title: "Registrar primeiro ASO", description: "Vincule um exame a um colaborador com data e vencimento", icon: Plus, actionLabel: "Registrar", action: () => { setEditRecord(null); setSelectedEmployee(null); setDrawerOpen(true); }, completed: false },
+        ] as OnboardingStep[]}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-up">

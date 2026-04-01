@@ -11,7 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Plus, Search, Eye, Pencil, XCircle, Trash2, AlertTriangle } from "lucide-react";
+import { Plus, Search, Eye, Pencil, XCircle, Trash2, AlertTriangle, FileWarning } from "lucide-react";
+import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
 import { getTypeInfo, getSeverityInfo, getStatusInfo, formatDateTimeBR, OCCURRENCE_TYPES, SEVERITY_LEVELS, STATUS_OPTIONS } from "@/lib/occurrences";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { TableSkeleton } from "@/components/TableSkeleton";
@@ -116,15 +117,19 @@ export default function Incidentes() {
       {/* Table */}
       {isLoading ? (
         <TableSkeleton columns={7} />
+      ) : occurrences.length === 0 ? (
+        <ModuleOnboarding
+          title="IC & NC — Incidentes e Não Conformidades"
+          description="Registre ocorrências e acompanhe ações corretivas para melhorar a segurança."
+          icon={AlertTriangle}
+          steps={[
+            { title: "Registrar primeira ocorrência", description: "Documente incidentes, quase-acidentes ou não conformidades", icon: FileWarning, actionLabel: "Registrar", action: () => { setEditingOcc(null); setDrawerOpen(true); }, completed: false },
+          ] as OnboardingStep[]}
+        />
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 space-y-3">
           <AlertTriangle className="h-12 w-12 mx-auto text-muted-foreground/30" />
-          <p className="text-muted-foreground">
-            {occurrences.length === 0 ? "Nenhuma ocorrência registrada. Isso é uma boa notícia! 🎉" : "Nenhuma ocorrência encontrada com os filtros aplicados."}
-          </p>
-          {occurrences.length === 0 && (
-            <Button onClick={() => { setEditingOcc(null); setDrawerOpen(true); }} disabled={planExpired}>Registrar primeira ocorrência</Button>
-          )}
+          <p className="text-muted-foreground">Nenhuma ocorrência encontrada com os filtros aplicados.</p>
         </div>
       ) : (
         <div className="border rounded-lg">

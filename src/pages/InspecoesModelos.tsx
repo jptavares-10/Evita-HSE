@@ -12,12 +12,15 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Plus, Search, Pencil, Trash2, Clock, FileText, ClipboardCheck } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Clock, FileText, ClipboardCheck, Users } from "lucide-react";
+import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
+import { useNavigate } from "react-router-dom";
 import { TableSkeleton } from "@/components/TableSkeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function InspecoesModelos() {
+  const navigate = useNavigate();
   const { company } = useAuth();
   const { data: models = [], isLoading } = useInspectionModels();
   const deleteModel = useDeleteInspectionModel();
@@ -85,11 +88,20 @@ export default function InspecoesModelos() {
       {/* Table */}
       {isLoading ? (
         <TableSkeleton columns={6} />
+      ) : models.length === 0 ? (
+        <ModuleOnboarding
+          title="Inspeções de Segurança"
+          description="Configure modelos de inspeção e acompanhe execuções periódicas."
+          icon={ClipboardCheck}
+          steps={[
+            { title: "Cadastrar colaboradores", description: "Necessário para definir responsáveis pelas inspeções", icon: Users, actionLabel: "Ir para colaboradores", action: () => navigate("/treinamentos/colaboradores"), completed: employees.length > 0 },
+            { title: "Criar primeiro modelo de inspeção", description: "Defina nome, periodicidade e responsável", icon: Plus, actionLabel: "Criar modelo", action: () => { setEditing(null); setDrawerOpen(true); }, completed: false },
+          ] as OnboardingStep[]}
+        />
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 space-y-3">
           <ClipboardCheck className="h-12 w-12 mx-auto text-muted-foreground/30" />
-          <p className="text-muted-foreground">Nenhum modelo de inspeção cadastrado.</p>
-          <Button onClick={() => { setEditing(null); setDrawerOpen(true); }} disabled={!!isExpired}>Criar primeiro modelo</Button>
+          <p className="text-muted-foreground">Nenhum modelo encontrado com os filtros aplicados.</p>
         </div>
       ) : (
         <div className="bg-card border rounded-lg">

@@ -4,8 +4,9 @@ import { usePeriodicServices, useServiceCategories, useDeleteService } from "@/h
 import { getServiceStatus, getStatusInfo, formatDateBR, getFrequencyLabel } from "@/lib/services";
 import { KpiCards } from "@/components/servicos/KpiCards";
 import { ServiceFilters } from "@/components/servicos/ServiceFilters";
-import { ServiceEmptyState } from "@/components/servicos/ServiceEmptyState";
 import { ServiceDrawer } from "@/components/servicos/ServiceDrawer";
+import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
+import { ClipboardList, Tags, Plus } from "lucide-react";
 import { ServiceDetailDrawer } from "@/components/servicos/ServiceDetailDrawer";
 import { RegisterCompletionModal } from "@/components/servicos/RegisterCompletionModal";
 import { DeleteServiceDialog } from "@/components/servicos/DeleteServiceDialog";
@@ -126,7 +127,15 @@ export default function Servicos() {
       {isLoading ? (
         <PageSkeleton columns={8} />
       ) : enrichedServices.length === 0 ? (
-        <ServiceEmptyState onCreateFirst={openNew} isExpired={!!isExpired} />
+        <ModuleOnboarding
+          title="Serviços Periódicos"
+          description="Configure seus serviços periódicos para acompanhar vencimentos e manter a conformidade."
+          icon={ClipboardList}
+          steps={[
+            { title: "Criar categorias de serviço", description: "Organize seus serviços por tipo (ex: Manutenção, Calibração)", icon: Tags, actionLabel: "Criar categoria", action: () => setCategoriesModalOpen(true), completed: categories.length > 0 },
+            { title: "Cadastrar primeiro serviço", description: "Registre um serviço periódico com frequência e alertas", icon: Plus, actionLabel: "Criar serviço", action: openNew, completed: false },
+          ] as OnboardingStep[]}
+        />
       ) : filtered.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">Nenhum serviço encontrado com os filtros aplicados.</div>
       ) : (

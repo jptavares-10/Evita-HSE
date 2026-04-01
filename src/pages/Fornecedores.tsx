@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Plus, FolderOpen, Copy, Pencil, Trash2, Phone, Users, FileText, AlertTriangle } from "lucide-react";
+import { Plus, FolderOpen, Copy, Pencil, Trash2, Phone, Users, FileText, AlertTriangle, UserPlus, Globe } from "lucide-react";
+import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
 import { SupplierDrawer } from "@/components/fornecedores/SupplierDrawer";
 import { ManageSupplierCategoriesModal } from "@/components/fornecedores/ManageSupplierCategoriesModal";
 import { DeleteSupplierDialog } from "@/components/fornecedores/DeleteSupplierDialog";
@@ -111,11 +112,20 @@ export default function Fornecedores() {
       {/* Table */}
       {isLoading ? (
         <TableSkeleton columns={7} />
+      ) : suppliers.length === 0 ? (
+        <ModuleOnboarding
+          title="Fornecedores"
+          description="Gerencie seus fornecedores, documentos e portal de autoatendimento."
+          icon={Users}
+          steps={[
+            { title: "Cadastrar primeiro fornecedor", description: "Registre nome, contato e categoria do fornecedor", icon: UserPlus, actionLabel: "Cadastrar", action: handleNew, completed: false },
+            { title: "Ativar portal do fornecedor", description: "Após cadastrar, ative o portal para que o fornecedor envie documentos", icon: Globe, actionLabel: "Cadastrar primeiro", action: handleNew, completed: false },
+          ] as OnboardingStep[]}
+        />
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 space-y-3">
           <Users className="h-12 w-12 text-muted-foreground/40 mx-auto" />
-          <p className="text-muted-foreground">Nenhum fornecedor cadastrado ainda.</p>
-          {!planExpired && <Button onClick={handleNew}>Cadastrar primeiro fornecedor</Button>}
+          <p className="text-muted-foreground">Nenhum fornecedor encontrado com os filtros aplicados.</p>
         </div>
       ) : (
         <div className="border rounded-lg overflow-hidden">

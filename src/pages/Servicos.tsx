@@ -18,6 +18,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { CheckCircle2, AlertTriangle, XCircle, RotateCw, Pencil, Trash2, Eye, Power, PowerOff } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { PageSkeleton } from "@/components/TableSkeleton";
+import { usePermission } from "@/hooks/usePermission";
+import { ViewerBadge } from "@/components/ViewerBadge";
+import { PageSkeleton } from "@/components/TableSkeleton";
 
 export default function Servicos() {
   usePageTitle("Serviços Periódicos — Evita HSE");

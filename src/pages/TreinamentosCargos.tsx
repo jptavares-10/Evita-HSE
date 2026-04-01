@@ -115,7 +115,7 @@ export default function TreinamentosCargos() {
                 saveSector.mutate({ name: newSectorName.trim() }, { onSuccess: () => { setNewSectorName(""); toast({ title: "Setor criado" }); } });
               }
             }}
-            disabled={isExpired}
+            disabled={isDisabled}
             className="w-64"
           />
           <Button

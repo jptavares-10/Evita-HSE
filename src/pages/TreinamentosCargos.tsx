@@ -265,7 +265,7 @@ export default function TreinamentosCargos() {
                                 size="icon"
                                 variant="ghost"
                                 className="h-8 w-8"
-                                disabled={isExpired}
+                                 disabled={isDisabled}
                                 onClick={() => { setEditingId(pos.id); setEditingName(pos.name); setEditingSectorId(pos.sector_id || "none"); }}
                               >
                                 <Pencil className="h-3.5 w-3.5" />

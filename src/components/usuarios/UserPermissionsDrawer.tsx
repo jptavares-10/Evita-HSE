@@ -45,6 +45,7 @@ const MODULE_GROUPS = [
     modules: [
       { key: "trainings" as ModuleKey, label: "Treinamentos", icon: GraduationCap },
       { key: "aso" as ModuleKey, label: "ASO", icon: Stethoscope },
+      { key: "epi" as ModuleKey, label: "EPIs", icon: HardHat },
     ],
   },
   {

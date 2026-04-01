@@ -48,7 +48,10 @@ export default function EpiEstoque() {
             </SelectContent>
           </Select>
         </div>
-        <Button onClick={() => setDrawerOpen(true)}><Plus className="h-4 w-4 mr-2" />Nova Movimentação</Button>
+        <div className="flex items-center gap-2">
+          {!canEdit && <ViewerBadge />}
+          <PermissionButton canEdit={canEdit} onClick={() => setDrawerOpen(true)}><Plus className="h-4 w-4 mr-2" />Nova Movimentação</PermissionButton>
+        </div>
       </div>
 
       {isLoading ? (

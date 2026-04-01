@@ -35,7 +35,10 @@ export default function EpiEntregas() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Buscar por colaborador ou EPI..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
         </div>
-        <Button onClick={() => setDrawerOpen(true)}><Plus className="h-4 w-4 mr-2" />Nova Entrega</Button>
+        <div className="flex items-center gap-2">
+          {!canEdit && <ViewerBadge />}
+          <PermissionButton canEdit={canEdit} onClick={() => setDrawerOpen(true)}><Plus className="h-4 w-4 mr-2" />Nova Entrega</PermissionButton>
+        </div>
       </div>
 
       {isLoading ? (

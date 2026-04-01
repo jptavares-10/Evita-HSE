@@ -64,7 +64,7 @@ export default function EpiCatalogo() {
                 <TableHead>Status CA</TableHead>
                 <TableHead className="text-right">Estoque</TableHead>
                 <TableHead>Status Estoque</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
+                {canEdit && <TableHead className="text-right">Ações</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>

@@ -130,7 +130,7 @@ export default function InspecoesModelos() {
                   <TableCell className="text-sm">{m.default_responsible?.name || "—"}</TableCell>
                   <TableCell>{m.linked_document ? <FileText className="h-4 w-4 text-primary" /> : "—"}</TableCell>
                   <TableCell>
-                    <Switch checked={m.status === "active"} onCheckedChange={() => handleToggleStatus(m)} disabled={!!isExpired} />
+                    <Switch checked={m.status === "active"} onCheckedChange={() => handleToggleStatus(m)} disabled={isDisabled} />
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">

@@ -74,16 +74,12 @@ export default function Incidentes() {
           <h1 className="text-2xl font-bold text-foreground">IC & NC — Incidentes e Não Conformidades</h1>
           <p className="text-muted-foreground text-sm mt-1">Gerencie ocorrências e ações corretivas</p>
         </div>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span>
-              <Button onClick={() => { setEditingOcc(null); setDrawerOpen(true); }} disabled={planExpired}>
-                <Plus className="h-4 w-4 mr-2" />Registrar ocorrência
-              </Button>
-            </span>
-          </TooltipTrigger>
-          {planExpired && <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>}
-        </Tooltip>
+        <div className="flex items-center gap-3">
+          {!canEdit && <ViewerBadge />}
+          <PermissionButton canEdit={canEdit} onClick={() => { setEditingOcc(null); setDrawerOpen(true); }} disabled={isDisabled}>
+            <Plus className="h-4 w-4 mr-2" />Registrar ocorrência
+          </PermissionButton>
+        </div>
       </div>
 
       <OccurrenceKpiCards occurrences={occurrences} actions={allActions} />

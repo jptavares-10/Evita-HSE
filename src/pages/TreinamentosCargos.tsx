@@ -137,7 +137,7 @@ export default function TreinamentosCargos() {
                 <button
                   onClick={() => deleteSector.mutate(s.id)}
                   className="ml-1 hover:text-destructive"
-                  disabled={isExpired}
+                   disabled={isDisabled}
                 >
                   <Trash2 className="h-3 w-3" />
                 </button>

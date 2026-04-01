@@ -2362,6 +2362,58 @@ export type Database = {
           },
         ]
       }
+      user_permissions: {
+        Row: {
+          company_id: string
+          id: string
+          module: string
+          permission: string
+          updated_at: string | null
+          updated_by: string | null
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          id?: string
+          module: string
+          permission?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          id?: string
+          module?: string
+          permission?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_permissions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_permissions_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_permissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       waste_categories: {
         Row: {
           color: string
@@ -2484,6 +2536,7 @@ export type Database = {
       }
       get_supplier_portal_data: { Args: { p_token: string }; Returns: Json }
       get_user_company_id: { Args: never; Returns: string }
+      get_user_permissions: { Args: { p_user_id: string }; Returns: Json }
       remove_member: { Args: { p_member_id: string }; Returns: Json }
       seed_default_aso_exam_types: {
         Args: { p_company_id: string }
@@ -2496,6 +2549,10 @@ export type Database = {
       seed_default_document_types: {
         Args: { p_company_id: string }
         Returns: undefined
+      }
+      set_user_permission: {
+        Args: { p_module: string; p_permission: string; p_user_id: string }
+        Returns: Json
       }
       update_company_safe_fields: {
         Args: {

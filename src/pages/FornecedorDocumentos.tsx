@@ -187,7 +187,7 @@ export default function FornecedorDocumentos() {
           ) : (
             <div className="space-y-2">
               {filteredDocs.map((doc: any) => (
-                <SupplierDocRow key={doc.id} doc={doc} planExpired={planExpired} onDelete={() => setDeleteTarget(doc)} />
+                <SupplierDocRow key={doc.id} doc={doc} planExpired={planExpired} onDelete={() => setDeleteTarget(doc)} canEdit={canEdit} />
               ))}
             </div>
           )}

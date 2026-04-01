@@ -17,6 +17,9 @@ import { Eye, RotateCw, Pencil, Trash2, FileText, Plus, Tags } from "lucide-reac
 import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { PageSkeleton } from "@/components/TableSkeleton";
+import { usePermission } from "@/hooks/usePermission";
+import { ViewerBadge } from "@/components/ViewerBadge";
+import { PermissionButton } from "@/components/PermissionButton";
 
 export default function Licencas() {
   usePageTitle("Licenças Ambientais — Evita HSE");

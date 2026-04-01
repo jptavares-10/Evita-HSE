@@ -19,6 +19,8 @@ import { ViewerBadge } from "@/components/ViewerBadge";
 export default function TreinamentosColaboradores() {
   const { company } = useAuth();
   const isExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("trainings");
+  const isDisabled = isExpired || !canEdit;
   const { data: employees = [] } = useEmployees();
   const { data: positions = [] } = useJobPositions();
   const { data: matrix = [] } = useTrainingMatrix();

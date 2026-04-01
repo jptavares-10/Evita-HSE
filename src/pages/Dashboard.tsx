@@ -221,7 +221,7 @@ export default function Dashboard() {
       if (st === "warning") items.push({ icon: Recycle, iconColor: "text-yellow-600", text: `MTR ${m.mtr_number}`, badge: "CDF em alerta", badgeColor: "bg-yellow-100 text-yellow-700", link: "/mtr", priority: 4 });
     });
     // Warning services
-    services.forEach((s: any) => {
+    services.filter((s: any) => s.status !== "inactive").forEach((s: any) => {
       const st = getServiceStatus(s.next_due_at, s.alert_days_before);
       if (st === "warning") items.push({ icon: ClipboardList, iconColor: "text-yellow-600", text: s.name, badge: "Vencendo", badgeColor: "bg-yellow-100 text-yellow-700", link: "/servicos", priority: 5 });
     });

@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { usePeriodicServices, useServiceCategories, useDeleteService } from "@/hooks/useServices";
+import { usePeriodicServices, useServiceCategories, useDeleteService, useToggleServiceStatus } from "@/hooks/useServices";
 import { getServiceStatus, getStatusInfo, formatDateBR, getFrequencyLabel } from "@/lib/services";
 import { KpiCards } from "@/components/servicos/KpiCards";
 import { ServiceFilters } from "@/components/servicos/ServiceFilters";
@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { CheckCircle2, AlertTriangle, XCircle, RotateCw, Pencil, Trash2, Eye } from "lucide-react";
+import { CheckCircle2, AlertTriangle, XCircle, RotateCw, Pencil, Trash2, Eye, Power, PowerOff } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { PageSkeleton } from "@/components/TableSkeleton";
 
@@ -25,6 +25,7 @@ export default function Servicos() {
   const { data: services = [], isLoading } = usePeriodicServices();
   const { data: categories = [] } = useServiceCategories();
   const deleteService = useDeleteService();
+  const toggleStatus = useToggleServiceStatus();
   const isExpired = company?.plan === "expired";
 
   // Filters
@@ -33,6 +34,7 @@ export default function Servicos() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("next_due_at");
   const [kpiFilter, setKpiFilter] = useState<string | null>(null);
+  const [showInactive, setShowInactive] = useState(false);
 
   // Modals/drawers
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -44,19 +46,27 @@ export default function Servicos() {
   const [categoriesModalOpen, setCategoriesModalOpen] = useState(false);
 
   // Status counts
+  // Split active vs inactive
+  const activeServices = useMemo(() => services.filter((s: any) => s.status !== "inactive"), [services]);
+  const inactiveServices = useMemo(() => services.filter((s: any) => s.status === "inactive"), [services]);
+
   const enrichedServices = useMemo(() => {
-    return services.map((s: any) => ({
+    const source = showInactive ? services : activeServices;
+    return source.map((s: any) => ({
       ...s,
-      _status: getServiceStatus(s.next_due_at, s.alert_days_before),
-      _statusInfo: getStatusInfo(s.next_due_at, s.alert_days_before),
+      _status: s.status === "inactive" ? "inactive" as const : getServiceStatus(s.next_due_at, s.alert_days_before),
+      _statusInfo: s.status === "inactive" ? { status: "inactive", label: "Inativo", color: "text-muted-foreground" } : getStatusInfo(s.next_due_at, s.alert_days_before),
     }));
-  }, [services]);
+  }, [services, activeServices, showInactive]);
 
   const counts = useMemo(() => {
     const c = { ok: 0, warning: 0, expired: 0 };
-    enrichedServices.forEach((s: any) => { c[s._status as keyof typeof c]++; });
+    activeServices.forEach((s: any) => {
+      const st = getServiceStatus(s.next_due_at, s.alert_days_before);
+      c[st as keyof typeof c]++;
+    });
     return c;
-  }, [enrichedServices]);
+  }, [activeServices]);
 
   // Active status filter (KPI cards override status select)
   const activeStatus = kpiFilter || (statusFilter !== "all" ? statusFilter : null);
@@ -92,6 +102,7 @@ export default function Servicos() {
   };
 
   const statusIcon = (status: string) => {
+    if (status === "inactive") return <PowerOff className="h-4 w-4 text-muted-foreground" />;
     if (status === "ok") return <CheckCircle2 className="h-4 w-4 text-green-500" />;
     if (status === "warning") return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
     return <XCircle className="h-4 w-4 text-red-500" />;
@@ -105,12 +116,15 @@ export default function Servicos() {
       </div>
 
       <KpiCards
-        total={enrichedServices.length}
+        total={activeServices.length}
         ok={counts.ok}
         warning={counts.warning}
         expired={counts.expired}
         activeFilter={kpiFilter}
         onFilterClick={handleKpiClick}
+        inactiveCount={inactiveServices.length}
+        showInactive={showInactive}
+        onToggleInactive={() => setShowInactive(v => !v)}
       />
 
       <ServiceFilters
@@ -126,7 +140,7 @@ export default function Servicos() {
 
       {isLoading ? (
         <PageSkeleton columns={8} />
-      ) : enrichedServices.length === 0 ? (
+      ) : services.length === 0 ? (
         <ModuleOnboarding
           title="Serviços Periódicos"
           description="Configure seus serviços periódicos para acompanhar vencimentos e manter a conformidade."
@@ -154,8 +168,10 @@ export default function Servicos() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((s: any) => (
-                <TableRow key={s.id}>
+              {filtered.map((s: any) => {
+                const isInactive = s.status === "inactive";
+                return (
+                <TableRow key={s.id} className={isInactive ? "opacity-50" : ""}>
                   <TableCell>
                     <button onClick={() => { setDetailService(s); setDetailOpen(true); }} className="text-left font-medium text-primary hover:underline">
                       {s.name}
@@ -191,16 +207,18 @@ export default function Servicos() {
                         </TooltipTrigger>
                         <TooltipContent>Ver detalhes</TooltipContent>
                       </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div>
-                            <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!!isExpired} onClick={() => setCompletionService(s)}>
-                              <RotateCw className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>{isExpired ? "Seu plano expirou. Faça upgrade para continuar." : "Registrar realização"}</TooltipContent>
-                      </Tooltip>
+                      {!isInactive && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div>
+                              <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!!isExpired} onClick={() => setCompletionService(s)}>
+                                <RotateCw className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>{isExpired ? "Seu plano expirou. Faça upgrade para continuar." : "Registrar realização"}</TooltipContent>
+                        </Tooltip>
+                      )}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div>
@@ -210,6 +228,22 @@ export default function Servicos() {
                           </div>
                         </TooltipTrigger>
                         <TooltipContent>{isExpired ? "Seu plano expirou. Faça upgrade para continuar." : "Editar"}</TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              disabled={!!isExpired || toggleStatus.isPending}
+                              onClick={() => toggleStatus.mutate({ serviceId: s.id, newStatus: isInactive ? "active" : "inactive" })}
+                            >
+                              {isInactive ? <Power className="h-4 w-4 text-green-600" /> : <PowerOff className="h-4 w-4 text-muted-foreground" />}
+                            </Button>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>{isInactive ? "Reativar serviço" : "Desativar serviço"}</TooltipContent>
                       </Tooltip>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -224,7 +258,8 @@ export default function Servicos() {
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+                );
+              })}
             </TableBody>
           </Table>
         </div>

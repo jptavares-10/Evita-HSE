@@ -1,0 +1,1 @@
+ALTER TABLE public.periodic_services ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'active';

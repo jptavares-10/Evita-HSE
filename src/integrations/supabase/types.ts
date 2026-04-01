@@ -1689,6 +1689,7 @@ export type Database = {
           name: string
           next_due_at: string
           notes: string | null
+          status: string
           supplier: string | null
           updated_at: string
         }
@@ -1706,6 +1707,7 @@ export type Database = {
           name: string
           next_due_at: string
           notes?: string | null
+          status?: string
           supplier?: string | null
           updated_at?: string
         }
@@ -1723,6 +1725,7 @@ export type Database = {
           name?: string
           next_due_at?: string
           notes?: string | null
+          status?: string
           supplier?: string | null
           updated_at?: string
         }

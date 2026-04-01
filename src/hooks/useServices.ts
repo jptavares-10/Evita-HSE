@@ -136,6 +136,29 @@ export function useSaveService() {
   });
 }
 
+export function useToggleServiceStatus() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async ({ serviceId, newStatus }: { serviceId: string; newStatus: "active" | "inactive" }) => {
+      const { error } = await supabase
+        .from("periodic_services")
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq("id", serviceId);
+      if (error) throw error;
+      return newStatus;
+    },
+    onSuccess: (newStatus) => {
+      queryClient.invalidateQueries({ queryKey: ["periodic-services"] });
+      toast({ title: newStatus === "active" ? "Serviço reativado" : "Serviço desativado" });
+    },
+    onError: () => {
+      toast({ title: "Erro ao alterar status do serviço", variant: "destructive" });
+    },
+  });
+}
+
 export function useDeleteService() {
   const queryClient = useQueryClient();
   const { toast } = useToast();

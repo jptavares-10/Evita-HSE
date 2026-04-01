@@ -16,6 +16,7 @@ import { TableSkeleton } from "@/components/TableSkeleton";
 
 export default function EpiEstoque() {
   const { data: movements = [], isLoading } = useEpiStockMovements();
+  const { canEdit } = usePermission("epi");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");

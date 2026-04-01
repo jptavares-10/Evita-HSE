@@ -205,8 +205,8 @@ export default function InspecaoDetalhe() {
             Ações Corretivas
             {openActions.length > 0 && <Badge variant="outline" className="bg-orange-100 text-orange-700 border-orange-200 text-xs">{openActions.length} abertas</Badge>}
           </h2>
-          {!isCompleted && !showActionForm && (
-            <Button size="sm" variant="outline" onClick={() => setShowActionForm(true)} disabled={!!isExpired}>
+          {!isCompleted && !showActionForm && canEdit && (
+            <Button size="sm" variant="outline" onClick={() => setShowActionForm(true)} disabled={isDisabled}>
               <Plus className="h-4 w-4 mr-1" />
               Adicionar Ação Corretiva
             </Button>

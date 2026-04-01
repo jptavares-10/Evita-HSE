@@ -24,6 +24,8 @@ export default function Incidentes() {
   usePageTitle("IC & NC — Evita HSE");
   const { company } = useAuth();
   const planExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("ic_nc");
+  const isDisabled = planExpired || !canEdit;
   const { data: occurrences = [], isLoading } = useOccurrences();
   const { data: allActions = [] } = useAllCorrectiveActions();
 

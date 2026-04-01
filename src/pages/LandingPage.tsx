@@ -399,7 +399,7 @@ export default function LandingPage() {
           <Reveal>
             <span className="text-[0.72rem] font-bold tracking-[0.12em] uppercase text-primary mb-4 block">Módulos</span>
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight mb-4">Tudo que sua operação<br />HSE precisa</h2>
-            <p className="text-lg text-muted-foreground leading-relaxed max-w-[560px]">Seis módulos integrados em uma plataforma. Cada um resolve uma dor específica do dia a dia.</p>
+            <p className="text-lg text-muted-foreground leading-relaxed max-w-[560px]">Dez módulos integrados em uma plataforma. Cada um resolve uma dor específica do dia a dia.</p>
           </Reveal>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-12">
             {modules.map((m, i) => (

@@ -28,6 +28,8 @@ export default function Licencas() {
   const { data: types = [] } = useLicenseTypes();
   const deleteLicense = useDeleteLicense();
   const isExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("environmental_licenses");
+  const isDisabled = !!isExpired || !canEdit;
 
   // Filters
   const [search, setSearch] = useState("");

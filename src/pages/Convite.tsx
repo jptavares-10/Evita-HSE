@@ -30,8 +30,8 @@ export default function Convite() {
     }
 
     supabase
-      .rpc("validate_invitation_token", { p_token: token })
-      .then(({ data, error: fetchError }) => {
+      .rpc("validate_invitation_token" as any, { p_token: token })
+      .then(({ data, error: fetchError }: any) => {
         if (fetchError || !data || !data.valid) {
           const reason = data?.error;
           if (reason === "expired") {

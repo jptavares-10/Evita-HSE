@@ -26,8 +26,10 @@ export default function TreinamentosVisaoGeral() {
   const { data: matrix = [] } = useTrainingMatrix();
   const { data: allRecords = [] } = useAllRecords();
   const { data: positions = [] } = useJobPositions();
+  const { data: sectors = [] } = useSectors();
   const { toast } = useToast();
   const qc = useQueryClient();
+  const navigate = useNavigate();
 
   // Filters
   const [filterPosition, setFilterPosition] = useState<string>("all");

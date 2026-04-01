@@ -2520,6 +2520,10 @@ export type Database = {
       }
     }
     Functions: {
+      accept_invitation_membership: {
+        Args: { p_full_name?: string; p_token: string }
+        Returns: Json
+      }
       create_company_and_admin: {
         Args: {
           p_cnpj?: string
@@ -2534,9 +2538,14 @@ export type Database = {
         Args: { p_name: string; p_parent_folder_id?: string; p_token: string }
         Returns: Json
       }
+      get_pending_invitation_for_current_user: { Args: never; Returns: Json }
       get_supplier_portal_data: { Args: { p_token: string }; Returns: Json }
       get_user_company_id: { Args: never; Returns: string }
       get_user_permissions: { Args: { p_user_id: string }; Returns: Json }
+      has_pending_invitation: {
+        Args: { p_company_id: string; p_email: string }
+        Returns: boolean
+      }
       remove_member: { Args: { p_member_id: string }; Returns: Json }
       seed_default_aso_exam_types: {
         Args: { p_company_id: string }

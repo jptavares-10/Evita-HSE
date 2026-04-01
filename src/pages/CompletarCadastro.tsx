@@ -56,6 +56,14 @@ export default function CompletarCadastro() {
         await refreshProfile();
         navigate("/dashboard", { replace: true });
       } else {
+        const { data: invitationData } = await supabase.rpc("get_pending_invitation_for_current_user" as any);
+        const invitation = invitationData as any;
+
+        if (invitation?.found && invitation?.token) {
+          navigate(`/convite?token=${invitation.token}`, { replace: true });
+          return;
+        }
+
         setChecking(false);
       }
     };

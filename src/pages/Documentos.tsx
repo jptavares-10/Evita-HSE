@@ -15,6 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Eye, FileText as FileTextIcon, Pencil, Trash2, Plus } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { PageSkeleton } from "@/components/TableSkeleton";
 
 export default function Documentos() {
   usePageTitle("Biblioteca de Documentos — Evita HSE");
@@ -110,7 +111,7 @@ export default function Documentos() {
       />
 
       {isLoading ? (
-        <div className="text-center py-12 text-muted-foreground">Carregando...</div>
+        <PageSkeleton columns={9} />
       ) : documents.length === 0 ? (
         <div className="text-center py-16 space-y-3">
           <FileTextIcon className="h-12 w-12 mx-auto text-muted-foreground/40" />

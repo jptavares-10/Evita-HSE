@@ -15,6 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Eye, RotateCw, Pencil, Trash2, FileText, Plus } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { PageSkeleton } from "@/components/TableSkeleton";
 
 export default function Licencas() {
   usePageTitle("Licenças Ambientais — Evita HSE");
@@ -127,7 +128,7 @@ export default function Licencas() {
       />
 
       {isLoading ? (
-        <div className="text-center py-12 text-muted-foreground">Carregando...</div>
+        <PageSkeleton columns={8} />
       ) : enriched.length === 0 ? (
         <div className="text-center py-16 space-y-3">
           <FileText className="h-12 w-12 mx-auto text-muted-foreground/40" />

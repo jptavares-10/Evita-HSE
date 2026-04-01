@@ -16,6 +16,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Eye, FileCheck, Pencil, Trash2, Recycle, Plus, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { TableSkeleton } from "@/components/TableSkeleton";
 
 export default function Mtr() {
   usePageTitle("Gestão de MTR — Evita HSE");
@@ -91,7 +92,7 @@ export default function Mtr() {
       />
 
       {isLoading ? (
-        <div className="text-center py-12 text-muted-foreground">Carregando...</div>
+        <TableSkeleton columns={7} />
       ) : filteredMtrs.length === 0 ? (
         <div className="text-center py-16 space-y-4">
           <Recycle className="h-12 w-12 mx-auto text-muted-foreground/40" />

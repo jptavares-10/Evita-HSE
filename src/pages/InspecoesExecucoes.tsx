@@ -14,6 +14,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Eye, Plus, Search, ClipboardCheck } from "lucide-react";
 import { startOfWeek, endOfWeek, parseISO, isWithinInterval, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { TableSkeleton } from "@/components/TableSkeleton";
 
 export default function InspecoesExecucoes() {
   const { company } = useAuth();
@@ -148,7 +149,7 @@ export default function InspecoesExecucoes() {
 
       {/* Table */}
       {isLoading ? (
-        <div className="text-center py-12 text-muted-foreground">Carregando...</div>
+        <TableSkeleton columns={7} />
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 space-y-3">
           <ClipboardCheck className="h-12 w-12 mx-auto text-muted-foreground/30" />

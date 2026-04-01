@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { formatPhone } from "@/lib/suppliers";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { TableSkeleton } from "@/components/TableSkeleton";
 
 export default function Fornecedores() {
   usePageTitle("Fornecedores — Evita HSE");
@@ -109,7 +110,7 @@ export default function Fornecedores() {
 
       {/* Table */}
       {isLoading ? (
-        <div className="text-center py-12 text-muted-foreground">Carregando...</div>
+        <TableSkeleton columns={7} />
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 space-y-3">
           <Users className="h-12 w-12 text-muted-foreground/40 mx-auto" />

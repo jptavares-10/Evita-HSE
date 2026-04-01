@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Plus, Pencil, Trash2, Search, HardHat } from "lucide-react";
+import { TableSkeleton } from "@/components/TableSkeleton";
 
 export default function EpiCatalogo() {
   const { data: epiTypes = [], isLoading } = useEpiTypes();
@@ -37,7 +38,7 @@ export default function EpiCatalogo() {
       </div>
 
       {isLoading ? (
-        <Card><CardContent className="p-8 text-center text-muted-foreground">Carregando...</CardContent></Card>
+        <TableSkeleton columns={7} />
       ) : filtered.length === 0 ? (
         <Card>
           <CardContent className="p-8 text-center">

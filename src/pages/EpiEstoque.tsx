@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Search, ArrowUpCircle, ArrowDownCircle, Package } from "lucide-react";
+import { TableSkeleton } from "@/components/TableSkeleton";
 
 export default function EpiEstoque() {
   const { data: movements = [], isLoading } = useEpiStockMovements();
@@ -47,7 +48,7 @@ export default function EpiEstoque() {
       </div>
 
       {isLoading ? (
-        <Card><CardContent className="p-8 text-center text-muted-foreground">Carregando...</CardContent></Card>
+        <TableSkeleton columns={5} />
       ) : filtered.length === 0 ? (
         <Card>
           <CardContent className="p-8 text-center">

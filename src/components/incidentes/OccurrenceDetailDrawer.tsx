@@ -186,9 +186,11 @@ export function OccurrenceDetailDrawer({ open, onOpenChange, occurrence, onEdit,
             <TabsContent value="actions" className="px-6 py-4 space-y-4 m-0">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold">Ações corretivas</h3>
-                <Button size="sm" variant="outline" onClick={() => setShowAddAction(true)} disabled={planExpired}>
-                  <Plus className="h-3.5 w-3.5 mr-1" />Adicionar ação
-                </Button>
+                {canEdit && (
+                  <Button size="sm" variant="outline" onClick={() => setShowAddAction(true)} disabled={planExpired}>
+                    <Plus className="h-3.5 w-3.5 mr-1" />Adicionar ação
+                  </Button>
+                )}
               </div>
 
               {showAddAction && (

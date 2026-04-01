@@ -180,7 +180,7 @@ export default function Fornecedores() {
                         </TooltipTrigger>
                         <TooltipContent>Ver documentos</TooltipContent>
                       </Tooltip>
-                      {s.portal_enabled && (
+                      {canEdit && s.portal_enabled && (
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => copyPortalLink(s.portal_token)} disabled={planExpired}>
@@ -190,27 +190,31 @@ export default function Fornecedores() {
                           <TooltipContent>{planExpired ? "Plano expirado" : "Copiar link do portal"}</TooltipContent>
                         </Tooltip>
                       )}
-                      {planExpired ? (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8" disabled><Pencil className="h-4 w-4" /></Button>
-                          </TooltipTrigger>
-                          <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>
-                        </Tooltip>
-                      ) : (
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(s)}><Pencil className="h-4 w-4" /></Button>
-                      )}
-                      {planExpired ? (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8" disabled><Trash2 className="h-4 w-4" /></Button>
-                          </TooltipTrigger>
-                          <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>
-                        </Tooltip>
-                      ) : (
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => setDeleteTarget(s)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                      {canEdit && (
+                        <>
+                          {planExpired ? (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8" disabled><Pencil className="h-4 w-4" /></Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>
+                            </Tooltip>
+                          ) : (
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(s)}><Pencil className="h-4 w-4" /></Button>
+                          )}
+                          {planExpired ? (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8" disabled><Trash2 className="h-4 w-4" /></Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>
+                            </Tooltip>
+                          ) : (
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => setDeleteTarget(s)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </>
                       )}
                     </div>
                   </TableCell>

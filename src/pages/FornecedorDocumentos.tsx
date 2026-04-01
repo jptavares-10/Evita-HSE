@@ -129,7 +129,7 @@ export default function FornecedorDocumentos() {
         <div className="col-span-3 border rounded-lg p-4 space-y-2">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-semibold">Pastas</span>
-            {!planExpired && (
+            {canEdit && !planExpired && (
               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setNewFolderOpen(true)}><FolderPlus className="h-4 w-4" /></Button>
             )}
           </div>

@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, HandMetal } from "lucide-react";
+import { TableSkeleton } from "@/components/TableSkeleton";
 
 export default function EpiEntregas() {
   const { data: deliveries = [], isLoading } = useEpiDeliveries();

@@ -181,7 +181,7 @@ export default function LandingPage() {
               <span className="bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">HSE.</span>
             </h1>
             <p className="text-lg text-slate-400 leading-relaxed mb-9 max-w-[480px]">
-              Centralize treinamentos, licenças, MTRs, fornecedores e ocorrências em uma plataforma simples. Nunca mais seja pego de surpresa por uma fiscalização.
+              Centralize treinamentos, inspeções, EPIs, licenças, MTRs, documentos e fornecedores em uma plataforma simples. Nunca mais seja pego de surpresa por uma fiscalização.
             </p>
             <div className="flex flex-wrap gap-3 mb-10">
               <Link to="/cadastro">

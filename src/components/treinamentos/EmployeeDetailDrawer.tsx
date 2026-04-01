@@ -80,7 +80,7 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
   return (
     <>
       <Drawer open={!!employee} onOpenChange={(v) => !v && onClose()} direction="right">
-        <DrawerContent className="fixed right-0 top-0 bottom-0 w-full max-w-lg rounded-none border-l flex flex-col">
+        <DrawerContent className="fixed right-0 top-0 bottom-0 w-full max-w-lg rounded-none border-l flex flex-col mt-[96px] ml-[800px]">
           <DrawerHeader className="flex items-center justify-between">
             <div>
               <DrawerTitle>{employee?.name}</DrawerTitle>

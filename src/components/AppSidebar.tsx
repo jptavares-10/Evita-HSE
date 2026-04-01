@@ -188,7 +188,7 @@ export function AppSidebar() {
   const { data: asoRecords = [] } = useAsoRecords();
   const serviceBadge = useMemo(() => {
     let count = 0;
-    services.forEach((s: any) => {
+    services.filter((s: any) => s.status !== "inactive").forEach((s: any) => {
       const st = getServiceStatus(s.next_due_at, s.alert_days_before);
       if (st === "warning" || st === "expired") count++;
     });

@@ -68,7 +68,7 @@ export default function Dashboard() {
   // Services stats
   const serviceStats = useMemo(() => {
     let ok = 0, warning = 0, expired = 0;
-    services.forEach((s: any) => {
+    services.filter((s: any) => s.status !== "inactive").forEach((s: any) => {
       const st = getServiceStatus(s.next_due_at, s.alert_days_before);
       if (st === "expired") expired++;
       else if (st === "warning") warning++;

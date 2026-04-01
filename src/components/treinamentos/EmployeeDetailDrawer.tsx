@@ -12,6 +12,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { RegisterCertificateModal } from "./RegisterCertificateModal";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getSignedUrl } from "@/lib/storage-utils";
+import { usePermission } from "@/hooks/usePermission";
 
 function CertificateLink({ url, label = "Certificado" }: { url: string; label?: string }) {
   const [signedUrl, setSignedUrl] = useState<string | null>(null);

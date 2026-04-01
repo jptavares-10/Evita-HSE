@@ -173,9 +173,13 @@ export function useDeleteService() {
 
       if (attachments?.length) {
         const paths = attachments.map((a) => {
-          const url = new URL(a.file_url);
-          const parts = url.pathname.split("/storage/v1/object/public/service-attachments/");
-          return parts[1] || "";
+          try {
+            const url = new URL(a.file_url);
+            const parts = url.pathname.split("/storage/v1/object/public/service-attachments/");
+            return parts[1] || "";
+          } catch {
+            return a.file_url;
+          }
         }).filter(Boolean);
         if (paths.length) {
           await supabase.storage.from("service-attachments").remove(paths);

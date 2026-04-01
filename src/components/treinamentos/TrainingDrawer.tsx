@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from "@/components/ui/drawer";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -81,20 +81,28 @@ export function TrainingDrawer({ open, onOpenChange, training }: Props) {
   const activeDocuments = documents.filter((d: any) => d.status === "active");
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange} direction="right">
-        <DrawerContent className="fixed right-0 top-0 bottom-0 w-full max-w-md rounded-none border-l flex flex-col mb-0 mx-[850px] mt-0 ml-[850px]">
-        <DrawerHeader><DrawerTitle>{training ? "Editar treinamento" : "Novo treinamento"}</DrawerTitle></DrawerHeader>
-        <div className="flex-1 overflow-y-auto px-6 space-y-4">
-          <div><Label>Nome *</Label><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex: NR-35 — Trabalho em altura" /></div>
-          <div><Label>Descrição</Label><Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Descrição opcional" rows={3} /></div>
-
-          <div>
-            <Label>Norma de referência (NR / ISO)</Label>
-            <Input value={referenceStandard} onChange={(e) => setReferenceStandard(e.target.value)} placeholder="Ex: NR-35, ISO 45001, NR-10" />
-            <p className="text-xs text-muted-foreground mt-1">Norma regulamentadora ou padrão ISO associado</p>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="sm:max-w-md flex flex-col p-0">
+        <SheetHeader className="px-6 pt-6 pb-2">
+          <SheetTitle>{training ? "Editar treinamento" : "Novo treinamento"}</SheetTitle>
+        </SheetHeader>
+        <div className="flex-1 overflow-y-auto px-6 space-y-4 py-4">
+          <div className="space-y-1.5">
+            <Label>Nome *</Label>
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex: NR-35 — Trabalho em altura" />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Descrição</Label>
+            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Descrição opcional" rows={3} />
           </div>
 
-          <div>
+          <div className="space-y-1.5">
+            <Label>Norma de referência (NR / ISO)</Label>
+            <Input value={referenceStandard} onChange={(e) => setReferenceStandard(e.target.value)} placeholder="Ex: NR-35, ISO 45001, NR-10" />
+            <p className="text-xs text-muted-foreground">Norma regulamentadora ou padrão ISO associado</p>
+          </div>
+
+          <div className="space-y-1.5">
             <Label>Documento de referência (biblioteca)</Label>
             <Select value={referenceDocumentId ?? "none"} onValueChange={(v) => setReferenceDocumentId(v === "none" ? null : v)}>
               <SelectTrigger>
@@ -109,7 +117,7 @@ export function TrainingDrawer({ open, onOpenChange, training }: Props) {
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground mt-1">Vincule a um procedimento ou documento interno</p>
+            <p className="text-xs text-muted-foreground">Vincule a um procedimento ou documento interno</p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -118,12 +126,12 @@ export function TrainingDrawer({ open, onOpenChange, training }: Props) {
           </div>
           {hasExpiry && (
             <>
-              <div>
+              <div className="space-y-1.5">
                 <Label>Validade em meses *</Label>
                 <Input type="number" min={1} value={validityMonths} onChange={(e) => setValidityMonths(Number(e.target.value))} />
-                <p className="text-xs text-muted-foreground mt-1">Equivale a {formatValidityLabel(validityMonths)}</p>
+                <p className="text-xs text-muted-foreground">Equivale a {formatValidityLabel(validityMonths)}</p>
               </div>
-              <div>
+              <div className="space-y-1.5">
                 <Label>Avisar com antecedência de (dias)</Label>
                 <Input type="number" min={1} value={alertDays} onChange={(e) => setAlertDays(Number(e.target.value))} />
               </div>
@@ -153,11 +161,11 @@ export function TrainingDrawer({ open, onOpenChange, training }: Props) {
             )}
           </div>
         </div>
-        <DrawerFooter className="flex-row gap-2">
+        <SheetFooter className="px-6 pb-6 pt-2 flex-row gap-2 sm:flex-row">
           <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>Cancelar</Button>
           <Button className="flex-1" onClick={handleSave} disabled={!name.trim() || save.isPending}>Salvar</Button>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 }

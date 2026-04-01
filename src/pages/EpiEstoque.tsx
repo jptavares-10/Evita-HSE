@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Search, ArrowUpCircle, ArrowDownCircle, Package } from "lucide-react";
+import { TableSkeleton } from "@/components/TableSkeleton";
 
 export default function EpiEstoque() {
   const { data: movements = [], isLoading } = useEpiStockMovements();

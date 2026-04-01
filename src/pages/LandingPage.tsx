@@ -239,12 +239,25 @@ export default function LandingPage() {
                       <span className="ml-auto bg-red-500 text-white text-[0.5rem] font-bold px-1.5 rounded-full">3</span>
                     </div>
                     <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> Inspeções
+                      <span className="ml-auto bg-red-500 text-white text-[0.5rem] font-bold px-1.5 rounded-full">2</span>
+                    </div>
+                    <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> IC & NC
+                    </div>
+                    <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> EPIs
+                    </div>
+                    <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> Documentos
                     </div>
                     <div className="px-4 mt-2 mb-1 text-[0.5rem] text-white/25 tracking-widest uppercase">Saúde</div>
                     <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> Treinamentos
                       <span className="ml-auto bg-red-500 text-white text-[0.5rem] font-bold px-1.5 rounded-full">5</span>
+                    </div>
+                    <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> ASO
                     </div>
                     <div className="px-4 mt-2 mb-1 text-[0.5rem] text-white/25 tracking-widest uppercase">Meio Amb.</div>
                     <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
@@ -253,6 +266,9 @@ export default function LandingPage() {
                     </div>
                     <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> Licenças
+                    </div>
+                    <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> Fornecedores
                     </div>
                   </div>
                   {/* Main */}

@@ -30,16 +30,15 @@ export default function Convite() {
     }
 
     supabase
-      .from("invitations")
-      .select("*")
-      .eq("token", token)
-      .eq("status", "pending")
-      .single()
-      .then(({ data, error: fetchError }) => {
-        if (fetchError || !data) {
-          setError("Convite não encontrado ou já utilizado.");
-        } else if (new Date(data.expires_at) < new Date()) {
-          setError("Este convite expirou. Solicite um novo convite.");
+      .rpc("validate_invitation_token" as any, { p_token: token })
+      .then(({ data, error: fetchError }: any) => {
+        if (fetchError || !data || !data.valid) {
+          const reason = data?.error;
+          if (reason === "expired") {
+            setError("Este convite expirou. Solicite um novo convite.");
+          } else {
+            setError("Convite não encontrado ou já utilizado.");
+          }
         } else {
           setInvitation(data);
         }

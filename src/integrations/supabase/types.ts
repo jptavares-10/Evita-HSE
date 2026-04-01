@@ -2575,6 +2575,7 @@ export type Database = {
         }
         Returns: Json
       }
+      validate_invitation_token: { Args: { p_token: string }; Returns: Json }
     }
     Enums: {
       [_ in never]: never

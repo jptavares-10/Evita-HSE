@@ -125,13 +125,18 @@ export default function Aso() {
           <h1 className="text-2xl font-bold text-foreground">Exames Ocupacionais (ASO)</h1>
           <p className="text-muted-foreground mt-1">Controle de ASOs e vencimentos dos colaboradores.</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => setTypesOpen(true)}>
-            <Settings className="h-4 w-4 mr-1" /> Tipos de Exame
-          </Button>
-          <Button size="sm" onClick={() => { setEditRecord(null); setSelectedEmployee(null); setDrawerOpen(true); }}>
-            <Plus className="h-4 w-4 mr-1" /> Novo ASO
-          </Button>
+        <div className="flex items-center gap-2">
+          {!canEdit && <ViewerBadge />}
+          {canEdit && (
+            <>
+              <Button variant="outline" size="sm" onClick={() => setTypesOpen(true)}>
+                <Settings className="h-4 w-4 mr-1" /> Tipos de Exame
+              </Button>
+              <Button size="sm" onClick={() => { setEditRecord(null); setSelectedEmployee(null); setDrawerOpen(true); }}>
+                <Plus className="h-4 w-4 mr-1" /> Novo ASO
+              </Button>
+            </>
+          )}
         </div>
       </div>
 

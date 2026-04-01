@@ -18,6 +18,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { CheckCircle2, AlertTriangle, XCircle, RotateCw, Pencil, Trash2, Eye, Power, PowerOff } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { PageSkeleton } from "@/components/TableSkeleton";
+import { usePermission } from "@/hooks/usePermission";
+import { ViewerBadge } from "@/components/ViewerBadge";
+
 
 export default function Servicos() {
   usePageTitle("Serviços Periódicos — Evita HSE");
@@ -27,6 +30,8 @@ export default function Servicos() {
   const deleteService = useDeleteService();
   const toggleStatus = useToggleServiceStatus();
   const isExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("periodic_services");
+  const isDisabled = isExpired || !canEdit;
 
   // Filters
   const [search, setSearch] = useState("");
@@ -110,9 +115,12 @@ export default function Servicos() {
 
   return (
     <div className="space-y-6 animate-fade-up">
-      <div>
-        <h1 className="text-2xl font-bold">Serviços Periódicos</h1>
-        <p className="text-muted-foreground text-sm mt-1">Gerencie seus serviços, vencimentos e histórico.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Serviços Periódicos</h1>
+          <p className="text-muted-foreground text-sm mt-1">Gerencie seus serviços, vencimentos e histórico.</p>
+        </div>
+        {!canEdit && <ViewerBadge />}
       </div>
 
       <KpiCards
@@ -135,7 +143,7 @@ export default function Servicos() {
         categories={categories as any}
         onManageCategories={() => setCategoriesModalOpen(true)}
         onNewService={openNew}
-        isExpired={!!isExpired}
+        isExpired={!!isDisabled}
       />
 
       {isLoading ? (
@@ -207,7 +215,7 @@ export default function Servicos() {
                         </TooltipTrigger>
                         <TooltipContent>Ver detalhes</TooltipContent>
                       </Tooltip>
-                      {!isInactive && (
+                      {!isInactive && canEdit && (
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div>
@@ -219,42 +227,46 @@ export default function Servicos() {
                           <TooltipContent>{isExpired ? "Seu plano expirou. Faça upgrade para continuar." : "Registrar realização"}</TooltipContent>
                         </Tooltip>
                       )}
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div>
-                            <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!!isExpired} onClick={() => openEdit(s)}>
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>{isExpired ? "Seu plano expirou. Faça upgrade para continuar." : "Editar"}</TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              disabled={!!isExpired || toggleStatus.isPending}
-                              onClick={() => toggleStatus.mutate({ serviceId: s.id, newStatus: isInactive ? "active" : "inactive" })}
-                            >
-                              {isInactive ? <Power className="h-4 w-4 text-green-600" /> : <PowerOff className="h-4 w-4 text-muted-foreground" />}
-                            </Button>
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>{isInactive ? "Reativar serviço" : "Desativar serviço"}</TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" disabled={!!isExpired} onClick={() => setDeleteTarget(s)}>
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>{isExpired ? "Seu plano expirou. Faça upgrade para continuar." : "Excluir"}</TooltipContent>
-                      </Tooltip>
+                      {canEdit && (
+                        <>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div>
+                                <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!!isExpired} onClick={() => openEdit(s)}>
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>{isExpired ? "Seu plano expirou. Faça upgrade para continuar." : "Editar"}</TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  disabled={!!isExpired || toggleStatus.isPending}
+                                  onClick={() => toggleStatus.mutate({ serviceId: s.id, newStatus: isInactive ? "active" : "inactive" })}
+                                >
+                                  {isInactive ? <Power className="h-4 w-4 text-green-600" /> : <PowerOff className="h-4 w-4 text-muted-foreground" />}
+                                </Button>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>{isInactive ? "Reativar serviço" : "Desativar serviço"}</TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" disabled={!!isExpired} onClick={() => setDeleteTarget(s)}>
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>{isExpired ? "Seu plano expirou. Faça upgrade para continuar." : "Excluir"}</TooltipContent>
+                          </Tooltip>
+                        </>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

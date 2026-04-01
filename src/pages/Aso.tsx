@@ -16,10 +16,13 @@ import { Plus, Search, Settings, Pencil, Stethoscope, Users, Tags } from "lucide
 import { Skeleton } from "@/components/ui/skeleton";
 import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
 import { useNavigate } from "react-router-dom";
+import { usePermission } from "@/hooks/usePermission";
+import { ViewerBadge } from "@/components/ViewerBadge";
 
 export default function Aso() {
   const navigate = useNavigate();
   usePageTitle("ASO — Evita HSE");
+  const { canEdit } = usePermission("aso");
 
   const { data: records = [], isLoading } = useAsoRecords();
   const { data: examTypes = [] } = useAsoExamTypes();
@@ -122,13 +125,18 @@ export default function Aso() {
           <h1 className="text-2xl font-bold text-foreground">Exames Ocupacionais (ASO)</h1>
           <p className="text-muted-foreground mt-1">Controle de ASOs e vencimentos dos colaboradores.</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => setTypesOpen(true)}>
-            <Settings className="h-4 w-4 mr-1" /> Tipos de Exame
-          </Button>
-          <Button size="sm" onClick={() => { setEditRecord(null); setSelectedEmployee(null); setDrawerOpen(true); }}>
-            <Plus className="h-4 w-4 mr-1" /> Novo ASO
-          </Button>
+        <div className="flex items-center gap-2">
+          {!canEdit && <ViewerBadge />}
+          {canEdit && (
+            <>
+              <Button variant="outline" size="sm" onClick={() => setTypesOpen(true)}>
+                <Settings className="h-4 w-4 mr-1" /> Tipos de Exame
+              </Button>
+              <Button size="sm" onClick={() => { setEditRecord(null); setSelectedEmployee(null); setDrawerOpen(true); }}>
+                <Plus className="h-4 w-4 mr-1" /> Novo ASO
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -190,10 +198,12 @@ export default function Aso() {
                   <TableCell>{emp.asoExpiry ? formatDateBR(emp.asoExpiry) : "—"}</TableCell>
                   <TableCell>{getStatusBadge(emp.asoStatus)}</TableCell>
                   <TableCell className="text-right">
-                    <Button size="sm" variant="ghost" onClick={() => { setSelectedEmployee(emp); setEditRecord(emp.asoRecord); setDrawerOpen(true); }}>
-                      <Pencil className="h-3.5 w-3.5 mr-1" />
-                      {emp.asoRecord ? "Editar" : "Registrar"}
-                    </Button>
+                    {canEdit && (
+                      <Button size="sm" variant="ghost" onClick={() => { setSelectedEmployee(emp); setEditRecord(emp.asoRecord); setDrawerOpen(true); }}>
+                        <Pencil className="h-3.5 w-3.5 mr-1" />
+                        {emp.asoRecord ? "Editar" : "Registrar"}
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))

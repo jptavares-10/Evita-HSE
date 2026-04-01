@@ -18,12 +18,16 @@ import { Link } from "react-router-dom";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { TableSkeleton } from "@/components/TableSkeleton";
 import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
+import { usePermission } from "@/hooks/usePermission";
+import { ViewerBadge } from "@/components/ViewerBadge";
 
 export default function Mtr() {
   usePageTitle("Gestão de MTR — Evita HSE");
   const { company } = useAuth();
   const { data: mtrs = [], isLoading } = useMtrs();
   const isExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("mtr");
+  const isDisabled = isExpired || !canEdit;
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -75,9 +79,12 @@ export default function Mtr() {
           <h1 className="text-2xl font-bold">Gestão de MTR</h1>
           <p className="text-muted-foreground text-sm">Manifesto de Transporte de Resíduos</p>
         </div>
-        <Link to="/mtr/analise">
-          <Button variant="outline" size="sm"><BarChart3 className="h-4 w-4 mr-1" />Ver análise</Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          {!canEdit && <ViewerBadge />}
+          <Link to="/mtr/analise">
+            <Button variant="outline" size="sm"><BarChart3 className="h-4 w-4 mr-1" />Ver análise</Button>
+          </Link>
+        </div>
       </div>
 
       <MtrKpiCards mtrs={mtrs} activeFilter={kpiFilter} onFilter={setKpiFilter} />
@@ -89,7 +96,7 @@ export default function Mtr() {
         categories={[]} categoryFilter={[]} onCategoryChange={() => {}}
         onManageCategories={() => setCatModalOpen(true)}
         onNewMtr={handleNewMtr}
-        isExpired={isExpired}
+        isExpired={isDisabled}
       />
 
       {isLoading ? (
@@ -155,30 +162,34 @@ export default function Mtr() {
                           </TooltipTrigger>
                           <TooltipContent>Ver detalhes</TooltipContent>
                         </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button onClick={() => setCdfMtr(mtr)} disabled={mtr.cdf_status === "received" || isExpired} className="p-1.5 rounded hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed">
-                              <FileCheck className="h-4 w-4" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent>{mtr.cdf_status === "received" ? "CDF já registrado" : isExpired ? "Plano expirado" : "Registrar CDF"}</TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button onClick={() => handleEdit(mtr)} disabled={isExpired} className="p-1.5 rounded hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed">
-                              <Pencil className="h-4 w-4" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent>{isExpired ? "Plano expirado" : "Editar"}</TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button onClick={() => setDeleteMtr(mtr)} disabled={isExpired} className="p-1.5 rounded hover:bg-muted text-destructive disabled:opacity-40 disabled:cursor-not-allowed">
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent>{isExpired ? "Plano expirado" : "Excluir"}</TooltipContent>
-                        </Tooltip>
+                        {canEdit && (
+                          <>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button onClick={() => setCdfMtr(mtr)} disabled={mtr.cdf_status === "received" || isExpired} className="p-1.5 rounded hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed">
+                                  <FileCheck className="h-4 w-4" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>{mtr.cdf_status === "received" ? "CDF já registrado" : isExpired ? "Plano expirado" : "Registrar CDF"}</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button onClick={() => handleEdit(mtr)} disabled={isExpired} className="p-1.5 rounded hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed">
+                                  <Pencil className="h-4 w-4" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>{isExpired ? "Plano expirado" : "Editar"}</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button onClick={() => setDeleteMtr(mtr)} disabled={isExpired} className="p-1.5 rounded hover:bg-muted text-destructive disabled:opacity-40 disabled:cursor-not-allowed">
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>{isExpired ? "Plano expirado" : "Excluir"}</TooltipContent>
+                            </Tooltip>
+                          </>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

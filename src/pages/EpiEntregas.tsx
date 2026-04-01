@@ -14,6 +14,7 @@ import { TableSkeleton } from "@/components/TableSkeleton";
 
 export default function EpiEntregas() {
   const { data: deliveries = [], isLoading } = useEpiDeliveries();
+  const { canEdit } = usePermission("epi");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [search, setSearch] = useState("");
 

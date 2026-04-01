@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { formatPhone } from "@/lib/suppliers";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { TableSkeleton } from "@/components/TableSkeleton";
 
 export default function Fornecedores() {
   usePageTitle("Fornecedores — Evita HSE");

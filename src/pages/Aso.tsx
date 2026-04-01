@@ -198,10 +198,12 @@ export default function Aso() {
                   <TableCell>{emp.asoExpiry ? formatDateBR(emp.asoExpiry) : "—"}</TableCell>
                   <TableCell>{getStatusBadge(emp.asoStatus)}</TableCell>
                   <TableCell className="text-right">
-                    <Button size="sm" variant="ghost" onClick={() => { setSelectedEmployee(emp); setEditRecord(emp.asoRecord); setDrawerOpen(true); }}>
-                      <Pencil className="h-3.5 w-3.5 mr-1" />
-                      {emp.asoRecord ? "Editar" : "Registrar"}
-                    </Button>
+                    {canEdit && (
+                      <Button size="sm" variant="ghost" onClick={() => { setSelectedEmployee(emp); setEditRecord(emp.asoRecord); setDrawerOpen(true); }}>
+                        <Pencil className="h-3.5 w-3.5 mr-1" />
+                        {emp.asoRecord ? "Editar" : "Registrar"}
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))

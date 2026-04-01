@@ -123,7 +123,7 @@ export default function Servicos() {
       />
 
       {isLoading ? (
-        <div className="text-center py-12 text-muted-foreground">Carregando...</div>
+        <PageSkeleton columns={8} />
       ) : enrichedServices.length === 0 ? (
         <ServiceEmptyState onCreateFirst={openNew} isExpired={!!isExpired} />
       ) : filtered.length === 0 ? (

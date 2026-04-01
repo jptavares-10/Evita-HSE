@@ -127,7 +127,7 @@ export default function Licencas() {
       />
 
       {isLoading ? (
-        <div className="text-center py-12 text-muted-foreground">Carregando...</div>
+        <PageSkeleton columns={8} />
       ) : enriched.length === 0 ? (
         <div className="text-center py-16 space-y-3">
           <FileText className="h-12 w-12 mx-auto text-muted-foreground/40" />

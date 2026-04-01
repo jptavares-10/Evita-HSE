@@ -114,7 +114,7 @@ export default function Incidentes() {
 
       {/* Table */}
       {isLoading ? (
-        <div className="text-center py-12 text-muted-foreground">Carregando...</div>
+        <TableSkeleton columns={7} />
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 space-y-3">
           <AlertTriangle className="h-12 w-12 mx-auto text-muted-foreground/30" />

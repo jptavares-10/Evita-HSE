@@ -16,6 +16,8 @@ import { PermissionButton } from "@/components/PermissionButton";
 export default function TreinamentosCatalogo() {
   const { company } = useAuth();
   const isExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("trainings");
+  const isDisabled = isExpired || !canEdit;
   const { data: trainings = [] } = useTrainings();
   const { data: matrix = [] } = useTrainingMatrix();
   const { data: allRecords = [] } = useAllRecords();

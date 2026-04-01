@@ -305,19 +305,21 @@ export default function InspecaoDetalhe() {
                   )}
                   {action.status !== "completed" && (
                     <div className="flex gap-2 pt-1">
-                      {action.status === "open" && (
-                        <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => updateActionStatus.mutate({ actionId: action.id, status: "in_progress" })} disabled={!!isExpired}>
+                      {canEdit && action.status === "open" && (
+                        <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => updateActionStatus.mutate({ actionId: action.id, status: "in_progress" })} disabled={isDisabled}>
                           <Play className="h-3 w-3 mr-1" />Iniciar
                         </Button>
                       )}
-                      {action.status === "in_progress" && (
-                        <Button size="sm" variant="default" className="h-7 text-xs" onClick={() => setCompleteActionTarget(action)} disabled={!!isExpired}>
+                      {canEdit && action.status === "in_progress" && (
+                        <Button size="sm" variant="default" className="h-7 text-xs" onClick={() => setCompleteActionTarget(action)} disabled={isDisabled}>
                           <CheckCircle2 className="h-3 w-3 mr-1" />Concluir
                         </Button>
                       )}
-                      <Button size="sm" variant="ghost" className="h-7 text-xs text-destructive" onClick={() => setDeleteActionTarget(action)} disabled={!!isExpired}>
-                        <Trash2 className="h-3 w-3 mr-1" />Excluir
-                      </Button>
+                      {canEdit && (
+                        <Button size="sm" variant="ghost" className="h-7 text-xs text-destructive" onClick={() => setDeleteActionTarget(action)} disabled={isDisabled}>
+                          <Trash2 className="h-3 w-3 mr-1" />Excluir
+                        </Button>
+                      )}
                     </div>
                   )}
                 </div>

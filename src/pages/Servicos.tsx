@@ -143,7 +143,7 @@ export default function Servicos() {
         categories={categories as any}
         onManageCategories={() => setCategoriesModalOpen(true)}
         onNewService={openNew}
-        isExpired={!!isExpired}
+        isExpired={!!isDisabled}
       />
 
       {isLoading ? (

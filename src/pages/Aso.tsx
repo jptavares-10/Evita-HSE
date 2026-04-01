@@ -12,8 +12,10 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Settings, Pencil } from "lucide-react";
+import { Plus, Search, Settings, Pencil, Stethoscope, Users, Tags } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
+import { useNavigate } from "react-router-dom";
 
 export default function Aso() {
   usePageTitle("ASO — Evita HSE");

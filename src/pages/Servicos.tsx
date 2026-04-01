@@ -25,6 +25,7 @@ export default function Servicos() {
   const { data: services = [], isLoading } = usePeriodicServices();
   const { data: categories = [] } = useServiceCategories();
   const deleteService = useDeleteService();
+  const toggleStatus = useToggleServiceStatus();
   const isExpired = company?.plan === "expired";
 
   // Filters

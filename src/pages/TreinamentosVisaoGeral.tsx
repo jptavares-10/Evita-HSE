@@ -303,6 +303,22 @@ export default function TreinamentosVisaoGeral() {
   const hasFilters = filterPosition !== "all" || filterTraining !== "all" || filterPendencyType !== "all" || filterSector !== "all";
   const clearFilters = () => { setFilterPosition("all"); setFilterTraining("all"); setFilterPendencyType("all"); setFilterSector("all"); };
 
+  if (employees.length === 0 && trainings.length === 0) {
+    return (
+      <ModuleOnboarding
+        title="Gestão de Treinamentos"
+        description="Configure setores, cargos e colaboradores para controlar treinamentos obrigatórios."
+        icon={GraduationCap}
+        steps={[
+          { title: "Criar setores", description: "Organize sua empresa por áreas (ex: Produção, Administrativo)", icon: Building2, actionLabel: "Ir para cargos", action: () => navigate("/treinamentos/cargos"), completed: sectors.length > 0 },
+          { title: "Criar cargos", description: "Defina os cargos vinculados a cada setor", icon: Briefcase, actionLabel: "Ir para cargos", action: () => navigate("/treinamentos/cargos"), completed: positions.length > 0 },
+          { title: "Cadastrar colaboradores", description: "Registre os colaboradores ativos da empresa", icon: UserPlus, actionLabel: "Ir para colaboradores", action: () => navigate("/treinamentos/colaboradores"), completed: employees.length > 0 },
+          { title: "Cadastrar primeiro treinamento", description: "Crie um treinamento com validade e alerta", icon: BookOpen, actionLabel: "Ir para catálogo", action: () => navigate("/treinamentos/catalogo"), completed: trainings.length > 0 },
+        ] as OnboardingStep[]}
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       <TrainingKpiCards

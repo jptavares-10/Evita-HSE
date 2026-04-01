@@ -94,11 +94,20 @@ export default function Mtr() {
 
       {isLoading ? (
         <TableSkeleton columns={7} />
+      ) : mtrs.length === 0 ? (
+        <ModuleOnboarding
+          title="Gestão de MTR"
+          description="Configure o controle de Manifestos de Transporte de Resíduos e CDFs."
+          icon={Recycle}
+          steps={[
+            { title: "Cadastrar categorias de resíduo", description: "Defina os tipos de resíduos que sua empresa gera", icon: Tags, actionLabel: "Criar categorias", action: () => setCatModalOpen(true), completed: false },
+            { title: "Registrar primeiro MTR", description: "Cadastre um manifesto com prazo e transportadora", icon: Plus, actionLabel: "Criar MTR", action: handleNewMtr, completed: false },
+          ] as OnboardingStep[]}
+        />
       ) : filteredMtrs.length === 0 ? (
         <div className="text-center py-16 space-y-4">
           <Recycle className="h-12 w-12 mx-auto text-muted-foreground/40" />
-          <p className="text-muted-foreground">Nenhum MTR cadastrado ainda.</p>
-          <Button onClick={handleNewMtr} disabled={isExpired}><Plus className="h-4 w-4 mr-1" />Cadastrar primeiro MTR</Button>
+          <p className="text-muted-foreground">Nenhum MTR encontrado com os filtros aplicados.</p>
         </div>
       ) : (
         <div className="bg-card border rounded-lg">

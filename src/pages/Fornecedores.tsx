@@ -112,11 +112,20 @@ export default function Fornecedores() {
       {/* Table */}
       {isLoading ? (
         <TableSkeleton columns={7} />
+      ) : suppliers.length === 0 ? (
+        <ModuleOnboarding
+          title="Fornecedores"
+          description="Gerencie seus fornecedores, documentos e portal de autoatendimento."
+          icon={Users}
+          steps={[
+            { title: "Cadastrar primeiro fornecedor", description: "Registre nome, contato e categoria do fornecedor", icon: UserPlus, actionLabel: "Cadastrar", action: handleNew, completed: false },
+            { title: "Ativar portal do fornecedor", description: "Após cadastrar, ative o portal para que o fornecedor envie documentos", icon: Globe, actionLabel: "Cadastrar primeiro", action: handleNew, completed: false },
+          ] as OnboardingStep[]}
+        />
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 space-y-3">
           <Users className="h-12 w-12 text-muted-foreground/40 mx-auto" />
-          <p className="text-muted-foreground">Nenhum fornecedor cadastrado ainda.</p>
-          {!planExpired && <Button onClick={handleNew}>Cadastrar primeiro fornecedor</Button>}
+          <p className="text-muted-foreground">Nenhum fornecedor encontrado com os filtros aplicados.</p>
         </div>
       ) : (
         <div className="border rounded-lg overflow-hidden">

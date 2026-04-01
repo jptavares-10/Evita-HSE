@@ -100,6 +100,21 @@ export default function Aso() {
     }
   };
 
+  if (activeEmployees.length === 0 && records.length === 0) {
+    return (
+      <ModuleOnboarding
+        title="Exames Ocupacionais (ASO)"
+        description="Controle ASOs e vencimentos de exames dos seus colaboradores."
+        icon={Stethoscope}
+        steps={[
+          { title: "Cadastrar colaboradores", description: "Necessário para vincular exames ocupacionais", icon: Users, actionLabel: "Ir para colaboradores", action: () => navigate("/treinamentos/colaboradores"), completed: false },
+          { title: "Configurar tipos de exame", description: "Defina admissional, periódico, demissional, etc.", icon: Tags, actionLabel: "Configurar", action: () => setTypesOpen(true), completed: examTypes.length > 0 },
+          { title: "Registrar primeiro ASO", description: "Vincule um exame a um colaborador com data e vencimento", icon: Plus, actionLabel: "Registrar", action: () => { setEditRecord(null); setSelectedEmployee(null); setDrawerOpen(true); }, completed: false },
+        ] as OnboardingStep[]}
+      />
+    );
+  }
+
   return (
     <div className="space-y-6 animate-fade-up">
       <div className="flex items-center justify-between">

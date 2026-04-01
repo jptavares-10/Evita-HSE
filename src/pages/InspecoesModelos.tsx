@@ -88,11 +88,20 @@ export default function InspecoesModelos() {
       {/* Table */}
       {isLoading ? (
         <TableSkeleton columns={6} />
+      ) : models.length === 0 ? (
+        <ModuleOnboarding
+          title="Inspeções de Segurança"
+          description="Configure modelos de inspeção e acompanhe execuções periódicas."
+          icon={ClipboardCheck}
+          steps={[
+            { title: "Cadastrar colaboradores", description: "Necessário para definir responsáveis pelas inspeções", icon: Users, actionLabel: "Ir para colaboradores", action: () => navigate("/treinamentos/colaboradores"), completed: employees.length > 0 },
+            { title: "Criar primeiro modelo de inspeção", description: "Defina nome, periodicidade e responsável", icon: Plus, actionLabel: "Criar modelo", action: () => { setEditing(null); setDrawerOpen(true); }, completed: false },
+          ] as OnboardingStep[]}
+        />
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 space-y-3">
           <ClipboardCheck className="h-12 w-12 mx-auto text-muted-foreground/30" />
-          <p className="text-muted-foreground">Nenhum modelo de inspeção cadastrado.</p>
-          <Button onClick={() => { setEditing(null); setDrawerOpen(true); }} disabled={!!isExpired}>Criar primeiro modelo</Button>
+          <p className="text-muted-foreground">Nenhum modelo encontrado com os filtros aplicados.</p>
         </div>
       ) : (
         <div className="bg-card border rounded-lg">

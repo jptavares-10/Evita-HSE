@@ -46,6 +46,21 @@ export default function EpiVisaoGeral() {
     return items;
   }, [epiTypes, stock]);
 
+  if (epiTypes.length === 0) {
+    return (
+      <ModuleOnboarding
+        title="Equipamentos de Proteção Individual"
+        description="Controle EPIs, CAs, estoque e entregas para seus colaboradores."
+        icon={HardHat}
+        steps={[
+          { title: "Cadastrar primeiro EPI no catálogo", description: "Registre nome, CA e estoque mínimo", icon: Plus, actionLabel: "Ir para catálogo", action: () => navigate("/epi/catalogo"), completed: false },
+          { title: "Registrar estoque inicial", description: "Adicione entradas de estoque para os EPIs cadastrados", icon: PackagePlus, actionLabel: "Ir para estoque", action: () => navigate("/epi/estoque"), completed: false },
+          { title: "Registrar primeira entrega", description: "Documente a entrega de EPIs aos colaboradores", icon: Truck, actionLabel: "Ir para entregas", action: () => navigate("/epi/entregas"), completed: false },
+        ] as OnboardingStep[]}
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       <EpiKpiCards totalEpis={kpis.total} lowStock={kpis.lowStock} caExpiring={kpis.caExpiring} deliveriesThisMonth={kpis.deliveriesThisMonth} />

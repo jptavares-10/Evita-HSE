@@ -1,5 +1,8 @@
 import { useState, useMemo } from "react";
 import { useEpiTypes, useEpiStock, useDeleteEpiType } from "@/hooks/useEpi";
+import { usePermission } from "@/hooks/usePermission";
+import { ViewerBadge } from "@/components/ViewerBadge";
+import { PermissionButton } from "@/components/PermissionButton";
 import { computeCaStatus, getCaStatusBadge, computeStockStatus, getStockStatusBadge, formatDateBR } from "@/lib/epi";
 import { EpiDrawer } from "@/components/epi/EpiDrawer";
 import { DeleteEpiDialog } from "@/components/epi/DeleteEpiDialog";

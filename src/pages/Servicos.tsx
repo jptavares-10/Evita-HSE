@@ -102,6 +102,7 @@ export default function Servicos() {
   };
 
   const statusIcon = (status: string) => {
+    if (status === "inactive") return <PowerOff className="h-4 w-4 text-muted-foreground" />;
     if (status === "ok") return <CheckCircle2 className="h-4 w-4 text-green-500" />;
     if (status === "warning") return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
     return <XCircle className="h-4 w-4 text-red-500" />;

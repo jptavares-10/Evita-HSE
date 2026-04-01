@@ -17,6 +17,8 @@ import { Eye, FileText as FileTextIcon, Pencil, Trash2, Plus, Tags } from "lucid
 import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { PageSkeleton } from "@/components/TableSkeleton";
+import { usePermission } from "@/hooks/usePermission";
+import { ViewerBadge } from "@/components/ViewerBadge";
 
 export default function Documentos() {
   usePageTitle("Biblioteca de Documentos — Evita HSE");

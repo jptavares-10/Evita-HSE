@@ -16,6 +16,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { CheckCircle2, AlertTriangle, XCircle, RotateCw, Pencil, Trash2, Eye } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { PageSkeleton } from "@/components/TableSkeleton";
 
 export default function Servicos() {
   usePageTitle("Serviços Periódicos — Evita HSE");

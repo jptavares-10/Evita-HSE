@@ -15,6 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Eye, FileText as FileTextIcon, Pencil, Trash2, Plus } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { PageSkeleton } from "@/components/TableSkeleton";
 
 export default function Documentos() {
   usePageTitle("Biblioteca de Documentos — Evita HSE");

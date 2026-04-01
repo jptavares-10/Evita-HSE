@@ -16,6 +16,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Eye, FileCheck, Pencil, Trash2, Recycle, Plus, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { TableSkeleton } from "@/components/TableSkeleton";
 
 export default function Mtr() {
   usePageTitle("Gestão de MTR — Evita HSE");

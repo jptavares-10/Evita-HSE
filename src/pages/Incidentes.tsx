@@ -14,6 +14,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Plus, Search, Eye, Pencil, XCircle, Trash2, AlertTriangle } from "lucide-react";
 import { getTypeInfo, getSeverityInfo, getStatusInfo, formatDateTimeBR, OCCURRENCE_TYPES, SEVERITY_LEVELS, STATUS_OPTIONS } from "@/lib/occurrences";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { TableSkeleton } from "@/components/TableSkeleton";
 
 export default function Incidentes() {
   usePageTitle("IC & NC — Evita HSE");

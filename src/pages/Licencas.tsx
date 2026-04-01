@@ -15,6 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Eye, RotateCw, Pencil, Trash2, FileText, Plus } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { PageSkeleton } from "@/components/TableSkeleton";
 
 export default function Licencas() {
   usePageTitle("Licenças Ambientais — Evita HSE");

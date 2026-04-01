@@ -181,7 +181,7 @@ export default function TreinamentosCargos() {
           <Tooltip>
             <TooltipTrigger asChild>
               <span>
-                <Button onClick={handleAdd} disabled={!newName.trim() || save.isPending || isExpired}>
+                <Button onClick={handleAdd} disabled={!newName.trim() || save.isPending || isDisabled}>
                   <Plus className="h-4 w-4 mr-1" /> Adicionar
                 </Button>
               </span>

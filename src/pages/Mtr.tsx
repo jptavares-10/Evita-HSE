@@ -18,6 +18,8 @@ import { Link } from "react-router-dom";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { TableSkeleton } from "@/components/TableSkeleton";
 import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
+import { usePermission } from "@/hooks/usePermission";
+import { ViewerBadge } from "@/components/ViewerBadge";
 
 export default function Mtr() {
   usePageTitle("Gestão de MTR — Evita HSE");

@@ -133,7 +133,7 @@ export default function Licencas() {
         types={types as any}
         onManageTypes={() => setTypesModalOpen(true)}
         onNewLicense={openNew}
-        isExpired={!!isExpired}
+        isExpired={isDisabled}
       />
 
       {isLoading ? (

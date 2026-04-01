@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { usePeriodicServices, useServiceCategories, useDeleteService } from "@/hooks/useServices";
+import { usePeriodicServices, useServiceCategories, useDeleteService, useToggleServiceStatus } from "@/hooks/useServices";
 import { getServiceStatus, getStatusInfo, formatDateBR, getFrequencyLabel } from "@/lib/services";
 import { KpiCards } from "@/components/servicos/KpiCards";
 import { ServiceFilters } from "@/components/servicos/ServiceFilters";

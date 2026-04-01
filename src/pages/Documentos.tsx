@@ -87,9 +87,12 @@ export default function Documentos() {
 
   return (
     <div className="space-y-6 animate-fade-up">
-      <div>
-        <h1 className="text-2xl font-bold">Biblioteca de Documentos</h1>
-        <p className="text-muted-foreground text-sm mt-1">Gerencie documentos técnicos, revisões e vínculos.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Biblioteca de Documentos</h1>
+          <p className="text-muted-foreground text-sm mt-1">Gerencie documentos técnicos, revisões e vínculos.</p>
+        </div>
+        {!canEdit && <ViewerBadge />}
       </div>
 
       <DocumentKpiCards

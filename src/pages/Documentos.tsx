@@ -190,15 +190,19 @@ export default function Documentos() {
                         <Tooltip><TooltipTrigger asChild><div>
                           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setDetailDoc(d); setDetailOpen(true); }}><Eye className="h-4 w-4" /></Button>
                         </div></TooltipTrigger><TooltipContent>Ver detalhes</TooltipContent></Tooltip>
-                        <Tooltip><TooltipTrigger asChild><div>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!!isExpired} onClick={() => setRevisionDoc(d)}><FileTextIcon className="h-4 w-4" /></Button>
-                        </div></TooltipTrigger><TooltipContent>{isExpired ? "Plano expirado" : "Nova revisão"}</TooltipContent></Tooltip>
-                        <Tooltip><TooltipTrigger asChild><div>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!!isExpired} onClick={() => openEdit(d)}><Pencil className="h-4 w-4" /></Button>
-                        </div></TooltipTrigger><TooltipContent>{isExpired ? "Plano expirado" : "Editar"}</TooltipContent></Tooltip>
-                        <Tooltip><TooltipTrigger asChild><div>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" disabled={!!isExpired} onClick={() => setDeleteTarget(d)}><Trash2 className="h-4 w-4" /></Button>
-                        </div></TooltipTrigger><TooltipContent>{isExpired ? "Plano expirado" : "Excluir"}</TooltipContent></Tooltip>
+                        {canEdit && (
+                          <>
+                            <Tooltip><TooltipTrigger asChild><div>
+                              <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!!isExpired} onClick={() => setRevisionDoc(d)}><FileTextIcon className="h-4 w-4" /></Button>
+                            </div></TooltipTrigger><TooltipContent>{isExpired ? "Plano expirado" : "Nova revisão"}</TooltipContent></Tooltip>
+                            <Tooltip><TooltipTrigger asChild><div>
+                              <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!!isExpired} onClick={() => openEdit(d)}><Pencil className="h-4 w-4" /></Button>
+                            </div></TooltipTrigger><TooltipContent>{isExpired ? "Plano expirado" : "Editar"}</TooltipContent></Tooltip>
+                            <Tooltip><TooltipTrigger asChild><div>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" disabled={!!isExpired} onClick={() => setDeleteTarget(d)}><Trash2 className="h-4 w-4" /></Button>
+                            </div></TooltipTrigger><TooltipContent>{isExpired ? "Plano expirado" : "Excluir"}</TooltipContent></Tooltip>
+                          </>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

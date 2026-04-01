@@ -20,6 +20,7 @@ interface Props {
 }
 
 export function DocumentDetailDrawer({ open, onOpenChange, document: doc, onEdit, onNewRevision, isExpired }: Props) {
+  const { canEdit } = usePermission("document_library");
   const { data: revisions = [] } = useDocumentRevisions(doc?.id ?? null);
   const { data: serviceLinks = [] } = useDocumentServiceLinks(doc?.id ?? null);
   const currentFileUrl = useSignedUrl("documents-library", doc?.current_file_url);

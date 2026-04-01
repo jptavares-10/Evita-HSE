@@ -30,6 +30,8 @@ export default function Servicos() {
   const deleteService = useDeleteService();
   const toggleStatus = useToggleServiceStatus();
   const isExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("periodic_services");
+  const isDisabled = isExpired || !canEdit;
 
   // Filters
   const [search, setSearch] = useState("");

@@ -173,12 +173,14 @@ export function OccurrenceDetailDrawer({ open, onOpenChange, occurrence, onEdit,
 
               <p className="text-xs text-muted-foreground">Registrado por {occurrence.profiles?.full_name} em {formatDateTimeBR(occurrence.created_at)}</p>
 
-              <div className="flex gap-2 pt-4 border-t">
-                <Button variant="outline" size="sm" onClick={onEdit} disabled={planExpired}><Pencil className="h-3.5 w-3.5 mr-1" />Editar</Button>
-                {occurrence.status !== "closed" && (
-                  <Button variant="outline" size="sm" onClick={() => setShowCloseDialog(true)} disabled={planExpired}>Encerrar</Button>
-                )}
-              </div>
+              {canEdit && (
+                <div className="flex gap-2 pt-4 border-t">
+                  <Button variant="outline" size="sm" onClick={onEdit} disabled={planExpired}><Pencil className="h-3.5 w-3.5 mr-1" />Editar</Button>
+                  {occurrence.status !== "closed" && (
+                    <Button variant="outline" size="sm" onClick={() => setShowCloseDialog(true)} disabled={planExpired}>Encerrar</Button>
+                  )}
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="actions" className="px-6 py-4 space-y-4 m-0">

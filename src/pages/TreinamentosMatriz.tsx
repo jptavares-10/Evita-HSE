@@ -47,9 +47,9 @@ export default function TreinamentosMatriz() {
     <div className="space-y-4">
       <div className="flex items-center gap-3 justify-end">
         <Button variant="outline" size="sm" onClick={downloadTemplate}><Download className="h-4 w-4 mr-1" />Modelo CSV</Button>
-        {isExpired ? (
+        {isDisabled ? (
           <Tooltip><TooltipTrigger asChild><span><Button variant="outline" size="sm" disabled><Upload className="h-4 w-4 mr-1" />Importar</Button></span></TooltipTrigger>
-          <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent></Tooltip>
+          <TooltipContent>{!canEdit ? "Somente leitura" : "Plano expirado"}</TooltipContent></Tooltip>
         ) : (
           <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}><Upload className="h-4 w-4 mr-1" />Importar</Button>
         )}

@@ -12,6 +12,9 @@ import { Plus, Search, Upload, Download, Users } from "lucide-react";
 import { EmployeeDrawer } from "@/components/treinamentos/EmployeeDrawer";
 import { EmployeeDetailDrawer } from "@/components/treinamentos/EmployeeDetailDrawer";
 import { ImportEmployeesModal } from "@/components/treinamentos/ImportEmployeesModal";
+import { usePermission } from "@/hooks/usePermission";
+import { PermissionButton } from "@/components/PermissionButton";
+import { ViewerBadge } from "@/components/ViewerBadge";
 
 export default function TreinamentosColaboradores() {
   const { company } = useAuth();

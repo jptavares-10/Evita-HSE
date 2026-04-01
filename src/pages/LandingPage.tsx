@@ -327,41 +327,30 @@ export default function LandingPage() {
 
       {/* ── DOR vs SOLUÇÃO ─────────────────────────── */}
       <section id="problema" className="py-24 px-[5%] bg-muted/30">
-        <div className="max-w-[1200px] mx-auto">
-          <Reveal>
+        <div className="max-w-[900px] mx-auto">
+          <Reveal className="text-center">
             <span className="text-[0.72rem] font-bold tracking-[0.12em] uppercase text-primary mb-4 block">O Problema</span>
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight mb-4">Sua gestão de HSE ainda<br />depende de planilha?</h2>
-            <p className="text-lg text-muted-foreground leading-relaxed max-w-[560px]">A maioria das empresas perde prazos críticos porque os dados estão espalhados em Excel, WhatsApp e e-mail.</p>
+            <p className="text-lg text-muted-foreground leading-relaxed max-w-[560px] mx-auto">A maioria das empresas perde prazos críticos porque os dados estão espalhados.</p>
           </Reveal>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
-            <Reveal delay={0.1}>
-              <div className="bg-card border rounded-2xl overflow-hidden shadow-sm">
-                <div className="px-6 py-4 bg-red-50 border-b border-red-200 font-display font-bold text-red-800 flex items-center gap-2.5">
-                  😰 Do jeito antigo
+          <div className="mt-14 space-y-4">
+            {painPoints.map((p, i) => (
+              <Reveal key={i} delay={i * 0.08}>
+                <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center gap-4 md:gap-6">
+                  <div className="bg-red-50/80 border border-red-100 rounded-xl px-5 py-4 flex items-center gap-3">
+                    <X className="h-4 w-4 text-red-400 flex-shrink-0" />
+                    <span className="text-sm text-red-700">{p.old}</span>
+                  </div>
+                  <div className="hidden md:flex">
+                    <ArrowRight className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="bg-emerald-50/80 border border-emerald-100 rounded-xl px-5 py-4 flex items-center gap-3">
+                    <Check className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                    <span className="text-sm text-emerald-700 font-medium">{p.new}</span>
+                  </div>
                 </div>
-                <div className="px-6 py-5 space-y-0">
-                  {painOld.map((p) => (
-                    <div key={p} className="flex items-start gap-3 py-2.5 border-b border-border last:border-0 text-sm text-muted-foreground">
-                      <X className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" /> {p}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </Reveal>
-            <Reveal delay={0.2}>
-              <div className="bg-card border rounded-2xl overflow-hidden shadow-sm">
-                <div className="px-6 py-4 bg-emerald-50 border-b border-emerald-200 font-display font-bold text-emerald-800 flex items-center gap-2.5">
-                  ✅ Com o Evita HSE
-                </div>
-                <div className="px-6 py-5 space-y-0">
-                  {painNew.map((p) => (
-                    <div key={p} className="flex items-start gap-3 py-2.5 border-b border-border last:border-0 text-sm text-emerald-700">
-                      <Check className="h-4 w-4 text-emerald-500 mt-0.5 flex-shrink-0" /> {p}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </Reveal>
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>
@@ -373,19 +362,22 @@ export default function LandingPage() {
             <span className="text-[0.72rem] font-bold tracking-[0.12em] uppercase text-primary mb-4 block">Como funciona</span>
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight">Do cadastro ao controle<br />em minutos</h2>
           </Reveal>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-14 relative">
-            {/* Line */}
-            <div className="hidden md:block absolute top-9 left-[calc(16.66%+24px)] right-[calc(16.66%+24px)] h-px bg-gradient-to-r from-blue-100 via-primary to-blue-100" />
-            {steps.map((s, i) => (
-              <Reveal key={s.num} delay={i * 0.1} className="text-center px-6 py-8 relative">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 font-display text-7xl font-extrabold text-blue-50 select-none pointer-events-none">{s.num}</div>
-                <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-2xl mx-auto mb-6 relative z-10 shadow-[0_8px_24px_rgba(37,99,235,0.3)]">
-                  {s.icon}
-                </div>
-                <h3 className="font-display font-bold text-lg mb-2">{s.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
-              </Reveal>
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 mt-14 relative">
+            {/* Connector line */}
+            <div className="hidden md:block absolute top-[52px] left-[calc(16.66%+32px)] right-[calc(16.66%+32px)] h-[2px] bg-gradient-to-r from-primary/20 via-primary/40 to-primary/20" />
+            {steps.map((s, i) => {
+              const StepIcon = s.icon;
+              return (
+                <Reveal key={s.num} delay={i * 0.12} className="text-center px-8 py-8 relative">
+                  <div className="absolute top-2 left-1/2 -translate-x-1/2 font-display text-[5.5rem] font-extrabold text-primary/[0.04] select-none pointer-events-none leading-none">{s.num}</div>
+                  <div className="w-[72px] h-[72px] bg-gradient-to-br from-primary to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-7 relative z-10 shadow-[0_12px_32px_rgba(37,99,235,0.3)] ring-4 ring-primary/10">
+                    <StepIcon className="h-7 w-7 text-white" />
+                  </div>
+                  <h3 className="font-display font-bold text-lg mb-2.5">{s.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed max-w-[280px] mx-auto">{s.desc}</p>
+                </Reveal>
+              );
+            })}
           </div>
           <Reveal className="text-center mt-12">
             <Link to="/cadastro">
@@ -403,22 +395,41 @@ export default function LandingPage() {
           <Reveal>
             <span className="text-[0.72rem] font-bold tracking-[0.12em] uppercase text-primary mb-4 block">Módulos</span>
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight mb-4">Tudo que sua operação<br />HSE precisa</h2>
-            <p className="text-lg text-muted-foreground leading-relaxed max-w-[560px]">Dez módulos integrados em uma plataforma. Cada um resolve uma dor específica do dia a dia.</p>
+            <p className="text-lg text-muted-foreground leading-relaxed max-w-[560px]">Dez módulos integrados. Navegue por área para conhecer cada um.</p>
           </Reveal>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-12">
-            {modules.map((m, i) => (
-              <Reveal key={m.name} delay={(i % 3) * 0.1}>
-                <div className="bg-card border rounded-2xl overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-transparent group">
-                  <div className={`h-1 ${m.accent} group-hover:h-1.5 transition-all`} />
-                  <div className="p-6 pt-7">
-                    <m.icon className="h-7 w-7 text-muted-foreground mb-3.5" />
-                    <span className={`inline-block text-[0.65rem] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full mb-2.5 ${m.tagColor}`}>{m.tag}</span>
-                    <h3 className="font-display font-bold text-base mb-2">{m.name}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{m.desc}</p>
-                  </div>
-                </div>
-              </Reveal>
+
+          {/* Tabs */}
+          <div className="flex flex-wrap gap-2 mt-10 mb-8">
+            {groupTabs.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveGroup(tab.key)}
+                className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 border-2 ${
+                  activeGroup === tab.key
+                    ? `${tab.color} text-white border-transparent shadow-md`
+                    : `bg-white ${tab.textColor} ${tab.borderColor} hover:bg-muted/50`
+                }`}
+              >
+                {tab.key}
+              </button>
             ))}
+          </div>
+
+          {/* Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {(moduleGroups[activeGroup] || []).map((m, i) => (
+              <div key={m.name} className="bg-card border rounded-2xl overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-transparent group animate-fade-in">
+                <div className={`h-1 ${m.accent} group-hover:h-1.5 transition-all`} />
+                <div className="p-6 pt-7">
+                  <m.icon className="h-7 w-7 text-muted-foreground mb-3.5" />
+                  <h3 className="font-display font-bold text-base mb-2">{m.name}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{m.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
           </div>
         </div>
       </section>

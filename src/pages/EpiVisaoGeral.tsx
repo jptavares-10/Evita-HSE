@@ -9,6 +9,7 @@ import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding"
 import { useNavigate } from "react-router-dom";
 
 export default function EpiVisaoGeral() {
+  const navigate = useNavigate();
   const { data: epiTypes = [] } = useEpiTypes();
   const { data: stock = {} } = useEpiStock();
   const { data: deliveries = [] } = useEpiDeliveries();

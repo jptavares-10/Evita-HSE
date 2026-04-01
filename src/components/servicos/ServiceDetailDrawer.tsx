@@ -78,6 +78,7 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
   const { profile } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { canEdit } = usePermission("periodic_services");
 
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [editingNoteText, setEditingNoteText] = useState("");

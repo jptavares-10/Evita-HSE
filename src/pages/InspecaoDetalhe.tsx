@@ -330,9 +330,9 @@ export default function InspecaoDetalhe() {
       </section>
 
       {/* Complete button */}
-      {!isCompleted && (
+      {!isCompleted && canEdit && (
         <div className="sticky bottom-0 bg-background border-t py-4 -mx-6 px-6">
-          <Button className="w-full bg-green-600 hover:bg-green-700 text-white" onClick={handleComplete} disabled={!!isExpired || completeExecution.isPending}>
+          <Button className="w-full bg-green-600 hover:bg-green-700 text-white" onClick={handleComplete} disabled={isDisabled || completeExecution.isPending}>
             <CheckCircle2 className="h-4 w-4 mr-2" />
             Concluir Execução
           </Button>

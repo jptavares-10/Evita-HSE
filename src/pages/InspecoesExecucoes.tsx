@@ -146,10 +146,11 @@ export default function InspecoesExecucoes() {
             <SelectItem value="completed_with_issues">Concluída c/ pendências</SelectItem>
           </SelectContent>
         </Select>
-        <Button variant="outline" onClick={() => setNewExecOpen(true)} disabled={!!isExpired}>
+        <PermissionButton canEdit={canEdit} variant="outline" onClick={() => setNewExecOpen(true)} disabled={isDisabled}>
           <Plus className="h-4 w-4 mr-1.5" />
           Nova execução manual
-        </Button>
+        </PermissionButton>
+        {!canEdit && <ViewerBadge />}
       </div>
 
       {/* Table */}

@@ -38,6 +38,7 @@ interface Props {
 export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
   const { company } = useAuth();
   const isExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("trainings");
   const { data: trainings = [] } = useTrainings();
   const { data: matrix = [] } = useTrainingMatrix();
   const { data: records = [] } = useEmployeeRecords(employee?.id ?? null);

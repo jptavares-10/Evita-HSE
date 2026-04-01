@@ -8,6 +8,7 @@ import { useSignedUrl } from "@/hooks/useSignedUrl";
 import { Pencil, FileText, Clock, Download, ExternalLink, Link2, CalendarClock } from "lucide-react";
 import { useMemo } from "react";
 import { getSignedUrl } from "@/lib/storage-utils";
+import { usePermission } from "@/hooks/usePermission";
 
 interface Props {
   open: boolean;

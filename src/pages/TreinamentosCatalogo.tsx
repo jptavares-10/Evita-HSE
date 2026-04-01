@@ -10,6 +10,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Plus, Search, Pencil, Trash2, GraduationCap } from "lucide-react";
 import { TrainingDrawer } from "@/components/treinamentos/TrainingDrawer";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { usePermission } from "@/hooks/usePermission";
+import { PermissionButton } from "@/components/PermissionButton";
 
 export default function TreinamentosCatalogo() {
   const { company } = useAuth();

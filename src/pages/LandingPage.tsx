@@ -108,6 +108,7 @@ export default function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [activeGroup, setActiveGroup] = useState("Segurança");
 
   useEffect(() => {
     const handle = () => setScrolled(window.scrollY > 40);

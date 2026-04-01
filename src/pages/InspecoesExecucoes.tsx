@@ -15,6 +15,9 @@ import { Eye, Plus, Search, ClipboardCheck } from "lucide-react";
 import { startOfWeek, endOfWeek, parseISO, isWithinInterval, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { TableSkeleton } from "@/components/TableSkeleton";
+import { usePermission } from "@/hooks/usePermission";
+import { ViewerBadge } from "@/components/ViewerBadge";
+import { PermissionButton } from "@/components/PermissionButton";
 
 export default function InspecoesExecucoes() {
   const { company } = useAuth();

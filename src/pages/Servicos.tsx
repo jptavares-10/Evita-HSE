@@ -116,12 +116,15 @@ export default function Servicos() {
       </div>
 
       <KpiCards
-        total={enrichedServices.length}
+        total={activeServices.length}
         ok={counts.ok}
         warning={counts.warning}
         expired={counts.expired}
         activeFilter={kpiFilter}
         onFilterClick={handleKpiClick}
+        inactiveCount={inactiveServices.length}
+        showInactive={showInactive}
+        onToggleInactive={() => setShowInactive(v => !v)}
       />
 
       <ServiceFilters

@@ -19,6 +19,7 @@ interface Props {
 }
 
 export function LicenseDetailDrawer({ open, onOpenChange, license, onEdit, onRenew, isExpired }: Props) {
+  const { canEdit } = usePermission("environmental_licenses");
   const { data: renewals = [] } = useLicenseRenewals(license?.id ?? null);
   const signedUrl = useSignedUrl("environmental-licenses", license?.file_url);
 

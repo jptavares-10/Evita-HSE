@@ -13,10 +13,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Eye, FileCheck, Pencil, Trash2, Recycle, Plus, BarChart3 } from "lucide-react";
+import { Eye, FileCheck, Pencil, Trash2, Recycle, Plus, BarChart3, Tags } from "lucide-react";
 import { Link } from "react-router-dom";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { TableSkeleton } from "@/components/TableSkeleton";
+import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
 
 export default function Mtr() {
   usePageTitle("Gestão de MTR — Evita HSE");

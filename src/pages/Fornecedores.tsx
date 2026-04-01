@@ -29,6 +29,8 @@ export default function Fornecedores() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const planExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("suppliers");
+  const isDisabled = planExpired || !canEdit;
 
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");

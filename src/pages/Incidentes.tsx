@@ -195,7 +195,7 @@ export default function Incidentes() {
         onOpenChange={setDetailOpen}
         occurrence={selectedOcc}
         onEdit={() => { setDetailOpen(false); setEditingOcc(selectedOcc); setDrawerOpen(true); }}
-        planExpired={planExpired}
+        planExpired={isDisabled}
       />
       <DeleteOccurrenceDialog open={deleteOpen} onOpenChange={setDeleteOpen} occurrence={selectedOcc} />
     </div>

@@ -265,7 +265,7 @@ export default function Licencas() {
         open={detailOpen} onOpenChange={setDetailOpen} license={detailLicense}
         onEdit={() => openEdit(detailLicense)}
         onRenew={() => { setRenewalLicense(detailLicense); setDetailOpen(false); }}
-        isExpired={!!isExpired}
+        isExpired={isDisabled}
       />
       <RegisterRenewalModal open={!!renewalLicense} onOpenChange={(v) => !v && setRenewalLicense(null)} license={renewalLicense} />
       <DeleteLicenseDialog

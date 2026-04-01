@@ -22,6 +22,7 @@ interface Props {
 }
 
 export function OccurrenceDetailDrawer({ open, onOpenChange, occurrence, onEdit, planExpired }: Props) {
+  const { canEdit } = usePermission("ic_nc");
   const [tab, setTab] = useState("details");
   const [showAddAction, setShowAddAction] = useState(false);
   const [newActionDesc, setNewActionDesc] = useState("");

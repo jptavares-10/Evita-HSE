@@ -48,7 +48,7 @@ export default function EpiEstoque() {
       </div>
 
       {isLoading ? (
-        <Card><CardContent className="p-8 text-center text-muted-foreground">Carregando...</CardContent></Card>
+        <TableSkeleton columns={5} />
       ) : filtered.length === 0 ? (
         <Card>
           <CardContent className="p-8 text-center">

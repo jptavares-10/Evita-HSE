@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Upload, Download, LayoutGrid } from "lucide-react";
 import { ImportMatrixModal } from "@/components/treinamentos/ImportMatrixModal";
+import { usePermission } from "@/hooks/usePermission";
 
 export default function TreinamentosMatriz() {
   const { company } = useAuth();

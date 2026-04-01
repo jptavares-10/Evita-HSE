@@ -17,6 +17,8 @@ import { ArrowLeft, Plus, FileText, Download, User, Calendar, Clock, CheckCircle
 import { useSignedUrl, useSignedUrls } from "@/hooks/useSignedUrl";
 import { useEmployees } from "@/hooks/useTrainings";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { usePermission } from "@/hooks/usePermission";
+import { ViewerBadge } from "@/components/ViewerBadge";
 
 export default function InspecaoDetalhe() {
   const { id } = useParams<{ id: string }>();

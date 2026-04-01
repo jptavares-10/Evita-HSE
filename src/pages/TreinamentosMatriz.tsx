@@ -11,6 +11,8 @@ import { usePermission } from "@/hooks/usePermission";
 export default function TreinamentosMatriz() {
   const { company } = useAuth();
   const isExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("trainings");
+  const isDisabled = isExpired || !canEdit;
   const { data: positions = [] } = useJobPositions();
   const { data: trainings = [] } = useTrainings();
   const { data: matrix = [] } = useTrainingMatrix();

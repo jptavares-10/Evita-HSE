@@ -114,7 +114,7 @@ export default function Documentos() {
         areas={areas}
         onManageTypes={() => setTypesModalOpen(true)}
         onNewDocument={openNew}
-        isExpired={!!isExpired}
+        isExpired={!!isDisabled}
       />
 
       {isLoading ? (

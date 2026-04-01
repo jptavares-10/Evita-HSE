@@ -18,6 +18,8 @@ import { useNavigate } from "react-router-dom";
 import { TableSkeleton } from "@/components/TableSkeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
+import { usePermission } from "@/hooks/usePermission";
+import { PermissionButton } from "@/components/PermissionButton";
 
 export default function InspecoesModelos() {
   const navigate = useNavigate();

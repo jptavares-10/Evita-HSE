@@ -140,7 +140,7 @@ export default function Servicos() {
 
       {isLoading ? (
         <PageSkeleton columns={8} />
-      ) : enrichedServices.length === 0 ? (
+      ) : services.length === 0 ? (
         <ModuleOnboarding
           title="Serviços Periódicos"
           description="Configure seus serviços periódicos para acompanhar vencimentos e manter a conformidade."

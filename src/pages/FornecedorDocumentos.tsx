@@ -15,6 +15,7 @@ import { ArrowLeft, FolderPlus, Upload, Folder, FolderOpen, ChevronRight, Eye, D
 import { formatDateBR, getFileIcon, getFileExtension } from "@/lib/suppliers";
 import { useToast } from "@/hooks/use-toast";
 import { SupplierDrawer } from "@/components/fornecedores/SupplierDrawer";
+import { usePermission } from "@/hooks/usePermission";
 
 export default function FornecedorDocumentos() {
   const { id: supplierId } = useParams<{ id: string }>();
@@ -23,6 +24,7 @@ export default function FornecedorDocumentos() {
   const isAdmin = profile?.role === "admin";
   const { toast } = useToast();
   const planExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("suppliers");
 
   const { data: suppliers = [] } = useSuppliers();
   const supplier = suppliers.find((s: any) => s.id === supplierId);
@@ -114,8 +116,10 @@ export default function FornecedorDocumentos() {
             <Badge variant={supplier.status === "active" ? "default" : "secondary"}>{supplier.status === "active" ? "Ativo" : "Inativo"}</Badge>
           </div>
         </div>
-        <Button variant="outline" size="sm" onClick={() => setEditDrawerOpen(true)} disabled={planExpired}><Pencil className="h-3.5 w-3.5 mr-1" />Editar</Button>
-        {supplier.portal_enabled && isAdmin && supplier.portal_token && (
+        {canEdit && (
+          <Button variant="outline" size="sm" onClick={() => setEditDrawerOpen(true)} disabled={planExpired}><Pencil className="h-3.5 w-3.5 mr-1" />Editar</Button>
+        )}
+        {canEdit && supplier.portal_enabled && isAdmin && supplier.portal_token && (
           <Button variant="outline" size="sm" onClick={copyPortalLink} disabled={planExpired}><Copy className="h-3.5 w-3.5 mr-1" />Link do portal</Button>
         )}
       </div>
@@ -125,7 +129,7 @@ export default function FornecedorDocumentos() {
         <div className="col-span-3 border rounded-lg p-4 space-y-2">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-semibold">Pastas</span>
-            {!planExpired && (
+            {canEdit && !planExpired && (
               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setNewFolderOpen(true)}><FolderPlus className="h-4 w-4" /></Button>
             )}
           </div>
@@ -168,7 +172,7 @@ export default function FornecedorDocumentos() {
             <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
               {selectedFolderId ? folders.find((f: any) => f.id === selectedFolderId)?.name : "Todos os documentos"}
             </h2>
-            {!planExpired && (
+            {canEdit && !planExpired && (
               <Button size="sm" onClick={() => { setUploadFolderId(selectedFolderId || "root"); setUploadOpen(true); }}>
                 <Upload className="h-4 w-4 mr-1" />Enviar documento
               </Button>
@@ -183,7 +187,7 @@ export default function FornecedorDocumentos() {
           ) : (
             <div className="space-y-2">
               {filteredDocs.map((doc: any) => (
-                <SupplierDocRow key={doc.id} doc={doc} planExpired={planExpired} onDelete={() => setDeleteTarget(doc)} />
+                <SupplierDocRow key={doc.id} doc={doc} planExpired={planExpired} onDelete={() => setDeleteTarget(doc)} canEdit={canEdit} />
               ))}
             </div>
           )}
@@ -277,7 +281,7 @@ export default function FornecedorDocumentos() {
   );
 }
 
-function SupplierDocRow({ doc, planExpired, onDelete }: { doc: any; planExpired: boolean; onDelete: () => void }) {
+function SupplierDocRow({ doc, planExpired, onDelete, canEdit }: { doc: any; planExpired: boolean; onDelete: () => void; canEdit: boolean }) {
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
   useEffect(() => {
     let cancelled = false;
@@ -304,7 +308,7 @@ function SupplierDocRow({ doc, planExpired, onDelete }: { doc: any; planExpired:
         <a href={signedUrl || "#"} download={doc.file_name}>
           <Button variant="ghost" size="icon" className="h-8 w-8"><Download className="h-4 w-4" /></Button>
         </a>
-        {!planExpired && (
+        {canEdit && !planExpired && (
           <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={onDelete}>
             <Trash2 className="h-4 w-4" />
           </Button>

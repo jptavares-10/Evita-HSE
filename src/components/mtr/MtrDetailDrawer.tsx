@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { formatDateBR, getCdfStatusInfo, formatTons } from "@/lib/mtr";
 import { Download, Edit, FileText, User, Calendar } from "lucide-react";
 import { useSignedUrls } from "@/hooks/useSignedUrl";
+import { usePermission } from "@/hooks/usePermission";
 
 interface Props {
   open: boolean;
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export function MtrDetailDrawer({ open, onOpenChange, mtr, onEdit }: Props) {
+  const { canEdit } = usePermission("mtr");
   const fileUrls = useMemo(() => {
     if (!mtr) return [];
     return [mtr.mtr_file_url, mtr.cdf_file_url].filter(Boolean);
@@ -113,7 +115,9 @@ export function MtrDetailDrawer({ open, onOpenChange, mtr, onEdit }: Props) {
               <User className="h-3.5 w-3.5" />Registrado por {mtr.profiles?.full_name || "—"} em {formatDateBR(mtr.created_at?.split("T")[0])}
             </div>
 
-            <Button variant="outline" className="w-full" onClick={onEdit}><Edit className="h-4 w-4 mr-2" />Editar MTR</Button>
+            {canEdit && (
+              <Button variant="outline" className="w-full" onClick={onEdit}><Edit className="h-4 w-4 mr-2" />Editar MTR</Button>
+            )}
           </TabsContent>
 
           <TabsContent value="history" className="mt-4 space-y-4">

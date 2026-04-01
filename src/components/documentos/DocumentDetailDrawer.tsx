@@ -8,6 +8,7 @@ import { useSignedUrl } from "@/hooks/useSignedUrl";
 import { Pencil, FileText, Clock, Download, ExternalLink, Link2, CalendarClock } from "lucide-react";
 import { useMemo } from "react";
 import { getSignedUrl } from "@/lib/storage-utils";
+import { usePermission } from "@/hooks/usePermission";
 
 interface Props {
   open: boolean;
@@ -19,6 +20,7 @@ interface Props {
 }
 
 export function DocumentDetailDrawer({ open, onOpenChange, document: doc, onEdit, onNewRevision, isExpired }: Props) {
+  const { canEdit } = usePermission("document_library");
   const { data: revisions = [] } = useDocumentRevisions(doc?.id ?? null);
   const { data: serviceLinks = [] } = useDocumentServiceLinks(doc?.id ?? null);
   const currentFileUrl = useSignedUrl("documents-library", doc?.current_file_url);
@@ -137,14 +139,16 @@ export function DocumentDetailDrawer({ open, onOpenChange, document: doc, onEdit
               Registrado por {doc.profiles?.full_name || "—"} em {formatDateBR(doc.created_at)}
             </p>
 
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={onEdit} className="flex-1" disabled={isExpired}>
-                <Pencil className="h-4 w-4 mr-2" />Editar documento
-              </Button>
-              <Button variant="outline" onClick={onNewRevision} className="flex-1" disabled={isExpired}>
-                <FileText className="h-4 w-4 mr-2" />Nova revisão
-              </Button>
-            </div>
+            {canEdit && (
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={onEdit} className="flex-1" disabled={isExpired}>
+                  <Pencil className="h-4 w-4 mr-2" />Editar documento
+                </Button>
+                <Button variant="outline" onClick={onNewRevision} className="flex-1" disabled={isExpired}>
+                  <FileText className="h-4 w-4 mr-2" />Nova revisão
+                </Button>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="history" className="flex-1 overflow-y-auto px-6 pb-6 mt-4">

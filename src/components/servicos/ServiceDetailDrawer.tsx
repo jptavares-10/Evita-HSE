@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { usePermission } from "@/hooks/usePermission";
 
 interface Service {
   id: string;
@@ -77,6 +78,7 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
   const { profile } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { canEdit } = usePermission("periodic_services");
 
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [editingNoteText, setEditingNoteText] = useState("");
@@ -199,9 +201,11 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
 
             <ServiceDocumentsDetail serviceId={service.id} />
 
-            <Button variant="outline" onClick={onEdit} className="w-full">
-              <Pencil className="h-4 w-4 mr-2" /> Editar serviço
-            </Button>
+            {canEdit && (
+              <Button variant="outline" onClick={onEdit} className="w-full">
+                <Pencil className="h-4 w-4 mr-2" /> Editar serviço
+              </Button>
+            )}
           </TabsContent>
 
           <TabsContent value="history" className="flex-1 overflow-y-auto px-6 pb-6 mt-4">
@@ -289,16 +293,18 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
                               ) : (
                                 <p className="text-muted-foreground/60 italic flex-1">Nenhuma observação registrada</p>
                               )}
-                              <button
-                                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-muted mt-0.5"
-                                onClick={() => {
-                                  setEditingNoteId(h.id);
-                                  setEditingNoteText(h.notes || "");
-                                }}
-                                title="Editar observação"
-                              >
-                                <Pencil className="h-3 w-3 text-muted-foreground" />
-                              </button>
+                              {canEdit && (
+                                <button
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-muted mt-0.5"
+                                  onClick={() => {
+                                    setEditingNoteId(h.id);
+                                    setEditingNoteText(h.notes || "");
+                                  }}
+                                  title="Editar observação"
+                                >
+                                  <Pencil className="h-3 w-3 text-muted-foreground" />
+                                </button>
+                              )}
                             </div>
                           )}
 

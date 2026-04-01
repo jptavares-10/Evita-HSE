@@ -12,6 +12,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { RegisterCertificateModal } from "./RegisterCertificateModal";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getSignedUrl } from "@/lib/storage-utils";
+import { usePermission } from "@/hooks/usePermission";
 
 function CertificateLink({ url, label = "Certificado" }: { url: string; label?: string }) {
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
@@ -37,6 +38,7 @@ interface Props {
 export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
   const { company } = useAuth();
   const isExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("trainings");
   const { data: trainings = [] } = useTrainings();
   const { data: matrix = [] } = useTrainingMatrix();
   const { data: records = [] } = useEmployeeRecords(employee?.id ?? null);
@@ -87,35 +89,37 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
                 <SheetTitle>{employee?.name}</SheetTitle>
                 <p className="text-sm text-muted-foreground">{employee?.job_positions?.name} {employee?.job_positions?.sectors?.name ? `· ${employee.job_positions.sectors.name}` : ""}</p>
               </div>
-              <div className="flex items-center gap-2">
-                <ActionBtn variant="outline" onClick={() => onEdit(employee)}><Pencil className="h-3.5 w-3.5 mr-1" />Editar</ActionBtn>
-                <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="outline" size="sm" className="text-destructive border-destructive/30 hover:bg-destructive/10" disabled={isExpired}>
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Excluir colaborador?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        O colaborador <strong>{employee?.name}</strong> e todos os seus registros de treinamento serão excluídos permanentemente.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                        onClick={() => {
-                          deleteEmployee.mutate(employee.id, {
-                            onSuccess: () => { setDeleteOpen(false); onClose(); },
-                          });
-                        }}
-                      >Excluir</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
+              {canEdit && (
+                <div className="flex items-center gap-2">
+                  <ActionBtn variant="outline" onClick={() => onEdit(employee)}><Pencil className="h-3.5 w-3.5 mr-1" />Editar</ActionBtn>
+                  <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" size="sm" className="text-destructive border-destructive/30 hover:bg-destructive/10" disabled={isExpired}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Excluir colaborador?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          O colaborador <strong>{employee?.name}</strong> e todos os seus registros de treinamento serão excluídos permanentemente.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          onClick={() => {
+                            deleteEmployee.mutate(employee.id, {
+                              onSuccess: () => { setDeleteOpen(false); onClose(); },
+                            });
+                          }}
+                        >Excluir</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              )}
             </div>
           </SheetHeader>
 
@@ -148,9 +152,11 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
                             )}
                           </div>
                         )}
-                        <ActionBtn variant="outline" size="sm" onClick={() => setCertModal({ trainingId: tid, trainingName: t.name, validityMonths: t.validity_months, hasExpiry: t.has_expiry !== false })}>
-                          <Plus className="h-3 w-3 mr-1" />Registrar certificado
-                        </ActionBtn>
+                        {canEdit && (
+                          <ActionBtn variant="outline" size="sm" onClick={() => setCertModal({ trainingId: tid, trainingName: t.name, validityMonths: t.validity_months, hasExpiry: t.has_expiry !== false })}>
+                            <Plus className="h-3 w-3 mr-1" />Registrar certificado
+                          </ActionBtn>
+                        )}
                       </div>
                     );
                   })}
@@ -185,16 +191,18 @@ export function EmployeeDetailDrawer({ employee, onClose, onEdit }: Props) {
                 </div>
               )}
 
-              <div className="pt-2">
-                <ActionBtn variant="outline" onClick={() => {
-                  const available = trainings.filter((t: any) => !requiredTrainingIds.includes(t.id) && !extraRecordTrainingIds.includes(t.id));
-                  if (available.length > 0) {
-                   setCertModal({ trainingId: available[0].id, trainingName: available[0].name, validityMonths: available[0].validity_months, hasExpiry: available[0].has_expiry !== false });
-                  }
-                }}>
-                  <Plus className="h-3.5 w-3.5 mr-1" />Adicionar treinamento extra
-                </ActionBtn>
-              </div>
+              {canEdit && (
+                <div className="pt-2">
+                  <ActionBtn variant="outline" onClick={() => {
+                    const available = trainings.filter((t: any) => !requiredTrainingIds.includes(t.id) && !extraRecordTrainingIds.includes(t.id));
+                    if (available.length > 0) {
+                     setCertModal({ trainingId: available[0].id, trainingName: available[0].name, validityMonths: available[0].validity_months, hasExpiry: available[0].has_expiry !== false });
+                    }
+                  }}>
+                    <Plus className="h-3.5 w-3.5 mr-1" />Adicionar treinamento extra
+                  </ActionBtn>
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="history" className="flex-1 overflow-y-auto px-6 pb-4">

@@ -7,6 +7,7 @@ import { FileText, Download, ExternalLink, Calendar, Clock, User, Pencil, Rotate
 import { computeLicenseStatus, getStatusBadgeInfo, getSphereBadgeInfo, getDaysRemainingInfo, formatDateBR, formatDateTimeBR } from "@/lib/licenses";
 import { useLicenseRenewals } from "@/hooks/useLicenses";
 import { useSignedUrl } from "@/hooks/useSignedUrl";
+import { usePermission } from "@/hooks/usePermission";
 
 interface Props {
   open: boolean;
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export function LicenseDetailDrawer({ open, onOpenChange, license, onEdit, onRenew, isExpired }: Props) {
+  const { canEdit } = usePermission("environmental_licenses");
   const { data: renewals = [] } = useLicenseRenewals(license?.id ?? null);
   const signedUrl = useSignedUrl("environmental-licenses", license?.file_url);
 
@@ -103,30 +105,32 @@ export function LicenseDetailDrawer({ open, onOpenChange, license, onEdit, onRen
               </p>
             )}
 
-            <div className="flex gap-2 pt-2">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div>
-                    <Button variant="outline" onClick={onEdit} disabled={isExpired}>
-                      <Pencil className="h-4 w-4 mr-1" />Editar licença
-                    </Button>
-                  </div>
-                </TooltipTrigger>
-                {isExpired && <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>}
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div>
-                    <Button onClick={onRenew} disabled={isPermanent || isExpired}>
-                      <RotateCw className="h-4 w-4 mr-1" />Registrar renovação
-                    </Button>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {isExpired ? "Seu plano expirou." : isPermanent ? "Licença permanente" : "Registrar nova renovação"}
-                </TooltipContent>
-              </Tooltip>
-            </div>
+            {canEdit && (
+              <div className="flex gap-2 pt-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <Button variant="outline" onClick={onEdit} disabled={isExpired}>
+                        <Pencil className="h-4 w-4 mr-1" />Editar licença
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  {isExpired && <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>}
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <Button onClick={onRenew} disabled={isPermanent || isExpired}>
+                        <RotateCw className="h-4 w-4 mr-1" />Registrar renovação
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {isExpired ? "Seu plano expirou." : isPermanent ? "Licença permanente" : "Registrar nova renovação"}
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="history" className="mt-4">

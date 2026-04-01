@@ -11,6 +11,7 @@ import { useSignedUrls, useSignedUrl } from "@/hooks/useSignedUrl";
 import { getTypeInfo, getSeverityInfo, getStatusInfo, getActionStatusInfo, getBodyPartLabel, formatDateTimeBR, formatDateBR } from "@/lib/occurrences";
 import { useOccurrenceEmployees, useOccurrenceAttachments, useCorrectiveActions, useAddCorrectiveAction, useUpdateActionStatus, useDeleteCorrectiveAction, useCloseOccurrence } from "@/hooks/useOccurrences";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { usePermission } from "@/hooks/usePermission";
 
 interface Props {
   open: boolean;
@@ -21,6 +22,7 @@ interface Props {
 }
 
 export function OccurrenceDetailDrawer({ open, onOpenChange, occurrence, onEdit, planExpired }: Props) {
+  const { canEdit } = usePermission("ic_nc");
   const [tab, setTab] = useState("details");
   const [showAddAction, setShowAddAction] = useState(false);
   const [newActionDesc, setNewActionDesc] = useState("");
@@ -171,20 +173,24 @@ export function OccurrenceDetailDrawer({ open, onOpenChange, occurrence, onEdit,
 
               <p className="text-xs text-muted-foreground">Registrado por {occurrence.profiles?.full_name} em {formatDateTimeBR(occurrence.created_at)}</p>
 
-              <div className="flex gap-2 pt-4 border-t">
-                <Button variant="outline" size="sm" onClick={onEdit} disabled={planExpired}><Pencil className="h-3.5 w-3.5 mr-1" />Editar</Button>
-                {occurrence.status !== "closed" && (
-                  <Button variant="outline" size="sm" onClick={() => setShowCloseDialog(true)} disabled={planExpired}>Encerrar</Button>
-                )}
-              </div>
+              {canEdit && (
+                <div className="flex gap-2 pt-4 border-t">
+                  <Button variant="outline" size="sm" onClick={onEdit} disabled={planExpired}><Pencil className="h-3.5 w-3.5 mr-1" />Editar</Button>
+                  {occurrence.status !== "closed" && (
+                    <Button variant="outline" size="sm" onClick={() => setShowCloseDialog(true)} disabled={planExpired}>Encerrar</Button>
+                  )}
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="actions" className="px-6 py-4 space-y-4 m-0">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold">Ações corretivas</h3>
-                <Button size="sm" variant="outline" onClick={() => setShowAddAction(true)} disabled={planExpired}>
-                  <Plus className="h-3.5 w-3.5 mr-1" />Adicionar ação
-                </Button>
+                {canEdit && (
+                  <Button size="sm" variant="outline" onClick={() => setShowAddAction(true)} disabled={planExpired}>
+                    <Plus className="h-3.5 w-3.5 mr-1" />Adicionar ação
+                  </Button>
+                )}
               </div>
 
               {showAddAction && (
@@ -221,23 +227,25 @@ export function OccurrenceDetailDrawer({ open, onOpenChange, occurrence, onEdit,
                           )}
                         </div>
                       )}
-                      <div className="flex gap-1.5">
-                        {action.status === "pending" && (
-                          <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => updateAction.mutate({ actionId: action.id, occurrenceId: occurrence.id, newStatus: "in_progress" })} disabled={planExpired}>
-                            <Play className="h-3 w-3 mr-1" />Iniciar
-                          </Button>
-                        )}
-                        {(action.status === "pending" || action.status === "in_progress") && (
-                          <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setCompleteActionId(action.id)} disabled={planExpired}>
-                            <CheckCircle2 className="h-3 w-3 mr-1" />Concluir
-                          </Button>
-                        )}
-                        {action.status !== "completed" && (
-                          <Button size="sm" variant="ghost" className="h-7 text-xs text-destructive" onClick={() => deleteAction.mutate({ actionId: action.id, occurrenceId: occurrence.id })} disabled={planExpired}>
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        )}
-                      </div>
+                      {canEdit && (
+                        <div className="flex gap-1.5">
+                          {action.status === "pending" && (
+                            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => updateAction.mutate({ actionId: action.id, occurrenceId: occurrence.id, newStatus: "in_progress" })} disabled={planExpired}>
+                              <Play className="h-3 w-3 mr-1" />Iniciar
+                            </Button>
+                          )}
+                          {(action.status === "pending" || action.status === "in_progress") && (
+                            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setCompleteActionId(action.id)} disabled={planExpired}>
+                              <CheckCircle2 className="h-3 w-3 mr-1" />Concluir
+                            </Button>
+                          )}
+                          {action.status !== "completed" && (
+                            <Button size="sm" variant="ghost" className="h-7 text-xs text-destructive" onClick={() => deleteAction.mutate({ actionId: action.id, occurrenceId: occurrence.id })} disabled={planExpired}>
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })}

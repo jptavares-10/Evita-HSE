@@ -201,9 +201,11 @@ export function ServiceDetailDrawer({ open, onOpenChange, service, onEdit }: Pro
 
             <ServiceDocumentsDetail serviceId={service.id} />
 
-            <Button variant="outline" onClick={onEdit} className="w-full">
-              <Pencil className="h-4 w-4 mr-2" /> Editar serviço
-            </Button>
+            {canEdit && (
+              <Button variant="outline" onClick={onEdit} className="w-full">
+                <Pencil className="h-4 w-4 mr-2" /> Editar serviço
+              </Button>
+            )}
           </TabsContent>
 
           <TabsContent value="history" className="flex-1 overflow-y-auto px-6 pb-6 mt-4">

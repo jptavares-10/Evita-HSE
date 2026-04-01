@@ -16,6 +16,8 @@ import { Plus, Search, Settings, Pencil, Stethoscope, Users, Tags } from "lucide
 import { Skeleton } from "@/components/ui/skeleton";
 import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
 import { useNavigate } from "react-router-dom";
+import { usePermission } from "@/hooks/usePermission";
+import { ViewerBadge } from "@/components/ViewerBadge";
 
 export default function Aso() {
   const navigate = useNavigate();

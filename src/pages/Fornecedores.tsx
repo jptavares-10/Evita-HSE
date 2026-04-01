@@ -18,6 +18,8 @@ import { useToast } from "@/hooks/use-toast";
 import { formatPhone } from "@/lib/suppliers";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { TableSkeleton } from "@/components/TableSkeleton";
+import { usePermission } from "@/hooks/usePermission";
+import { ViewerBadge } from "@/components/ViewerBadge";
 
 export default function Fornecedores() {
   usePageTitle("Fornecedores — Evita HSE");

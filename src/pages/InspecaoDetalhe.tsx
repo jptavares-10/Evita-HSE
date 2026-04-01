@@ -156,12 +156,13 @@ export default function InspecaoDetalhe() {
             Registros de Execução
             <Badge variant="secondary" className="text-xs">{entries.length}</Badge>
           </h2>
-          {!isCompleted && (
-            <Button size="sm" onClick={() => setEntryModalOpen(true)} disabled={!!isExpired}>
+          {!isCompleted && canEdit && (
+            <Button size="sm" onClick={() => setEntryModalOpen(true)} disabled={isDisabled}>
               <Plus className="h-4 w-4 mr-1" />
               Adicionar Registro
             </Button>
           )}
+          {!canEdit && <ViewerBadge />}
         </div>
 
         {entries.length === 0 ? (

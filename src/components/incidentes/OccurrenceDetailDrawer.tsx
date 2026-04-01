@@ -11,6 +11,7 @@ import { useSignedUrls, useSignedUrl } from "@/hooks/useSignedUrl";
 import { getTypeInfo, getSeverityInfo, getStatusInfo, getActionStatusInfo, getBodyPartLabel, formatDateTimeBR, formatDateBR } from "@/lib/occurrences";
 import { useOccurrenceEmployees, useOccurrenceAttachments, useCorrectiveActions, useAddCorrectiveAction, useUpdateActionStatus, useDeleteCorrectiveAction, useCloseOccurrence } from "@/hooks/useOccurrences";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { usePermission } from "@/hooks/usePermission";
 
 interface Props {
   open: boolean;

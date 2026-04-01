@@ -116,8 +116,10 @@ export default function FornecedorDocumentos() {
             <Badge variant={supplier.status === "active" ? "default" : "secondary"}>{supplier.status === "active" ? "Ativo" : "Inativo"}</Badge>
           </div>
         </div>
-        <Button variant="outline" size="sm" onClick={() => setEditDrawerOpen(true)} disabled={planExpired}><Pencil className="h-3.5 w-3.5 mr-1" />Editar</Button>
-        {supplier.portal_enabled && isAdmin && supplier.portal_token && (
+        {canEdit && (
+          <Button variant="outline" size="sm" onClick={() => setEditDrawerOpen(true)} disabled={planExpired}><Pencil className="h-3.5 w-3.5 mr-1" />Editar</Button>
+        )}
+        {canEdit && supplier.portal_enabled && isAdmin && supplier.portal_token && (
           <Button variant="outline" size="sm" onClick={copyPortalLink} disabled={planExpired}><Copy className="h-3.5 w-3.5 mr-1" />Link do portal</Button>
         )}
       </div>

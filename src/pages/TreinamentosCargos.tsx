@@ -123,7 +123,7 @@ export default function TreinamentosCargos() {
               if (!newSectorName.trim()) return;
               saveSector.mutate({ name: newSectorName.trim() }, { onSuccess: () => { setNewSectorName(""); toast({ title: "Setor criado" }); } });
             }}
-            disabled={!newSectorName.trim() || saveSector.isPending || isExpired}
+            disabled={!newSectorName.trim() || saveSector.isPending || isDisabled}
             size="sm"
           >
             <Plus className="h-4 w-4 mr-1" />Adicionar

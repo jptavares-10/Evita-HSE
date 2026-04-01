@@ -20,7 +20,7 @@ export default function TreinamentosMatriz() {
   const [importOpen, setImportOpen] = useState(false);
 
   const handleToggle = (jobPositionId: string, trainingId: string) => {
-    if (isExpired) return;
+    if (isDisabled) return;
     const existing = matrix.find((m: any) => m.job_position_id === jobPositionId && m.training_id === trainingId);
     toggleEntry.mutate({ jobPositionId, trainingId, exists: !!existing, entryId: existing?.id });
   };

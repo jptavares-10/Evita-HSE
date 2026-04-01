@@ -4,7 +4,9 @@ import { computeCaStatus, getCaStatusBadge, computeStockStatus, formatDateBR } f
 import { EpiKpiCards } from "@/components/epi/EpiKpiCards";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle, Package } from "lucide-react";
+import { AlertTriangle, Package, HardHat, Plus, PackagePlus, Truck } from "lucide-react";
+import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
+import { useNavigate } from "react-router-dom";
 
 export default function EpiVisaoGeral() {
   const { data: epiTypes = [] } = useEpiTypes();

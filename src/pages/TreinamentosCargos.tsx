@@ -167,7 +167,7 @@ export default function TreinamentosCargos() {
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-              disabled={isExpired}
+               disabled={isDisabled}
               className="w-56"
             />
           </div>

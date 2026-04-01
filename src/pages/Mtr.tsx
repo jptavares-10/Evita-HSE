@@ -26,6 +26,8 @@ export default function Mtr() {
   const { company } = useAuth();
   const { data: mtrs = [], isLoading } = useMtrs();
   const isExpired = company?.plan === "expired";
+  const { canEdit } = usePermission("mtr");
+  const isDisabled = isExpired || !canEdit;
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");

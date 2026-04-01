@@ -38,6 +38,7 @@ const MODULE_GROUPS = [
       { key: "periodic_services" as ModuleKey, label: "Serviços Periódicos", icon: Bell },
       { key: "inspections" as ModuleKey, label: "Inspeções", icon: ClipboardCheck },
       { key: "ic_nc" as ModuleKey, label: "IC & NC", icon: AlertTriangle },
+      { key: "epi" as ModuleKey, label: "EPIs", icon: HardHat },
     ],
   },
   {
@@ -45,7 +46,6 @@ const MODULE_GROUPS = [
     modules: [
       { key: "trainings" as ModuleKey, label: "Treinamentos", icon: GraduationCap },
       { key: "aso" as ModuleKey, label: "ASO", icon: Stethoscope },
-      { key: "epi" as ModuleKey, label: "EPIs", icon: HardHat },
     ],
   },
   {

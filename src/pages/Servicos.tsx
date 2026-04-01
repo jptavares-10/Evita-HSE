@@ -168,8 +168,10 @@ export default function Servicos() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((s: any) => (
-                <TableRow key={s.id}>
+              {filtered.map((s: any) => {
+                const isInactive = s.status === "inactive";
+                return (
+                <TableRow key={s.id} className={isInactive ? "opacity-50" : ""}>
                   <TableCell>
                     <button onClick={() => { setDetailService(s); setDetailOpen(true); }} className="text-left font-medium text-primary hover:underline">
                       {s.name}
@@ -205,16 +207,18 @@ export default function Servicos() {
                         </TooltipTrigger>
                         <TooltipContent>Ver detalhes</TooltipContent>
                       </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div>
-                            <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!!isExpired} onClick={() => setCompletionService(s)}>
-                              <RotateCw className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>{isExpired ? "Seu plano expirou. Faça upgrade para continuar." : "Registrar realização"}</TooltipContent>
-                      </Tooltip>
+                      {!isInactive && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div>
+                              <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!!isExpired} onClick={() => setCompletionService(s)}>
+                                <RotateCw className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>{isExpired ? "Seu plano expirou. Faça upgrade para continuar." : "Registrar realização"}</TooltipContent>
+                        </Tooltip>
+                      )}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div>
@@ -224,6 +228,22 @@ export default function Servicos() {
                           </div>
                         </TooltipTrigger>
                         <TooltipContent>{isExpired ? "Seu plano expirou. Faça upgrade para continuar." : "Editar"}</TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              disabled={!!isExpired || toggleStatus.isPending}
+                              onClick={() => toggleStatus.mutate({ serviceId: s.id, newStatus: isInactive ? "active" : "inactive" })}
+                            >
+                              {isInactive ? <Power className="h-4 w-4 text-green-600" /> : <PowerOff className="h-4 w-4 text-muted-foreground" />}
+                            </Button>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>{isInactive ? "Reativar serviço" : "Desativar serviço"}</TooltipContent>
                       </Tooltip>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -238,7 +258,8 @@ export default function Servicos() {
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+                );
+              })}
             </TableBody>
           </Table>
         </div>

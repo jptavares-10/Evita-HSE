@@ -14,28 +14,17 @@ const trustSegments = [
   "🌿 Meio Ambiente",
 ];
 
-const painOld = [
-  "Planilha desatualizada por falta de tempo",
-  "Certificado vencido descoberto na fiscalização",
-  "WhatsApp lotado de documentos de fornecedores",
-  "MTR sem CDF e multa ambiental",
-  "Ninguém sabe quem fez qual treinamento",
-  "Licença ambiental vencida sem aviso",
-];
-
-const painNew = [
-  "Dashboard centralizado e sempre atualizado",
-  "Alerta automático antes de qualquer vencimento",
-  "Fornecedor envia documentos pelo portal próprio",
-  "MTR e CDF controlados com prazo preciso",
-  "Matriz de treinamentos por cargo automática",
-  "Licenças com histórico completo de renovações",
+const painPoints = [
+  { old: "Certificado vencido descoberto na fiscalização", new: "Alerta automático antes de qualquer vencimento" },
+  { old: "WhatsApp lotado de documentos de fornecedores", new: "Fornecedor envia pelo portal próprio" },
+  { old: "Ninguém sabe quem fez qual treinamento", new: "Matriz por cargo com status em tempo real" },
+  { old: "MTR sem CDF e multa ambiental", new: "CDF monitorado com prazo e alerta" },
 ];
 
 const steps = [
-  { num: "01", icon: "🏢", title: "Cadastre sua empresa", desc: "Crie sua conta em menos de 2 minutos. Sem configuração técnica. Sem cartão de crédito." },
-  { num: "02", icon: "⚙️", title: "Configure seus módulos", desc: "Adicione colaboradores, treinamentos, serviços e documentos. Sem consultoria." },
-  { num: "03", icon: "🎯", title: "Monitore sem perder prazos", desc: "O dashboard centraliza tudo. Alertas visuais mostram o que precisa de atenção." },
+  { num: "01", icon: Building2, title: "Cadastre sua empresa", desc: "Crie sua conta em menos de 2 minutos. Sem configuração técnica. Sem cartão de crédito." },
+  { num: "02", icon: Settings, title: "Configure seus módulos", desc: "Adicione colaboradores, treinamentos, serviços e documentos. Sem consultoria." },
+  { num: "03", icon: Target, title: "Monitore sem perder prazos", desc: "O dashboard centraliza tudo. Alertas visuais mostram o que precisa de atenção." },
 ];
 
 const modules = [

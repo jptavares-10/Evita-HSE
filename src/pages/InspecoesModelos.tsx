@@ -83,10 +83,10 @@ export default function InspecoesModelos() {
             <SelectItem value="inactive">Inativo</SelectItem>
           </SelectContent>
         </Select>
-        <Button onClick={() => { setEditing(null); setDrawerOpen(true); }} disabled={!!isExpired}>
+        <PermissionButton canEdit={canEdit} onClick={() => { setEditing(null); setDrawerOpen(true); }} disabled={isDisabled}>
           <Plus className="h-4 w-4 mr-1.5" />
           Novo modelo
-        </Button>
+        </PermissionButton>
       </div>
 
       {/* Table */}

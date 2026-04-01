@@ -4,8 +4,9 @@ import { usePeriodicServices, useServiceCategories, useDeleteService } from "@/h
 import { getServiceStatus, getStatusInfo, formatDateBR, getFrequencyLabel } from "@/lib/services";
 import { KpiCards } from "@/components/servicos/KpiCards";
 import { ServiceFilters } from "@/components/servicos/ServiceFilters";
-import { ServiceEmptyState } from "@/components/servicos/ServiceEmptyState";
 import { ServiceDrawer } from "@/components/servicos/ServiceDrawer";
+import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
+import { ClipboardList, Tags, Plus } from "lucide-react";
 import { ServiceDetailDrawer } from "@/components/servicos/ServiceDetailDrawer";
 import { RegisterCompletionModal } from "@/components/servicos/RegisterCompletionModal";
 import { DeleteServiceDialog } from "@/components/servicos/DeleteServiceDialog";

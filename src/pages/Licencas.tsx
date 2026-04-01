@@ -107,9 +107,12 @@ export default function Licencas() {
 
   return (
     <div className="space-y-6 animate-fade-up">
-      <div>
-        <h1 className="text-2xl font-bold">Licenças Ambientais</h1>
-        <p className="text-muted-foreground text-sm mt-1">Gerencie suas licenças, vencimentos e renovações.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Licenças Ambientais</h1>
+          <p className="text-muted-foreground text-sm mt-1">Gerencie suas licenças, vencimentos e renovações.</p>
+        </div>
+        {!canEdit && <ViewerBadge />}
       </div>
 
       <LicenseKpiCards

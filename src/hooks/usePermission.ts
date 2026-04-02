@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { usePlan } from "@/hooks/usePlan";
 
 export type ModuleKey =
   | "periodic_services"
@@ -51,11 +52,19 @@ export function clearPermissionsCache(userId?: string) {
 
 export function usePermission(module: ModuleKey) {
   const { profile } = useAuth();
+  const { hasModule, isExpired } = usePlan();
   const [canEdit, setCanEdit] = useState(true);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!profile) {
+      setCanEdit(false);
+      setLoading(false);
+      return;
+    }
+
+    // If plan is expired or module not in plan, block editing
+    if (isExpired || !hasModule(module)) {
       setCanEdit(false);
       setLoading(false);
       return;
@@ -82,7 +91,7 @@ export function usePermission(module: ModuleKey) {
       setCanEdit(perm === "editor");
       setLoading(false);
     });
-  }, [profile?.id, profile?.role, module]);
+  }, [profile?.id, profile?.role, module, isExpired, hasModule]);
 
   return { canEdit, loading };
 }

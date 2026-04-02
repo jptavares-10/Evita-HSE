@@ -7,6 +7,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { PublicRoute } from "@/components/PublicRoute";
 import { LandingRoute } from "@/components/LandingRoute";
 import { AppLayout } from "@/components/AppLayout";
+import { ModuleGuard } from "@/components/ModuleGuard";
 
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
@@ -68,32 +69,32 @@ const App = () => (
             {/* Protected routes with layout */}
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/servicos" element={<Servicos />} />
+              <Route path="/servicos" element={<ModuleGuard module="periodic_services"><Servicos /></ModuleGuard>} />
               <Route path="/usuarios" element={<Usuarios />} />
               <Route path="/empresa" element={<Empresa />} />
               <Route path="/planos" element={<Planos />} />
               <Route path="/perfil" element={<Perfil />} />
-              <Route path="/treinamentos" element={<Treinamentos />}>
+              <Route path="/treinamentos" element={<ModuleGuard module="trainings"><Treinamentos /></ModuleGuard>}>
                 <Route index element={<TreinamentosVisaoGeral />} />
                 <Route path="colaboradores" element={<TreinamentosColaboradores />} />
                 <Route path="catalogo" element={<TreinamentosCatalogo />} />
                 <Route path="matriz" element={<TreinamentosMatriz />} />
                 <Route path="cargos" element={<TreinamentosCargos />} />
               </Route>
-              <Route path="/mtr" element={<Mtr />} />
-              <Route path="/mtr/analise" element={<MtrAnalise />} />
-              <Route path="/fornecedores" element={<Fornecedores />} />
-              <Route path="/fornecedores/:id" element={<FornecedorDocumentos />} />
-              <Route path="/incidentes" element={<Incidentes />} />
-              <Route path="/licencas" element={<Licencas />} />
-              <Route path="/documentos" element={<Documentos />} />
-              <Route path="/aso" element={<Aso />} />
-              <Route path="/inspecoes" element={<Inspecoes />}>
+              <Route path="/mtr" element={<ModuleGuard module="mtr"><Mtr /></ModuleGuard>} />
+              <Route path="/mtr/analise" element={<ModuleGuard module="mtr"><MtrAnalise /></ModuleGuard>} />
+              <Route path="/fornecedores" element={<ModuleGuard module="suppliers"><Fornecedores /></ModuleGuard>} />
+              <Route path="/fornecedores/:id" element={<ModuleGuard module="suppliers"><FornecedorDocumentos /></ModuleGuard>} />
+              <Route path="/incidentes" element={<ModuleGuard module="ic_nc"><Incidentes /></ModuleGuard>} />
+              <Route path="/licencas" element={<ModuleGuard module="environmental_licenses"><Licencas /></ModuleGuard>} />
+              <Route path="/documentos" element={<ModuleGuard module="document_library"><Documentos /></ModuleGuard>} />
+              <Route path="/aso" element={<ModuleGuard module="aso"><Aso /></ModuleGuard>} />
+              <Route path="/inspecoes" element={<ModuleGuard module="inspections"><Inspecoes /></ModuleGuard>}>
                 <Route index element={<InspecoesExecucoes />} />
                 <Route path="modelos" element={<InspecoesModelos />} />
               </Route>
-              <Route path="/inspecoes/:id" element={<InspecaoDetalhe />} />
-              <Route path="/epi" element={<Epi />}>
+              <Route path="/inspecoes/:id" element={<ModuleGuard module="inspections"><InspecaoDetalhe /></ModuleGuard>} />
+              <Route path="/epi" element={<ModuleGuard module="epi"><Epi /></ModuleGuard>}>
                 <Route index element={<EpiVisaoGeral />} />
                 <Route path="catalogo" element={<EpiCatalogo />} />
                 <Route path="estoque" element={<EpiEstoque />} />

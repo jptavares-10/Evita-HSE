@@ -61,9 +61,43 @@ const testimonials = [
 ];
 
 const pricingPlans = [
-  { key: "trial", label: "Trial", price: "Grátis", period: "14 dias de acesso completo", features: ["Todos os módulos inclusos", "Até 2 usuários", "Suporte por e-mail", "Sem cartão de crédito"], featured: false },
-  { key: "pro", label: "Pro", badge: "✦ Mais completo", price: "R$ 149", period: "/mês · usuários ilimitados", features: ["Todos os módulos inclusos", "Usuários ilimitados", "Suporte prioritário", "Acesso a novos módulos primeiro"], featured: true },
-  { key: "basic", label: "Basic", price: "R$ 79", period: "/mês · até 5 usuários", features: ["Todos os módulos inclusos", "Até 5 usuários", "Suporte por e-mail", "Histórico completo"], featured: false },
+  {
+    key: "starter",
+    label: "Starter",
+    subtitle: "Para empresas em crescimento",
+    priceMonthly: "R$ 97",
+    priceAnnual: "R$ 970",
+    periodMonthly: "/mês",
+    periodAnnual: "/ano",
+    savingsAnnual: "Economize R$ 194",
+    features: ["Serviços Periódicos", "Treinamentos completo", "IC & NC", "ASO", "Até 5 usuários", "5GB de storage", "Suporte por e-mail"],
+    featured: false,
+  },
+  {
+    key: "professional",
+    label: "Professional",
+    badge: "⭐ Mais popular",
+    subtitle: "Para equipes HSE completas",
+    priceMonthly: "R$ 247",
+    priceAnnual: "R$ 2.470",
+    periodMonthly: "/mês",
+    periodAnnual: "/ano",
+    savingsAnnual: "Economize R$ 494",
+    features: ["Tudo do Starter", "Gestão de MTR", "Licenças Ambientais", "Portal de Fornecedores", "Biblioteca de Documentos", "Inspeções de Segurança", "Gestão de EPIs", "Permissões por módulo", "Até 10 usuários", "20GB de storage", "Suporte SLA 48h"],
+    featured: true,
+  },
+  {
+    key: "enterprise",
+    label: "Enterprise",
+    subtitle: "Para grandes operações",
+    priceMonthly: "R$ 497",
+    priceAnnual: "R$ 4.970",
+    periodMonthly: "/mês",
+    periodAnnual: "/ano",
+    savingsAnnual: "Economize R$ 994",
+    features: ["Tudo do Professional", "Usuários ilimitados", "100GB de storage", "Múltiplas unidades (em breve)", "Suporte SLA 24h", "Onboarding assistido"],
+    featured: false,
+  },
 ];
 
 const faqs = [

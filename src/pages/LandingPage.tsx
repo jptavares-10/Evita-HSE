@@ -103,10 +103,13 @@ const pricingPlans = [
 const faqs = [
   { q: "Preciso instalar algum programa?", a: "Não. O Evita HSE é 100% na nuvem. Funciona em qualquer navegador, em computador ou celular." },
   { q: "Meus dados ficam seguros?", a: "Sim. Cada empresa tem seus dados isolados por Row Level Security. Documentos são armazenados em buckets privados com URLs temporárias." },
-  { q: "Posso ter mais de um usuário?", a: "Sim. Trial suporta até 2, Basic até 5 e Pro é ilimitado. Convite pelo próprio sistema." },
+  { q: "Posso ter mais de um usuário?", a: "Sim. Trial suporta até 2, Starter até 5, Professional até 10 e Enterprise é ilimitado. Convite pelo próprio sistema." },
   { q: "O que acontece quando o trial acaba?", a: "Seu acesso entra em modo leitura. Seus dados ficam preservados enquanto você decide sobre o plano." },
   { q: "Funciona para qualquer segmento?", a: "Sim. Construção civil, indústria, facilities, mineração, saúde, logística e mais." },
   { q: "Como funciona o portal de fornecedores?", a: "Você gera um link único. O fornecedor acessa sem criar conta e envia documentos organizados em pastas." },
+  { q: "O que acontece com meus dados se eu não renovar?", a: "Seus dados ficam preservados por 90 dias após o vencimento do plano. Durante esse período, você pode visualizar tudo mas não criar ou editar novos registros. Após 90 dias sem renovação, os dados podem ser removidos." },
+  { q: "Posso fazer upgrade ou downgrade a qualquer momento?", a: "Sim. Upgrade tem efeito imediato — você ganha acesso aos novos módulos na hora. Downgrade entra em vigor no próximo ciclo de cobrança. Módulos que você usava mas não estão no novo plano ficam em modo visualização." },
+  { q: "Qual a diferença entre plano mensal e anual?", a: "O plano anual equivale a 10 meses pelo preço de 12 — você economiza 2 meses. O valor é cobrado uma vez por ano. Ambos têm os mesmos recursos e limites. O plano anual é ideal para empresas que já sabem que vão usar o sistema a longo prazo." },
 ];
 
 /* ── SCROLL REVEAL HOOK ─────────────────────────── */

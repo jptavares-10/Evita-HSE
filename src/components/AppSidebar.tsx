@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePlan } from "@/hooks/usePlan";
 import { supabase } from "@/integrations/supabase/client";
 import { usePeriodicServices } from "@/hooks/useServices";
 import { useInspectionBadgeCount } from "@/hooks/useInspections";
@@ -19,15 +20,31 @@ import { getCdfDisplayStatus } from "@/lib/mtr";
 import { computeEmployeeCompliance } from "@/lib/trainings";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { UpgradeModal } from "@/components/UpgradeModal";
 import {
   LayoutDashboard, ClipboardList, ShieldAlert, GraduationCap, Recycle, Truck,
   Building2, Users, CreditCard, LogOut, ChevronDown, ChevronLeft, ChevronRight,
-  Shield, HeartPulse, Leaf, Eye, BookOpen, Grid3X3, Briefcase, ScrollText, FileText, HardHat, Stethoscope, ClipboardCheck
+  Shield, HeartPulse, Leaf, Eye, BookOpen, Grid3X3, Briefcase, ScrollText, FileText, HardHat, Stethoscope, ClipboardCheck,
+  Lock
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const GROUP_STORAGE_KEY = "evita-sidebar-groups";
 const COLLAPSED_STORAGE_KEY = "evita-sidebar-collapsed";
+
+// Module key mapping for sidebar items
+const ROUTE_MODULE_MAP: Record<string, string> = {
+  "/servicos": "periodic_services",
+  "/incidentes": "ic_nc",
+  "/inspecoes": "inspections",
+  "/epi": "epi",
+  "/documentos": "document_library",
+  "/treinamentos": "trainings",
+  "/aso": "aso",
+  "/mtr": "mtr",
+  "/licencas": "environmental_licenses",
+  "/fornecedores": "suppliers",
+};
 
 function getGroupState(): Record<string, boolean> {
   try {
@@ -58,9 +75,44 @@ interface SidebarItemProps {
   active: boolean;
   sub?: boolean;
   collapsed?: boolean;
+  locked?: boolean;
+  onLockedClick?: () => void;
 }
 
-function SidebarItem({ to, icon: Icon, label, badge, active, sub, collapsed }: SidebarItemProps) {
+function SidebarItem({ to, icon: Icon, label, badge, active, sub, collapsed, locked, onLockedClick }: SidebarItemProps) {
+  if (locked) {
+    const content = (
+      <button
+        onClick={onLockedClick}
+        className={cn(
+          "flex items-center gap-2.5 rounded-md transition-colors relative w-full",
+          collapsed ? "justify-center px-2 py-2.5" : sub ? "pl-9 pr-3 py-1.5 text-xs" : "px-3 py-2 text-sm",
+          "text-[#6B7280] hover:bg-[#1F2937] cursor-pointer"
+        )}
+      >
+        <Icon className={cn("flex-shrink-0 opacity-50", sub ? "h-3.5 w-3.5" : "h-4 w-4")} />
+        {!collapsed && (
+          <>
+            <span className="flex-1 truncate opacity-50">{label}</span>
+            <Lock className="h-3 w-3 opacity-60 flex-shrink-0" />
+          </>
+        )}
+      </button>
+    );
+
+    if (collapsed) {
+      return (
+        <Tooltip delayDuration={0}>
+          <TooltipTrigger asChild>{content}</TooltipTrigger>
+          <TooltipContent side="right" className="font-medium">
+            🔒 {label}
+          </TooltipContent>
+        </Tooltip>
+      );
+    }
+    return content;
+  }
+
   const content = (
     <Link
       to={to}
@@ -156,6 +208,7 @@ function SidebarGroupHeader({ label, icon: Icon, iconColor, open, onToggle, badg
 
 export function AppSidebar() {
   const { profile, company } = useAuth();
+  const { hasModule, isExpired } = usePlan();
   const navigate = useNavigate();
   const location = useLocation();
   const path = location.pathname;
@@ -164,6 +217,7 @@ export function AppSidebar() {
   const [groups, setGroups] = useState(getGroupState);
   const [treinoExpanded, setTreinoExpanded] = useState(path.startsWith("/treinamentos"));
   const [inspecoesExpanded, setInspecoesExpanded] = useState(path.startsWith("/inspecoes"));
+  const [upgradeModule, setUpgradeModule] = useState<string | null>(null);
 
   useEffect(() => saveGroupState(groups), [groups]);
   useEffect(() => {
@@ -172,6 +226,18 @@ export function AppSidebar() {
 
   const toggleGroup = (key: string) => {
     setGroups((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const isLocked = (route: string): boolean => {
+    if (isExpired) return true;
+    const moduleKey = ROUTE_MODULE_MAP[route];
+    if (!moduleKey) return false;
+    return !hasModule(moduleKey);
+  };
+
+  const handleLockedClick = (route: string) => {
+    const moduleKey = ROUTE_MODULE_MAP[route];
+    if (moduleKey) setUpgradeModule(moduleKey);
   };
 
   // ── Badge data ──
@@ -243,7 +309,6 @@ export function AppSidebar() {
 
   const asoBadge = useMemo(() => {
     let count = 0;
-    // Group by employee, find latest with expiry
     const byEmployee: Record<string, any[]> = {};
     asoRecords.forEach((r: any) => {
       if (!byEmployee[r.employee_id]) byEmployee[r.employee_id] = [];
@@ -319,10 +384,12 @@ export function AppSidebar() {
           />
           {(groups.seguranca ?? true) && (
             <div className={cn("space-y-0.5", !collapsed && "relative ml-4 pl-2 border-l border-[#1F2937]")}>
-              <SidebarItem to="/servicos" icon={ClipboardList} label="Serviços Periódicos" badge={serviceBadge} active={path === "/servicos"} collapsed={collapsed} />
-              <SidebarItem to="/incidentes" icon={ShieldAlert} label="IC & NC" badge={incidentBadge} active={path === "/incidentes"} collapsed={collapsed} />
+              <SidebarItem to="/servicos" icon={ClipboardList} label="Serviços Periódicos" badge={serviceBadge} active={path === "/servicos"} collapsed={collapsed} locked={isLocked("/servicos")} onLockedClick={() => handleLockedClick("/servicos")} />
+              <SidebarItem to="/incidentes" icon={ShieldAlert} label="IC & NC" badge={incidentBadge} active={path === "/incidentes"} collapsed={collapsed} locked={isLocked("/incidentes")} onLockedClick={() => handleLockedClick("/incidentes")} />
               {collapsed ? (
-                <SidebarItem to="/inspecoes" icon={ClipboardCheck} label="Inspeções" badge={inspectionBadge} active={path.startsWith("/inspecoes")} collapsed={collapsed} />
+                <SidebarItem to="/inspecoes" icon={ClipboardCheck} label="Inspeções" badge={inspectionBadge} active={path.startsWith("/inspecoes")} collapsed={collapsed} locked={isLocked("/inspecoes")} onLockedClick={() => handleLockedClick("/inspecoes")} />
+              ) : isLocked("/inspecoes") ? (
+                <SidebarItem to="/inspecoes" icon={ClipboardCheck} label="Inspeções" active={false} collapsed={collapsed} locked onLockedClick={() => handleLockedClick("/inspecoes")} />
               ) : (
                 <>
                   <button
@@ -351,8 +418,8 @@ export function AppSidebar() {
                   )}
                 </>
               )}
-              <SidebarItem to="/epi" icon={HardHat} label="EPIs" badge={epiBadge} active={path.startsWith("/epi")} collapsed={collapsed} />
-              <SidebarItem to="/documentos" icon={FileText} label="Biblioteca de Docs" active={path === "/documentos"} collapsed={collapsed} />
+              <SidebarItem to="/epi" icon={HardHat} label="EPIs" badge={epiBadge} active={path.startsWith("/epi")} collapsed={collapsed} locked={isLocked("/epi")} onLockedClick={() => handleLockedClick("/epi")} />
+              <SidebarItem to="/documentos" icon={FileText} label="Biblioteca de Docs" active={path === "/documentos"} collapsed={collapsed} locked={isLocked("/documentos")} onLockedClick={() => handleLockedClick("/documentos")} />
             </div>
           )}
 
@@ -371,7 +438,9 @@ export function AppSidebar() {
           {(groups.saude ?? true) && (
             <div className={cn("space-y-0.5", !collapsed && "relative ml-4 pl-2 border-l border-[#1F2937]")}>
               {collapsed ? (
-                <SidebarItem to="/treinamentos" icon={GraduationCap} label="Treinamentos" badge={trainingBadge} active={path.startsWith("/treinamentos")} collapsed={collapsed} />
+                <SidebarItem to="/treinamentos" icon={GraduationCap} label="Treinamentos" badge={trainingBadge} active={path.startsWith("/treinamentos")} collapsed={collapsed} locked={isLocked("/treinamentos")} onLockedClick={() => handleLockedClick("/treinamentos")} />
+              ) : isLocked("/treinamentos") ? (
+                <SidebarItem to="/treinamentos" icon={GraduationCap} label="Treinamentos" active={false} collapsed={collapsed} locked onLockedClick={() => handleLockedClick("/treinamentos")} />
               ) : (
                 <>
                   <button
@@ -403,7 +472,7 @@ export function AppSidebar() {
                   )}
                 </>
               )}
-              <SidebarItem to="/aso" icon={Stethoscope} label="ASO / Exames" badge={asoBadge} active={path === "/aso"} collapsed={collapsed} />
+              <SidebarItem to="/aso" icon={Stethoscope} label="ASO / Exames" badge={asoBadge} active={path === "/aso"} collapsed={collapsed} locked={isLocked("/aso")} onLockedClick={() => handleLockedClick("/aso")} />
             </div>
           )}
 
@@ -421,9 +490,9 @@ export function AppSidebar() {
           />
           {(groups.meio_ambiente ?? true) && (
             <div className={cn("space-y-0.5", !collapsed && "relative ml-4 pl-2 border-l border-[#1F2937]")}>
-              <SidebarItem to="/mtr" icon={Recycle} label="Gestão de MTR" badge={mtrBadge} active={path.startsWith("/mtr")} collapsed={collapsed} />
-              <SidebarItem to="/licencas" icon={ScrollText} label="Licenças Ambientais" badge={licenseBadge} active={path === "/licencas"} collapsed={collapsed} />
-              <SidebarItem to="/fornecedores" icon={Truck} label="Fornecedores" active={path.startsWith("/fornecedores")} collapsed={collapsed} />
+              <SidebarItem to="/mtr" icon={Recycle} label="Gestão de MTR" badge={mtrBadge} active={path.startsWith("/mtr")} collapsed={collapsed} locked={isLocked("/mtr")} onLockedClick={() => handleLockedClick("/mtr")} />
+              <SidebarItem to="/licencas" icon={ScrollText} label="Licenças Ambientais" badge={licenseBadge} active={path === "/licencas"} collapsed={collapsed} locked={isLocked("/licencas")} onLockedClick={() => handleLockedClick("/licencas")} />
+              <SidebarItem to="/fornecedores" icon={Truck} label="Fornecedores" active={path.startsWith("/fornecedores")} collapsed={collapsed} locked={isLocked("/fornecedores")} onLockedClick={() => handleLockedClick("/fornecedores")} />
             </div>
           )}
 
@@ -491,6 +560,12 @@ export function AppSidebar() {
           </div>
         </div>
       </aside>
+
+      <UpgradeModal
+        module={upgradeModule}
+        open={!!upgradeModule}
+        onClose={() => setUpgradeModule(null)}
+      />
     </TooltipProvider>
   );
 }

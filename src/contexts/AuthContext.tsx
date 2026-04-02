@@ -21,6 +21,10 @@ interface Company {
   trial_started_at: string | null;
   trial_ends_at: string | null;
   max_users: number;
+  plan_billing: string | null;
+  plan_started_at: string | null;
+  plan_expires_at: string | null;
+  storage_gb: number;
 }
 
 interface AuthContextType {
@@ -29,7 +33,7 @@ interface AuthContextType {
   profile: Profile | null;
   company: Company | null;
   loading: boolean;
-  profileLoaded: boolean; // true once profile fetch completed (profile may still be null)
+  profileLoaded: boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   refreshCompany: () => Promise<void>;

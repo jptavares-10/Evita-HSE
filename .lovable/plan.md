@@ -1,109 +1,153 @@
 
 
-# Onboarding Guiado por Módulo
+## Plano: Implementar Estrutura Completa de Planos no Evita HSE
 
-## Objetivo
-Criar um sistema de "primeiros passos" para cada módulo do sistema. Quando o usuário entra em um módulo pela primeira vez e não tem dados, ele vê um wizard visual com passos sequenciais para configurar aquele módulo, em vez de uma tela vazia genérica.
+### Visao Geral
 
-## Abordagem
+Implementar sistema de planos (Trial, Starter, Professional, Enterprise) com controle de acesso por modulo, banners contextuais, modal de upgrade, sidebar com cadeado, e preparacao para Stripe. O modulo EPI esta incluido a partir do plano Professional.
 
-Criar um componente reutilizável `ModuleOnboarding` que recebe a configuração de passos e é exibido condicionalmente quando o módulo está vazio. Cada módulo terá seus próprios passos definidos.
+---
 
-## Componente principal
+### 1. Migracao de Banco de Dados
 
-**Novo arquivo: `src/components/ModuleOnboarding.tsx`**
+Uma unica migracao SQL para:
 
-Um componente que recebe:
-- `title`: nome do módulo
-- `description`: descrição curta
-- `icon`: ícone Lucide
-- `steps`: array de `{ title, description, action: () => void, completed: boolean, icon }`
+**Novas colunas em `companies`:**
+- `plan_billing` (text, nullable) -- 'monthly' | 'annual'
+- `plan_started_at` (timestamptz, nullable)
+- `plan_expires_at` (timestamptz, nullable)
+- `storage_gb` (integer, default 5)
+- `stripe_customer_id` (text, nullable)
+- `stripe_subscription_id` (text, nullable)
+- `stripe_price_id` (text, nullable)
 
-Renderiza um card centralizado com:
-- Ícone e título do módulo
-- Lista vertical de passos numerados com indicador de progresso (check se completo, número se pendente)
-- Botão de ação em cada passo ("Criar setor", "Cadastrar colaborador", etc.)
-- Barra de progresso geral no topo
-- Visual limpo, consistente com o design system existente (Card, Badge, Button, Progress)
+**Nova tabela `plan_definitions`:**
+- `plan_key` (text PK), `name`, `price_monthly`, `price_annual`, `max_users`, `storage_gb`, `modules` (text[])
+- Inserir 4 registros (trial, starter, professional, enterprise) com os modulos conforme a tabela do prompt
+- EPI incluido em professional e enterprise: `'{periodic_services,trainings,ic_nc,aso,mtr,environmental_licenses,suppliers,document_library,inspections,user_permissions,epi}'`
 
-## Módulos e seus passos
+**Nova tabela `plan_change_history`:**
+- `id`, `company_id`, `from_plan`, `to_plan`, `billing_type`, `changed_at`, `changed_by`, `reason`
+- RLS: leitura/escrita para mesma empresa
 
-### 1. Treinamentos (`TreinamentosVisaoGeral`)
-Condição: `employees.length === 0 && trainings.length === 0`
-Passos:
-1. Criar setores (link para /treinamentos/cargos)
-2. Criar cargos (link para /treinamentos/cargos)
-3. Cadastrar colaboradores (link para /treinamentos/colaboradores)
-4. Cadastrar primeiro treinamento (link para /treinamentos/catalogo)
+**Nova tabela `payment_intents`:**
+- Estrutura vazia para futuro Stripe (id, company_id, stripe_payment_intent_id, amount, currency, status, plan_key, billing_type, created_at)
+- RLS: leitura para mesma empresa
 
-### 2. Serviços Periódicos (`Servicos`)
-Condição: `services.length === 0` (já tem `ServiceEmptyState`, substituir)
-Passos:
-1. Criar categorias de serviço (abrir modal de categorias)
-2. Cadastrar primeiro serviço (abrir drawer)
+**RPC `get_company_access_status()`:**
+- SECURITY DEFINER
+- Retorna: plan, billing, status ('active'|'trial'|'expired'|'grace'), modules_included (text[]), days_remaining, max_users, storage_gb
+- Logica: trial verifica trial_ends_at; planos pagos verificam plan_expires_at com 7 dias de grace period; expired retorna modulos vazios
 
-### 3. Inspeções (`InspecoesModelos` / `InspecoesExecucoes`)
-Condição: `models.length === 0`
-Passos:
-1. Cadastrar colaboradores (link para /treinamentos/colaboradores)
-2. Criar primeiro modelo de inspeção (abrir drawer)
-3. Gerar primeira execução (abrir modal)
+**Migracao de dados existentes:**
+- plan='basic' -> 'starter', max_users=5, storage_gb=5, plan_expires_at=now()+30d
+- plan='pro' -> 'professional', max_users=10, storage_gb=20, plan_expires_at=now()+30d
+- plan='trial' com trial_ends_at expirado -> plan='expired'
 
-### 4. MTR (`Mtr`)
-Condição: `mtrs.length === 0`
-Passos:
-1. Cadastrar categorias de resíduo (abrir modal)
-2. Registrar primeiro MTR (abrir drawer)
+**Atualizar RLS de `companies`:**
+- Ajustar WITH CHECK do UPDATE para incluir novos campos (storage_gb, plan_billing, etc.) como imutaveis via cliente direto
 
-### 5. Fornecedores (`Fornecedores`)
-Condição: `suppliers.length === 0`
-Passos:
-1. Cadastrar primeiro fornecedor (abrir drawer)
-2. Ativar portal do fornecedor (explicação)
+---
 
-### 6. Incidentes (`Incidentes`)
-Condição: `occurrences.length === 0`
-Passos:
-1. Registrar primeira ocorrência (abrir drawer)
+### 2. Hook `usePlan` (src/hooks/usePlan.ts)
 
-### 7. Licenças Ambientais (`Licencas`)
-Condição: `licenses.length === 0`
-Passos:
-1. Criar tipos de licença (abrir modal)
-2. Cadastrar primeira licença (abrir drawer)
+Novo hook que chama a RPC `get_company_access_status()` e expoe:
 
-### 8. Documentos (`Documentos`)
-Condição: `documents.length === 0`
-Passos:
-1. Criar tipos de documento (abrir modal)
-2. Cadastrar primeiro documento (abrir drawer)
+```typescript
+const { plan, status, billing, hasModule, daysRemaining, isExpired, canEdit, modulesIncluded, maxUsers, storageGb, loading } = usePlan()
+```
 
-### 9. EPI (`EpiVisaoGeral`)
-Condição: `epiTypes.length === 0`
-Passos:
-1. Cadastrar primeiro EPI no catálogo (link para /epi/catalogo)
-2. Registrar estoque inicial (link para /epi/estoque)
-3. Registrar primeira entrega (link para /epi/entregas)
+- `hasModule(module)`: verifica se modulo esta em `modulesIncluded`
+- `canEdit`: false se status='expired'
+- Cache global similar ao usePermission para evitar chamadas duplicadas
 
-### 10. ASO (`Aso`)
-Condição: `asoRecords.length === 0 && employees.length === 0`
-Passos:
-1. Cadastrar colaboradores (link para /treinamentos/colaboradores)
-2. Configurar tipos de exame (abrir modal)
-3. Registrar primeiro ASO (abrir drawer)
+---
 
-## Implementação
+### 3. Integrar `usePlan` com `usePermission` (src/hooks/usePermission.ts)
 
-### Arquivos criados
-- `src/components/ModuleOnboarding.tsx` - componente reutilizável
+Dentro do usePermission, alem de verificar role (admin/editor/viewer), tambem verificar:
+- Se `usePlan().hasModule(module)` retorna false -> canEdit = false
+- Se `usePlan().isExpired` -> canEdit = false
 
-### Arquivos editados (10 páginas)
-Cada página de módulo receberá a lógica condicional: se os dados estão vazios e não está carregando, renderizar `ModuleOnboarding` no lugar do conteúdo normal. Os passos marcarão `completed: true` conforme os dados existam (ex: se já tem categorias, o passo 1 fica completo).
+Isso bloqueia edicao automaticamente em todos os modulos que ja usam usePermission.
 
-## Detalhes técnicos
-- Sem mudanças no banco de dados
-- Sem novo estado persistido (o onboarding desaparece naturalmente quando há dados)
-- Reutiliza hooks existentes (`useEmployees`, `useTrainings`, etc.) para verificar completude dos passos
-- Componente `ModuleOnboarding` usa `Card`, `Button`, `Progress`, `Badge` do design system existente
-- Ações dos passos: ou navegam (`useNavigate`) ou chamam callbacks (abrir drawers/modais já existentes)
+---
+
+### 4. Sidebar com Cadeado (src/components/AppSidebar.tsx)
+
+- Importar `usePlan`
+- Para cada item de modulo na sidebar, verificar `hasModule(moduleKey)`
+- Se modulo nao incluido:
+  - Mostrar icone Lock ao lado do label (texto em cinza)
+  - Ao clicar: nao navegar, abrir `UpgradeModal` com info do modulo
+- Se status='expired': todos os itens com cadeado
+- Mapeamento sidebar-item -> moduleKey (ex: "/mtr" -> "mtr", "/epi" -> "epi")
+
+---
+
+### 5. Modal de Upgrade (src/components/UpgradeModal.tsx)
+
+Componente reutilizavel:
+- Props: `module` (nome), `open`, `onClose`
+- Mostra icone do modulo, nome, descricao curta
+- "Disponivel nos planos:" com badges
+- Botoes: "Ver todos os planos" (navega /planos) e "Fechar"
+
+---
+
+### 6. Banner Contextual (src/components/TrialBanner.tsx)
+
+Refatorar para usar `usePlan()`:
+- **trial**: Banner azul "Voce esta no trial -- X dias restantes"
+- **active**: Sem banner
+- **grace**: Banner amarelo "Seu plano expirou. Voce tem X dias para renovar..."
+- **expired**: Banner vermelho "Seu acesso expirou. Escolha um plano..."
+
+---
+
+### 7. Tela de Planos Atualizada (src/pages/Planos.tsx)
+
+- Toggle Mensal/Anual no topo
+- 4 cards: Trial, Starter (R$97/R$970), Professional (R$247/R$2.470), Enterprise (R$497/R$4.970)
+- Badge "2 meses gratis" quando anual selecionado
+- Card do plano atual: badge "Seu plano atual"
+- Planos superiores: botao "Fazer upgrade" desabilitado com tooltip "Em breve"
+- Planos inferiores: botao "Fazer downgrade" desabilitado com tooltip
+- Lista de features, limites de usuarios e storage por plano
+- Highlight no card Professional ("Recomendado")
+
+---
+
+### 8. Bloqueio de URL Direta (src/components/ProtectedRoute.tsx ou componente wrapper)
+
+- Criar componente `ModuleGuard` que verifica `hasModule(module)` antes de renderizar a rota
+- Se modulo nao permitido: redireciona para `/planos` com toast "Este modulo nao esta incluido no seu plano"
+- Aplicar nos routes de cada modulo em App.tsx
+
+---
+
+### 9. Arquivos Modificados/Criados
+
+| Arquivo | Acao |
+|---|---|
+| Migration SQL | Criar (tabelas, RPC, dados) |
+| `src/hooks/usePlan.ts` | Criar |
+| `src/hooks/usePermission.ts` | Editar (integrar usePlan) |
+| `src/components/UpgradeModal.tsx` | Criar |
+| `src/components/TrialBanner.tsx` | Refatorar |
+| `src/components/AppSidebar.tsx` | Editar (cadeado + modal) |
+| `src/pages/Planos.tsx` | Reescrever |
+| `src/App.tsx` | Editar (ModuleGuard nas rotas) |
+| `src/contexts/AuthContext.tsx` | Editar (adicionar storage_gb e novos campos ao tipo Company) |
+
+---
+
+### Detalhes Tecnicos
+
+- A RPC `get_company_access_status` roda com SECURITY DEFINER e busca o company_id do usuario via `auth.uid()`
+- O hook `usePlan` usa cache global (mesmo padrao do usePermission) para evitar chamadas duplicadas
+- O `ModuleGuard` e um wrapper de rota que recebe a moduleKey como prop
+- Nenhuma funcionalidade existente dos modulos e alterada -- apenas a visibilidade/acesso e condicionada
+- O modulo `epi` esta mapeado como disponivel em: trial (todos), professional e enterprise
+- O modulo `user_permissions` (tela de permissoes granulares) so aparece em professional e enterprise
 

@@ -507,7 +507,25 @@ export default function LandingPage() {
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight mb-4">Simples e transparente</h2>
             <p className="text-lg text-muted-foreground mx-auto max-w-[560px]">Comece grátis. Faça upgrade quando precisar. Cancele quando quiser.</p>
           </Reveal>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-12 items-center">
+
+          {/* Toggle Mensal / Anual */}
+          <div className="flex items-center justify-center gap-3 mt-10">
+            <span className={`text-sm font-semibold transition-colors ${!billingAnnual ? "text-foreground" : "text-muted-foreground"}`}>Mensal</span>
+            <button
+              onClick={() => setBillingAnnual(!billingAnnual)}
+              className={`relative w-14 h-7 rounded-full transition-colors duration-200 ${billingAnnual ? "bg-primary" : "bg-muted-foreground/30"}`}
+            >
+              <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${billingAnnual ? "translate-x-7" : ""}`} />
+            </button>
+            <span className={`text-sm font-semibold transition-colors ${billingAnnual ? "text-foreground" : "text-muted-foreground"}`}>
+              Anual
+            </span>
+            {billingAnnual && (
+              <span className="bg-emerald-100 text-emerald-700 text-[0.7rem] font-bold px-2.5 py-1 rounded-full">2 meses grátis</span>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-10 items-start">
             {pricingPlans.map((plan, i) => (
               <Reveal key={plan.key} delay={i * 0.1}>
                 <div className={`rounded-2xl p-8 transition-all hover:shadow-lg ${
@@ -519,8 +537,18 @@ export default function LandingPage() {
                     <span className="inline-block bg-amber-400 text-amber-900 text-[0.7rem] font-bold px-2.5 py-1 rounded-full mb-2">{plan.badge}</span>
                   )}
                   <div className={`text-xs font-bold tracking-[0.1em] uppercase mb-2 ${plan.featured ? "text-white/70" : "text-muted-foreground"}`}>{plan.label}</div>
-                  <div className={`font-display text-4xl font-extrabold leading-none mb-1 ${plan.featured ? "text-white" : ""}`}>{plan.price}</div>
-                  <div className={`text-sm mb-6 ${plan.featured ? "text-white/70" : "text-muted-foreground"}`}>{plan.period}</div>
+                  <div className={`font-display text-4xl font-extrabold leading-none mb-1 ${plan.featured ? "text-white" : ""}`}>
+                    {billingAnnual ? plan.priceAnnual : plan.priceMonthly}
+                  </div>
+                  <div className={`text-sm ${plan.featured ? "text-white/70" : "text-muted-foreground"}`}>
+                    {billingAnnual ? plan.periodAnnual : plan.periodMonthly}
+                  </div>
+                  {billingAnnual && (
+                    <span className={`inline-block mt-2 text-[0.7rem] font-bold px-2.5 py-1 rounded-full ${plan.featured ? "bg-white/20 text-white" : "bg-emerald-100 text-emerald-700"}`}>
+                      {plan.savingsAnnual}
+                    </span>
+                  )}
+                  <p className={`text-sm mt-2 mb-5 ${plan.featured ? "text-white/60" : "text-muted-foreground"}`}>{plan.subtitle}</p>
                   <div className={`h-px mb-6 ${plan.featured ? "bg-white/20" : "bg-border"}`} />
                   <ul className="space-y-2.5 mb-7">
                     {plan.features.map((f) => (
@@ -534,17 +562,25 @@ export default function LandingPage() {
                   </ul>
                   <Link to="/cadastro">
                     <Button className={`w-full ${plan.featured ? "bg-white text-primary hover:bg-white/90 shadow-md" : ""}`} variant={plan.featured ? "secondary" : "outline"}>
-                      Começar grátis{plan.featured && " →"}
+                      Começar trial grátis{plan.featured ? " →" : ""}
                     </Button>
                   </Link>
                 </div>
               </Reveal>
             ))}
           </div>
-          <Reveal className="text-center mt-8">
-            <p className="text-sm text-muted-foreground">
-              💳 Pagamentos serão ativados em breve.<br />
-              Crie sua conta agora e aproveite o trial completo gratuitamente.
+
+          {/* Trial highlight box */}
+          <Reveal className="mt-10">
+            <div className="max-w-[700px] mx-auto bg-blue-50 border border-blue-200 rounded-2xl px-8 py-6 text-center">
+              <p className="text-base font-bold text-blue-800 mb-1">🎁 Trial de 14 dias grátis em todos os planos</p>
+              <p className="text-sm text-blue-700">Acesso completo a todos os módulos. Sem cartão de crédito. Sem compromisso.</p>
+            </div>
+          </Reveal>
+
+          <Reveal className="text-center mt-6">
+            <p className="text-xs text-muted-foreground">
+              Pagamentos serão ativados em breve. Crie sua conta agora e aproveite o acesso completo durante o trial.
             </p>
           </Reveal>
         </div>

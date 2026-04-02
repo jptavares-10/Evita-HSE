@@ -500,7 +500,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── PREÇOS ──────────────────────────────────── */}
-      <section id="precos" className="py-24 px-[5%] bg-white">
+      <section id="precos" className="py-24 px-[5%]" style={{ background: "#F8FAFC" }}>
         <div className="max-w-[1200px] mx-auto">
           <Reveal className="text-center">
             <span className="text-[0.72rem] font-bold tracking-[0.12em] uppercase text-primary mb-4 block">Preços</span>
@@ -510,64 +510,99 @@ export default function LandingPage() {
 
           {/* Toggle Mensal / Anual */}
           <div className="flex items-center justify-center gap-3 mt-10">
-            <span className={`text-sm font-semibold transition-colors ${!billingAnnual ? "text-foreground" : "text-muted-foreground"}`}>Mensal</span>
+            <span className={`text-sm font-semibold transition-colors duration-200 ${!billingAnnual ? "text-foreground" : "text-muted-foreground"}`}>Mensal</span>
             <button
               onClick={() => setBillingAnnual(!billingAnnual)}
               className={`relative w-14 h-7 rounded-full transition-colors duration-200 ${billingAnnual ? "bg-primary" : "bg-muted-foreground/30"}`}
+              aria-label="Alternar entre mensal e anual"
             >
-              <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${billingAnnual ? "translate-x-7" : ""}`} />
+              <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-200 ${billingAnnual ? "translate-x-7" : "translate-x-0"}`} />
             </button>
-            <span className={`text-sm font-semibold transition-colors ${billingAnnual ? "text-foreground" : "text-muted-foreground"}`}>
+            <span className={`text-sm font-semibold transition-colors duration-200 flex items-center gap-2 ${billingAnnual ? "text-foreground" : "text-muted-foreground"}`}>
               Anual
+              {billingAnnual && (
+                <span className="bg-emerald-100 text-emerald-700 text-[0.7rem] font-bold px-2.5 py-1 rounded-full whitespace-nowrap">2 meses grátis</span>
+              )}
             </span>
-            {billingAnnual && (
-              <span className="bg-emerald-100 text-emerald-700 text-[0.7rem] font-bold px-2.5 py-1 rounded-full">2 meses grátis</span>
-            )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-10 items-start">
-            {pricingPlans.map((plan, i) => (
-              <Reveal key={plan.key} delay={i * 0.1}>
-                <div className={`rounded-2xl p-8 transition-all hover:shadow-lg ${
-                  plan.featured
-                    ? "bg-gradient-to-br from-blue-800 to-primary text-white shadow-[0_20px_60px_rgba(37,99,235,0.35)] md:scale-[1.04]"
-                    : "bg-card border"
-                }`}>
-                  {plan.badge && (
-                    <span className="inline-block bg-amber-400 text-amber-900 text-[0.7rem] font-bold px-2.5 py-1 rounded-full mb-2">{plan.badge}</span>
-                  )}
-                  <div className={`text-xs font-bold tracking-[0.1em] uppercase mb-2 ${plan.featured ? "text-white/70" : "text-muted-foreground"}`}>{plan.label}</div>
-                  <div className={`font-display text-4xl font-extrabold leading-none mb-1 ${plan.featured ? "text-white" : ""}`}>
-                    {billingAnnual ? plan.priceAnnual : plan.priceMonthly}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-10 items-stretch">
+            {pricingPlans.map((plan, i) => {
+              const monthlyNum = parseInt(plan.priceMonthly.replace(/\D/g, ""));
+              const annualNum = parseInt(plan.priceAnnual.replace(/\D/g, ""));
+              const equivMonthly = Math.round(annualNum / 12);
+
+              return (
+                <Reveal key={plan.key} delay={i * 0.1}>
+                  <div className={`relative rounded-2xl p-8 flex flex-col h-full transition-all duration-200 hover:shadow-xl ${
+                    plan.featured
+                      ? "bg-gradient-to-br from-[#1E40AF] to-[#2563EB] text-white shadow-[0_4px_24px_rgba(0,0,0,0.06)] border-2 border-white/30 md:scale-[1.04]"
+                      : "bg-white border border-[#E2E8F0] shadow-[0_4px_24px_rgba(0,0,0,0.06)]"
+                  }`}>
+                    {plan.badge && (
+                      <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#F59E0B] text-amber-900 text-[0.7rem] font-bold px-4 py-1.5 rounded-full whitespace-nowrap shadow-sm">{plan.badge}</span>
+                    )}
+                    <div className={`text-xs font-bold tracking-[0.1em] uppercase mb-3 ${plan.featured ? "text-white/70" : "text-muted-foreground"}`}>{plan.label}</div>
+                    <p className={`text-sm mb-4 ${plan.featured ? "text-white/60" : "text-muted-foreground"}`}>{plan.subtitle}</p>
+
+                    <div className="mb-1">
+                      {billingAnnual ? (
+                        <div style={{ transition: "opacity 0.2s ease" }}>
+                          <div className="flex items-baseline gap-1">
+                            <span className={`font-display text-5xl font-extrabold leading-none ${plan.featured ? "text-white" : ""}`}>R$ {equivMonthly}</span>
+                            <span className={`text-base ${plan.featured ? "text-white/70" : "text-muted-foreground"}`}>/mês</span>
+                          </div>
+                          <div className={`text-sm mt-1 ${plan.featured ? "text-white/50" : "text-muted-foreground"}`}>
+                            <span className="line-through">R$ {monthlyNum}/mês</span>
+                            <span className="mx-1.5">·</span>
+                            cobrado {plan.priceAnnual}/ano
+                          </div>
+                          <span className={`inline-block mt-2 text-[0.7rem] font-bold px-2.5 py-1 rounded-full ${plan.featured ? "bg-white/20 text-white" : "bg-emerald-100 text-emerald-700"}`}>
+                            {plan.savingsAnnual}
+                          </span>
+                        </div>
+                      ) : (
+                        <div style={{ transition: "opacity 0.2s ease" }}>
+                          <div className="flex items-baseline gap-1">
+                            <span className={`font-display text-5xl font-extrabold leading-none ${plan.featured ? "text-white" : ""}`}>{plan.priceMonthly}</span>
+                            <span className={`text-base ${plan.featured ? "text-white/70" : "text-muted-foreground"}`}>{plan.periodMonthly}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className={`h-px my-6 ${plan.featured ? "bg-white/20" : "bg-[#E2E8F0]"}`} />
+
+                    <ul className="space-y-2.5 mb-7 flex-1">
+                      {plan.features.map((f) => (
+                        <li key={f} className={`flex items-center gap-2.5 text-sm ${plan.featured ? "text-white/90" : "text-[#374151]"}`}>
+                          <span className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
+                            plan.featured
+                              ? "bg-white/20 text-white"
+                              : plan.key === "starter"
+                                ? "bg-emerald-500/15 text-emerald-500"
+                                : "bg-purple-500/15 text-purple-500"
+                          }`}>
+                            <Check className="h-3 w-3" />
+                          </span>
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+
+                    <Link to="/cadastro">
+                      <Button className={`w-full ${
+                        plan.featured
+                          ? "bg-white text-[#1E40AF] hover:bg-white/90 shadow-md font-semibold"
+                          : "border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold"
+                      }`} variant={plan.featured ? "secondary" : "outline"}>
+                        Começar trial grátis{plan.featured ? " →" : ""}
+                      </Button>
+                    </Link>
                   </div>
-                  <div className={`text-sm ${plan.featured ? "text-white/70" : "text-muted-foreground"}`}>
-                    {billingAnnual ? plan.periodAnnual : plan.periodMonthly}
-                  </div>
-                  {billingAnnual && (
-                    <span className={`inline-block mt-2 text-[0.7rem] font-bold px-2.5 py-1 rounded-full ${plan.featured ? "bg-white/20 text-white" : "bg-emerald-100 text-emerald-700"}`}>
-                      {plan.savingsAnnual}
-                    </span>
-                  )}
-                  <p className={`text-sm mt-2 mb-5 ${plan.featured ? "text-white/60" : "text-muted-foreground"}`}>{plan.subtitle}</p>
-                  <div className={`h-px mb-6 ${plan.featured ? "bg-white/20" : "bg-border"}`} />
-                  <ul className="space-y-2.5 mb-7">
-                    {plan.features.map((f) => (
-                      <li key={f} className={`flex items-center gap-2.5 text-sm ${plan.featured ? "text-white/90" : "text-muted-foreground"}`}>
-                        <span className={`w-4.5 h-4.5 rounded-full flex items-center justify-center text-[0.6rem] flex-shrink-0 ${plan.featured ? "bg-white/20 text-white" : "bg-emerald-500/15 text-emerald-500"}`}>
-                          <Check className="h-3 w-3" />
-                        </span>
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                  <Link to="/cadastro">
-                    <Button className={`w-full ${plan.featured ? "bg-white text-primary hover:bg-white/90 shadow-md" : ""}`} variant={plan.featured ? "secondary" : "outline"}>
-                      Começar trial grátis{plan.featured ? " →" : ""}
-                    </Button>
-                  </Link>
-                </div>
-              </Reveal>
-            ))}
+                </Reveal>
+              );
+            })}
           </div>
 
           {/* Trial highlight box */}
@@ -579,7 +614,7 @@ export default function LandingPage() {
           </Reveal>
 
           <Reveal className="text-center mt-6">
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[13px] text-muted-foreground max-w-[500px] mx-auto">
               Pagamentos serão ativados em breve. Crie sua conta agora e aproveite o acesso completo durante o trial.
             </p>
           </Reveal>

@@ -138,7 +138,14 @@ export type Database = {
           max_users: number
           name: string
           plan: string
+          plan_billing: string | null
+          plan_expires_at: string | null
+          plan_started_at: string | null
           segment: string | null
+          storage_gb: number
+          stripe_customer_id: string | null
+          stripe_price_id: string | null
+          stripe_subscription_id: string | null
           trial_ends_at: string | null
           trial_started_at: string | null
         }
@@ -150,7 +157,14 @@ export type Database = {
           max_users?: number
           name: string
           plan?: string
+          plan_billing?: string | null
+          plan_expires_at?: string | null
+          plan_started_at?: string | null
           segment?: string | null
+          storage_gb?: number
+          stripe_customer_id?: string | null
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
           trial_ends_at?: string | null
           trial_started_at?: string | null
         }
@@ -162,7 +176,14 @@ export type Database = {
           max_users?: number
           name?: string
           plan?: string
+          plan_billing?: string | null
+          plan_expires_at?: string | null
+          plan_started_at?: string | null
           segment?: string | null
+          storage_gb?: number
+          stripe_customer_id?: string | null
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
           trial_ends_at?: string | null
           trial_started_at?: string | null
         }
@@ -1674,6 +1695,50 @@ export type Database = {
           },
         ]
       }
+      payment_intents: {
+        Row: {
+          amount: number
+          billing_type: string | null
+          company_id: string
+          created_at: string
+          currency: string
+          id: string
+          plan_key: string
+          status: string
+          stripe_payment_intent_id: string | null
+        }
+        Insert: {
+          amount?: number
+          billing_type?: string | null
+          company_id: string
+          created_at?: string
+          currency?: string
+          id?: string
+          plan_key: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+        }
+        Update: {
+          amount?: number
+          billing_type?: string | null
+          company_id?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          plan_key?: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_intents_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       periodic_services: {
         Row: {
           alert_days_before: number
@@ -1752,6 +1817,84 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      plan_change_history: {
+        Row: {
+          billing_type: string | null
+          changed_at: string
+          changed_by: string | null
+          company_id: string
+          from_plan: string
+          id: string
+          reason: string | null
+          to_plan: string
+        }
+        Insert: {
+          billing_type?: string | null
+          changed_at?: string
+          changed_by?: string | null
+          company_id: string
+          from_plan: string
+          id?: string
+          reason?: string | null
+          to_plan: string
+        }
+        Update: {
+          billing_type?: string | null
+          changed_at?: string
+          changed_by?: string | null
+          company_id?: string
+          from_plan?: string
+          id?: string
+          reason?: string | null
+          to_plan?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_change_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plan_change_history_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plan_definitions: {
+        Row: {
+          max_users: number
+          modules: string[]
+          name: string
+          plan_key: string
+          price_annual: number
+          price_monthly: number
+          storage_gb: number
+        }
+        Insert: {
+          max_users?: number
+          modules?: string[]
+          name: string
+          plan_key: string
+          price_annual?: number
+          price_monthly?: number
+          storage_gb?: number
+        }
+        Update: {
+          max_users?: number
+          modules?: string[]
+          name?: string
+          plan_key?: string
+          price_annual?: number
+          price_monthly?: number
+          storage_gb?: number
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -2538,6 +2681,7 @@ export type Database = {
         Args: { p_name: string; p_parent_folder_id?: string; p_token: string }
         Returns: Json
       }
+      get_company_access_status: { Args: never; Returns: Json }
       get_pending_invitation_for_current_user: { Args: never; Returns: Json }
       get_supplier_portal_data: { Args: { p_token: string }; Returns: Json }
       get_user_company_id: { Args: never; Returns: string }

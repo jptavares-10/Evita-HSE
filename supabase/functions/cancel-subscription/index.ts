@@ -69,40 +69,74 @@ serve(async (req) => {
 
     const { data: company } = await supabaseAdmin
       .from("companies")
-      .select("stripe_subscription_id")
+      .select("stripe_subscription_id, plan, plan_expires_at")
       .eq("id", profile.company_id)
       .single();
 
-    if (!company?.stripe_subscription_id) {
+    if (!company || company.plan === "trial") {
       return new Response(JSON.stringify({ error: "Nenhuma assinatura ativa encontrada" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    logStep("Cancelling at period end", { subscriptionId: company.stripe_subscription_id });
+    // Case 1: Has Stripe subscription — cancel at period end
+    if (company.stripe_subscription_id) {
+      logStep("Cancelling at period end", { subscriptionId: company.stripe_subscription_id });
 
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-      apiVersion: "2025-08-27.basil",
-    });
+      const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+        apiVersion: "2025-08-27.basil",
+      });
 
-    const subscription = await stripe.subscriptions.update(company.stripe_subscription_id, {
-      cancel_at_period_end: true,
-    });
+      const subscription = await stripe.subscriptions.update(company.stripe_subscription_id, {
+        cancel_at_period_end: true,
+      });
 
-    const cancelAt = subscription.cancel_at
-      ? new Date(subscription.cancel_at * 1000).toISOString()
-      : subscription.current_period_end
-        ? new Date(subscription.current_period_end * 1000).toISOString()
-        : null;
+      const cancelAt = subscription.cancel_at
+        ? new Date(subscription.cancel_at * 1000).toISOString()
+        : subscription.current_period_end
+          ? new Date(subscription.current_period_end * 1000).toISOString()
+          : null;
 
-    // Store cancel date in companies table
+      await supabaseAdmin
+        .from("companies")
+        .update({ subscription_cancel_at: cancelAt })
+        .eq("id", profile.company_id);
+
+      logStep("Subscription scheduled for cancellation", { cancelAt });
+
+      return new Response(JSON.stringify({ success: true, cancel_at: cancelAt }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
+    // Case 2: No Stripe subscription — plan was activated manually
+    // Set plan to expire immediately (grace period logic handles the rest)
+    logStep("No Stripe subscription, expiring plan directly", { companyId: profile.company_id });
+
+    const cancelAt = company.plan_expires_at || new Date().toISOString();
+
     await supabaseAdmin
       .from("companies")
-      .update({ subscription_cancel_at: cancelAt })
+      .update({
+        subscription_cancel_at: cancelAt,
+        plan_expires_at: cancelAt,
+        stripe_subscription_id: null,
+        stripe_price_id: null,
+      })
       .eq("id", profile.company_id);
 
-    logStep("Subscription scheduled for cancellation", { cancelAt });
+    // Log the change
+    await supabaseAdmin.from("plan_change_history").insert({
+      company_id: profile.company_id,
+      from_plan: company.plan,
+      to_plan: company.plan,
+      billing_type: null,
+      reason: "manual_cancellation",
+    });
+
+    logStep("Plan expiration set", { cancelAt });
 
     return new Response(JSON.stringify({ success: true, cancel_at: cancelAt }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

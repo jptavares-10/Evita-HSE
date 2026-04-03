@@ -1,153 +1,93 @@
 
 
-## Plano: Implementar Estrutura Completa de Planos no Evita HSE
+## Plano: Cancelamento de Assinatura + Downgrade Funcional
 
-### Visao Geral
+### Contexto
 
-Implementar sistema de planos (Trial, Starter, Professional, Enterprise) com controle de acesso por modulo, banners contextuais, modal de upgrade, sidebar com cadeado, e preparacao para Stripe. O modulo EPI esta incluido a partir do plano Professional.
-
----
-
-### 1. Migracao de Banco de Dados
-
-Uma unica migracao SQL para:
-
-**Novas colunas em `companies`:**
-- `plan_billing` (text, nullable) -- 'monthly' | 'annual'
-- `plan_started_at` (timestamptz, nullable)
-- `plan_expires_at` (timestamptz, nullable)
-- `storage_gb` (integer, default 5)
-- `stripe_customer_id` (text, nullable)
-- `stripe_subscription_id` (text, nullable)
-- `stripe_price_id` (text, nullable)
-
-**Nova tabela `plan_definitions`:**
-- `plan_key` (text PK), `name`, `price_monthly`, `price_annual`, `max_users`, `storage_gb`, `modules` (text[])
-- Inserir 4 registros (trial, starter, professional, enterprise) com os modulos conforme a tabela do prompt
-- EPI incluido em professional e enterprise: `'{periodic_services,trainings,ic_nc,aso,mtr,environmental_licenses,suppliers,document_library,inspections,user_permissions,epi}'`
-
-**Nova tabela `plan_change_history`:**
-- `id`, `company_id`, `from_plan`, `to_plan`, `billing_type`, `changed_at`, `changed_by`, `reason`
-- RLS: leitura/escrita para mesma empresa
-
-**Nova tabela `payment_intents`:**
-- Estrutura vazia para futuro Stripe (id, company_id, stripe_payment_intent_id, amount, currency, status, plan_key, billing_type, created_at)
-- RLS: leitura para mesma empresa
-
-**RPC `get_company_access_status()`:**
-- SECURITY DEFINER
-- Retorna: plan, billing, status ('active'|'trial'|'expired'|'grace'), modules_included (text[]), days_remaining, max_users, storage_gb
-- Logica: trial verifica trial_ends_at; planos pagos verificam plan_expires_at com 7 dias de grace period; expired retorna modulos vazios
-
-**Migracao de dados existentes:**
-- plan='basic' -> 'starter', max_users=5, storage_gb=5, plan_expires_at=now()+30d
-- plan='pro' -> 'professional', max_users=10, storage_gb=20, plan_expires_at=now()+30d
-- plan='trial' com trial_ends_at expirado -> plan='expired'
-
-**Atualizar RLS de `companies`:**
-- Ajustar WITH CHECK do UPDATE para incluir novos campos (storage_gb, plan_billing, etc.) como imutaveis via cliente direto
+Atualmente o botao "Fazer downgrade" esta desabilitado com tooltip. O cancelamento so e possivel via portal Stripe externo. Precisamos:
+1. Permitir cancelar a assinatura (para ao fim do ciclo) direto pelo frontend
+2. Tornar o botao de downgrade funcional (cria novo checkout com plano inferior)
 
 ---
 
-### 2. Hook `usePlan` (src/hooks/usePlan.ts)
+### 1. Edge Function `cancel-subscription` (nova)
 
-Novo hook que chama a RPC `get_company_access_status()` e expoe:
+**Arquivo:** `supabase/functions/cancel-subscription/index.ts`
 
-```typescript
-const { plan, status, billing, hasModule, daysRemaining, isExpired, canEdit, modulesIncluded, maxUsers, storageGb, loading } = usePlan()
-```
-
-- `hasModule(module)`: verifica se modulo esta em `modulesIncluded`
-- `canEdit`: false se status='expired'
-- Cache global similar ao usePermission para evitar chamadas duplicadas
+- Autentica o usuario, verifica se e admin
+- Busca o `stripe_subscription_id` da empresa via service role
+- Chama `stripe.subscriptions.update(subscriptionId, { cancel_at_period_end: true })` -- isso mantem o acesso ate o fim do ciclo atual, sem cobranca futura
+- Retorna `{ success: true, cancel_at: timestamp }`
 
 ---
 
-### 3. Integrar `usePlan` com `usePermission` (src/hooks/usePermission.ts)
+### 2. Webhook: tratar `customer.subscription.updated` (novo evento)
 
-Dentro do usePermission, alem de verificar role (admin/editor/viewer), tambem verificar:
-- Se `usePlan().hasModule(module)` retorna false -> canEdit = false
-- Se `usePlan().isExpired` -> canEdit = false
+**Arquivo:** `supabase/functions/stripe-webhook/index.ts`
 
-Isso bloqueia edicao automaticamente em todos os modulos que ja usam usePermission.
+- Adicionar handler para `customer.subscription.updated`
+- Quando `cancel_at_period_end === true`: nao faz nada no banco (acesso continua ate expirar)
+- Quando `cancel_at_period_end === false` (reativacao): tambem nao precisa de acao
+- O evento `customer.subscription.deleted` ja trata o cancelamento efetivo
 
----
-
-### 4. Sidebar com Cadeado (src/components/AppSidebar.tsx)
-
-- Importar `usePlan`
-- Para cada item de modulo na sidebar, verificar `hasModule(moduleKey)`
-- Se modulo nao incluido:
-  - Mostrar icone Lock ao lado do label (texto em cinza)
-  - Ao clicar: nao navegar, abrir `UpgradeModal` com info do modulo
-- Se status='expired': todos os itens com cadeado
-- Mapeamento sidebar-item -> moduleKey (ex: "/mtr" -> "mtr", "/epi" -> "epi")
+**Importante:** Voce precisara adicionar `customer.subscription.updated` no dashboard do Stripe Webhooks tambem.
 
 ---
 
-### 5. Modal de Upgrade (src/components/UpgradeModal.tsx)
+### 3. Downgrade via novo Checkout
 
-Componente reutilizavel:
-- Props: `module` (nome), `open`, `onClose`
-- Mostra icone do modulo, nome, descricao curta
-- "Disponivel nos planos:" com badges
-- Botoes: "Ver todos os planos" (navega /planos) e "Fechar"
+**Logica:** Downgrade = criar uma nova sessao de checkout com o plano inferior. O Stripe automaticamente cancela a assinatura anterior quando uma nova e criada para o mesmo customer (ou podemos cancelar explicitamente antes).
 
----
+- Na `create-checkout`, adicionar logica: se a empresa ja tem `stripe_subscription_id` ativo, cancelar a assinatura atual (com `prorate: true` ou `cancel_at_period_end`) antes de criar o novo checkout
+- Alternativa mais simples: usar `stripe.subscriptions.update()` para trocar o price_id diretamente (sem checkout), fazendo downgrade imediato com prorate
 
-### 6. Banner Contextual (src/components/TrialBanner.tsx)
+**Abordagem escolhida:** Criar nova Edge Function `change-plan` que usa `stripe.subscriptions.update()` para trocar o price diretamente. Isso e mais limpo para downgrades.
 
-Refatorar para usar `usePlan()`:
-- **trial**: Banner azul "Voce esta no trial -- X dias restantes"
-- **active**: Sem banner
-- **grace**: Banner amarelo "Seu plano expirou. Voce tem X dias para renovar..."
-- **expired**: Banner vermelho "Seu acesso expirou. Escolha um plano..."
+**Arquivo:** `supabase/functions/change-plan/index.ts`
 
----
-
-### 7. Tela de Planos Atualizada (src/pages/Planos.tsx)
-
-- Toggle Mensal/Anual no topo
-- 4 cards: Trial, Starter (R$97/R$970), Professional (R$247/R$2.470), Enterprise (R$497/R$4.970)
-- Badge "2 meses gratis" quando anual selecionado
-- Card do plano atual: badge "Seu plano atual"
-- Planos superiores: botao "Fazer upgrade" desabilitado com tooltip "Em breve"
-- Planos inferiores: botao "Fazer downgrade" desabilitado com tooltip
-- Lista de features, limites de usuarios e storage por plano
-- Highlight no card Professional ("Recomendado")
+- Autentica usuario, verifica admin
+- Busca `stripe_subscription_id` da empresa
+- Chama `stripe.subscriptions.retrieve()` para pegar o `subscription_item_id`
+- Chama `stripe.subscriptions.update(subId, { items: [{ id: itemId, price: newPriceId }], proration_behavior: 'create_prorations' })`
+- O webhook `invoice.paid` ja cuida de atualizar o banco quando a proxima fatura for paga
+- Para efeito imediato no banco, tambem chama a RPC `activate_plan_from_stripe` com os novos dados
 
 ---
 
-### 8. Bloqueio de URL Direta (src/components/ProtectedRoute.tsx ou componente wrapper)
+### 4. Frontend `Planos.tsx`
 
-- Criar componente `ModuleGuard` que verifica `hasModule(module)` antes de renderizar a rota
-- Se modulo nao permitido: redireciona para `/planos` com toast "Este modulo nao esta incluido no seu plano"
-- Aplicar nos routes de cada modulo em App.tsx
+**Mudancas:**
+
+- **Botao "Cancelar assinatura"**: aparece no card do plano atual quando ha `stripe_subscription_id`. Abre dialogo de confirmacao. Chama `cancel-subscription`. Mostra toast "Sua assinatura sera cancelada ao fim do ciclo atual."
+
+- **Botao "Fazer downgrade"**: em vez de desabilitado, chama `change-plan` com o plano inferior. Mostra dialogo de confirmacao explicando que a mudanca sera aplicada com prorate.
+
+- **Indicador visual**: quando a assinatura esta marcada para cancelar (`cancel_at_period_end`), mostrar badge "Cancelamento agendado" no card do plano atual.
 
 ---
 
-### 9. Arquivos Modificados/Criados
+### 5. Atualizar `AuthContext` / `companies`
+
+- Adicionar campo `cancel_at_period_end` (ou similar) para o frontend saber se o cancelamento esta agendado
+- Alternativa: buscar essa info diretamente do estado do plano (via RPC ou campo na tabela)
+
+**Migracao SQL:**
+- Adicionar coluna `subscription_cancel_at` (timestamptz, nullable) em `companies`
+- Atualizar na `cancel-subscription` e limpar quando reativado
+
+---
+
+### Resumo dos arquivos
 
 | Arquivo | Acao |
 |---|---|
-| Migration SQL | Criar (tabelas, RPC, dados) |
-| `src/hooks/usePlan.ts` | Criar |
-| `src/hooks/usePermission.ts` | Editar (integrar usePlan) |
-| `src/components/UpgradeModal.tsx` | Criar |
-| `src/components/TrialBanner.tsx` | Refatorar |
-| `src/components/AppSidebar.tsx` | Editar (cadeado + modal) |
-| `src/pages/Planos.tsx` | Reescrever |
-| `src/App.tsx` | Editar (ModuleGuard nas rotas) |
-| `src/contexts/AuthContext.tsx` | Editar (adicionar storage_gb e novos campos ao tipo Company) |
+| `supabase/functions/cancel-subscription/index.ts` | Criar |
+| `supabase/functions/change-plan/index.ts` | Criar |
+| `supabase/functions/stripe-webhook/index.ts` | Editar (add `customer.subscription.updated`) |
+| `src/pages/Planos.tsx` | Editar (cancelamento + downgrade funcional) |
+| Migracao SQL | Criar (coluna `subscription_cancel_at`) |
 
----
+### Nota para o Stripe Dashboard
 
-### Detalhes Tecnicos
-
-- A RPC `get_company_access_status` roda com SECURITY DEFINER e busca o company_id do usuario via `auth.uid()`
-- O hook `usePlan` usa cache global (mesmo padrao do usePermission) para evitar chamadas duplicadas
-- O `ModuleGuard` e um wrapper de rota que recebe a moduleKey como prop
-- Nenhuma funcionalidade existente dos modulos e alterada -- apenas a visibilidade/acesso e condicionada
-- O modulo `epi` esta mapeado como disponivel em: trial (todos), professional e enterprise
-- O modulo `user_permissions` (tela de permissoes granulares) so aparece em professional e enterprise
+Apos implementar, adicionar o evento `customer.subscription.updated` no webhook existente no Stripe Dashboard.
 

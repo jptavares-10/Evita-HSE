@@ -1,7 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { usePlan, clearPlanCache } from "@/hooks/usePlan";
 import { Button } from "@/components/ui/button";
-import { Check, CalendarClock, Loader2, ExternalLink } from "lucide-react";
+import { Check, CalendarClock, Loader2, ExternalLink, AlertTriangle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useState, useEffect } from "react";
@@ -10,6 +10,16 @@ import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useSearchParams } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const plans = [
   {
@@ -80,15 +90,20 @@ const planOrder = ["trial", "starter", "professional", "enterprise"];
 
 export default function Planos() {
   usePageTitle("Planos — Evita HSE");
-  const { company, profile } = useAuth();
+  const { company, profile, refreshCompany } = useAuth();
   const { plan: currentPlan, daysRemaining, status } = usePlan();
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [loadingPortal, setLoadingPortal] = useState(false);
+  const [loadingCancel, setLoadingCancel] = useState(false);
+  const [loadingChangePlan, setLoadingChangePlan] = useState<string | null>(null);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showDowngradeDialog, setShowDowngradeDialog] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const isAnnual = billing === "annual";
   const isAdmin = profile?.role === "admin";
   const hasStripeSubscription = !!company?.stripe_subscription_id;
+  const isCancelScheduled = !!(company as any)?.subscription_cancel_at;
 
   const currentPlanIndex = planOrder.indexOf(currentPlan || "trial");
 
@@ -149,6 +164,50 @@ export default function Planos() {
     }
   };
 
+  const handleCancelSubscription = async () => {
+    setLoadingCancel(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("cancel-subscription");
+      if (error) throw error;
+      if (data?.success) {
+        clearPlanCache(profile?.id);
+        await refreshCompany();
+        toast.success("Cancelamento agendado. Sua assinatura continuará ativa até o fim do ciclo atual.");
+      } else {
+        throw new Error(data?.error || "Erro ao cancelar assinatura");
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Erro ao cancelar assinatura";
+      toast.error(msg);
+    } finally {
+      setLoadingCancel(false);
+      setShowCancelDialog(false);
+    }
+  };
+
+  const handleChangePlan = async (planKey: string) => {
+    setLoadingChangePlan(planKey);
+    try {
+      const { data, error } = await supabase.functions.invoke("change-plan", {
+        body: { plan_key: planKey, billing },
+      });
+      if (error) throw error;
+      if (data?.success) {
+        clearPlanCache(profile?.id);
+        await refreshCompany();
+        toast.success("Plano alterado com sucesso! As mudanças já estão ativas.");
+      } else {
+        throw new Error(data?.error || "Erro ao alterar plano");
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Erro ao alterar plano";
+      toast.error(msg);
+    } finally {
+      setLoadingChangePlan(null);
+      setShowDowngradeDialog(null);
+    }
+  };
+
   return (
     <div className="min-h-full" style={{ background: "#F8FAFC" }}>
       <div className="max-w-5xl mx-auto px-4 py-10 space-y-8">
@@ -173,6 +232,21 @@ export default function Planos() {
             </Button>
           )}
         </div>
+
+        {/* Cancellation scheduled banner */}
+        {isCancelScheduled && (
+          <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
+            <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0" />
+            <div className="text-sm">
+              <span className="font-semibold text-amber-800">Cancelamento agendado.</span>{" "}
+              <span className="text-amber-700">
+                Sua assinatura será cancelada em{" "}
+                {format(new Date((company as any).subscription_cancel_at), "dd/MM/yyyy", { locale: ptBR })}.
+                O acesso continuará até essa data.
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Toggle Mensal / Anual */}
         <div className="flex items-center justify-center gap-3">
@@ -206,6 +280,7 @@ export default function Planos() {
             const isTrial = plan.key === "trial";
             const isHighlight = plan.highlight;
             const isLoading = loadingPlan === plan.key;
+            const isChanging = loadingChangePlan === plan.key;
 
             const monthlyNum = typeof plan.priceMonthly === "number" ? plan.priceMonthly : 0;
             const annualNum = typeof plan.priceAnnual === "number" ? plan.priceAnnual : 0;
@@ -293,15 +368,15 @@ export default function Planos() {
                 </ul>
 
                 {/* CTA */}
-                <div className="mt-5">
+                <div className="mt-5 space-y-2">
                   {isCurrent ? (
-                    <div className="space-y-2">
+                    <>
                       <div className={`text-center text-sm font-semibold rounded-md py-2.5 ${
                         isHighlight
                           ? "bg-white/20 text-white"
                           : "bg-[#EFF6FF] text-primary border border-[#BFDBFE]"
                       }`}>
-                        Seu plano atual
+                        {isCancelScheduled ? "Cancelamento agendado" : "Seu plano atual"}
                       </div>
                       {(() => {
                         const expiresAt = currentPlan === "trial"
@@ -341,28 +416,57 @@ export default function Planos() {
                           </div>
                         );
                       })()}
-                    </div>
+                      {/* Cancel button for current paid plan */}
+                      {hasStripeSubscription && isAdmin && !isTrial && !isCancelScheduled && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-full text-destructive hover:text-destructive hover:bg-destructive/10 text-xs"
+                          onClick={() => setShowCancelDialog(true)}
+                        >
+                          Cancelar assinatura
+                        </Button>
+                      )}
+                    </>
                   ) : isTrial ? (
                     <div className="text-center text-sm text-muted-foreground py-2.5 bg-muted/50 rounded-md">
                       Plano de avaliação
                     </div>
                   ) : isUpgrade ? (
                     isAdmin ? (
-                      <Button
-                        className={`w-full font-semibold ${
-                          isHighlight
-                            ? "bg-white text-[#1E40AF] hover:bg-white/90 shadow-md"
-                            : "border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                        }`}
-                        variant={isHighlight ? "secondary" : "outline"}
-                        onClick={() => handleCheckout(plan.key)}
-                        disabled={isLoading || !!loadingPlan}
-                      >
-                        {isLoading ? (
-                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        ) : null}
-                        {isLoading ? "Redirecionando..." : "Fazer upgrade"}
-                      </Button>
+                      hasStripeSubscription ? (
+                        <Button
+                          className={`w-full font-semibold ${
+                            isHighlight
+                              ? "bg-white text-[#1E40AF] hover:bg-white/90 shadow-md"
+                              : "border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                          }`}
+                          variant={isHighlight ? "secondary" : "outline"}
+                          onClick={() => setShowDowngradeDialog(plan.key)}
+                          disabled={isChanging || !!loadingChangePlan}
+                        >
+                          {isChanging ? (
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          ) : null}
+                          {isChanging ? "Alterando..." : "Fazer upgrade"}
+                        </Button>
+                      ) : (
+                        <Button
+                          className={`w-full font-semibold ${
+                            isHighlight
+                              ? "bg-white text-[#1E40AF] hover:bg-white/90 shadow-md"
+                              : "border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                          }`}
+                          variant={isHighlight ? "secondary" : "outline"}
+                          onClick={() => handleCheckout(plan.key)}
+                          disabled={isLoading || !!loadingPlan}
+                        >
+                          {isLoading ? (
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          ) : null}
+                          {isLoading ? "Redirecionando..." : "Fazer upgrade"}
+                        </Button>
+                      )
                     ) : (
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -384,16 +488,36 @@ export default function Planos() {
                       </Tooltip>
                     )
                   ) : isDowngrade ? (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button className="w-full font-semibold" disabled variant="outline">
-                          Fazer downgrade
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        Para downgrade, gerencie sua assinatura.
-                      </TooltipContent>
-                    </Tooltip>
+                    isTrial ? (
+                      <div className="text-center text-sm text-muted-foreground py-2.5 bg-muted/50 rounded-md">
+                        Plano de avaliação
+                      </div>
+                    ) : hasStripeSubscription && isAdmin ? (
+                      <Button
+                        className="w-full font-semibold"
+                        variant="outline"
+                        onClick={() => setShowDowngradeDialog(plan.key)}
+                        disabled={isChanging || !!loadingChangePlan}
+                      >
+                        {isChanging ? (
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        ) : null}
+                        {isChanging ? "Alterando..." : "Fazer downgrade"}
+                      </Button>
+                    ) : (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button className="w-full font-semibold" disabled variant="outline">
+                            Fazer downgrade
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {!isAdmin
+                            ? "Apenas administradores podem alterar planos."
+                            : "Nenhuma assinatura ativa para downgrade."}
+                        </TooltipContent>
+                      </Tooltip>
+                    )
                   ) : null}
                 </div>
               </div>
@@ -407,6 +531,56 @@ export default function Planos() {
           pelo portal de gerenciamento da assinatura.
         </p>
       </div>
+
+      {/* Cancel subscription dialog */}
+      <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancelar assinatura</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja cancelar sua assinatura? Seu acesso continuará ativo até o fim do ciclo de cobrança atual.
+              Após essa data, seu plano será rebaixado e você perderá acesso aos módulos pagos.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={loadingCancel}>Voltar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleCancelSubscription}
+              disabled={loadingCancel}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {loadingCancel ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              {loadingCancel ? "Cancelando..." : "Confirmar cancelamento"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Change plan (downgrade/upgrade) dialog */}
+      <AlertDialog open={!!showDowngradeDialog} onOpenChange={(open) => !open && setShowDowngradeDialog(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Alterar plano</AlertDialogTitle>
+            <AlertDialogDescription>
+              {showDowngradeDialog && planOrder.indexOf(showDowngradeDialog) < currentPlanIndex
+                ? "Ao fazer downgrade, você perderá acesso a módulos do plano atual. A diferença de valor será creditada proporcionalmente."
+                : "Ao fazer upgrade, você terá acesso imediato aos novos módulos. A diferença de valor será cobrada proporcionalmente."
+              }
+              {" "}Deseja continuar?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={!!loadingChangePlan}>Voltar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => showDowngradeDialog && handleChangePlan(showDowngradeDialog)}
+              disabled={!!loadingChangePlan}
+            >
+              {loadingChangePlan ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              {loadingChangePlan ? "Alterando..." : "Confirmar alteração"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

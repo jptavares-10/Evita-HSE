@@ -116,6 +116,46 @@ serve(async (req) => {
         break;
       }
 
+      case "customer.subscription.updated": {
+        const subscription = event.data.object as Stripe.Subscription;
+        const subscriptionId = subscription.id;
+
+        logStep("Subscription updated", {
+          subscriptionId,
+          cancel_at_period_end: subscription.cancel_at_period_end,
+          cancel_at: subscription.cancel_at,
+        });
+
+        // Find company by subscription ID
+        const { data: company } = await supabaseAdmin
+          .from("companies")
+          .select("id")
+          .eq("stripe_subscription_id", subscriptionId)
+          .maybeSingle();
+
+        if (company) {
+          if (subscription.cancel_at_period_end && subscription.cancel_at) {
+            // Cancellation scheduled
+            const cancelAt = new Date(subscription.cancel_at * 1000).toISOString();
+            await supabaseAdmin
+              .from("companies")
+              .update({ subscription_cancel_at: cancelAt })
+              .eq("id", company.id);
+            logStep("Cancellation scheduled", { cancelAt });
+          } else {
+            // Cancellation reverted or plan changed
+            await supabaseAdmin
+              .from("companies")
+              .update({ subscription_cancel_at: null })
+              .eq("id", company.id);
+            logStep("Cancellation cleared");
+          }
+        } else {
+          logStep("Company not found for subscription", { subscriptionId });
+        }
+        break;
+      }
+
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
         logStep("Cancelling plan", { subscriptionId: subscription.id });
@@ -123,6 +163,20 @@ serve(async (req) => {
         const { error } = await supabaseAdmin.rpc("cancel_plan_from_stripe", {
           p_stripe_subscription_id: subscription.id,
         });
+
+        // Also clear cancel_at
+        const { data: comp } = await supabaseAdmin
+          .from("companies")
+          .select("id")
+          .eq("stripe_subscription_id", subscription.id)
+          .maybeSingle();
+
+        if (comp) {
+          await supabaseAdmin
+            .from("companies")
+            .update({ subscription_cancel_at: null })
+            .eq("id", comp.id);
+        }
 
         if (error) logStep("ERROR cancelling plan", { error: error.message });
         else logStep("Plan cancelled");

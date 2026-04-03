@@ -78,7 +78,7 @@ const planOrder = ["trial", "starter", "professional", "enterprise"];
 export default function Planos() {
   usePageTitle("Planos — Evita HSE");
   const { company } = useAuth();
-  const { plan: currentPlan } = usePlan();
+  const { plan: currentPlan, daysRemaining, status } = usePlan();
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
   const isAnnual = billing === "annual";
 

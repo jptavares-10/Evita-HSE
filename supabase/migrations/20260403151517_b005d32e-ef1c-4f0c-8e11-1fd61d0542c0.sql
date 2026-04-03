@@ -1,0 +1,1 @@
+ALTER TABLE public.companies ADD COLUMN subscription_cancel_at timestamptz DEFAULT NULL;

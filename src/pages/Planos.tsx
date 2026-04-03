@@ -103,7 +103,8 @@ export default function Planos() {
   const isAnnual = billing === "annual";
   const isAdmin = profile?.role === "admin";
   const hasStripeSubscription = !!company?.stripe_subscription_id;
-  const isCancelScheduled = !!(company as any)?.subscription_cancel_at;
+  const isCancelScheduled = !!company?.subscription_cancel_at;
+  const isPaidPlan = !!currentPlan && currentPlan !== "trial" && currentPlan !== "expired";
 
   const currentPlanIndex = planOrder.indexOf(currentPlan || "trial");
 
@@ -172,7 +173,11 @@ export default function Planos() {
       if (data?.success) {
         clearPlanCache(profile?.id);
         await refreshCompany();
-        toast.success("Cancelamento agendado. Sua assinatura continuará ativa até o fim do ciclo atual.");
+        if (hasStripeSubscription) {
+          toast.success("Cancelamento agendado. Sua assinatura continuará ativa até o fim do ciclo atual.");
+        } else {
+          toast.success("Assinatura cancelada. Seu plano continuará ativo até a data de expiração.");
+        }
       } else {
         throw new Error(data?.error || "Erro ao cancelar assinatura");
       }
@@ -186,6 +191,13 @@ export default function Planos() {
   };
 
   const handleChangePlan = async (planKey: string) => {
+    if (!hasStripeSubscription) {
+      // No Stripe subscription — redirect to checkout for new plan
+      handleCheckout(planKey);
+      setShowDowngradeDialog(null);
+      return;
+    }
+
     setLoadingChangePlan(planKey);
     try {
       const { data, error } = await supabase.functions.invoke("change-plan", {
@@ -241,7 +253,7 @@ export default function Planos() {
               <span className="font-semibold text-amber-800">Cancelamento agendado.</span>{" "}
               <span className="text-amber-700">
                 Sua assinatura será cancelada em{" "}
-                {format(new Date((company as any).subscription_cancel_at), "dd/MM/yyyy", { locale: ptBR })}.
+                {format(new Date(company!.subscription_cancel_at!), "dd/MM/yyyy", { locale: ptBR })}.
                 O acesso continuará até essa data.
               </span>
             </div>
@@ -416,8 +428,8 @@ export default function Planos() {
                           </div>
                         );
                       })()}
-                      {/* Cancel button for current paid plan */}
-                      {hasStripeSubscription && isAdmin && !isTrial && !isCancelScheduled && (
+                      {/* Cancel button for current paid plan — show for any paid plan, not just Stripe-linked */}
+                      {isPaidPlan && isAdmin && !isCancelScheduled && (
                         <Button
                           variant="ghost"
                           size="sm"
@@ -492,18 +504,32 @@ export default function Planos() {
                       <div className="text-center text-sm text-muted-foreground py-2.5 bg-muted/50 rounded-md">
                         Plano de avaliação
                       </div>
-                    ) : hasStripeSubscription && isAdmin ? (
-                      <Button
-                        className="w-full font-semibold"
-                        variant="outline"
-                        onClick={() => setShowDowngradeDialog(plan.key)}
-                        disabled={isChanging || !!loadingChangePlan}
-                      >
-                        {isChanging ? (
-                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        ) : null}
-                        {isChanging ? "Alterando..." : "Fazer downgrade"}
-                      </Button>
+                    ) : isAdmin ? (
+                      hasStripeSubscription ? (
+                        <Button
+                          className="w-full font-semibold"
+                          variant="outline"
+                          onClick={() => setShowDowngradeDialog(plan.key)}
+                          disabled={isChanging || !!loadingChangePlan}
+                        >
+                          {isChanging ? (
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          ) : null}
+                          {isChanging ? "Alterando..." : "Fazer downgrade"}
+                        </Button>
+                      ) : (
+                        <Button
+                          className="w-full font-semibold"
+                          variant="outline"
+                          onClick={() => handleCheckout(plan.key)}
+                          disabled={isLoading || !!loadingPlan}
+                        >
+                          {isLoading ? (
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          ) : null}
+                          {isLoading ? "Redirecionando..." : "Fazer downgrade"}
+                        </Button>
+                      )
                     ) : (
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -512,9 +538,7 @@ export default function Planos() {
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          {!isAdmin
-                            ? "Apenas administradores podem alterar planos."
-                            : "Nenhuma assinatura ativa para downgrade."}
+                          Apenas administradores podem alterar planos.
                         </TooltipContent>
                       </Tooltip>
                     )
@@ -538,8 +562,10 @@ export default function Planos() {
           <AlertDialogHeader>
             <AlertDialogTitle>Cancelar assinatura</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja cancelar sua assinatura? Seu acesso continuará ativo até o fim do ciclo de cobrança atual.
-              Após essa data, seu plano será rebaixado e você perderá acesso aos módulos pagos.
+              {hasStripeSubscription
+                ? "Tem certeza que deseja cancelar sua assinatura? Seu acesso continuará ativo até o fim do ciclo de cobrança atual. Após essa data, seu plano será rebaixado e você perderá acesso aos módulos pagos."
+                : "Tem certeza que deseja cancelar sua assinatura? Seu acesso continuará ativo até a data de expiração do plano. Após essa data, você perderá acesso aos módulos pagos."
+              }
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

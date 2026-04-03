@@ -1,10 +1,12 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { usePlan } from "@/hooks/usePlan";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { Check, CalendarClock } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useState } from "react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 const plans = [
   {
@@ -76,7 +78,7 @@ const planOrder = ["trial", "starter", "professional", "enterprise"];
 export default function Planos() {
   usePageTitle("Planos — Evita HSE");
   const { company } = useAuth();
-  const { plan: currentPlan } = usePlan();
+  const { plan: currentPlan, daysRemaining, status } = usePlan();
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
   const isAnnual = billing === "annual";
 
@@ -213,12 +215,52 @@ export default function Planos() {
                 {/* CTA */}
                 <div className="mt-5">
                   {isCurrent ? (
-                    <div className={`text-center text-sm font-semibold rounded-md py-2.5 ${
-                      isHighlight
-                        ? "bg-white/20 text-white"
-                        : "bg-[#EFF6FF] text-primary border border-[#BFDBFE]"
-                    }`}>
-                      Seu plano atual
+                    <div className="space-y-2">
+                      <div className={`text-center text-sm font-semibold rounded-md py-2.5 ${
+                        isHighlight
+                          ? "bg-white/20 text-white"
+                          : "bg-[#EFF6FF] text-primary border border-[#BFDBFE]"
+                      }`}>
+                        Seu plano atual
+                      </div>
+                      {(() => {
+                        const expiresAt = currentPlan === "trial"
+                          ? company?.trial_ends_at
+                          : company?.plan_expires_at;
+                        const isExpiring = daysRemaining <= 7 && daysRemaining > 0;
+                        const isExpired = status === "expired";
+                        const isGrace = status === "grace";
+
+                        if (!expiresAt && !isExpired) return null;
+
+                        return (
+                          <div className={`flex items-center justify-center gap-1.5 text-xs rounded-md px-2 py-1.5 ${
+                            isExpired
+                              ? "bg-destructive/10 text-destructive"
+                              : isGrace
+                                ? "bg-amber-100 text-amber-700"
+                                : isExpiring
+                                  ? "bg-amber-50 text-amber-600"
+                                  : isHighlight
+                                    ? "bg-white/10 text-white/70"
+                                    : "bg-muted text-muted-foreground"
+                          }`}>
+                            <CalendarClock className="h-3.5 w-3.5 flex-shrink-0" />
+                            {isExpired ? (
+                              <span className="font-medium">Plano expirado</span>
+                            ) : isGrace ? (
+                              <span className="font-medium">Carência — {daysRemaining}d restantes</span>
+                            ) : (
+                              <span>
+                                {expiresAt
+                                  ? `Expira em ${format(new Date(expiresAt), "dd/MM/yyyy", { locale: ptBR })}`
+                                  : ""}
+                                {daysRemaining > 0 && ` (${daysRemaining}d)`}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
                   ) : isTrial ? (
                     <div className="text-center text-sm text-muted-foreground py-2.5 bg-muted/50 rounded-md">

@@ -25,6 +25,9 @@ interface Company {
   plan_started_at: string | null;
   plan_expires_at: string | null;
   storage_gb: number;
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
+  stripe_price_id: string | null;
 }
 
 interface AuthContextType {

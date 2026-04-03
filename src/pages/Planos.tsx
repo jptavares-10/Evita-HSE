@@ -1,12 +1,15 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { usePlan } from "@/hooks/usePlan";
+import { usePlan, clearPlanCache } from "@/hooks/usePlan";
 import { Button } from "@/components/ui/button";
-import { Check, CalendarClock } from "lucide-react";
+import { Check, CalendarClock, Loader2, ExternalLink } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useSearchParams } from "react-router-dom";
 
 const plans = [
   {
@@ -77,22 +80,98 @@ const planOrder = ["trial", "starter", "professional", "enterprise"];
 
 export default function Planos() {
   usePageTitle("Planos — Evita HSE");
-  const { company } = useAuth();
+  const { company, profile } = useAuth();
   const { plan: currentPlan, daysRemaining, status } = usePlan();
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [loadingPortal, setLoadingPortal] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
   const isAnnual = billing === "annual";
+  const isAdmin = profile?.role === "admin";
+  const hasStripeSubscription = !!company?.stripe_subscription_id;
 
   const currentPlanIndex = planOrder.indexOf(currentPlan || "trial");
+
+  // Handle checkout success/cancel URL params
+  useEffect(() => {
+    const checkoutResult = searchParams.get("checkout");
+    if (checkoutResult === "success") {
+      clearPlanCache(profile?.id);
+      toast.success("Pagamento realizado com sucesso! Seu plano será atualizado em instantes.");
+      setSearchParams({}, { replace: true });
+    } else if (checkoutResult === "canceled") {
+      toast.info("Checkout cancelado.");
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams, profile?.id]);
+
+  const handleCheckout = async (planKey: string) => {
+    if (!isAdmin) {
+      toast.error("Apenas administradores podem contratar planos.");
+      return;
+    }
+
+    setLoadingPlan(planKey);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { plan_key: planKey, billing },
+      });
+
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, "_blank");
+      } else {
+        throw new Error("URL de checkout não retornada");
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Erro ao iniciar checkout";
+      toast.error(msg);
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    setLoadingPortal(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("customer-portal");
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, "_blank");
+      } else {
+        throw new Error("URL do portal não retornada");
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Erro ao abrir portal";
+      toast.error(msg);
+    } finally {
+      setLoadingPortal(false);
+    }
+  };
 
   return (
     <div className="min-h-full" style={{ background: "#F8FAFC" }}>
       <div className="max-w-5xl mx-auto px-4 py-10 space-y-8">
         {/* Header */}
-        <div>
-          <h1 className="font-display text-[28px] font-bold tracking-tight">Planos</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Escolha o plano ideal para sua empresa.
-          </p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="font-display text-[28px] font-bold tracking-tight">Planos</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Escolha o plano ideal para sua empresa.
+            </p>
+          </div>
+          {hasStripeSubscription && isAdmin && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleManageSubscription}
+              disabled={loadingPortal}
+              className="gap-2"
+            >
+              {loadingPortal ? <Loader2 className="h-4 w-4 animate-spin" /> : <ExternalLink className="h-4 w-4" />}
+              Gerenciar assinatura
+            </Button>
+          )}
         </div>
 
         {/* Toggle Mensal / Anual */}
@@ -126,6 +205,7 @@ export default function Planos() {
             const isDowngrade = planIndex < currentPlanIndex;
             const isTrial = plan.key === "trial";
             const isHighlight = plan.highlight;
+            const isLoading = loadingPlan === plan.key;
 
             const monthlyNum = typeof plan.priceMonthly === "number" ? plan.priceMonthly : 0;
             const annualNum = typeof plan.priceAnnual === "number" ? plan.priceAnnual : 0;
@@ -267,24 +347,42 @@ export default function Planos() {
                       Plano de avaliação
                     </div>
                   ) : isUpgrade ? (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          className={`w-full font-semibold ${
-                            isHighlight
-                              ? "bg-white text-[#1E40AF] hover:bg-white/90 shadow-md"
-                              : "border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                          }`}
-                          disabled
-                          variant={isHighlight ? "secondary" : "outline"}
-                        >
-                          Fazer upgrade
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        Pagamentos em breve. Entre em contato.
-                      </TooltipContent>
-                    </Tooltip>
+                    isAdmin ? (
+                      <Button
+                        className={`w-full font-semibold ${
+                          isHighlight
+                            ? "bg-white text-[#1E40AF] hover:bg-white/90 shadow-md"
+                            : "border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                        }`}
+                        variant={isHighlight ? "secondary" : "outline"}
+                        onClick={() => handleCheckout(plan.key)}
+                        disabled={isLoading || !!loadingPlan}
+                      >
+                        {isLoading ? (
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        ) : null}
+                        {isLoading ? "Redirecionando..." : "Fazer upgrade"}
+                      </Button>
+                    ) : (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            className={`w-full font-semibold ${
+                              isHighlight
+                                ? "bg-white text-[#1E40AF] hover:bg-white/90 shadow-md"
+                                : "border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                            }`}
+                            disabled
+                            variant={isHighlight ? "secondary" : "outline"}
+                          >
+                            Fazer upgrade
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          Apenas administradores podem contratar planos.
+                        </TooltipContent>
+                      </Tooltip>
+                    )
                   ) : isDowngrade ? (
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -293,7 +391,7 @@ export default function Planos() {
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
-                        Para downgrade entre em contato.
+                        Para downgrade, gerencie sua assinatura.
                       </TooltipContent>
                     </Tooltip>
                   ) : null}
@@ -305,8 +403,8 @@ export default function Planos() {
 
         {/* Footer note */}
         <p className="text-center text-[13px] text-muted-foreground max-w-[500px] mx-auto">
-          Pagamentos serão ativados em breve. Crie sua conta agora e aproveite o trial
-          completo. Entre em contato para condições especiais de lançamento.
+          Pagamentos processados com segurança via Stripe. Cancele a qualquer momento
+          pelo portal de gerenciamento da assinatura.
         </p>
       </div>
     </div>

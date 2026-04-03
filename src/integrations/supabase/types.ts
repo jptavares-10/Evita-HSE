@@ -3035,6 +3035,21 @@ export type Database = {
         Args: { p_full_name?: string; p_token: string }
         Returns: Json
       }
+      activate_plan_from_stripe: {
+        Args: {
+          p_billing: string
+          p_company_id?: string
+          p_plan_key: string
+          p_stripe_customer_id: string
+          p_stripe_price_id: string
+          p_stripe_subscription_id: string
+        }
+        Returns: Json
+      }
+      cancel_plan_from_stripe: {
+        Args: { p_stripe_subscription_id: string }
+        Returns: Json
+      }
       create_company_and_admin: {
         Args: {
           p_cnpj?: string
@@ -3059,6 +3074,10 @@ export type Database = {
         Returns: boolean
       }
       remove_member: { Args: { p_member_id: string }; Returns: Json }
+      renew_plan_from_stripe: {
+        Args: { p_billing: string; p_stripe_subscription_id: string }
+        Returns: Json
+      }
       seed_default_aso_exam_types: {
         Args: { p_company_id: string }
         Returns: undefined

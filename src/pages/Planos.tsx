@@ -430,14 +430,24 @@ export default function Planos() {
                       })()}
                       {/* Cancel button for current paid plan — show for any paid plan, not just Stripe-linked */}
                       {isPaidPlan && isAdmin && !isCancelScheduled && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="w-full text-destructive hover:text-destructive hover:bg-destructive/10 text-xs"
-                          onClick={() => setShowCancelDialog(true)}
-                        >
-                          Cancelar assinatura
-                        </Button>
+                        <div className={`rounded-md px-3 py-2 text-center ${
+                          isHighlight
+                            ? "bg-white/10 backdrop-blur-sm"
+                            : "bg-muted/60 border border-border/50"
+                        }`}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className={`w-full text-xs ${
+                              isHighlight
+                                ? "text-white/70 hover:text-white hover:bg-white/10"
+                                : "text-destructive hover:text-destructive hover:bg-destructive/10"
+                            }`}
+                            onClick={() => setShowCancelDialog(true)}
+                          >
+                            Cancelar assinatura
+                          </Button>
+                        </div>
                       )}
                     </>
                   ) : isTrial ? (

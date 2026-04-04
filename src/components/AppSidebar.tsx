@@ -342,7 +342,7 @@ export function AppSidebar() {
     <TooltipProvider delayDuration={0}>
       <aside
         className={cn(
-          "bg-[#111827] flex flex-col min-h-screen sticky top-0 z-50 transition-all duration-300",
+          "bg-[#111827] flex flex-col h-screen sticky top-0 z-50 transition-all duration-300",
           collapsed ? "w-16" : "w-64"
         )}
       >

@@ -185,7 +185,7 @@ export default function Aso() {
             ) : pagination.paginatedData.length === 0 ? (
               <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Nenhum colaborador encontrado.</TableCell></TableRow>
             ) : (
-              paged.map((emp: any) => (
+              pagination.paginatedData.map((emp: any) => (
                 <TableRow key={emp.id}>
                   <TableCell className="font-medium">{emp.name}</TableCell>
                   <TableCell>{emp.job_positions?.name || "—"}</TableCell>

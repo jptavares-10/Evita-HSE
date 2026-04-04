@@ -79,6 +79,7 @@ export default function TreinamentosCatalogo() {
           <ActionButton onClick={() => { setEditTraining(null); setDrawerOpen(true); }}>Cadastrar primeiro treinamento</ActionButton>
         </div>
       ) : (
+        <>
         <div className="border rounded-lg">
           <Table>
             <TableHeader>
@@ -91,7 +92,7 @@ export default function TreinamentosCatalogo() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((t: any) => {
+              {pagination.paginatedData.map((t: any) => {
                 const refParts: string[] = [];
                 if (t.reference_standard) refParts.push(t.reference_standard);
                 if (t.reference_document_id) {
@@ -118,6 +119,15 @@ export default function TreinamentosCatalogo() {
             </TableBody>
           </Table>
         </div>
+        <DataTablePagination
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          pageSize={pagination.pageSize}
+          totalItems={pagination.totalItems}
+          onPageChange={pagination.setCurrentPage}
+          onPageSizeChange={pagination.setPageSize}
+        />
+        </>
       )}
 
       <TrainingDrawer open={drawerOpen} onOpenChange={setDrawerOpen} training={editTraining} />

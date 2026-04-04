@@ -13,6 +13,7 @@ import { EmployeeDrawer } from "@/components/treinamentos/EmployeeDrawer";
 import { EmployeeDetailDrawer } from "@/components/treinamentos/EmployeeDetailDrawer";
 import { ImportEmployeesModal } from "@/components/treinamentos/ImportEmployeesModal";
 import { usePermission } from "@/hooks/usePermission";
+import { downloadXlsx } from "@/lib/xlsx-utils";
 import { PermissionButton } from "@/components/PermissionButton";
 import { ViewerBadge } from "@/components/ViewerBadge";
 import { useTablePagination } from "@/hooks/useTablePagination";

@@ -20,6 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { downloadXlsx, parseXlsx } from "@/lib/xlsx-utils";
 
 export default function TreinamentosVisaoGeral() {
   const { company, profile } = useAuth();

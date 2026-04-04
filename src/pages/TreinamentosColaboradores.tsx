@@ -65,12 +65,7 @@ export default function TreinamentosColaboradores() {
     });
   }, [enriched, search, filterPosition, filterStatus, filterConformity]);
 
-  // Reset page when filters change
-  const totalPages = Math.ceil(filtered.length / pageSize);
-  const paged = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-
-  // Reset to page 1 when filters change
-  useMemo(() => { setCurrentPage(1); }, [search, filterPosition, filterStatus, filterConformity]);
+  const pagination = useTablePagination(filtered, { defaultPageSize: 20 });
 
   const downloadTemplate = () => {
     const csv = "Nome,Cargo,Setor\nJoão Silva,Operador,Produção\n";

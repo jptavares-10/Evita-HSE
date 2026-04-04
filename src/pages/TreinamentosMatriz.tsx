@@ -26,12 +26,10 @@ export default function TreinamentosMatriz() {
   };
 
   const downloadTemplate = () => {
-    const csv = "Cargo,Treinamento\nOperador,NR-35\n";
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = "modelo_matriz.csv"; a.click();
-    URL.revokeObjectURL(url);
+    downloadXlsx(
+      [["Cargo", "Treinamento"], ["Operador", "NR-35"]],
+      "modelo_matriz.xlsx"
+    );
   };
 
   if (positions.length === 0 || trainings.length === 0) {

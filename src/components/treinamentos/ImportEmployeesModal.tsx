@@ -88,7 +88,7 @@ export function ImportEmployeesModal({ open, onOpenChange }: Props) {
         <DialogHeader><DialogTitle>Importar colaboradores (CSV)</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <p className="text-sm text-muted-foreground">O arquivo deve conter as colunas: Nome, Cargo, Setor (opcional)</p>
-          <Input type="file" accept=".csv" onChange={(e) => { setFile(e.target.files?.[0] || null); setResult(null); }} />
+          <Input type="file" accept=".xlsx,.xls" onChange={(e) => { setFile(e.target.files?.[0] || null); setResult(null); }} />
           {result && <pre className="text-xs bg-muted p-3 rounded max-h-40 overflow-auto whitespace-pre-wrap">{result}</pre>}
         </div>
         <DialogFooter>

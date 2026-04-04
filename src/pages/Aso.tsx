@@ -182,7 +182,7 @@ export default function Aso() {
                   ))}
                 </TableRow>
               ))
-            ) : paged.length === 0 ? (
+            ) : pagination.paginatedData.length === 0 ? (
               <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Nenhum colaborador encontrado.</TableCell></TableRow>
             ) : (
               paged.map((emp: any) => (

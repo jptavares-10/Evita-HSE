@@ -68,12 +68,10 @@ export default function TreinamentosColaboradores() {
   const pagination = useTablePagination(filtered, { defaultPageSize: 20 });
 
   const downloadTemplate = () => {
-    const csv = "Nome,Cargo,Setor\nJoão Silva,Operador,Produção\n";
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = "modelo_colaboradores.csv"; a.click();
-    URL.revokeObjectURL(url);
+    downloadXlsx(
+      [["Nome", "Cargo", "Setor"], ["João Silva", "Operador", "Produção"]],
+      "modelo_colaboradores.xlsx"
+    );
   };
 
   const ActionButton = ({ children, onClick, ...props }: any) => {

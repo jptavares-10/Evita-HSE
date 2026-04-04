@@ -1,6 +1,8 @@
 import { useState, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useInspectionModels, useDeleteInspectionModel, useSaveInspectionModel } from "@/hooks/useInspections";
+import { useTablePagination } from "@/hooks/useTablePagination";
+import { DataTablePagination } from "@/components/DataTablePagination";
 import { getFrequencyLabel, formatDateBR } from "@/lib/inspections";
 import { InspectionModelDrawer } from "@/components/inspecoes/InspectionModelDrawer";
 import { ModelHistoryDrawer } from "@/components/inspecoes/ModelHistoryDrawer";

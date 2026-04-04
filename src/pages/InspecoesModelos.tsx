@@ -112,6 +112,7 @@ export default function InspecoesModelos() {
           <p className="text-muted-foreground">Nenhum modelo encontrado com os filtros aplicados.</p>
         </div>
       ) : (
+        <>
         <div className="bg-card border rounded-lg">
           <Table>
             <TableHeader>

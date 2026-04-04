@@ -36,8 +36,6 @@ export default function Aso() {
   const [typesOpen, setTypesOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
 
   // For each active employee, compute latest ASO status
   const employeeAsoMap = useMemo(() => {

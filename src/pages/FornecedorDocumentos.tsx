@@ -58,6 +58,7 @@ export default function FornecedorDocumentos() {
     return documents.filter((d: any) => d.folder_id === selectedFolderId);
   }, [documents, selectedFolderId]);
 
+  const docPagination = useTablePagination(filteredDocs);
   const docCountForFolder = (folderId: string) => {
     const subIds = getSubFolders(folderId).map((f: any) => f.id);
     return documents.filter((d: any) => d.folder_id === folderId || subIds.includes(d.folder_id)).length;

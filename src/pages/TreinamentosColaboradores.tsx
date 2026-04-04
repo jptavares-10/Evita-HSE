@@ -15,6 +15,8 @@ import { ImportEmployeesModal } from "@/components/treinamentos/ImportEmployeesM
 import { usePermission } from "@/hooks/usePermission";
 import { PermissionButton } from "@/components/PermissionButton";
 import { ViewerBadge } from "@/components/ViewerBadge";
+import { useTablePagination } from "@/hooks/useTablePagination";
+import { DataTablePagination } from "@/components/DataTablePagination";
 
 export default function TreinamentosColaboradores() {
   const { company } = useAuth();

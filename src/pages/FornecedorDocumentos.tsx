@@ -189,9 +189,17 @@ export default function FornecedorDocumentos() {
             </div>
           ) : (
             <div className="space-y-2">
-              {filteredDocs.map((doc: any) => (
+              {docPagination.paginatedData.map((doc: any) => (
                 <SupplierDocRow key={doc.id} doc={doc} planExpired={planExpired} onDelete={() => setDeleteTarget(doc)} canEdit={canEdit} />
               ))}
+              <DataTablePagination
+                currentPage={docPagination.currentPage}
+                totalPages={docPagination.totalPages}
+                pageSize={docPagination.pageSize}
+                totalItems={docPagination.totalItems}
+                onPageChange={docPagination.setCurrentPage}
+                onPageSizeChange={docPagination.setPageSize}
+              />
             </div>
           )}
         </div>

@@ -186,3 +186,50 @@ export default function Usuarios() {
     </div>
   );
 }
+
+function UsersTable({ users, onClickUser }: { users: Profile[]; onClickUser: (u: Profile) => void }) {
+  const pagination = useTablePagination(users);
+
+  return (
+    <>
+      <div className="bg-card border rounded-lg overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b bg-muted/50">
+              <th className="text-left px-4 py-3 font-medium">Nome</th>
+              <th className="text-left px-4 py-3 font-medium">E-mail</th>
+              <th className="text-left px-4 py-3 font-medium">Função</th>
+              <th className="text-left px-4 py-3 font-medium">Entrada</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pagination.paginatedData.map((u) => (
+              <tr
+                key={u.id}
+                className="border-b last:border-0 cursor-pointer hover:bg-muted/50 transition-colors"
+                onClick={() => onClickUser(u)}
+              >
+                <td className="px-4 py-3 font-medium">{u.full_name}</td>
+                <td className="px-4 py-3 text-muted-foreground">{u.email}</td>
+                <td className="px-4 py-3">
+                  <span className="text-xs font-medium bg-muted px-2 py-1 rounded capitalize">{u.role}</span>
+                </td>
+                <td className="px-4 py-3 text-muted-foreground">
+                  {format(new Date(u.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <DataTablePagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        pageSize={pagination.pageSize}
+        totalItems={pagination.totalItems}
+        onPageChange={pagination.setCurrentPage}
+        onPageSizeChange={pagination.setPageSize}
+      />
+    </>
+  );
+}

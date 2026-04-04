@@ -149,19 +149,7 @@ export default function MtrAnalise() {
                   <TableHead className="text-right">Média mensal (ton)</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
-                {catBreakdown.filter((c) => c.total > 0).map((cat) => (
-                  <TableRow key={cat.name}>
-                    <TableCell>
-                      <Badge style={{ backgroundColor: cat.color + "20", color: cat.color, borderColor: cat.color }} className="text-xs">{cat.name}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums">{formatTons(cat.total)}</TableCell>
-                    <TableCell className="text-right tabular-nums">{totalTons > 0 ? ((cat.total / totalTons) * 100).toFixed(1) : 0}%</TableCell>
-                    <TableCell className="text-right tabular-nums">{months.length > 0 ? formatTons(cat.total / months.length) : "—"}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+              <CatBreakdownTable data={catBreakdown.filter((c) => c.total > 0)} totalTons={totalTons} months={months} />
           </div>
         </>
       )}

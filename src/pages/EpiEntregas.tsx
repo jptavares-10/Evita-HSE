@@ -69,7 +69,7 @@ export default function EpiEntregas() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((d: any) => (
+              {pagination.paginatedData.map((d: any) => (
                 <TableRow key={d.id}>
                   <TableCell>{formatDateBR(d.delivered_at)}</TableCell>
                   <TableCell className="font-medium">{d.employees?.name || "—"}</TableCell>
@@ -82,6 +82,14 @@ export default function EpiEntregas() {
               ))}
             </TableBody>
           </Table>
+          <DataTablePagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            pageSize={pagination.pageSize}
+            totalItems={pagination.totalItems}
+            onPageChange={pagination.setCurrentPage}
+            onPageSizeChange={pagination.setPageSize}
+          />
         </Card>
       )}
 

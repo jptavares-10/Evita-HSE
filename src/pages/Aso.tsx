@@ -18,7 +18,8 @@ import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding"
 import { useNavigate } from "react-router-dom";
 import { usePermission } from "@/hooks/usePermission";
 import { ViewerBadge } from "@/components/ViewerBadge";
-
+import { useTablePagination } from "@/hooks/useTablePagination";
+import { DataTablePagination } from "@/components/DataTablePagination";
 export default function Aso() {
   const navigate = useNavigate();
   usePageTitle("ASO — Evita HSE");

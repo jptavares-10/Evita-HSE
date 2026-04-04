@@ -27,11 +27,10 @@ export function ImportMatrixModal({ open, onOpenChange }: Props) {
     setResult(null);
 
     try {
-      const text = await file.text();
-      const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
+      const lines = await parseXlsx(file);
       if (lines.length < 2) { setResult("Arquivo vazio."); setImporting(false); return; }
 
-      const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
+      const header = lines[0].map((h) => h.toLowerCase());
       const cargoIdx = header.findIndex((h) => h.includes("cargo"));
       const treinIdx = header.findIndex((h) => h.includes("treinamento"));
       if (cargoIdx === -1 || treinIdx === -1) { setResult("Colunas 'Cargo' e 'Treinamento' são obrigatórias."); setImporting(false); return; }

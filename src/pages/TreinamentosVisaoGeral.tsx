@@ -236,10 +236,9 @@ export default function TreinamentosVisaoGeral() {
     setImporting(true);
     setImportResult(null);
     try {
-      const text = await importFile.text();
-      const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
+      const lines = await parseXlsx(importFile);
       if (lines.length < 2) { setImportResult("Arquivo vazio ou sem dados."); setImporting(false); return; }
-      const header = lines[0].split(",").map((h) => h.trim().replace(/^"/, "").replace(/"$/, "").toLowerCase());
+      const header = lines[0].map((h) => h.toLowerCase());
       const nameIdx = header.findIndex((h) => h.includes("nome"));
       const cargoIdx = header.findIndex((h) => h.includes("cargo"));
       const treinIdx = header.findIndex((h) => h.includes("treinamento"));
@@ -251,7 +250,7 @@ export default function TreinamentosVisaoGeral() {
       let imported = 0;
       const errors: string[] = [];
       for (let i = 1; i < lines.length; i++) {
-        const cols = lines[i].split(",").map((c) => c.trim().replace(/^"/, "").replace(/"$/, ""));
+        const cols = lines[i];
         const empName = cols[nameIdx];
         const cargoName = cols[cargoIdx];
         const treinName = cols[treinIdx];

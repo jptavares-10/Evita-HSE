@@ -219,23 +219,16 @@ export default function TreinamentosVisaoGeral() {
       }
     }
     if (rows.length <= 1) { toast({ title: "Nenhuma pendência para exportar" }); return; }
-    const csv = rows.map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
     const today = format(new Date(), "dd-MM-yyyy");
-    a.href = url; a.download = `pendencias_treinamentos_${today}.csv`; a.click();
-    URL.revokeObjectURL(url);
+    downloadXlsx(rows, `pendencias_treinamentos_${today}.xlsx`);
     toast({ title: `${rows.length - 1} pendências exportadas` });
   };
 
   const downloadImportTemplate = () => {
-    const csv = "Nome do colaborador,Cargo,Treinamento,Data de realização,Data de vencimento\nJoão Silva,Operador,NR-35,15/03/2026,15/03/2028\n";
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = "modelo_atualizacao_treinamentos.csv"; a.click();
-    URL.revokeObjectURL(url);
+    downloadXlsx(
+      [["Nome do colaborador", "Cargo", "Treinamento", "Data de realização", "Data de vencimento"], ["João Silva", "Operador", "NR-35", "15/03/2026", "15/03/2028"]],
+      "modelo_atualizacao_treinamentos.xlsx"
+    );
   };
 
   const handleImport = async () => {

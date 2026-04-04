@@ -37,7 +37,7 @@ export default function TreinamentosColaboradores() {
   const [editEmployee, setEditEmployee] = useState<any>(null);
   const [detailEmployee, setDetailEmployee] = useState<any>(null);
   const [importOpen, setImportOpen] = useState(false);
-  const pageSize = 10;
+  
 
   const trainingsMap = useMemo(() => {
     const map = new Map<string, { has_expiry: boolean }>();

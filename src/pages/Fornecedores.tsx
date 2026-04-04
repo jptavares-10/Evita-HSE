@@ -20,6 +20,8 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { TableSkeleton } from "@/components/TableSkeleton";
 import { usePermission } from "@/hooks/usePermission";
 import { ViewerBadge } from "@/components/ViewerBadge";
+import { useTablePagination } from "@/hooks/useTablePagination";
+import { DataTablePagination } from "@/components/DataTablePagination";
 
 export default function Fornecedores() {
   usePageTitle("Fornecedores — Evita HSE");
@@ -48,6 +50,8 @@ export default function Fornecedores() {
     if (statusFilter !== "all") result = result.filter((s: any) => s.status === statusFilter);
     return result;
   }, [suppliers, search, categoryFilter, statusFilter]);
+
+  const pagination = useTablePagination(filtered);
 
   const activeCount = suppliers.filter((s: any) => s.status === "active").length;
 
@@ -133,96 +137,106 @@ export default function Fornecedores() {
           <p className="text-muted-foreground">Nenhum fornecedor encontrado com os filtros aplicados.</p>
         </div>
       ) : (
-        <div className="border rounded-lg overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Categoria</TableHead>
-                <TableHead>Contato</TableHead>
-                <TableHead className="text-center">Documentos</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((s: any) => (
-                <TableRow key={s.id}>
-                  <TableCell className="font-medium">{s.name}</TableCell>
-                  <TableCell>
-                    {s.supplier_categories ? (
-                      <Badge variant="outline">{(s.supplier_categories as any).name}</Badge>
-                    ) : <span className="text-muted-foreground text-xs">—</span>}
-                  </TableCell>
-                  <TableCell>
-                    {s.contact_name ? (
-                      <div className="text-sm">
-                        <span>{s.contact_name}</span>
-                        {s.contact_phone && <span className="text-muted-foreground ml-2">{formatPhone(s.contact_phone)}</span>}
-                      </div>
-                    ) : <span className="text-muted-foreground text-xs">—</span>}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <span className="tabular-nums text-sm">{docCounts[s.id] || 0}</span>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={s.status === "active" ? "default" : "secondary"}>
-                      {s.status === "active" ? "Ativo" : "Inativo"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(`/fornecedores/${s.id}`)}>
-                            <FolderOpen className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Ver documentos</TooltipContent>
-                      </Tooltip>
-                      {canEdit && s.portal_enabled && (
+        <>
+          <div className="border rounded-lg overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nome</TableHead>
+                  <TableHead>Categoria</TableHead>
+                  <TableHead>Contato</TableHead>
+                  <TableHead className="text-center">Documentos</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {pagination.paginatedData.map((s: any) => (
+                  <TableRow key={s.id}>
+                    <TableCell className="font-medium">{s.name}</TableCell>
+                    <TableCell>
+                      {s.supplier_categories ? (
+                        <Badge variant="outline">{(s.supplier_categories as any).name}</Badge>
+                      ) : <span className="text-muted-foreground text-xs">—</span>}
+                    </TableCell>
+                    <TableCell>
+                      {s.contact_name ? (
+                        <div className="text-sm">
+                          <span>{s.contact_name}</span>
+                          {s.contact_phone && <span className="text-muted-foreground ml-2">{formatPhone(s.contact_phone)}</span>}
+                        </div>
+                      ) : <span className="text-muted-foreground text-xs">—</span>}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <span className="tabular-nums text-sm">{docCounts[s.id] || 0}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={s.status === "active" ? "default" : "secondary"}>
+                        {s.status === "active" ? "Ativo" : "Inativo"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => copyPortalLink(s.portal_token)} disabled={planExpired}>
-                              <Copy className="h-4 w-4" />
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(`/fornecedores/${s.id}`)}>
+                              <FolderOpen className="h-4 w-4" />
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>{planExpired ? "Plano expirado" : "Copiar link do portal"}</TooltipContent>
+                          <TooltipContent>Ver documentos</TooltipContent>
                         </Tooltip>
-                      )}
-                      {canEdit && (
-                        <>
-                          {planExpired ? (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8" disabled><Pencil className="h-4 w-4" /></Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>
-                            </Tooltip>
-                          ) : (
-                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(s)}><Pencil className="h-4 w-4" /></Button>
-                          )}
-                          {planExpired ? (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8" disabled><Trash2 className="h-4 w-4" /></Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>
-                            </Tooltip>
-                          ) : (
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => setDeleteTarget(s)}>
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+                        {canEdit && s.portal_enabled && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => copyPortalLink(s.portal_token)} disabled={planExpired}>
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>{planExpired ? "Plano expirado" : "Copiar link do portal"}</TooltipContent>
+                          </Tooltip>
+                        )}
+                        {canEdit && (
+                          <>
+                            {planExpired ? (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8" disabled><Pencil className="h-4 w-4" /></Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>
+                              </Tooltip>
+                            ) : (
+                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(s)}><Pencil className="h-4 w-4" /></Button>
+                            )}
+                            {planExpired ? (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8" disabled><Trash2 className="h-4 w-4" /></Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>
+                              </Tooltip>
+                            ) : (
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => setDeleteTarget(s)}>
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+          <DataTablePagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            pageSize={pagination.pageSize}
+            totalItems={pagination.totalItems}
+            onPageChange={pagination.setCurrentPage}
+            onPageSizeChange={pagination.setPageSize}
+          />
+        </>
       )}
 
       <SupplierDrawer open={drawerOpen} onOpenChange={setDrawerOpen} supplier={editingSupplier} />

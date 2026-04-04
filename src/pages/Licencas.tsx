@@ -20,6 +20,8 @@ import { PageSkeleton } from "@/components/TableSkeleton";
 import { usePermission } from "@/hooks/usePermission";
 import { ViewerBadge } from "@/components/ViewerBadge";
 import { PermissionButton } from "@/components/PermissionButton";
+import { useTablePagination } from "@/hooks/useTablePagination";
+import { DataTablePagination } from "@/components/DataTablePagination";
 
 export default function Licencas() {
   usePageTitle("Licenças Ambientais — Evita HSE");
@@ -31,14 +33,12 @@ export default function Licencas() {
   const { canEdit } = usePermission("environmental_licenses");
   const isDisabled = !!isExpired || !canEdit;
 
-  // Filters
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [sphereFilter, setSphereFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [kpiFilter, setKpiFilter] = useState<string | null>(null);
 
-  // Modals/drawers
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingLicense, setEditingLicense] = useState<any>(null);
   const [detailLicense, setDetailLicense] = useState<any>(null);
@@ -47,7 +47,6 @@ export default function Licencas() {
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [typesModalOpen, setTypesModalOpen] = useState(false);
 
-  // Enrich with computed status
   const enriched = useMemo(() => {
     return licenses.map((l: any) => ({
       ...l,
@@ -78,7 +77,6 @@ export default function Licencas() {
     if (sphereFilter !== "all") result = result.filter((l: any) => l.sphere === sphereFilter);
     if (activeStatus) result = result.filter((l: any) => l._status === activeStatus);
 
-    // Sort: expiring first, permanents last
     return [...result].sort((a: any, b: any) => {
       if (a._status === "permanent" && b._status !== "permanent") return 1;
       if (b._status === "permanent" && a._status !== "permanent") return -1;
@@ -88,6 +86,8 @@ export default function Licencas() {
       return a.expires_at.localeCompare(b.expires_at);
     });
   }, [enriched, search, typeFilter, sphereFilter, activeStatus]);
+
+  const pagination = useTablePagination(filtered);
 
   const handleKpiClick = (status: string | null) => {
     setKpiFilter(status);
@@ -151,113 +151,123 @@ export default function Licencas() {
       ) : filtered.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">Nenhuma licença encontrada com os filtros aplicados.</div>
       ) : (
-        <div className="bg-card border rounded-lg overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Número</TableHead>
-                <TableHead>Título</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Órgão emissor</TableHead>
-                <TableHead>Esfera</TableHead>
-                <TableHead>Vencimento</TableHead>
-                <TableHead>Dias restantes</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((l: any) => {
-                const statusInfo = getStatusBadgeInfo(l._status);
-                const sphereInfo = getSphereBadgeInfo(l.sphere);
-                const daysInfo = getDaysRemainingInfo(l.has_expiry, l.expires_at, l.alert_days_before, l.status);
-                const isPermanent = l._status === "permanent";
-                return (
-                  <TableRow key={l.id}>
-                    <TableCell>
-                      <button onClick={() => { setDetailLicense(l); setDetailOpen(true); }} className="text-left font-medium text-primary hover:underline">
-                        {l.license_number}
-                      </button>
-                    </TableCell>
-                    <TableCell className="max-w-[200px] truncate">{l.title}</TableCell>
-                    <TableCell>
-                      {l.license_types ? (
-                        <Badge variant="outline" className="text-xs">{l.license_types.name}</Badge>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-sm">{l.issuing_body}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={`text-[10px] ${sphereInfo.className}`}>{sphereInfo.label}</Badge>
-                    </TableCell>
-                    <TableCell className="text-sm tabular-nums">
-                      {l.has_expiry ? formatDateBR(l.expires_at) : "Permanente"}
-                    </TableCell>
-                    <TableCell>
-                      <span className={`text-sm font-medium ${daysInfo.color}`}>{daysInfo.label}</span>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={`text-[10px] ${statusInfo.className}`}>{statusInfo.label}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div>
-                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setDetailLicense(l); setDetailOpen(true); }}>
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>Ver detalhes</TooltipContent>
-                        </Tooltip>
-                        {canEdit && (
+        <>
+          <div className="bg-card border rounded-lg overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Número</TableHead>
+                  <TableHead>Título</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead>Órgão emissor</TableHead>
+                  <TableHead>Esfera</TableHead>
+                  <TableHead>Vencimento</TableHead>
+                  <TableHead>Dias restantes</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {pagination.paginatedData.map((l: any) => {
+                  const statusInfo = getStatusBadgeInfo(l._status);
+                  const sphereInfo = getSphereBadgeInfo(l.sphere);
+                  const daysInfo = getDaysRemainingInfo(l.has_expiry, l.expires_at, l.alert_days_before, l.status);
+                  const isPermanent = l._status === "permanent";
+                  return (
+                    <TableRow key={l.id}>
+                      <TableCell>
+                        <button onClick={() => { setDetailLicense(l); setDetailOpen(true); }} className="text-left font-medium text-primary hover:underline">
+                          {l.license_number}
+                        </button>
+                      </TableCell>
+                      <TableCell className="max-w-[200px] truncate">{l.title}</TableCell>
+                      <TableCell>
+                        {l.license_types ? (
+                          <Badge variant="outline" className="text-xs">{l.license_types.name}</Badge>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-sm">{l.issuing_body}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={`text-[10px] ${sphereInfo.className}`}>{sphereInfo.label}</Badge>
+                      </TableCell>
+                      <TableCell className="text-sm tabular-nums">
+                        {l.has_expiry ? formatDateBR(l.expires_at) : "Permanente"}
+                      </TableCell>
+                      <TableCell>
+                        <span className={`text-sm font-medium ${daysInfo.color}`}>{daysInfo.label}</span>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={`text-[10px] ${statusInfo.className}`}>{statusInfo.label}</Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1">
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <div>
-                                <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isPermanent || isDisabled} onClick={() => setRenewalLicense(l)}>
-                                  <RotateCw className="h-4 w-4" />
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setDetailLicense(l); setDetailOpen(true); }}>
+                                  <Eye className="h-4 w-4" />
                                 </Button>
                               </div>
                             </TooltipTrigger>
-                            <TooltipContent>
-                              {isDisabled ? "Sem permissão" : isPermanent ? "Licença permanente" : "Registrar renovação"}
-                            </TooltipContent>
+                            <TooltipContent>Ver detalhes</TooltipContent>
                           </Tooltip>
-                        )}
-                        {canEdit && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div>
-                                <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isDisabled} onClick={() => openEdit(l)}>
-                                  <Pencil className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </TooltipTrigger>
-                            <TooltipContent>Editar</TooltipContent>
-                          </Tooltip>
-                        )}
-                        {canEdit && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" disabled={isDisabled} onClick={() => setDeleteTarget(l)}>
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </TooltipTrigger>
-                            <TooltipContent>Excluir</TooltipContent>
-                          </Tooltip>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+                          {canEdit && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isPermanent || isDisabled} onClick={() => setRenewalLicense(l)}>
+                                    <RotateCw className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                {isDisabled ? "Sem permissão" : isPermanent ? "Licença permanente" : "Registrar renovação"}
+                              </TooltipContent>
+                            </Tooltip>
+                          )}
+                          {canEdit && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isDisabled} onClick={() => openEdit(l)}>
+                                    <Pencil className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>Editar</TooltipContent>
+                            </Tooltip>
+                          )}
+                          {canEdit && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" disabled={isDisabled} onClick={() => setDeleteTarget(l)}>
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>Excluir</TooltipContent>
+                            </Tooltip>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+          <DataTablePagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            pageSize={pagination.pageSize}
+            totalItems={pagination.totalItems}
+            onPageChange={pagination.setCurrentPage}
+            onPageSizeChange={pagination.setPageSize}
+          />
+        </>
       )}
 
       <LicenseDrawer open={drawerOpen} onOpenChange={setDrawerOpen} editingLicense={editingLicense} />

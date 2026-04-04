@@ -18,6 +18,8 @@ import { TableSkeleton } from "@/components/TableSkeleton";
 import { usePermission } from "@/hooks/usePermission";
 import { ViewerBadge } from "@/components/ViewerBadge";
 import { PermissionButton } from "@/components/PermissionButton";
+import { useTablePagination } from "@/hooks/useTablePagination";
+import { DataTablePagination } from "@/components/DataTablePagination";
 
 export default function InspecoesExecucoes() {
   const { company } = useAuth();
@@ -65,14 +67,12 @@ export default function InspecoesExecucoes() {
   const filtered = useMemo(() => {
     let result = enriched;
 
-    // Date range filter
     if (dateFrom) result = result.filter((e: any) => e.due_date >= dateFrom);
     if (dateTo) result = result.filter((e: any) => e.due_date <= dateTo);
 
     if (search) result = result.filter((e: any) => e.reference?.toLowerCase().includes(search.toLowerCase()));
     if (modelFilter !== "all") result = result.filter((e: any) => e.model_id === modelFilter);
 
-    // KPI filter overrides status
     const activeStatus = kpiFilter || (statusFilter !== "all" ? statusFilter : null);
     if (activeStatus) {
       if (activeStatus === "pending_today") result = result.filter((e: any) => e._displayStatus === "pending" && e.due_date === today);
@@ -84,6 +84,8 @@ export default function InspecoesExecucoes() {
 
     return result.sort((a: any, b: any) => a.due_date.localeCompare(b.due_date));
   }, [enriched, search, modelFilter, statusFilter, kpiFilter, dateFrom, dateTo, today]);
+
+  const pagination = useTablePagination(filtered);
 
   const clearDateFilter = () => {
     setDateFrom("");
@@ -165,51 +167,61 @@ export default function InspecoesExecucoes() {
           )}
         </div>
       ) : (
-        <div className="bg-card border rounded-lg">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nome da inspeção</TableHead>
-                <TableHead>Setor</TableHead>
-                <TableHead>Data prevista</TableHead>
-                <TableHead>Responsável</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((exec: any) => {
-                const cfg = STATUS_CONFIG[exec._displayStatus as keyof typeof STATUS_CONFIG];
-                const model = exec.inspection_models;
-                return (
-                  <TableRow key={exec.id}>
-                    <TableCell>
-                      <button onClick={() => navigate(`/inspecoes/${exec.id}`)} className="text-left font-medium text-primary hover:underline">
-                        {exec.reference || model?.name || "—"}
-                      </button>
-                    </TableCell>
-                    <TableCell className="text-sm">{model?.sectors?.name || "—"}</TableCell>
-                    <TableCell className="text-sm tabular-nums">{formatDateBR(exec.due_date)}</TableCell>
-                    <TableCell className="text-sm">{model?.default_responsible?.name || "—"}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={`text-xs ${cfg?.bgColor} ${cfg?.color}`}>{cfg?.label}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(`/inspecoes/${exec.id}`)}>
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Ver detalhes</TooltipContent>
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+        <>
+          <div className="bg-card border rounded-lg">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nome da inspeção</TableHead>
+                  <TableHead>Setor</TableHead>
+                  <TableHead>Data prevista</TableHead>
+                  <TableHead>Responsável</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {pagination.paginatedData.map((exec: any) => {
+                  const cfg = STATUS_CONFIG[exec._displayStatus as keyof typeof STATUS_CONFIG];
+                  const model = exec.inspection_models;
+                  return (
+                    <TableRow key={exec.id}>
+                      <TableCell>
+                        <button onClick={() => navigate(`/inspecoes/${exec.id}`)} className="text-left font-medium text-primary hover:underline">
+                          {exec.reference || model?.name || "—"}
+                        </button>
+                      </TableCell>
+                      <TableCell className="text-sm">{model?.sectors?.name || "—"}</TableCell>
+                      <TableCell className="text-sm tabular-nums">{formatDateBR(exec.due_date)}</TableCell>
+                      <TableCell className="text-sm">{model?.default_responsible?.name || "—"}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={`text-xs ${cfg?.bgColor} ${cfg?.color}`}>{cfg?.label}</Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(`/inspecoes/${exec.id}`)}>
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Ver detalhes</TooltipContent>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+          <DataTablePagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            pageSize={pagination.pageSize}
+            totalItems={pagination.totalItems}
+            onPageChange={pagination.setCurrentPage}
+            onPageSizeChange={pagination.setPageSize}
+          />
+        </>
       )}
 
       <NewExecutionModal

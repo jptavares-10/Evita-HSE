@@ -1,6 +1,8 @@
 import { useState, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useInspectionModels, useDeleteInspectionModel, useSaveInspectionModel } from "@/hooks/useInspections";
+import { useTablePagination } from "@/hooks/useTablePagination";
+import { DataTablePagination } from "@/components/DataTablePagination";
 import { getFrequencyLabel, formatDateBR } from "@/lib/inspections";
 import { InspectionModelDrawer } from "@/components/inspecoes/InspectionModelDrawer";
 import { ModelHistoryDrawer } from "@/components/inspecoes/ModelHistoryDrawer";
@@ -60,6 +62,8 @@ export default function InspecoesModelos() {
     return result;
   }, [models, search, statusFilter]);
 
+  const pagination = useTablePagination(filtered);
+
   const handleToggleStatus = async (model: any) => {
     const newStatus = model.status === "active" ? "inactive" : "active";
     await saveModel.mutateAsync({ id: model.id, name: model.name, frequency_type: model.frequency_type, status: newStatus });
@@ -108,6 +112,7 @@ export default function InspecoesModelos() {
           <p className="text-muted-foreground">Nenhum modelo encontrado com os filtros aplicados.</p>
         </div>
       ) : (
+        <>
         <div className="bg-card border rounded-lg">
           <Table>
             <TableHeader>
@@ -122,7 +127,7 @@ export default function InspecoesModelos() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((m: any) => (
+              {pagination.paginatedData.map((m: any) => (
                 <TableRow key={m.id}>
                   <TableCell className="font-medium">{m.name}</TableCell>
                   <TableCell className="text-sm">{m.sectors?.name || "—"}</TableCell>
@@ -169,6 +174,15 @@ export default function InspecoesModelos() {
             </TableBody>
           </Table>
         </div>
+        <DataTablePagination
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          pageSize={pagination.pageSize}
+          totalItems={pagination.totalItems}
+          onPageChange={pagination.setCurrentPage}
+          onPageSizeChange={pagination.setPageSize}
+        />
+      </>
       )}
 
       <InspectionModelDrawer open={drawerOpen} onOpenChange={setDrawerOpen} editing={editing} employees={employees} sectors={sectors} />

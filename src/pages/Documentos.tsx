@@ -19,6 +19,8 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { PageSkeleton } from "@/components/TableSkeleton";
 import { usePermission } from "@/hooks/usePermission";
 import { ViewerBadge } from "@/components/ViewerBadge";
+import { useTablePagination } from "@/hooks/useTablePagination";
+import { DataTablePagination } from "@/components/DataTablePagination";
 
 export default function Documentos() {
   usePageTitle("Biblioteca de Documentos — Evita HSE");
@@ -78,6 +80,8 @@ export default function Documentos() {
     return result;
   }, [documents, search, typeFilter, activeStatus, kpiFilter, areaFilter]);
 
+  const pagination = useTablePagination(filtered);
+
   const handleKpiClick = (status: string | null) => {
     setKpiFilter(status);
     if (status) setStatusFilter("all");
@@ -133,85 +137,95 @@ export default function Documentos() {
       ) : filtered.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">Nenhum documento encontrado com os filtros aplicados.</div>
       ) : (
-        <div className="bg-card border rounded-lg overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Código</TableHead>
-                <TableHead>Título</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Responsável</TableHead>
-                <TableHead>Revisão</TableHead>
-                <TableHead>Data emissão</TableHead>
-                <TableHead>Próxima revisão</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((d: any) => {
-                const statusInfo = getDocStatusBadgeInfo(d.status);
-                const revCycleStatus = getRevisionCycleStatus(d);
-                const revCycleBadge = getRevisionCycleBadgeInfo(revCycleStatus);
-                return (
-                  <TableRow key={d.id}>
-                    <TableCell className="text-xs text-muted-foreground font-mono">{d.code || "—"}</TableCell>
-                    <TableCell>
-                      <button onClick={() => { setDetailDoc(d); setDetailOpen(true); }} className="text-left font-medium text-primary hover:underline">
-                        {d.title}
-                      </button>
-                    </TableCell>
-                    <TableCell>
-                      {d.document_types ? (
-                        <Badge variant="outline" className="text-xs">{d.document_types.name}</Badge>
-                      ) : <span className="text-xs text-muted-foreground">—</span>}
-                    </TableCell>
-                    <TableCell className="text-sm">{d.responsible || "—"}</TableCell>
-                    <TableCell className="text-sm font-mono">{d.current_revision}</TableCell>
-                    <TableCell className="text-sm tabular-nums">{formatDateBR(d.current_revision_date)}</TableCell>
-                    <TableCell className="text-sm tabular-nums">
-                      {d.has_revision_cycle && d.next_revision_at ? (
-                        <div className="flex items-center gap-1.5">
-                          <span>{formatDateBR(d.next_revision_at)}</span>
-                          {revCycleBadge && (
-                            <Badge variant="outline" className={`text-[10px] ${revCycleBadge.className}`}>
-                              {revCycleBadge.label}
-                            </Badge>
+        <>
+          <div className="bg-card border rounded-lg overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Código</TableHead>
+                  <TableHead>Título</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead>Responsável</TableHead>
+                  <TableHead>Revisão</TableHead>
+                  <TableHead>Data emissão</TableHead>
+                  <TableHead>Próxima revisão</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {pagination.paginatedData.map((d: any) => {
+                  const statusInfo = getDocStatusBadgeInfo(d.status);
+                  const revCycleStatus = getRevisionCycleStatus(d);
+                  const revCycleBadge = getRevisionCycleBadgeInfo(revCycleStatus);
+                  return (
+                    <TableRow key={d.id}>
+                      <TableCell className="text-xs text-muted-foreground font-mono">{d.code || "—"}</TableCell>
+                      <TableCell>
+                        <button onClick={() => { setDetailDoc(d); setDetailOpen(true); }} className="text-left font-medium text-primary hover:underline">
+                          {d.title}
+                        </button>
+                      </TableCell>
+                      <TableCell>
+                        {d.document_types ? (
+                          <Badge variant="outline" className="text-xs">{d.document_types.name}</Badge>
+                        ) : <span className="text-xs text-muted-foreground">—</span>}
+                      </TableCell>
+                      <TableCell className="text-sm">{d.responsible || "—"}</TableCell>
+                      <TableCell className="text-sm font-mono">{d.current_revision}</TableCell>
+                      <TableCell className="text-sm tabular-nums">{formatDateBR(d.current_revision_date)}</TableCell>
+                      <TableCell className="text-sm tabular-nums">
+                        {d.has_revision_cycle && d.next_revision_at ? (
+                          <div className="flex items-center gap-1.5">
+                            <span>{formatDateBR(d.next_revision_at)}</span>
+                            {revCycleBadge && (
+                              <Badge variant="outline" className={`text-[10px] ${revCycleBadge.className}`}>
+                                {revCycleBadge.label}
+                              </Badge>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={`text-[10px] ${statusInfo.className}`}>{statusInfo.label}</Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Tooltip><TooltipTrigger asChild><div>
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setDetailDoc(d); setDetailOpen(true); }}><Eye className="h-4 w-4" /></Button>
+                          </div></TooltipTrigger><TooltipContent>Ver detalhes</TooltipContent></Tooltip>
+                          {canEdit && (
+                            <>
+                              <Tooltip><TooltipTrigger asChild><div>
+                                <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!!isExpired} onClick={() => setRevisionDoc(d)}><FileTextIcon className="h-4 w-4" /></Button>
+                              </div></TooltipTrigger><TooltipContent>{isExpired ? "Plano expirado" : "Nova revisão"}</TooltipContent></Tooltip>
+                              <Tooltip><TooltipTrigger asChild><div>
+                                <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!!isExpired} onClick={() => openEdit(d)}><Pencil className="h-4 w-4" /></Button>
+                              </div></TooltipTrigger><TooltipContent>{isExpired ? "Plano expirado" : "Editar"}</TooltipContent></Tooltip>
+                              <Tooltip><TooltipTrigger asChild><div>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" disabled={!!isExpired} onClick={() => setDeleteTarget(d)}><Trash2 className="h-4 w-4" /></Button>
+                              </div></TooltipTrigger><TooltipContent>{isExpired ? "Plano expirado" : "Excluir"}</TooltipContent></Tooltip>
+                            </>
                           )}
                         </div>
-                      ) : (
-                        <span className="text-muted-foreground">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={`text-[10px] ${statusInfo.className}`}>{statusInfo.label}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Tooltip><TooltipTrigger asChild><div>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setDetailDoc(d); setDetailOpen(true); }}><Eye className="h-4 w-4" /></Button>
-                        </div></TooltipTrigger><TooltipContent>Ver detalhes</TooltipContent></Tooltip>
-                        {canEdit && (
-                          <>
-                            <Tooltip><TooltipTrigger asChild><div>
-                              <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!!isExpired} onClick={() => setRevisionDoc(d)}><FileTextIcon className="h-4 w-4" /></Button>
-                            </div></TooltipTrigger><TooltipContent>{isExpired ? "Plano expirado" : "Nova revisão"}</TooltipContent></Tooltip>
-                            <Tooltip><TooltipTrigger asChild><div>
-                              <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!!isExpired} onClick={() => openEdit(d)}><Pencil className="h-4 w-4" /></Button>
-                            </div></TooltipTrigger><TooltipContent>{isExpired ? "Plano expirado" : "Editar"}</TooltipContent></Tooltip>
-                            <Tooltip><TooltipTrigger asChild><div>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" disabled={!!isExpired} onClick={() => setDeleteTarget(d)}><Trash2 className="h-4 w-4" /></Button>
-                            </div></TooltipTrigger><TooltipContent>{isExpired ? "Plano expirado" : "Excluir"}</TooltipContent></Tooltip>
-                          </>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+          <DataTablePagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            pageSize={pagination.pageSize}
+            totalItems={pagination.totalItems}
+            onPageChange={pagination.setCurrentPage}
+            onPageSizeChange={pagination.setPageSize}
+          />
+        </>
       )}
 
       <DocumentDrawer open={drawerOpen} onOpenChange={setDrawerOpen} editingDocument={editingDoc} />

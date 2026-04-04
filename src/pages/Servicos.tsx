@@ -20,6 +20,8 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { PageSkeleton } from "@/components/TableSkeleton";
 import { usePermission } from "@/hooks/usePermission";
 import { ViewerBadge } from "@/components/ViewerBadge";
+import { useTablePagination } from "@/hooks/useTablePagination";
+import { DataTablePagination } from "@/components/DataTablePagination";
 
 
 export default function Servicos() {
@@ -50,8 +52,6 @@ export default function Servicos() {
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [categoriesModalOpen, setCategoriesModalOpen] = useState(false);
 
-  // Status counts
-  // Split active vs inactive
   const activeServices = useMemo(() => services.filter((s: any) => s.status !== "inactive"), [services]);
   const inactiveServices = useMemo(() => services.filter((s: any) => s.status === "inactive"), [services]);
 
@@ -73,7 +73,6 @@ export default function Servicos() {
     return c;
   }, [activeServices]);
 
-  // Active status filter (KPI cards override status select)
   const activeStatus = kpiFilter || (statusFilter !== "all" ? statusFilter : null);
 
   const filtered = useMemo(() => {
@@ -89,6 +88,8 @@ export default function Servicos() {
     });
     return result;
   }, [enrichedServices, search, categoryFilter, activeStatus, sortBy]);
+
+  const pagination = useTablePagination(filtered);
 
   const handleKpiClick = (status: string | null) => {
     setKpiFilter(status);
@@ -161,120 +162,130 @@ export default function Servicos() {
       ) : filtered.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">Nenhum serviço encontrado com os filtros aplicados.</div>
       ) : (
-        <div className="bg-card border rounded-lg">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Categoria</TableHead>
-                <TableHead>Frequência</TableHead>
-                <TableHead>Última realização</TableHead>
-                <TableHead>Próxima data</TableHead>
-                <TableHead>Fornecedor</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((s: any) => {
-                const isInactive = s.status === "inactive";
-                return (
-                <TableRow key={s.id} className={isInactive ? "opacity-50" : ""}>
-                  <TableCell>
-                    <button onClick={() => { setDetailService(s); setDetailOpen(true); }} className="text-left font-medium text-primary hover:underline">
-                      {s.name}
-                    </button>
-                  </TableCell>
-                  <TableCell>
-                    {s.service_categories && (
-                      <Badge variant="outline" className="gap-1.5">
-                        <span className="h-2 w-2 rounded-full" style={{ backgroundColor: s.service_categories.color }} />
-                        {s.service_categories.name}
-                      </Badge>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-sm">{getFrequencyLabel(s.frequency_type, s.frequency_preset, s.frequency_days)}</TableCell>
-                  <TableCell className="text-sm tabular-nums">{formatDateBR(s.last_done_at)}</TableCell>
-                  <TableCell className="text-sm tabular-nums">{formatDateBR(s.next_due_at)}</TableCell>
-                  <TableCell className="text-sm">{s.supplier || "—"}</TableCell>
-                  <TableCell>
-                    <span className="flex items-center gap-1.5 text-sm">
-                      {statusIcon(s._status)}
-                      <span className={s._statusInfo.color}>{s._statusInfo.label}</span>
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div>
-                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setDetailService(s); setDetailOpen(true); }}>
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>Ver detalhes</TooltipContent>
-                      </Tooltip>
-                      {!isInactive && canEdit && (
+        <>
+          <div className="bg-card border rounded-lg">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nome</TableHead>
+                  <TableHead>Categoria</TableHead>
+                  <TableHead>Frequência</TableHead>
+                  <TableHead>Última realização</TableHead>
+                  <TableHead>Próxima data</TableHead>
+                  <TableHead>Fornecedor</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {pagination.paginatedData.map((s: any) => {
+                  const isInactive = s.status === "inactive";
+                  return (
+                  <TableRow key={s.id} className={isInactive ? "opacity-50" : ""}>
+                    <TableCell>
+                      <button onClick={() => { setDetailService(s); setDetailOpen(true); }} className="text-left font-medium text-primary hover:underline">
+                        {s.name}
+                      </button>
+                    </TableCell>
+                    <TableCell>
+                      {s.service_categories && (
+                        <Badge variant="outline" className="gap-1.5">
+                          <span className="h-2 w-2 rounded-full" style={{ backgroundColor: s.service_categories.color }} />
+                          {s.service_categories.name}
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-sm">{getFrequencyLabel(s.frequency_type, s.frequency_preset, s.frequency_days)}</TableCell>
+                    <TableCell className="text-sm tabular-nums">{formatDateBR(s.last_done_at)}</TableCell>
+                    <TableCell className="text-sm tabular-nums">{formatDateBR(s.next_due_at)}</TableCell>
+                    <TableCell className="text-sm">{s.supplier || "—"}</TableCell>
+                    <TableCell>
+                      <span className="flex items-center gap-1.5 text-sm">
+                        {statusIcon(s._status)}
+                        <span className={s._statusInfo.color}>{s._statusInfo.label}</span>
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div>
-                              <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!!isExpired} onClick={() => setCompletionService(s)}>
-                                <RotateCw className="h-4 w-4" />
+                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setDetailService(s); setDetailOpen(true); }}>
+                                <Eye className="h-4 w-4" />
                               </Button>
                             </div>
                           </TooltipTrigger>
-                          <TooltipContent>{isExpired ? "Seu plano expirou. Faça upgrade para continuar." : "Registrar realização"}</TooltipContent>
+                          <TooltipContent>Ver detalhes</TooltipContent>
                         </Tooltip>
-                      )}
-                      {canEdit && (
-                        <>
+                        {!isInactive && canEdit && (
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <div>
-                                <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!!isExpired} onClick={() => openEdit(s)}>
-                                  <Pencil className="h-4 w-4" />
+                                <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!!isExpired} onClick={() => setCompletionService(s)}>
+                                  <RotateCw className="h-4 w-4" />
                                 </Button>
                               </div>
                             </TooltipTrigger>
-                            <TooltipContent>{isExpired ? "Seu plano expirou. Faça upgrade para continuar." : "Editar"}</TooltipContent>
+                            <TooltipContent>{isExpired ? "Seu plano expirou. Faça upgrade para continuar." : "Registrar realização"}</TooltipContent>
                           </Tooltip>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-8 w-8"
-                                  disabled={!!isExpired || toggleStatus.isPending}
-                                  onClick={() => toggleStatus.mutate({ serviceId: s.id, newStatus: isInactive ? "active" : "inactive" })}
-                                >
-                                  {isInactive ? <Power className="h-4 w-4 text-green-600" /> : <PowerOff className="h-4 w-4 text-muted-foreground" />}
-                                </Button>
-                              </div>
-                            </TooltipTrigger>
-                            <TooltipContent>{isInactive ? "Reativar serviço" : "Desativar serviço"}</TooltipContent>
-                          </Tooltip>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" disabled={!!isExpired} onClick={() => setDeleteTarget(s)}>
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </TooltipTrigger>
-                            <TooltipContent>{isExpired ? "Seu plano expirou. Faça upgrade para continuar." : "Excluir"}</TooltipContent>
-                          </Tooltip>
-                        </>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+                        )}
+                        {canEdit && (
+                          <>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!!isExpired} onClick={() => openEdit(s)}>
+                                    <Pencil className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>{isExpired ? "Seu plano expirou. Faça upgrade para continuar." : "Editar"}</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8"
+                                    disabled={!!isExpired || toggleStatus.isPending}
+                                    onClick={() => toggleStatus.mutate({ serviceId: s.id, newStatus: isInactive ? "active" : "inactive" })}
+                                  >
+                                    {isInactive ? <Power className="h-4 w-4 text-green-600" /> : <PowerOff className="h-4 w-4 text-muted-foreground" />}
+                                  </Button>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>{isInactive ? "Reativar serviço" : "Desativar serviço"}</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" disabled={!!isExpired} onClick={() => setDeleteTarget(s)}>
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>{isExpired ? "Seu plano expirou. Faça upgrade para continuar." : "Excluir"}</TooltipContent>
+                            </Tooltip>
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+          <DataTablePagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            pageSize={pagination.pageSize}
+            totalItems={pagination.totalItems}
+            onPageChange={pagination.setCurrentPage}
+            onPageSizeChange={pagination.setPageSize}
+          />
+        </>
       )}
 
       <ServiceDrawer open={drawerOpen} onOpenChange={setDrawerOpen} editingService={editingService} />

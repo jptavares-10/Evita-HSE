@@ -15,6 +15,8 @@ import { ImportEmployeesModal } from "@/components/treinamentos/ImportEmployeesM
 import { usePermission } from "@/hooks/usePermission";
 import { PermissionButton } from "@/components/PermissionButton";
 import { ViewerBadge } from "@/components/ViewerBadge";
+import { useTablePagination } from "@/hooks/useTablePagination";
+import { DataTablePagination } from "@/components/DataTablePagination";
 
 export default function TreinamentosColaboradores() {
   const { company } = useAuth();
@@ -35,8 +37,7 @@ export default function TreinamentosColaboradores() {
   const [editEmployee, setEditEmployee] = useState<any>(null);
   const [detailEmployee, setDetailEmployee] = useState<any>(null);
   const [importOpen, setImportOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
+  
 
   const trainingsMap = useMemo(() => {
     const map = new Map<string, { has_expiry: boolean }>();
@@ -64,12 +65,7 @@ export default function TreinamentosColaboradores() {
     });
   }, [enriched, search, filterPosition, filterStatus, filterConformity]);
 
-  // Reset page when filters change
-  const totalPages = Math.ceil(filtered.length / pageSize);
-  const paged = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-
-  // Reset to page 1 when filters change
-  useMemo(() => { setCurrentPage(1); }, [search, filterPosition, filterStatus, filterConformity]);
+  const pagination = useTablePagination(filtered, { defaultPageSize: 20 });
 
   const downloadTemplate = () => {
     const csv = "Nome,Cargo,Setor\nJoão Silva,Operador,Produção\n";
@@ -147,7 +143,7 @@ export default function TreinamentosColaboradores() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paged.map((emp: any) => (
+                {pagination.paginatedData.map((emp: any) => (
                   <TableRow key={emp.id} className="cursor-pointer hover:bg-muted/50" onClick={() => setDetailEmployee(emp)}>
                     <TableCell className="font-medium">{emp.name}</TableCell>
                     <TableCell>{emp.job_positions?.name || "—"}</TableCell>
@@ -171,16 +167,14 @@ export default function TreinamentosColaboradores() {
               </TableBody>
             </Table>
           </div>
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between pt-2">
-              <p className="text-xs text-muted-foreground">{filtered.length} colaborador{filtered.length !== 1 ? "es" : ""}</p>
-              <div className="flex items-center gap-1">
-                <Button variant="outline" size="sm" disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>Anterior</Button>
-                <span className="text-xs px-2">{currentPage} / {totalPages}</span>
-                <Button variant="outline" size="sm" disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)}>Próxima</Button>
-              </div>
-            </div>
-          )}
+          <DataTablePagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            pageSize={pagination.pageSize}
+            totalItems={pagination.totalItems}
+            onPageChange={pagination.setCurrentPage}
+            onPageSizeChange={pagination.setPageSize}
+          />
         </>
       )}
 

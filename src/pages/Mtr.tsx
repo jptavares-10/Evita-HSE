@@ -20,6 +20,8 @@ import { TableSkeleton } from "@/components/TableSkeleton";
 import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
 import { usePermission } from "@/hooks/usePermission";
 import { ViewerBadge } from "@/components/ViewerBadge";
+import { useTablePagination } from "@/hooks/useTablePagination";
+import { DataTablePagination } from "@/components/DataTablePagination";
 
 export default function Mtr() {
   usePageTitle("Gestão de MTR — Evita HSE");
@@ -61,6 +63,8 @@ export default function Mtr() {
 
     return list;
   }, [mtrs, search, statusFilter, transporterFilter, kpiFilter]);
+
+  const pagination = useTablePagination(filteredMtrs);
 
   function handleNewMtr() {
     setEditMtr(null);
@@ -117,87 +121,97 @@ export default function Mtr() {
           <p className="text-muted-foreground">Nenhum MTR encontrado com os filtros aplicados.</p>
         </div>
       ) : (
-        <div className="bg-card border rounded-lg">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Número</TableHead>
-                <TableHead>Emissão</TableHead>
-                <TableHead>Transportadora</TableHead>
-                <TableHead>Categorias</TableHead>
-                <TableHead>Prazo CDF</TableHead>
-                <TableHead>Dias restantes</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredMtrs.map((mtr: any) => {
-                const statusInfo = getCdfStatusInfo(mtr.cdf_status, mtr.alert_at, mtr.cdf_deadline_at);
-                const daysLabel = getDaysRemainingLabel(mtr.cdf_status, mtr.cdf_deadline_at);
-                return (
-                  <TableRow key={mtr.id}>
-                    <TableCell>
-                      <button onClick={() => setDetailMtr(mtr)} className="text-primary hover:underline font-medium">{mtr.mtr_number}</button>
-                    </TableCell>
-                    <TableCell>{formatDateBR(mtr.issued_at)}</TableCell>
-                    <TableCell>{mtr.transporter || "—"}</TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {(mtr.mtr_waste_items || []).map((wi: any) => (
-                          <Badge key={wi.id} style={{ backgroundColor: wi.waste_categories?.color + "20", color: wi.waste_categories?.color, borderColor: wi.waste_categories?.color }} className="text-[10px]">
-                            {wi.waste_categories?.name}
-                          </Badge>
-                        ))}
-                      </div>
-                    </TableCell>
-                    <TableCell>{formatDateBR(mtr.cdf_deadline_at)}</TableCell>
-                    <TableCell><span className={statusInfo.color + " text-sm font-medium"}>{daysLabel}</span></TableCell>
-                    <TableCell><Badge className={statusInfo.badgeClass + " text-[10px]"}>{statusInfo.label}</Badge></TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-end gap-1">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button onClick={() => setDetailMtr(mtr)} className="p-1.5 rounded hover:bg-muted"><Eye className="h-4 w-4" /></button>
-                          </TooltipTrigger>
-                          <TooltipContent>Ver detalhes</TooltipContent>
-                        </Tooltip>
-                        {canEdit && (
-                          <>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button onClick={() => setCdfMtr(mtr)} disabled={mtr.cdf_status === "received" || isExpired} className="p-1.5 rounded hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed">
-                                  <FileCheck className="h-4 w-4" />
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent>{mtr.cdf_status === "received" ? "CDF já registrado" : isExpired ? "Plano expirado" : "Registrar CDF"}</TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button onClick={() => handleEdit(mtr)} disabled={isExpired} className="p-1.5 rounded hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed">
-                                  <Pencil className="h-4 w-4" />
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent>{isExpired ? "Plano expirado" : "Editar"}</TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button onClick={() => setDeleteMtr(mtr)} disabled={isExpired} className="p-1.5 rounded hover:bg-muted text-destructive disabled:opacity-40 disabled:cursor-not-allowed">
-                                  <Trash2 className="h-4 w-4" />
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent>{isExpired ? "Plano expirado" : "Excluir"}</TooltipContent>
-                            </Tooltip>
-                          </>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+        <>
+          <div className="bg-card border rounded-lg">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Número</TableHead>
+                  <TableHead>Emissão</TableHead>
+                  <TableHead>Transportadora</TableHead>
+                  <TableHead>Categorias</TableHead>
+                  <TableHead>Prazo CDF</TableHead>
+                  <TableHead>Dias restantes</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {pagination.paginatedData.map((mtr: any) => {
+                  const statusInfo = getCdfStatusInfo(mtr.cdf_status, mtr.alert_at, mtr.cdf_deadline_at);
+                  const daysLabel = getDaysRemainingLabel(mtr.cdf_status, mtr.cdf_deadline_at);
+                  return (
+                    <TableRow key={mtr.id}>
+                      <TableCell>
+                        <button onClick={() => setDetailMtr(mtr)} className="text-primary hover:underline font-medium">{mtr.mtr_number}</button>
+                      </TableCell>
+                      <TableCell>{formatDateBR(mtr.issued_at)}</TableCell>
+                      <TableCell>{mtr.transporter || "—"}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {(mtr.mtr_waste_items || []).map((wi: any) => (
+                            <Badge key={wi.id} style={{ backgroundColor: wi.waste_categories?.color + "20", color: wi.waste_categories?.color, borderColor: wi.waste_categories?.color }} className="text-[10px]">
+                              {wi.waste_categories?.name}
+                            </Badge>
+                          ))}
+                        </div>
+                      </TableCell>
+                      <TableCell>{formatDateBR(mtr.cdf_deadline_at)}</TableCell>
+                      <TableCell><span className={statusInfo.color + " text-sm font-medium"}>{daysLabel}</span></TableCell>
+                      <TableCell><Badge className={statusInfo.badgeClass + " text-[10px]"}>{statusInfo.label}</Badge></TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-end gap-1">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button onClick={() => setDetailMtr(mtr)} className="p-1.5 rounded hover:bg-muted"><Eye className="h-4 w-4" /></button>
+                            </TooltipTrigger>
+                            <TooltipContent>Ver detalhes</TooltipContent>
+                          </Tooltip>
+                          {canEdit && (
+                            <>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button onClick={() => setCdfMtr(mtr)} disabled={mtr.cdf_status === "received" || isExpired} className="p-1.5 rounded hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed">
+                                    <FileCheck className="h-4 w-4" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent>{mtr.cdf_status === "received" ? "CDF já registrado" : isExpired ? "Plano expirado" : "Registrar CDF"}</TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button onClick={() => handleEdit(mtr)} disabled={isExpired} className="p-1.5 rounded hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed">
+                                    <Pencil className="h-4 w-4" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent>{isExpired ? "Plano expirado" : "Editar"}</TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button onClick={() => setDeleteMtr(mtr)} disabled={isExpired} className="p-1.5 rounded hover:bg-muted text-destructive disabled:opacity-40 disabled:cursor-not-allowed">
+                                    <Trash2 className="h-4 w-4" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent>{isExpired ? "Plano expirado" : "Excluir"}</TooltipContent>
+                              </Tooltip>
+                            </>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+          <DataTablePagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            pageSize={pagination.pageSize}
+            totalItems={pagination.totalItems}
+            onPageChange={pagination.setCurrentPage}
+            onPageSizeChange={pagination.setPageSize}
+          />
+        </>
       )}
 
       <MtrDrawer open={drawerOpen} onOpenChange={setDrawerOpen} editMtr={editMtr} />

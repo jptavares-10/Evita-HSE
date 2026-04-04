@@ -19,6 +19,8 @@ import { TableSkeleton } from "@/components/TableSkeleton";
 import { usePermission } from "@/hooks/usePermission";
 import { ViewerBadge } from "@/components/ViewerBadge";
 import { PermissionButton } from "@/components/PermissionButton";
+import { useTablePagination } from "@/hooks/useTablePagination";
+import { DataTablePagination } from "@/components/DataTablePagination";
 
 export default function Incidentes() {
   usePageTitle("IC & NC — Evita HSE");
@@ -56,7 +58,8 @@ export default function Incidentes() {
     });
   }, [occurrences, search, typeFilter, severityFilter, statusFilter, dateFrom, dateTo]);
 
-  // Calculate actions per occurrence
+  const pagination = useTablePagination(filtered);
+
   const actionsByOcc = useMemo(() => {
     const map: Record<string, { total: number; completed: number }> = {};
     for (const a of allActions) {
@@ -133,60 +136,70 @@ export default function Incidentes() {
           <p className="text-muted-foreground">Nenhuma ocorrência encontrada com os filtros aplicados.</p>
         </div>
       ) : (
-        <div className="border rounded-lg">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Data/Hora</TableHead>
-                <TableHead>Local</TableHead>
-                <TableHead className="max-w-[200px]">Descrição</TableHead>
-                <TableHead>Gravidade</TableHead>
-                <TableHead>Ações</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((occ: any) => {
-                const ti = getTypeInfo(occ.type);
-                const si = getSeverityInfo(occ.severity);
-                const sti = getStatusInfo(occ.status);
-                const acts = actionsByOcc[occ.id];
-                return (
-                  <TableRow key={occ.id}>
-                    <TableCell><Badge className={ti.color + " text-[10px]"}>{ti.label}</Badge></TableCell>
-                    <TableCell className="text-sm tabular-nums whitespace-nowrap">{formatDateTimeBR(occ.occurred_at)}</TableCell>
-                    <TableCell className="text-sm">{occ.location}</TableCell>
-                    <TableCell className="text-sm max-w-[200px] truncate">{occ.description}</TableCell>
-                    <TableCell><Badge className={si.color + " text-[10px]"}>{si.label}</Badge></TableCell>
-                    <TableCell>
-                      {acts ? (
-                        <div className="flex items-center gap-1.5">
-                          <div className="h-1.5 w-12 bg-muted rounded-full overflow-hidden">
-                            <div className="h-full bg-primary rounded-full" style={{ width: `${(acts.completed / acts.total) * 100}%` }} />
+        <>
+          <div className="border rounded-lg">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead>Data/Hora</TableHead>
+                  <TableHead>Local</TableHead>
+                  <TableHead className="max-w-[200px]">Descrição</TableHead>
+                  <TableHead>Gravidade</TableHead>
+                  <TableHead>Ações</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {pagination.paginatedData.map((occ: any) => {
+                  const ti = getTypeInfo(occ.type);
+                  const si = getSeverityInfo(occ.severity);
+                  const sti = getStatusInfo(occ.status);
+                  const acts = actionsByOcc[occ.id];
+                  return (
+                    <TableRow key={occ.id}>
+                      <TableCell><Badge className={ti.color + " text-[10px]"}>{ti.label}</Badge></TableCell>
+                      <TableCell className="text-sm tabular-nums whitespace-nowrap">{formatDateTimeBR(occ.occurred_at)}</TableCell>
+                      <TableCell className="text-sm">{occ.location}</TableCell>
+                      <TableCell className="text-sm max-w-[200px] truncate">{occ.description}</TableCell>
+                      <TableCell><Badge className={si.color + " text-[10px]"}>{si.label}</Badge></TableCell>
+                      <TableCell>
+                        {acts ? (
+                          <div className="flex items-center gap-1.5">
+                            <div className="h-1.5 w-12 bg-muted rounded-full overflow-hidden">
+                              <div className="h-full bg-primary rounded-full" style={{ width: `${(acts.completed / acts.total) * 100}%` }} />
+                            </div>
+                            <span className="text-xs text-muted-foreground tabular-nums">{acts.completed}/{acts.total}</span>
                           </div>
-                          <span className="text-xs text-muted-foreground tabular-nums">{acts.completed}/{acts.total}</span>
+                        ) : <span className="text-xs text-muted-foreground">—</span>}
+                      </TableCell>
+                      <TableCell><Badge className={sti.color + " text-[10px]"}>{sti.label}</Badge></TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setSelectedOcc(occ); setDetailOpen(true); }}><Eye className="h-3.5 w-3.5" /></Button>
+                          {canEdit && <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setEditingOcc(occ); setDrawerOpen(true); }} disabled={isDisabled}><Pencil className="h-3.5 w-3.5" /></Button>}
+                          {canEdit && occ.status !== "closed" && (
+                            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => closeOcc.mutate(occ.id)} disabled={isDisabled}><XCircle className="h-3.5 w-3.5" /></Button>
+                          )}
+                          {canEdit && <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => { setSelectedOcc(occ); setDeleteOpen(true); }} disabled={isDisabled || occ.status === "closed"}><Trash2 className="h-3.5 w-3.5" /></Button>}
                         </div>
-                      ) : <span className="text-xs text-muted-foreground">—</span>}
-                    </TableCell>
-                    <TableCell><Badge className={sti.color + " text-[10px]"}>{sti.label}</Badge></TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setSelectedOcc(occ); setDetailOpen(true); }}><Eye className="h-3.5 w-3.5" /></Button>
-                        {canEdit && <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setEditingOcc(occ); setDrawerOpen(true); }} disabled={isDisabled}><Pencil className="h-3.5 w-3.5" /></Button>}
-                        {canEdit && occ.status !== "closed" && (
-                          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => closeOcc.mutate(occ.id)} disabled={isDisabled}><XCircle className="h-3.5 w-3.5" /></Button>
-                        )}
-                        {canEdit && <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => { setSelectedOcc(occ); setDeleteOpen(true); }} disabled={isDisabled || occ.status === "closed"}><Trash2 className="h-3.5 w-3.5" /></Button>}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+          <DataTablePagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            pageSize={pagination.pageSize}
+            totalItems={pagination.totalItems}
+            onPageChange={pagination.setCurrentPage}
+            onPageSizeChange={pagination.setPageSize}
+          />
+        </>
       )}
 
       <OccurrenceDrawer open={drawerOpen} onOpenChange={setDrawerOpen} occurrence={editingOcc} planExpired={planExpired} />

@@ -46,7 +46,7 @@ export function ImportEmployeesModal({ open, onOpenChange }: Props) {
       const errors: string[] = [];
 
       for (let i = 1; i < lines.length; i++) {
-        const cols = lines[i].split(",").map((c) => c.trim());
+        const cols = lines[i];
         const name = cols[nameIdx];
         const cargo = cols[cargoIdx];
         const setor = setorIdx >= 0 ? cols[setorIdx] : null;

@@ -12,6 +12,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { ArrowLeft, FolderPlus, Upload, Folder, FolderOpen, ChevronRight, Eye, Download, Trash2, FileText, Copy, Pencil } from "lucide-react";
+import { useTablePagination } from "@/hooks/useTablePagination";
+import { DataTablePagination } from "@/components/DataTablePagination";
 import { formatDateBR, getFileIcon, getFileExtension } from "@/lib/suppliers";
 import { useToast } from "@/hooks/use-toast";
 import { SupplierDrawer } from "@/components/fornecedores/SupplierDrawer";
@@ -56,6 +58,7 @@ export default function FornecedorDocumentos() {
     return documents.filter((d: any) => d.folder_id === selectedFolderId);
   }, [documents, selectedFolderId]);
 
+  const docPagination = useTablePagination(filteredDocs);
   const docCountForFolder = (folderId: string) => {
     const subIds = getSubFolders(folderId).map((f: any) => f.id);
     return documents.filter((d: any) => d.folder_id === folderId || subIds.includes(d.folder_id)).length;
@@ -186,9 +189,17 @@ export default function FornecedorDocumentos() {
             </div>
           ) : (
             <div className="space-y-2">
-              {filteredDocs.map((doc: any) => (
+              {docPagination.paginatedData.map((doc: any) => (
                 <SupplierDocRow key={doc.id} doc={doc} planExpired={planExpired} onDelete={() => setDeleteTarget(doc)} canEdit={canEdit} />
               ))}
+              <DataTablePagination
+                currentPage={docPagination.currentPage}
+                totalPages={docPagination.totalPages}
+                pageSize={docPagination.pageSize}
+                totalItems={docPagination.totalItems}
+                onPageChange={docPagination.setCurrentPage}
+                onPageSizeChange={docPagination.setPageSize}
+              />
             </div>
           )}
         </div>

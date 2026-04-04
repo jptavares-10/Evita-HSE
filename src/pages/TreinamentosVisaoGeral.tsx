@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useTablePagination } from "@/hooks/useTablePagination";
+import { DataTablePagination } from "@/components/DataTablePagination";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertTriangle, CheckCircle2, Download, Upload, ChevronDown, ChevronRight, X, Users, FileText } from "lucide-react";
@@ -386,49 +388,7 @@ export default function TreinamentosVisaoGeral() {
           {trainingPendencies.length === 0 ? (
             <div className="flex items-center gap-2 text-sm text-green-600 py-4"><CheckCircle2 className="h-4 w-4" /> Nenhuma pendência</div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Treinamento</TableHead>
-                  <TableHead className="text-center">Pendências</TableHead>
-                  <TableHead className="text-right">Afetados</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {trainingPendencies.map((t) => {
-                  const posNames = [...t.positions].map((pid) => positions.find((p: any) => p.id === pid)?.name).filter(Boolean);
-                  return (
-                    <TableRow key={t.id}>
-                      <TableCell>
-                        <span className="font-medium text-sm">{t.name}</span>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {posNames.slice(0, 3).map((n) => (
-                            <Badge key={n} variant="outline" className="text-[10px] px-1.5 py-0">{n}</Badge>
-                          ))}
-                          {posNames.length > 3 && <Badge variant="outline" className="text-[10px] px-1.5 py-0">+{posNames.length - 3}</Badge>}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <div className="space-y-0.5">
-                          {t.missing > 0 && <div className="text-[11px] text-muted-foreground">{t.missing} não realizado{t.missing > 1 ? "s" : ""}</div>}
-                          {t.expired > 0 && <div className="text-[11px] text-destructive">{t.expired} vencido{t.expired > 1 ? "s" : ""}</div>}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 text-xs gap-1"
-                          onClick={() => setPendencyModal({ trainingId: t.id, trainingName: t.name })}
-                        >
-                          <Users className="h-3.5 w-3.5" />{t.employeeIds.size}
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+            <TrainingPendenciesTable pendencies={trainingPendencies} positions={positions} onClickTraining={setPendencyModal} />
           )}
         </div>
 
@@ -538,5 +498,64 @@ export default function TreinamentosVisaoGeral() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+function TrainingPendenciesTable({ pendencies, positions, onClickTraining }: { pendencies: any[]; positions: any[]; onClickTraining: (v: { trainingId: string; trainingName: string }) => void }) {
+  const pagination = useTablePagination(pendencies);
+  return (
+    <>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Treinamento</TableHead>
+            <TableHead className="text-center">Pendências</TableHead>
+            <TableHead className="text-right">Afetados</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {pagination.paginatedData.map((t: any) => {
+            const posNames = [...t.positions].map((pid: string) => positions.find((p: any) => p.id === pid)?.name).filter(Boolean);
+            return (
+              <TableRow key={t.id}>
+                <TableCell>
+                  <span className="font-medium text-sm">{t.name}</span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {posNames.slice(0, 3).map((n: string) => (
+                      <Badge key={n} variant="outline" className="text-[10px] px-1.5 py-0">{n}</Badge>
+                    ))}
+                    {posNames.length > 3 && <Badge variant="outline" className="text-[10px] px-1.5 py-0">+{posNames.length - 3}</Badge>}
+                  </div>
+                </TableCell>
+                <TableCell className="text-center">
+                  <div className="space-y-0.5">
+                    {t.missing > 0 && <div className="text-[11px] text-muted-foreground">{t.missing} não realizado{t.missing > 1 ? "s" : ""}</div>}
+                    {t.expired > 0 && <div className="text-[11px] text-destructive">{t.expired} vencido{t.expired > 1 ? "s" : ""}</div>}
+                  </div>
+                </TableCell>
+                <TableCell className="text-right">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-xs gap-1"
+                    onClick={() => onClickTraining({ trainingId: t.id, trainingName: t.name })}
+                  >
+                    <Users className="h-3.5 w-3.5" />{t.employeeIds.size}
+                  </Button>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+      <DataTablePagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        pageSize={pagination.pageSize}
+        totalItems={pagination.totalItems}
+        onPageChange={pagination.setCurrentPage}
+        onPageSizeChange={pagination.setPageSize}
+      />
+    </>
   );
 }

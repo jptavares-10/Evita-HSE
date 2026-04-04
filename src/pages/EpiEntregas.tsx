@@ -11,6 +11,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, HandMetal } from "lucide-react";
 import { TableSkeleton } from "@/components/TableSkeleton";
+import { useTablePagination } from "@/hooks/useTablePagination";
+import { DataTablePagination } from "@/components/DataTablePagination";
 
 export default function EpiEntregas() {
   const { data: deliveries = [], isLoading } = useEpiDeliveries();
@@ -27,6 +29,8 @@ export default function EpiEntregas() {
       d.reason?.toLowerCase().includes(s)
     );
   }, [deliveries, search]);
+
+  const pagination = useTablePagination(filtered);
 
   return (
     <div className="space-y-4">
@@ -65,7 +69,7 @@ export default function EpiEntregas() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((d: any) => (
+              {pagination.paginatedData.map((d: any) => (
                 <TableRow key={d.id}>
                   <TableCell>{formatDateBR(d.delivered_at)}</TableCell>
                   <TableCell className="font-medium">{d.employees?.name || "—"}</TableCell>
@@ -78,6 +82,14 @@ export default function EpiEntregas() {
               ))}
             </TableBody>
           </Table>
+          <DataTablePagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            pageSize={pagination.pageSize}
+            totalItems={pagination.totalItems}
+            onPageChange={pagination.setCurrentPage}
+            onPageSizeChange={pagination.setPageSize}
+          />
         </Card>
       )}
 

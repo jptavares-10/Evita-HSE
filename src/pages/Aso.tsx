@@ -18,7 +18,8 @@ import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding"
 import { useNavigate } from "react-router-dom";
 import { usePermission } from "@/hooks/usePermission";
 import { ViewerBadge } from "@/components/ViewerBadge";
-
+import { useTablePagination } from "@/hooks/useTablePagination";
+import { DataTablePagination } from "@/components/DataTablePagination";
 export default function Aso() {
   const navigate = useNavigate();
   usePageTitle("ASO — Evita HSE");
@@ -35,8 +36,6 @@ export default function Aso() {
   const [typesOpen, setTypesOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
 
   // For each active employee, compute latest ASO status
   const employeeAsoMap = useMemo(() => {
@@ -86,11 +85,7 @@ export default function Aso() {
     });
   }, [enrichedEmployees, search, filterStatus]);
 
-  const totalPages = Math.ceil(filtered.length / pageSize);
-  const paged = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-
-  // Reset page on filter change
-  useMemo(() => { setCurrentPage(1); }, [search, filterStatus]);
+  const pagination = useTablePagination(filtered);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -187,10 +182,10 @@ export default function Aso() {
                   ))}
                 </TableRow>
               ))
-            ) : paged.length === 0 ? (
+            ) : pagination.paginatedData.length === 0 ? (
               <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Nenhum colaborador encontrado.</TableCell></TableRow>
             ) : (
-              paged.map((emp: any) => (
+              pagination.paginatedData.map((emp: any) => (
                 <TableRow key={emp.id}>
                   <TableCell className="font-medium">{emp.name}</TableCell>
                   <TableCell>{emp.job_positions?.name || "—"}</TableCell>
@@ -212,16 +207,14 @@ export default function Aso() {
         </Table>
       </div>
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-xs text-muted-foreground">{filtered.length} colaborador{filtered.length !== 1 ? "es" : ""}</p>
-          <div className="flex items-center gap-1">
-            <Button variant="outline" size="sm" disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>Anterior</Button>
-            <span className="text-xs px-2">{currentPage} / {totalPages}</span>
-            <Button variant="outline" size="sm" disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)}>Próxima</Button>
-          </div>
-        </div>
-      )}
+      <DataTablePagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        pageSize={pagination.pageSize}
+        totalItems={pagination.totalItems}
+        onPageChange={pagination.setCurrentPage}
+        onPageSizeChange={pagination.setPageSize}
+      />
 
       <AsoDrawer open={drawerOpen} onOpenChange={setDrawerOpen} editRecord={editRecord} preselectedEmployeeId={selectedEmployee?.id} />
       <ManageExamTypesModal open={typesOpen} onOpenChange={setTypesOpen} />

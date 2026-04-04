@@ -4,6 +4,8 @@ import { formatTons } from "@/lib/mtr";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useTablePagination } from "@/hooks/useTablePagination";
+import { DataTablePagination } from "@/components/DataTablePagination";
 import { ArrowLeft, TrendingUp, BarChart3, Layers, FileWarning } from "lucide-react";
 import { Link } from "react-router-dom";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, Legend, ResponsiveContainer } from "recharts";
@@ -137,31 +139,48 @@ export default function MtrAnalise() {
           {/* Category table */}
           <div className="bg-card border rounded-lg">
             <div className="p-4 border-b"><h3 className="text-sm font-semibold">Resumo por Categoria</h3></div>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Categoria</TableHead>
-                  <TableHead className="text-right">Total (ton)</TableHead>
-                  <TableHead className="text-right">% do total</TableHead>
-                  <TableHead className="text-right">Média mensal (ton)</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {catBreakdown.filter((c) => c.total > 0).map((cat) => (
-                  <TableRow key={cat.name}>
-                    <TableCell>
-                      <Badge style={{ backgroundColor: cat.color + "20", color: cat.color, borderColor: cat.color }} className="text-xs">{cat.name}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums">{formatTons(cat.total)}</TableCell>
-                    <TableCell className="text-right tabular-nums">{totalTons > 0 ? ((cat.total / totalTons) * 100).toFixed(1) : 0}%</TableCell>
-                    <TableCell className="text-right tabular-nums">{months.length > 0 ? formatTons(cat.total / months.length) : "—"}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <CatBreakdownTable data={catBreakdown.filter((c) => c.total > 0)} totalTons={totalTons} months={months} />
           </div>
         </>
       )}
     </div>
+  );
+}
+
+function CatBreakdownTable({ data, totalTons, months }: { data: { name: string; color: string; total: number }[]; totalTons: number; months: any[] }) {
+  const pagination = useTablePagination(data);
+  return (
+    <>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Categoria</TableHead>
+            <TableHead className="text-right">Total (ton)</TableHead>
+            <TableHead className="text-right">% do total</TableHead>
+            <TableHead className="text-right">Média mensal (ton)</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {pagination.paginatedData.map((cat) => (
+            <TableRow key={cat.name}>
+              <TableCell>
+                <Badge style={{ backgroundColor: cat.color + "20", color: cat.color, borderColor: cat.color }} className="text-xs">{cat.name}</Badge>
+              </TableCell>
+              <TableCell className="text-right tabular-nums">{formatTons(cat.total)}</TableCell>
+              <TableCell className="text-right tabular-nums">{totalTons > 0 ? ((cat.total / totalTons) * 100).toFixed(1) : 0}%</TableCell>
+              <TableCell className="text-right tabular-nums">{months.length > 0 ? formatTons(cat.total / months.length) : "—"}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <DataTablePagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        pageSize={pagination.pageSize}
+        totalItems={pagination.totalItems}
+        onPageChange={pagination.setCurrentPage}
+        onPageSizeChange={pagination.setPageSize}
+      />
+    </>
   );
 }

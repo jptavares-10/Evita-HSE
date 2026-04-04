@@ -45,7 +45,7 @@ export function ImportMatrixModal({ open, onOpenChange }: Props) {
       const errors: string[] = [];
 
       for (let i = 1; i < lines.length; i++) {
-        const cols = lines[i].split(",").map((c) => c.trim());
+        const cols = lines[i];
         const cargo = cols[cargoIdx];
         const trein = cols[treinIdx];
         if (!cargo || !trein) { errors.push(`Linha ${i + 1}: vazio`); continue; }

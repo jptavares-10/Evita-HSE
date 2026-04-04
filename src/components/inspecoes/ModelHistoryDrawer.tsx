@@ -34,6 +34,8 @@ export function ModelHistoryDrawer({ open, onOpenChange, model }: Props) {
 
   const rate = modelExecutions.length > 0 ? Math.round((completedOnTime / modelExecutions.length) * 100) : 0;
 
+  const pagination = useTablePagination(modelExecutions);
+
   if (!model) return null;
 
   return (

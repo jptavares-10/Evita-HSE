@@ -62,6 +62,8 @@ export default function InspecoesModelos() {
     return result;
   }, [models, search, statusFilter]);
 
+  const pagination = useTablePagination(filtered);
+
   const handleToggleStatus = async (model: any) => {
     const newStatus = model.status === "active" ? "inactive" : "active";
     await saveModel.mutateAsync({ id: model.id, name: model.name, frequency_type: model.frequency_type, status: newStatus });

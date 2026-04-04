@@ -85,11 +85,7 @@ export default function Aso() {
     });
   }, [enrichedEmployees, search, filterStatus]);
 
-  const totalPages = Math.ceil(filtered.length / pageSize);
-  const paged = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-
-  // Reset page on filter change
-  useMemo(() => { setCurrentPage(1); }, [search, filterStatus]);
+  const pagination = useTablePagination(filtered);
 
   const getStatusBadge = (status: string) => {
     switch (status) {

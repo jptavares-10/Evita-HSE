@@ -126,7 +126,7 @@ export default function InspecoesModelos() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((m: any) => (
+              {pagination.paginatedData.map((m: any) => (
                 <TableRow key={m.id}>
                   <TableCell className="font-medium">{m.name}</TableCell>
                   <TableCell className="text-sm">{m.sectors?.name || "—"}</TableCell>
@@ -173,6 +173,15 @@ export default function InspecoesModelos() {
             </TableBody>
           </Table>
         </div>
+        <DataTablePagination
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          pageSize={pagination.pageSize}
+          totalItems={pagination.totalItems}
+          onPageChange={pagination.setCurrentPage}
+          onPageSizeChange={pagination.setPageSize}
+        />
+      </>
       )}
 
       <InspectionModelDrawer open={drawerOpen} onOpenChange={setDrawerOpen} editing={editing} employees={employees} sectors={sectors} />

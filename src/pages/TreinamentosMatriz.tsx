@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Upload, Download, LayoutGrid } from "lucide-react";
 import { ImportMatrixModal } from "@/components/treinamentos/ImportMatrixModal";
 import { usePermission } from "@/hooks/usePermission";
+import { downloadXlsx } from "@/lib/xlsx-utils";
 
 export default function TreinamentosMatriz() {
   const { company } = useAuth();
@@ -26,12 +27,10 @@ export default function TreinamentosMatriz() {
   };
 
   const downloadTemplate = () => {
-    const csv = "Cargo,Treinamento\nOperador,NR-35\n";
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = "modelo_matriz.csv"; a.click();
-    URL.revokeObjectURL(url);
+    downloadXlsx(
+      [["Cargo", "Treinamento"], ["Operador", "NR-35"]],
+      "modelo_matriz.xlsx"
+    );
   };
 
   if (positions.length === 0 || trainings.length === 0) {
@@ -46,7 +45,7 @@ export default function TreinamentosMatriz() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3 justify-end">
-        <Button variant="outline" size="sm" onClick={downloadTemplate}><Download className="h-4 w-4 mr-1" />Modelo CSV</Button>
+        <Button variant="outline" size="sm" onClick={downloadTemplate}><Download className="h-4 w-4 mr-1" />Modelo XLSX</Button>
         {isDisabled ? (
           <Tooltip><TooltipTrigger asChild><span><Button variant="outline" size="sm" disabled><Upload className="h-4 w-4 mr-1" />Importar</Button></span></TooltipTrigger>
           <TooltipContent>{!canEdit ? "Somente leitura" : "Plano expirado"}</TooltipContent></Tooltip>

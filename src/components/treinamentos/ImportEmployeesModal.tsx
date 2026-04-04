@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { parseXlsx } from "@/lib/xlsx-utils";
 
 interface Props {
   open: boolean;
@@ -26,11 +27,10 @@ export function ImportEmployeesModal({ open, onOpenChange }: Props) {
     setResult(null);
 
     try {
-      const text = await file.text();
-      const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
+      const lines = await parseXlsx(file);
       if (lines.length < 2) { setResult("Arquivo vazio ou sem dados."); setImporting(false); return; }
 
-      const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
+      const header = lines[0].map((h) => h.toLowerCase());
       const nameIdx = header.findIndex((h) => h.includes("nome"));
       const cargoIdx = header.findIndex((h) => h.includes("cargo"));
       const setorIdx = header.findIndex((h) => h.includes("setor"));
@@ -46,7 +46,7 @@ export function ImportEmployeesModal({ open, onOpenChange }: Props) {
       const errors: string[] = [];
 
       for (let i = 1; i < lines.length; i++) {
-        const cols = lines[i].split(",").map((c) => c.trim());
+        const cols = lines[i];
         const name = cols[nameIdx];
         const cargo = cols[cargoIdx];
         const setor = setorIdx >= 0 ? cols[setorIdx] : null;
@@ -88,7 +88,7 @@ export function ImportEmployeesModal({ open, onOpenChange }: Props) {
         <DialogHeader><DialogTitle>Importar colaboradores (CSV)</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <p className="text-sm text-muted-foreground">O arquivo deve conter as colunas: Nome, Cargo, Setor (opcional)</p>
-          <Input type="file" accept=".csv" onChange={(e) => { setFile(e.target.files?.[0] || null); setResult(null); }} />
+          <Input type="file" accept=".xlsx,.xls" onChange={(e) => { setFile(e.target.files?.[0] || null); setResult(null); }} />
           {result && <pre className="text-xs bg-muted p-3 rounded max-h-40 overflow-auto whitespace-pre-wrap">{result}</pre>}
         </div>
         <DialogFooter>

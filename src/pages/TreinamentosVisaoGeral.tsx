@@ -20,6 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { downloadXlsx, parseXlsx } from "@/lib/xlsx-utils";
 
 export default function TreinamentosVisaoGeral() {
   const { company, profile } = useAuth();
@@ -219,23 +220,16 @@ export default function TreinamentosVisaoGeral() {
       }
     }
     if (rows.length <= 1) { toast({ title: "Nenhuma pendência para exportar" }); return; }
-    const csv = rows.map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
     const today = format(new Date(), "dd-MM-yyyy");
-    a.href = url; a.download = `pendencias_treinamentos_${today}.csv`; a.click();
-    URL.revokeObjectURL(url);
+    downloadXlsx(rows, `pendencias_treinamentos_${today}.xlsx`);
     toast({ title: `${rows.length - 1} pendências exportadas` });
   };
 
   const downloadImportTemplate = () => {
-    const csv = "Nome do colaborador,Cargo,Treinamento,Data de realização,Data de vencimento\nJoão Silva,Operador,NR-35,15/03/2026,15/03/2028\n";
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = "modelo_atualizacao_treinamentos.csv"; a.click();
-    URL.revokeObjectURL(url);
+    downloadXlsx(
+      [["Nome do colaborador", "Cargo", "Treinamento", "Data de realização", "Data de vencimento"], ["João Silva", "Operador", "NR-35", "15/03/2026", "15/03/2028"]],
+      "modelo_atualizacao_treinamentos.xlsx"
+    );
   };
 
   const handleImport = async () => {
@@ -243,10 +237,9 @@ export default function TreinamentosVisaoGeral() {
     setImporting(true);
     setImportResult(null);
     try {
-      const text = await importFile.text();
-      const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
+      const lines = await parseXlsx(importFile);
       if (lines.length < 2) { setImportResult("Arquivo vazio ou sem dados."); setImporting(false); return; }
-      const header = lines[0].split(",").map((h) => h.trim().replace(/^"/, "").replace(/"$/, "").toLowerCase());
+      const header = lines[0].map((h) => h.toLowerCase());
       const nameIdx = header.findIndex((h) => h.includes("nome"));
       const cargoIdx = header.findIndex((h) => h.includes("cargo"));
       const treinIdx = header.findIndex((h) => h.includes("treinamento"));
@@ -258,7 +251,7 @@ export default function TreinamentosVisaoGeral() {
       let imported = 0;
       const errors: string[] = [];
       for (let i = 1; i < lines.length; i++) {
-        const cols = lines[i].split(",").map((c) => c.trim().replace(/^"/, "").replace(/"$/, ""));
+        const cols = lines[i];
         const empName = cols[nameIdx];
         const cargoName = cols[cargoIdx];
         const treinName = cols[treinIdx];
@@ -488,7 +481,7 @@ export default function TreinamentosVisaoGeral() {
             <Button variant="outline" size="sm" onClick={downloadImportTemplate}>
               <Download className="h-4 w-4 mr-1" />Baixar modelo
             </Button>
-            <Input type="file" accept=".csv" onChange={(e) => { setImportFile(e.target.files?.[0] || null); setImportResult(null); }} />
+            <Input type="file" accept=".xlsx,.xls" onChange={(e) => { setImportFile(e.target.files?.[0] || null); setImportResult(null); }} />
             {importResult && <pre className="text-xs bg-muted p-3 rounded max-h-40 overflow-auto whitespace-pre-wrap">{importResult}</pre>}
           </div>
           <div className="flex justify-end gap-2 mt-2">

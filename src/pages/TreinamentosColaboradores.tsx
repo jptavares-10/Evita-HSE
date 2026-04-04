@@ -13,6 +13,7 @@ import { EmployeeDrawer } from "@/components/treinamentos/EmployeeDrawer";
 import { EmployeeDetailDrawer } from "@/components/treinamentos/EmployeeDetailDrawer";
 import { ImportEmployeesModal } from "@/components/treinamentos/ImportEmployeesModal";
 import { usePermission } from "@/hooks/usePermission";
+import { downloadXlsx } from "@/lib/xlsx-utils";
 import { PermissionButton } from "@/components/PermissionButton";
 import { ViewerBadge } from "@/components/ViewerBadge";
 import { useTablePagination } from "@/hooks/useTablePagination";
@@ -68,12 +69,10 @@ export default function TreinamentosColaboradores() {
   const pagination = useTablePagination(filtered, { defaultPageSize: 20 });
 
   const downloadTemplate = () => {
-    const csv = "Nome,Cargo,Setor\nJoão Silva,Operador,Produção\n";
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = "modelo_colaboradores.csv"; a.click();
-    URL.revokeObjectURL(url);
+    downloadXlsx(
+      [["Nome", "Cargo", "Setor"], ["João Silva", "Operador", "Produção"]],
+      "modelo_colaboradores.xlsx"
+    );
   };
 
   const ActionButton = ({ children, onClick, ...props }: any) => {
@@ -118,7 +117,7 @@ export default function TreinamentosColaboradores() {
             <SelectItem value="pending">Com pendências</SelectItem>
           </SelectContent>
         </Select>
-        <Button variant="outline" size="sm" onClick={downloadTemplate}><Download className="h-4 w-4 mr-1" />Modelo CSV</Button>
+        <Button variant="outline" size="sm" onClick={downloadTemplate}><Download className="h-4 w-4 mr-1" />Modelo XLSX</Button>
         <ActionButton variant="outline" size="sm" onClick={() => setImportOpen(true)}><Upload className="h-4 w-4 mr-1" />Importar</ActionButton>
         <ActionButton onClick={() => { setEditEmployee(null); setDrawerOpen(true); }}><Plus className="h-4 w-4 mr-1" />Novo colaborador</ActionButton>
       </div>

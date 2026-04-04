@@ -12,6 +12,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { ArrowLeft, FolderPlus, Upload, Folder, FolderOpen, ChevronRight, Eye, Download, Trash2, FileText, Copy, Pencil } from "lucide-react";
+import { useTablePagination } from "@/hooks/useTablePagination";
+import { DataTablePagination } from "@/components/DataTablePagination";
 import { formatDateBR, getFileIcon, getFileExtension } from "@/lib/suppliers";
 import { useToast } from "@/hooks/use-toast";
 import { SupplierDrawer } from "@/components/fornecedores/SupplierDrawer";

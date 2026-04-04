@@ -55,7 +55,7 @@ export function ModelHistoryDrawer({ open, onOpenChange, model }: Props) {
             <>
               <div className="relative pl-6 space-y-3">
                 <div className="absolute left-[9px] top-2 bottom-2 w-px bg-border" />
-                {modelExecutions.map((exec: any) => {
+                {pagination.paginatedData.map((exec: any) => {
                   const displayStatus = getExecutionDisplayStatus(exec.status, exec.due_date);
                   const cfg = STATUS_CONFIG[displayStatus];
                   return (
@@ -77,6 +77,15 @@ export function ModelHistoryDrawer({ open, onOpenChange, model }: Props) {
                   );
                 })}
               </div>
+
+              <DataTablePagination
+                currentPage={pagination.currentPage}
+                totalPages={pagination.totalPages}
+                pageSize={pagination.pageSize}
+                totalItems={pagination.totalItems}
+                onPageChange={pagination.setCurrentPage}
+                onPageSizeChange={pagination.setPageSize}
+              />
 
               <div className="border-t pt-4 space-y-1">
                 <p className="text-xs text-muted-foreground">Total de execuções: <strong>{modelExecutions.length}</strong></p>

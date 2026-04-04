@@ -50,6 +50,8 @@ export default function TreinamentosCatalogo() {
     return enriched.filter((t: any) => t.name.toLowerCase().includes(search.toLowerCase()));
   }, [enriched, search]);
 
+  const pagination = useTablePagination(filtered);
+
   const ActionButton = ({ children, onClick, ...props }: any) => {
     if (isDisabled) {
       return (

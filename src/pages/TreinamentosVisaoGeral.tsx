@@ -480,7 +480,7 @@ export default function TreinamentosVisaoGeral() {
             <Button variant="outline" size="sm" onClick={downloadImportTemplate}>
               <Download className="h-4 w-4 mr-1" />Baixar modelo
             </Button>
-            <Input type="file" accept=".csv" onChange={(e) => { setImportFile(e.target.files?.[0] || null); setImportResult(null); }} />
+            <Input type="file" accept=".xlsx,.xls" onChange={(e) => { setImportFile(e.target.files?.[0] || null); setImportResult(null); }} />
             {importResult && <pre className="text-xs bg-muted p-3 rounded max-h-40 overflow-auto whitespace-pre-wrap">{importResult}</pre>}
           </div>
           <div className="flex justify-end gap-2 mt-2">

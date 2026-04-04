@@ -116,7 +116,7 @@ export default function TreinamentosColaboradores() {
             <SelectItem value="pending">Com pendências</SelectItem>
           </SelectContent>
         </Select>
-        <Button variant="outline" size="sm" onClick={downloadTemplate}><Download className="h-4 w-4 mr-1" />Modelo CSV</Button>
+        <Button variant="outline" size="sm" onClick={downloadTemplate}><Download className="h-4 w-4 mr-1" />Modelo XLSX</Button>
         <ActionButton variant="outline" size="sm" onClick={() => setImportOpen(true)}><Upload className="h-4 w-4 mr-1" />Importar</ActionButton>
         <ActionButton onClick={() => { setEditEmployee(null); setDrawerOpen(true); }}><Plus className="h-4 w-4 mr-1" />Novo colaborador</ActionButton>
       </div>

@@ -68,6 +68,7 @@ export default function EpiEntregas() {
                 <TableHead>Motivo</TableHead>
                 <TableHead>Observações</TableHead>
                 <TableHead>Registrado por</TableHead>
+                <TableHead className="text-center">Comprovante</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

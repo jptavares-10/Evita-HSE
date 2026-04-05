@@ -789,6 +789,8 @@ export type Database = {
       }
       epi_deliveries: {
         Row: {
+          attachment_name: string | null
+          attachment_url: string | null
           company_id: string
           created_at: string
           delivered_at: string
@@ -802,6 +804,8 @@ export type Database = {
           returned_at: string | null
         }
         Insert: {
+          attachment_name?: string | null
+          attachment_url?: string | null
           company_id: string
           created_at?: string
           delivered_at: string
@@ -815,6 +819,8 @@ export type Database = {
           returned_at?: string | null
         }
         Update: {
+          attachment_name?: string | null
+          attachment_url?: string | null
           company_id?: string
           created_at?: string
           delivered_at?: string

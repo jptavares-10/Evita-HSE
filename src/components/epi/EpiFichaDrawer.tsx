@@ -70,7 +70,7 @@ export function EpiFichaDrawer({ employeeId, onClose }: Props) {
           <SheetHeader className="p-6 pb-0">
             <SheetTitle className="text-xl">{employee?.name || "Colaborador"}</SheetTitle>
             <div className="text-sm text-muted-foreground">
-              {employee?.job_positions?.name || "—"} • {employee?.sectors?.name || employee?.sector || "—"}
+              {employee?.job_positions?.name || "—"} • {employee?.sector || "—"}
             </div>
             <div className="flex items-center gap-2 mt-2">
               <Badge variant="secondary">{totalEpis} EPIs entregues</Badge>

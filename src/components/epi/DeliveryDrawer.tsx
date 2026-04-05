@@ -12,6 +12,7 @@ interface Props {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   defaultEpiTypeId?: string;
+  defaultEmployeeId?: string;
 }
 
 export function DeliveryDrawer({ open, onOpenChange, defaultEpiTypeId }: Props) {

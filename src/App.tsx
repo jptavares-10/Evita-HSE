@@ -41,6 +41,7 @@ import EpiVisaoGeral from "./pages/EpiVisaoGeral";
 import EpiCatalogo from "./pages/EpiCatalogo";
 import EpiEstoque from "./pages/EpiEstoque";
 import EpiEntregas from "./pages/EpiEntregas";
+import EpiFicha from "./pages/EpiFicha";
 import Aso from "./pages/Aso";
 import Inspecoes from "./pages/Inspecoes";
 import InspecoesExecucoes from "./pages/InspecoesExecucoes";
@@ -99,6 +100,7 @@ const App = () => (
                 <Route path="catalogo" element={<EpiCatalogo />} />
                 <Route path="estoque" element={<EpiEstoque />} />
                 <Route path="entregas" element={<EpiEntregas />} />
+                <Route path="ficha" element={<EpiFicha />} />
               </Route>
             </Route>
 

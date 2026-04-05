@@ -15,7 +15,7 @@ interface Props {
   defaultEmployeeId?: string;
 }
 
-export function DeliveryDrawer({ open, onOpenChange, defaultEpiTypeId }: Props) {
+export function DeliveryDrawer({ open, onOpenChange, defaultEpiTypeId, defaultEmployeeId }: Props) {
   const { data: epiTypes = [] } = useEpiTypes();
   const { data: employees = [] } = useEmployees();
   const save = useSaveDelivery();
@@ -32,13 +32,13 @@ export function DeliveryDrawer({ open, onOpenChange, defaultEpiTypeId }: Props) 
   useEffect(() => {
     if (open) {
       setEpiTypeId(defaultEpiTypeId || "");
-      setEmployeeId("");
+      setEmployeeId(defaultEmployeeId || "");
       setDeliveredAt(new Date().toISOString().split("T")[0]);
       setQuantity("1");
       setReason("");
       setNotes("");
     }
-  }, [open, defaultEpiTypeId]);
+  }, [open, defaultEpiTypeId, defaultEmployeeId]);
 
   const handleSubmit = () => {
     if (!epiTypeId || !employeeId) return;

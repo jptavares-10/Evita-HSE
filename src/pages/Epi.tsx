@@ -7,6 +7,7 @@ const tabs = [
   { label: "Catálogo", to: "/epi/catalogo" },
   { label: "Estoque", to: "/epi/estoque" },
   { label: "Entregas", to: "/epi/entregas" },
+  { label: "Ficha de EPI", to: "/epi/ficha" },
 ];
 
 export default function Epi() {

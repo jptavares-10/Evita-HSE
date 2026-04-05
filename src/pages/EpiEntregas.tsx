@@ -4,12 +4,13 @@ import { usePermission } from "@/hooks/usePermission";
 import { ViewerBadge } from "@/components/ViewerBadge";
 import { PermissionButton } from "@/components/PermissionButton";
 import { DeliveryDrawer } from "@/components/epi/DeliveryDrawer";
+import { AddAttachmentModal } from "@/components/epi/AddAttachmentModal";
 import { formatDateBR } from "@/lib/epi";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, HandMetal } from "lucide-react";
+import { Plus, Search, HandMetal, FileImage, ImageIcon } from "lucide-react";
 import { TableSkeleton } from "@/components/TableSkeleton";
 import { useTablePagination } from "@/hooks/useTablePagination";
 import { DataTablePagination } from "@/components/DataTablePagination";
@@ -19,6 +20,7 @@ export default function EpiEntregas() {
   const { canEdit } = usePermission("epi");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [attachModalDeliveryId, setAttachModalDeliveryId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return deliveries;
@@ -66,6 +68,7 @@ export default function EpiEntregas() {
                 <TableHead>Motivo</TableHead>
                 <TableHead>Observações</TableHead>
                 <TableHead>Registrado por</TableHead>
+                <TableHead className="text-center">Comprovante</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -78,6 +81,20 @@ export default function EpiEntregas() {
                   <TableCell className="text-sm text-muted-foreground">{d.reason || "—"}</TableCell>
                   <TableCell className="text-sm text-muted-foreground max-w-[150px] truncate">{d.notes || "—"}</TableCell>
                   <TableCell className="text-sm">{d.profiles?.full_name || "—"}</TableCell>
+                  <TableCell className="text-center">
+                    {d.attachment_url ? (
+                      <ImageIcon className="h-4 w-4 mx-auto text-green-600" />
+                    ) : canEdit ? (
+                      <button
+                        onClick={() => setAttachModalDeliveryId(d.id)}
+                        className="text-xs text-primary hover:underline inline-flex items-center gap-1"
+                      >
+                        <FileImage className="h-3 w-3" />Adicionar
+                      </button>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -94,6 +111,7 @@ export default function EpiEntregas() {
       )}
 
       <DeliveryDrawer open={drawerOpen} onOpenChange={setDrawerOpen} />
+      <AddAttachmentModal deliveryId={attachModalDeliveryId} onClose={() => setAttachModalDeliveryId(null)} />
     </div>
   );
 }

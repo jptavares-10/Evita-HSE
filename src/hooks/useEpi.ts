@@ -187,6 +187,7 @@ export function useSaveDelivery() {
       quantity: number;
       reason?: string | null;
       notes?: string | null;
+      attachment_file?: File;
     }) => {
       if (!company || !profile) throw new Error("Sem empresa");
 
@@ -203,7 +204,20 @@ export function useSaveDelivery() {
       }).select("id").single();
       if (delErr) throw delErr;
 
-      // 2. Auto-create stock exit
+      // 2. Upload attachment if provided
+      if (v.attachment_file) {
+        const ext = v.attachment_file.name.split(".").pop() || "jpg";
+        const path = `${company.id}/${delivery.id}/comprovante.${ext}`;
+        const { error: upErr } = await supabase.storage.from("epi-files").upload(path, v.attachment_file, { upsert: true });
+        if (!upErr) {
+          await supabase.from("epi_deliveries").update({
+            attachment_url: path,
+            attachment_name: v.attachment_file.name,
+          }).eq("id", delivery.id);
+        }
+      }
+
+      // 3. Auto-create stock exit
       const { error: movErr } = await supabase.from("epi_stock_movements").insert({
         company_id: company.id,
         epi_type_id: v.epi_type_id,
@@ -220,6 +234,7 @@ export function useSaveDelivery() {
       qc.invalidateQueries({ queryKey: ["epi-deliveries"] });
       qc.invalidateQueries({ queryKey: ["epi-stock-movements"] });
       qc.invalidateQueries({ queryKey: ["epi-stock"] });
+      qc.invalidateQueries({ queryKey: ["epi-employee-deliveries"] });
       toast({ title: "Entrega registrada" });
     },
     onError: () => { toast({ title: "Erro ao registrar entrega", variant: "destructive" }); },

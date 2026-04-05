@@ -81,6 +81,20 @@ export default function EpiEntregas() {
                   <TableCell className="text-sm text-muted-foreground">{d.reason || "—"}</TableCell>
                   <TableCell className="text-sm text-muted-foreground max-w-[150px] truncate">{d.notes || "—"}</TableCell>
                   <TableCell className="text-sm">{d.profiles?.full_name || "—"}</TableCell>
+                  <TableCell className="text-center">
+                    {d.attachment_url ? (
+                      <ImageIcon className="h-4 w-4 mx-auto text-green-600" />
+                    ) : canEdit ? (
+                      <button
+                        onClick={() => setAttachModalDeliveryId(d.id)}
+                        className="text-xs text-primary hover:underline inline-flex items-center gap-1"
+                      >
+                        <FileImage className="h-3 w-3" />Adicionar
+                      </button>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useEpiTypes, useSaveDelivery } from "@/hooks/useEpi";
 import { useEmployees } from "@/hooks/useTrainings";
+import { Upload, X } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -19,6 +20,7 @@ export function DeliveryDrawer({ open, onOpenChange, defaultEpiTypeId, defaultEm
   const { data: epiTypes = [] } = useEpiTypes();
   const { data: employees = [] } = useEmployees();
   const save = useSaveDelivery();
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const activeEmployees = employees.filter((e: any) => e.status === "active");
 
@@ -28,6 +30,8 @@ export function DeliveryDrawer({ open, onOpenChange, defaultEpiTypeId, defaultEm
   const [quantity, setQuantity] = useState("1");
   const [reason, setReason] = useState("");
   const [notes, setNotes] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -37,8 +41,19 @@ export function DeliveryDrawer({ open, onOpenChange, defaultEpiTypeId, defaultEm
       setQuantity("1");
       setReason("");
       setNotes("");
+      setFile(null);
+      setPreview(null);
     }
   }, [open, defaultEpiTypeId, defaultEmployeeId]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    if (f.size > 5 * 1024 * 1024) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(f.type)) return;
+    setFile(f);
+    setPreview(URL.createObjectURL(f));
+  };
 
   const handleSubmit = () => {
     if (!epiTypeId || !employeeId) return;
@@ -49,6 +64,7 @@ export function DeliveryDrawer({ open, onOpenChange, defaultEpiTypeId, defaultEm
       quantity: parseInt(quantity) || 1,
       reason: reason.trim() || null,
       notes: notes.trim() || null,
+      attachment_file: file || undefined,
     }, { onSuccess: () => onOpenChange(false) });
   };
 
@@ -94,6 +110,33 @@ export function DeliveryDrawer({ open, onOpenChange, defaultEpiTypeId, defaultEm
           <div>
             <Label>Observações</Label>
             <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
+          </div>
+          <div>
+            <Label>Comprovante de entrega (opcional)</Label>
+            <p className="text-xs text-muted-foreground mb-2">Foto da assinatura, recibo ou comprovante — JPG, PNG, máx 5MB</p>
+            {preview ? (
+              <div className="relative inline-block">
+                <img src={preview} alt="Preview" className="max-h-32 rounded-lg border" />
+                <Button
+                  size="icon"
+                  variant="secondary"
+                  className="absolute top-1 right-1 h-6 w-6"
+                  onClick={() => { setFile(null); setPreview(null); }}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                className="w-full border-2 border-dashed rounded-lg p-6 text-center hover:border-primary/50 transition-colors"
+              >
+                <Upload className="h-6 w-6 mx-auto text-muted-foreground mb-1" />
+                <span className="text-sm text-muted-foreground">Clique para selecionar</span>
+              </button>
+            )}
+            <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleFileChange} />
           </div>
           <div className="flex gap-2 pt-4">
             <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>Cancelar</Button>

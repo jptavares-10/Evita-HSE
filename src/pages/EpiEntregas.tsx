@@ -111,6 +111,7 @@ export default function EpiEntregas() {
       )}
 
       <DeliveryDrawer open={drawerOpen} onOpenChange={setDrawerOpen} />
+      <AddAttachmentModal deliveryId={attachModalDeliveryId} onClose={() => setAttachModalDeliveryId(null)} />
     </div>
   );
 }

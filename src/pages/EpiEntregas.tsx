@@ -20,6 +20,7 @@ export default function EpiEntregas() {
   const { canEdit } = usePermission("epi");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [attachModalDeliveryId, setAttachModalDeliveryId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return deliveries;

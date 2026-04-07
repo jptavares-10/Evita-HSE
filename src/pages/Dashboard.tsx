@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { CheckCircle2, ArrowRight } from "lucide-react";
+import { CheckCircle2, ArrowRight, Inbox } from "lucide-react";
 import { usePeriodicServices } from "@/hooks/useServices";
 import { getServiceStatus } from "@/lib/services";
 import { useEmployees, useTrainingMatrix, useAllRecords } from "@/hooks/useTrainings";
@@ -12,6 +12,7 @@ import { computeLicenseStatus } from "@/lib/licenses";
 import { useAsoRecords } from "@/hooks/useAso";
 import { useInspectionExecutions } from "@/hooks/useInspections";
 import { getExecutionDisplayStatus } from "@/lib/inspections";
+import { useMyPendingReviewCount } from "@/hooks/useDocumentReviews";
 import { computeAsoStatus } from "@/lib/aso";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
@@ -425,6 +426,9 @@ export default function Dashboard() {
             )}
           </div>
 
+          {/* Document reviews pending */}
+          <ReviewDashboardCard />
+
           {/* Conformity by module */}
           <div className="bg-card border rounded-lg p-3.5">
             <p className="text-xs font-medium text-muted-foreground mb-3">Conformidade por módulo</p>
@@ -511,6 +515,23 @@ function ConformityRow({ label, value, conformityBg }: { label: string; value: n
         <span className="text-xs font-medium tabular-nums">{value}%</span>
       </div>
       <Progress value={value} className={`h-1 ${conformityBg(value)}`} />
+    </div>
+  );
+}
+
+function ReviewDashboardCard() {
+  const count = useMyPendingReviewCount();
+  if (count === 0) return null;
+  return (
+    <div className="bg-card border rounded-lg p-3.5">
+      <div className="flex items-center gap-2 mb-2">
+        <Inbox className="h-4 w-4 text-blue-600" />
+        <p className="text-xs font-medium text-muted-foreground">Documentos para revisar</p>
+      </div>
+      <p className="text-lg font-bold tabular-nums">{count}</p>
+      <Link to="/revisoes" className="flex items-center gap-1 text-xs text-primary hover:underline mt-2 pt-2 border-t">
+        Ver pendências <ArrowRight className="h-3 w-3" />
+      </Link>
     </div>
   );
 }

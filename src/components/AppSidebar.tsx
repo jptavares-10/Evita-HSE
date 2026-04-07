@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePlan } from "@/hooks/usePlan";
 import { supabase } from "@/integrations/supabase/client";
 import { usePeriodicServices } from "@/hooks/useServices";
+import { useMyPendingReviewCount } from "@/hooks/useDocumentReviews";
 import { useInspectionBadgeCount } from "@/hooks/useInspections";
 import { useOccurrences } from "@/hooks/useOccurrences";
 import { useEnvironmentalLicenses } from "@/hooks/useLicenses";
@@ -25,7 +26,7 @@ import {
   LayoutDashboard, ClipboardList, ShieldAlert, GraduationCap, Recycle, Truck,
   Building2, Users, CreditCard, LogOut, ChevronDown, ChevronLeft, ChevronRight,
   Shield, HeartPulse, Leaf, Eye, BookOpen, Grid3X3, Briefcase, ScrollText, FileText, HardHat, Stethoscope, ClipboardCheck,
-  Lock
+  Lock, Inbox
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -325,6 +326,7 @@ export function AppSidebar() {
   }, [asoRecords]);
 
   const { data: inspectionBadge = 0 } = useInspectionBadgeCount();
+  const reviewBadge = useMyPendingReviewCount();
   const segurancaBadge = serviceBadge + incidentBadge + epiBadge + inspectionBadge;
   const saudeBadge = trainingBadge + asoBadge;
   const meioAmbienteBadge = mtrBadge + licenseBadge;
@@ -368,6 +370,7 @@ export function AppSidebar() {
         <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-1 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20">
           {/* Dashboard */}
           <SidebarItem to="/dashboard" icon={LayoutDashboard} label="Dashboard" active={path === "/dashboard"} collapsed={collapsed} />
+          <SidebarItem to="/revisoes" icon={Inbox} label="Revisões" badge={reviewBadge} active={path === "/revisoes"} collapsed={collapsed} />
 
           <div className="h-1" />
           <div className="border-t border-[#1F2937] my-1" />

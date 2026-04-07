@@ -287,6 +287,259 @@ export type Database = {
           },
         ]
       }
+      document_review_assignments: {
+        Row: {
+          company_id: string
+          created_at: string
+          cycle_id: string
+          id: string
+          read_at: string | null
+          responded_at: string | null
+          reviewer_id: string
+          status: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          cycle_id: string
+          id?: string
+          read_at?: string | null
+          responded_at?: string | null
+          reviewer_id: string
+          status?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          cycle_id?: string
+          id?: string
+          read_at?: string | null
+          responded_at?: string | null
+          reviewer_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_review_assignments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_review_assignments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_review_assignments_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "document_review_cycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_review_assignments_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_review_comments: {
+        Row: {
+          assignment_id: string
+          attachment_name: string | null
+          attachment_url: string | null
+          author_id: string
+          comment_type: string
+          company_id: string
+          content: string
+          created_at: string
+          cycle_id: string
+          id: string
+          is_resolved: boolean
+          resolved_at: string | null
+          resolved_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          assignment_id: string
+          attachment_name?: string | null
+          attachment_url?: string | null
+          author_id: string
+          comment_type?: string
+          company_id: string
+          content: string
+          created_at?: string
+          cycle_id: string
+          id?: string
+          is_resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          assignment_id?: string
+          attachment_name?: string | null
+          attachment_url?: string | null
+          author_id?: string
+          comment_type?: string
+          company_id?: string
+          content?: string
+          created_at?: string
+          cycle_id?: string
+          id?: string
+          is_resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_review_comments_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "document_review_assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_review_comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_review_comments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_review_comments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_review_comments_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "document_review_cycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_review_comments_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_review_cycles: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          comments_visible: boolean
+          company_id: string
+          created_at: string
+          created_by: string | null
+          document_id: string
+          due_date: string | null
+          id: string
+          message: string | null
+          require_all_responses: boolean
+          revision_id: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          comments_visible?: boolean
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          document_id: string
+          due_date?: string | null
+          id?: string
+          message?: string | null
+          require_all_responses?: boolean
+          revision_id: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          comments_visible?: boolean
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          document_id?: string
+          due_date?: string | null
+          id?: string
+          message?: string | null
+          require_all_responses?: boolean
+          revision_id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_review_cycles_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_review_cycles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_review_cycles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_review_cycles_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_review_cycles_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_review_cycles_revision_id_fkey"
+            columns: ["revision_id"]
+            isOneToOne: false
+            referencedRelation: "document_revisions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_revisions: {
         Row: {
           company_id: string

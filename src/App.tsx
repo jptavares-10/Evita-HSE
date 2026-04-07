@@ -47,6 +47,7 @@ import Inspecoes from "./pages/Inspecoes";
 import InspecoesExecucoes from "./pages/InspecoesExecucoes";
 import InspecoesModelos from "./pages/InspecoesModelos";
 import InspecaoDetalhe from "./pages/InspecaoDetalhe";
+import Revisoes from "./pages/Revisoes";
 
 import Funcionalidades from "./pages/Funcionalidades";
 import ServicosPage from "./pages/funcionalidades/ServicosPage";
@@ -117,6 +118,7 @@ const App = () => (
               <Route path="/incidentes" element={<ModuleGuard module="ic_nc"><Incidentes /></ModuleGuard>} />
               <Route path="/licencas" element={<ModuleGuard module="environmental_licenses"><Licencas /></ModuleGuard>} />
               <Route path="/documentos" element={<ModuleGuard module="document_library"><Documentos /></ModuleGuard>} />
+              <Route path="/revisoes" element={<Revisoes />} />
               <Route path="/aso" element={<ModuleGuard module="aso"><Aso /></ModuleGuard>} />
               <Route path="/inspecoes" element={<ModuleGuard module="inspections"><Inspecoes /></ModuleGuard>}>
                 <Route index element={<InspecoesExecucoes />} />

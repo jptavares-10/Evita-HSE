@@ -149,6 +149,29 @@ export default function LandingPage() {
   const [activeGroup, setActiveGroup] = useState("Segurança");
   const [billingAnnual, setBillingAnnual] = useState(false);
 
+  usePageTitle("Evita HSE — Software de Gestão de Segurança do Trabalho, Saúde e Meio Ambiente", {
+    description: "Software de gestão de SST e meio ambiente para empresas brasileiras. Controle treinamentos NR, EPIs, inspeções, MTR, licenças ambientais, documentos e fornecedores em uma única plataforma.",
+  });
+
+  // Inject FAQ JSON-LD
+  useEffect(() => {
+    const faqJsonLd = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": faqs.map((f) => ({
+        "@type": "Question",
+        "name": f.q,
+        "acceptedAnswer": { "@type": "Answer", "text": f.a },
+      })),
+    };
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.id = "faq-jsonld";
+    script.textContent = JSON.stringify(faqJsonLd);
+    document.head.appendChild(script);
+    return () => { document.getElementById("faq-jsonld")?.remove(); };
+  }, []);
+
   useEffect(() => {
     const handle = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", handle, { passive: true });

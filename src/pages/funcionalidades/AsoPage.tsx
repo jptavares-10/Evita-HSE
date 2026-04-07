@@ -32,6 +32,11 @@ const faqs = [
 export default function AsoPage() {
   usePageTitle("Gestão de ASO — Controle de Exames Ocupacionais", {
     description: "Controle de ASO e exames ocupacionais. Tipos personalizáveis, alertas de vencimento, histórico por colaborador e dashboard de saúde ocupacional.",
+    breadcrumbs: [
+      { name: "Início", url: "https://evita-hse-br.lovable.app/" },
+      { name: "Funcionalidades", url: "https://evita-hse-br.lovable.app/funcionalidades" },
+      { name: "ASO", url: "https://evita-hse-br.lovable.app/funcionalidades/aso" },
+    ],
   });
 
   return (

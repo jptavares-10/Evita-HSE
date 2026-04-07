@@ -32,6 +32,11 @@ const faqs = [
 export default function MtrPage() {
   usePageTitle("Gestão de MTR — Controle de Resíduos e CDF", {
     description: "Controle de MTR e CDF com prazo monitorado, alertas automáticos, categorias de resíduo personalizáveis e gráficos de geração mensal.",
+    breadcrumbs: [
+      { name: "Início", url: "https://evita-hse-br.lovable.app/" },
+      { name: "Funcionalidades", url: "https://evita-hse-br.lovable.app/funcionalidades" },
+      { name: "MTR", url: "https://evita-hse-br.lovable.app/funcionalidades/mtr" },
+    ],
   });
 
   return (

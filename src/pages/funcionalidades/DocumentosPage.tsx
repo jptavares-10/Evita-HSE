@@ -31,6 +31,11 @@ const faqs = [
 export default function DocumentosPage() {
   usePageTitle("Biblioteca de Documentos — Gestão de Documentos SST", {
     description: "Centralize PGR, PCMSO, laudos e procedimentos de SST. Controle de revisões automático, histórico de versões e alertas de vencimento.",
+    breadcrumbs: [
+      { name: "Início", url: "https://evita-hse-br.lovable.app/" },
+      { name: "Funcionalidades", url: "https://evita-hse-br.lovable.app/funcionalidades" },
+      { name: "Documentos", url: "https://evita-hse-br.lovable.app/funcionalidades/documentos" },
+    ],
   });
 
   return (

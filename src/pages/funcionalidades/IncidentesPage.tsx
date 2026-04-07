@@ -31,6 +31,11 @@ const faqs = [
 export default function IncidentesPage() {
   usePageTitle("Gestão de Incidentes e Não Conformidades — IC & NC", {
     description: "Registre incidentes de trabalho e não conformidades com análise de causa, plano de ação corretiva, evidências e KPIs de segurança.",
+    breadcrumbs: [
+      { name: "Início", url: "https://evita-hse-br.lovable.app/" },
+      { name: "Funcionalidades", url: "https://evita-hse-br.lovable.app/funcionalidades" },
+      { name: "IC & NC", url: "https://evita-hse-br.lovable.app/funcionalidades/incidentes" },
+    ],
   });
 
   return (

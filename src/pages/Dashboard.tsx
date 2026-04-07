@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { CheckCircle2, ArrowRight } from "lucide-react";
+import { CheckCircle2, ArrowRight, Inbox } from "lucide-react";
 import { usePeriodicServices } from "@/hooks/useServices";
 import { getServiceStatus } from "@/lib/services";
 import { useEmployees, useTrainingMatrix, useAllRecords } from "@/hooks/useTrainings";
@@ -12,6 +12,7 @@ import { computeLicenseStatus } from "@/lib/licenses";
 import { useAsoRecords } from "@/hooks/useAso";
 import { useInspectionExecutions } from "@/hooks/useInspections";
 import { getExecutionDisplayStatus } from "@/lib/inspections";
+import { useMyPendingReviewCount } from "@/hooks/useDocumentReviews";
 import { computeAsoStatus } from "@/lib/aso";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
@@ -424,6 +425,9 @@ export default function Dashboard() {
               </div>
             )}
           </div>
+
+          {/* Document reviews pending */}
+          <ReviewDashboardCard />
 
           {/* Conformity by module */}
           <div className="bg-card border rounded-lg p-3.5">

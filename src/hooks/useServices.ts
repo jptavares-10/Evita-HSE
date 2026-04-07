@@ -236,7 +236,7 @@ export function useRegisterCompletion() {
       if (histErr) throw histErr;
 
       // Update service
-      const updatePayload: Record<string, unknown> = {
+      const updatePayload: { last_done_at: string; next_due_at: string; updated_at: string; supplier?: string } = {
         last_done_at: values.done_at,
         next_due_at: nextDueStr,
         updated_at: new Date().toISOString(),

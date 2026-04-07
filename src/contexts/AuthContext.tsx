@@ -64,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchCompany = async (companyId: string) => {
     const { data } = await supabase
-      .from("companies")
+      .from("companies_safe")
       .select("*")
       .eq("id", companyId)
       .maybeSingle();

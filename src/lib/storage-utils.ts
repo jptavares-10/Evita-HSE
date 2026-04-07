@@ -16,6 +16,7 @@ const PRIVATE_BUCKETS = [
   "aso-files",
   "inspection-files",
   "epi-files",
+  "review-attachments",
 ] as const;
 
 export type PrivateBucket = (typeof PRIVATE_BUCKETS)[number];

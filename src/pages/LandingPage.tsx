@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Shield, Calendar, GraduationCap, FileText, Users, AlertTriangle, Recycle, ChevronDown, Check, Menu, X, ArrowRight, ClipboardCheck, HardHat, Stethoscope, BookOpen, Building2, Settings, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect, useRef } from "react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 /* ── DATA ─────────────────────────────────────── */
 
@@ -148,6 +149,29 @@ export default function LandingPage() {
   const [activeGroup, setActiveGroup] = useState("Segurança");
   const [billingAnnual, setBillingAnnual] = useState(false);
 
+  usePageTitle("Evita HSE — Software de Gestão de Segurança do Trabalho, Saúde e Meio Ambiente", {
+    description: "Software de gestão de SST e meio ambiente para empresas brasileiras. Controle treinamentos NR, EPIs, inspeções, MTR, licenças ambientais, documentos e fornecedores em uma única plataforma.",
+  });
+
+  // Inject FAQ JSON-LD
+  useEffect(() => {
+    const faqJsonLd = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": faqs.map((f) => ({
+        "@type": "Question",
+        "name": f.q,
+        "acceptedAnswer": { "@type": "Answer", "text": f.a },
+      })),
+    };
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.id = "faq-jsonld";
+    script.textContent = JSON.stringify(faqJsonLd);
+    document.head.appendChild(script);
+    return () => { document.getElementById("faq-jsonld")?.remove(); };
+  }, []);
+
   useEffect(() => {
     const handle = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", handle, { passive: true });
@@ -156,6 +180,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white text-foreground">
+      <a href="#conteudo-principal" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded">Pular para o conteúdo</a>
       {/* ── NAVBAR ─────────────────────────────── */}
       <nav className={`fixed top-0 inset-x-0 z-50 h-16 flex items-center px-[5%] transition-all duration-300 ${scrolled ? "bg-white/95 backdrop-blur-xl border-b shadow-sm" : ""}`}>
         <div className="max-w-[1200px] w-full mx-auto flex items-center justify-between">
@@ -204,6 +229,7 @@ export default function LandingPage() {
       )}
 
       {/* ── HERO ─────────────────────────────────── */}
+      <main id="conteudo-principal">
       <section className="relative min-h-screen flex items-center px-[5%] pt-24 pb-20 overflow-hidden" style={{ background: "linear-gradient(135deg, #070D1A 0%, #0A1628 40%, #0F1F3D 70%, #0D2451 100%)" }}>
         {/* Orbs */}
         <div className="absolute -top-24 -right-24 w-[600px] h-[600px] rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(37,99,235,0.18) 0%, transparent 70%)" }} />
@@ -674,6 +700,7 @@ export default function LandingPage() {
           </div>
         </Reveal>
       </section>
+      </main>
 
       {/* ── FOOTER ─────────────────────────────────── */}
       <footer className="py-14 px-[5%] border-t" style={{ background: "#070D1A", borderColor: "#1E293B" }}>

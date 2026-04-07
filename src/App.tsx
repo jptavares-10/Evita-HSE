@@ -80,6 +80,21 @@ const App = () => (
             <Route path="/portal/fornecedor/:token" element={<PortalFornecedor />} />
             <Route path="/completar-cadastro" element={<CompletarCadastro />} />
 
+            {/* Public SEO pages */}
+            <Route path="/funcionalidades" element={<LandingRoute><Funcionalidades /></LandingRoute>} />
+            <Route path="/funcionalidades/servicos-periodicos" element={<LandingRoute><ServicosPage /></LandingRoute>} />
+            <Route path="/funcionalidades/inspecoes" element={<LandingRoute><InspecoesPage /></LandingRoute>} />
+            <Route path="/funcionalidades/incidentes" element={<LandingRoute><IncidentesPage /></LandingRoute>} />
+            <Route path="/funcionalidades/epi" element={<LandingRoute><EpiPage /></LandingRoute>} />
+            <Route path="/funcionalidades/documentos" element={<LandingRoute><DocumentosPage /></LandingRoute>} />
+            <Route path="/funcionalidades/treinamentos" element={<LandingRoute><TreinamentosPage /></LandingRoute>} />
+            <Route path="/funcionalidades/aso" element={<LandingRoute><AsoPage /></LandingRoute>} />
+            <Route path="/funcionalidades/mtr" element={<LandingRoute><MtrPage /></LandingRoute>} />
+            <Route path="/funcionalidades/licencas" element={<LandingRoute><LicencasPage /></LandingRoute>} />
+            <Route path="/funcionalidades/fornecedores" element={<LandingRoute><FornecedoresPage /></LandingRoute>} />
+            <Route path="/portal/fornecedor/:token" element={<PortalFornecedor />} />
+            <Route path="/completar-cadastro" element={<CompletarCadastro />} />
+
             {/* Protected routes with layout */}
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/dashboard" element={<Dashboard />} />

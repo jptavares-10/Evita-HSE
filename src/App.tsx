@@ -47,6 +47,19 @@ import Inspecoes from "./pages/Inspecoes";
 import InspecoesExecucoes from "./pages/InspecoesExecucoes";
 import InspecoesModelos from "./pages/InspecoesModelos";
 import InspecaoDetalhe from "./pages/InspecaoDetalhe";
+
+import Funcionalidades from "./pages/Funcionalidades";
+import ServicosPage from "./pages/funcionalidades/ServicosPage";
+import InspecoesPage from "./pages/funcionalidades/InspecoesPage";
+import IncidentesPage from "./pages/funcionalidades/IncidentesPage";
+import EpiPage from "./pages/funcionalidades/EpiPage";
+import DocumentosPage from "./pages/funcionalidades/DocumentosPage";
+import TreinamentosPage from "./pages/funcionalidades/TreinamentosPage";
+import AsoPage from "./pages/funcionalidades/AsoPage";
+import MtrPage from "./pages/funcionalidades/MtrPage";
+import LicencasPage from "./pages/funcionalidades/LicencasPage";
+import FornecedoresPage from "./pages/funcionalidades/FornecedoresPage";
+
 const queryClient = new QueryClient();
 
 const App = () => (

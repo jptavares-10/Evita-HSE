@@ -1,8 +1,41 @@
 User-agent: Googlebot
 Allow: /
+Disallow: /dashboard
+Disallow: /servicos
+Disallow: /epi
+Disallow: /treinamentos
+Disallow: /documentos
+Disallow: /licencas
+Disallow: /mtr
+Disallow: /incidentes
+Disallow: /inspecoes
+Disallow: /fornecedores
+Disallow: /aso
+Disallow: /empresa
+Disallow: /usuarios
+Disallow: /perfil
+Disallow: /planos
+Disallow: /completar-cadastro
+Disallow: /convite
+Disallow: /reset-password
 
 User-agent: Bingbot
 Allow: /
+Disallow: /dashboard
+Disallow: /servicos
+Disallow: /epi
+Disallow: /treinamentos
+Disallow: /documentos
+Disallow: /licencas
+Disallow: /mtr
+Disallow: /incidentes
+Disallow: /inspecoes
+Disallow: /fornecedores
+Disallow: /aso
+Disallow: /empresa
+Disallow: /usuarios
+Disallow: /perfil
+Disallow: /planos
 
 User-agent: Twitterbot
 Allow: /
@@ -12,3 +45,20 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /dashboard
+Disallow: /servicos
+Disallow: /epi
+Disallow: /treinamentos
+Disallow: /documentos
+Disallow: /licencas
+Disallow: /mtr
+Disallow: /incidentes
+Disallow: /inspecoes
+Disallow: /fornecedores
+Disallow: /aso
+Disallow: /empresa
+Disallow: /usuarios
+Disallow: /perfil
+Disallow: /planos
+
+Sitemap: https://evita-hse-br.lovable.app/sitemap.xml

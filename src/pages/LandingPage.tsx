@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Shield, Calendar, GraduationCap, FileText, Users, AlertTriangle, Recycle, ChevronDown, Check, Menu, X, ArrowRight, ClipboardCheck, HardHat, Stethoscope, BookOpen, Building2, Settings, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect, useRef } from "react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 /* ── DATA ─────────────────────────────────────── */
 

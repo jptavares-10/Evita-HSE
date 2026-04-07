@@ -32,6 +32,11 @@ const faqs = [
 export default function FornecedoresPage() {
   usePageTitle("Portal de Fornecedores — Gestão de Documentos de Fornecedores", {
     description: "Portal de fornecedores com link único para envio de documentos. Sem WhatsApp, sem e-mail. Pastas organizadas e acesso seguro.",
+    breadcrumbs: [
+      { name: "Início", url: "https://evita-hse-br.lovable.app/" },
+      { name: "Funcionalidades", url: "https://evita-hse-br.lovable.app/funcionalidades" },
+      { name: "Fornecedores", url: "https://evita-hse-br.lovable.app/funcionalidades/fornecedores" },
+    ],
   });
 
   return (

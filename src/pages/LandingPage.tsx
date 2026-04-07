@@ -222,6 +222,7 @@ export default function LandingPage() {
           <a href="#modulos" className="block text-sm font-medium" onClick={() => setMenuOpen(false)}>Módulos</a>
           <a href="#precos" className="block text-sm font-medium" onClick={() => setMenuOpen(false)}>Preços</a>
           <a href="#faq" className="block text-sm font-medium" onClick={() => setMenuOpen(false)}>FAQ</a>
+          <Link to="/funcionalidades" className="block text-sm font-medium" onClick={() => setMenuOpen(false)}>Funcionalidades</Link>
           <div className="flex gap-2 pt-3">
             <Link to="/login" className="flex-1"><Button variant="outline" className="w-full" size="sm">Entrar</Button></Link>
             <Link to="/cadastro" className="flex-1"><Button className="w-full" size="sm">Criar conta</Button></Link>
@@ -711,7 +712,7 @@ export default function LandingPage() {
       {/* ── FOOTER ─────────────────────────────────── */}
       <footer className="py-14 px-[5%] border-t" style={{ background: "#070D1A", borderColor: "#1E293B" }}>
         <div className="max-w-[1200px] mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
             <div>
               <div className="flex items-center gap-2.5 font-display font-bold text-white mb-3">
                 <Shield className="h-5 w-5 text-primary" /> Evita HSE
@@ -724,6 +725,27 @@ export default function LandingPage() {
                 {[["#como-funciona", "Como funciona"], ["#modulos", "Módulos"], ["#precos", "Preços"], ["#faq", "FAQ"]].map(([h, l]) => (
                   <li key={h}><a href={h} className="text-sm text-slate-500 hover:text-blue-400 transition-colors">{l}</a></li>
                 ))}
+                <li><Link to="/funcionalidades" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Funcionalidades</Link></li>
+              </ul>
+            </div>
+            <div>
+              <div className="text-xs font-bold tracking-[0.1em] uppercase text-slate-400 mb-4">Funcionalidades</div>
+              <ul className="space-y-2.5">
+                <li><Link to="/funcionalidades/servicos-periodicos" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Serviços Periódicos</Link></li>
+                <li><Link to="/funcionalidades/inspecoes" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Inspeções</Link></li>
+                <li><Link to="/funcionalidades/epi" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">EPIs</Link></li>
+                <li><Link to="/funcionalidades/treinamentos" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Treinamentos</Link></li>
+                <li><Link to="/funcionalidades/mtr" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">MTR</Link></li>
+              </ul>
+            </div>
+            <div>
+              <div className="text-xs font-bold tracking-[0.1em] uppercase text-slate-400 mb-4">&nbsp;</div>
+              <ul className="space-y-2.5">
+                <li><Link to="/funcionalidades/documentos" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Documentos</Link></li>
+                <li><Link to="/funcionalidades/licencas" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Licenças</Link></li>
+                <li><Link to="/funcionalidades/aso" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">ASO</Link></li>
+                <li><Link to="/funcionalidades/incidentes" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">IC & NC</Link></li>
+                <li><Link to="/funcionalidades/fornecedores" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Fornecedores</Link></li>
               </ul>
             </div>
             <div>
@@ -731,14 +753,7 @@ export default function LandingPage() {
               <ul className="space-y-2.5">
                 <li><Link to="/cadastro" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Criar conta</Link></li>
                 <li><Link to="/login" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Entrar</Link></li>
-                <li><Link to="/cadastro" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Trial grátis</Link></li>
-              </ul>
-            </div>
-            <div>
-              <div className="text-xs font-bold tracking-[0.1em] uppercase text-slate-400 mb-4">Contato</div>
-              <ul className="space-y-2.5">
                 <li><a href="mailto:contato@evitahse.com.br" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">contato@evitahse.com.br</a></li>
-                <li><span className="text-sm text-slate-500">Suporte em português</span></li>
               </ul>
             </div>
           </div>

@@ -483,14 +483,19 @@ export default function LandingPage() {
           {/* Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {(moduleGroups[activeGroup] || []).map((m, i) => (
-              <div key={m.name} className="bg-card border rounded-2xl overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-transparent group animate-fade-in">
-                <div className={`h-1 ${m.accent} group-hover:h-1.5 transition-all`} />
-                <div className="p-6 pt-7">
-                  <m.icon className="h-7 w-7 text-muted-foreground mb-3.5" />
-                  <h3 className="font-display font-bold text-base mb-2">{m.name}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{m.desc}</p>
+              <Link key={m.name} to={`/funcionalidades/${m.slug}`} className="block">
+                <div className="bg-card border rounded-2xl overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-transparent group animate-fade-in h-full">
+                  <div className={`h-1 ${m.accent} group-hover:h-1.5 transition-all`} />
+                  <div className="p-6 pt-7">
+                    <m.icon className="h-7 w-7 text-muted-foreground mb-3.5" />
+                    <h3 className="font-display font-bold text-base mb-2">{m.name}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed mb-3">{m.desc}</p>
+                    <span className="text-sm font-semibold text-primary flex items-center gap-1 group-hover:gap-2 transition-all">
+                      Saiba mais <ArrowRight className="h-3.5 w-3.5" />
+                    </span>
+                  </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

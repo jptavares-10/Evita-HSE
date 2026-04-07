@@ -1,50 +1,68 @@
 
 
-## Plano: Impedir cadastro de empresas com CNPJ duplicado
+## Plano: SEO de alto nivel para Evita HSE
 
-### Problema
-A function `create_company_and_admin` e `update_company_safe_fields` nao verificam se o CNPJ ja existe em outra empresa. Duas empresas podem ser criadas com o mesmo CNPJ.
+### Problema atual
+O site e uma SPA React sem pre-renderizacao. O Google consegue indexar SPAs modernas, mas o SEO atual e basico: apenas meta tags estaticas no `index.html`, sem sitemap, sem canonical, sem dados estruturados, sem semantica HTML adequada.
 
-### Solucao
+### O que sera implementado
 
-**1. Migration SQL** -- uma unica migration com 3 alteracoes:
+**1. Sitemap XML estatico** (`public/sitemap.xml`)
+- URLs publicas: `/`, `/login`, `/cadastro`
+- URL base: `https://evita-hse-br.lovable.app`
+- Referenciado no `robots.txt`
 
-- **Unique index parcial** na tabela `companies` para o campo `cnpj` (apenas onde `cnpj IS NOT NULL AND cnpj != ''`). Isso impede duplicatas no nivel do banco.
+**2. robots.txt atualizado**
+- Adicionar `Sitemap: https://evita-hse-br.lovable.app/sitemap.xml`
+- Bloquear rotas internas (`/dashboard`, `/servicos`, `/epi`, etc.) com `Disallow`
 
-- **Atualizar `create_company_and_admin`**: antes do INSERT em `companies`, verificar se ja existe uma empresa com o mesmo CNPJ. Se existir, retornar erro: `"Já existe uma empresa cadastrada com este CNPJ."`.
+**3. index.html — meta tags otimizadas**
+- Tag canonical: `<link rel="canonical" href="https://evita-hse-br.lovable.app/">`
+- `og:url` definido
+- Description reescrita com palavras-chave do segmento: "software de gestão de SST", "segurança do trabalho", "meio ambiente", "NR", "gestão de EPI", "treinamentos NR", "MTR"
+- Title otimizado para busca: "Evita HSE — Software de Gestão de Segurança do Trabalho, Saúde e Meio Ambiente"
+- `twitter:site` corrigido (remover @Lovable)
+- Preconnect para fontes externas (se houver)
 
-- **Atualizar `update_company_safe_fields`**: antes do UPDATE, verificar se o novo CNPJ ja pertence a outra empresa (excluindo a propria). Se existir, retornar erro similar.
+**4. JSON-LD (Dados Estruturados)** — script no `index.html`
+- Schema `SoftwareApplication` com nome, descricao, categoria, sistema operacional (web), oferta com preco inicial
+- Schema `Organization` com nome, URL, logo, contato
+- Schema `FAQPage` injetado dinamicamente na LandingPage para as perguntas frequentes
 
-**2. Frontend** -- tratar o erro retornado pelo RPC nos dois pontos:
+**5. Semantica HTML na LandingPage**
+- Substituir `<section>` por tags semanticas onde apropriado (`<main>`, `<article>`, `<footer>` ja existe)
+- Garantir um unico `<h1>` na hero (ja existe)
+- Adicionar `alt` descritivo em imagens/icones decorativos
+- FAQ usando `<details>`/`<summary>` nativo para acessibilidade e crawlability (ou manter visual atual + JSON-LD)
 
-- `src/pages/Cadastro.tsx` e `src/pages/CompletarCadastro.tsx`: o erro ja e exibido via `result?.error`, nenhuma mudanca necessaria.
-- `src/pages/Empresa.tsx`: o erro ja e exibido via toast, nenhuma mudanca necessaria.
+**6. Meta tags dinamicas por pagina**
+- Atualizar `usePageTitle` para tambem definir `<meta name="description">` e `<link rel="canonical">` dinamicamente
+- LandingPage define description rica com keywords do segmento
+- Paginas internas (protegidas) nao precisam de SEO, mas terao title correto
+
+**7. Performance (Core Web Vitals)**
+- Adicionar `<link rel="preload">` para fonte principal se custom font for usada
+- Garantir que imagens grandes tenham `loading="lazy"`
+- Favicon ja e SVG (bom)
 
 ### Detalhes tecnicos
 
-```sql
--- Unique index parcial (ignora NULL e vazio)
-CREATE UNIQUE INDEX IF NOT EXISTS idx_companies_cnpj_unique
-  ON public.companies (cnpj)
-  WHERE cnpj IS NOT NULL AND cnpj != '';
-
--- create_company_and_admin: adicionar antes do INSERT
-IF p_cnpj IS NOT NULL AND p_cnpj != '' THEN
-  IF EXISTS (SELECT 1 FROM public.companies WHERE cnpj = p_cnpj) THEN
-    RETURN jsonb_build_object('success', false, 'error',
-      'Já existe uma empresa cadastrada com este CNPJ.');
-  END IF;
-END IF;
-
--- update_company_safe_fields: adicionar antes do UPDATE
-IF p_cnpj IS NOT NULL AND p_cnpj != '' THEN
-  IF EXISTS (SELECT 1 FROM public.companies
-             WHERE cnpj = p_cnpj AND id != v_company_id) THEN
-    RETURN jsonb_build_object('success', false, 'error',
-      'Já existe uma empresa cadastrada com este CNPJ.');
-  END IF;
-END IF;
+```text
+Arquivos modificados:
+├── index.html              — meta tags, canonical, JSON-LD, preconnect
+├── public/robots.txt       — sitemap ref + disallow rotas internas
+├── public/sitemap.xml      — novo arquivo
+├── src/hooks/usePageTitle.ts — expandir para description + canonical
+├── src/pages/LandingPage.tsx — JSON-LD FAQPage, semantica, alt texts
 ```
 
-A protecao e em 2 camadas: o index garante integridade no banco mesmo em race conditions, e a verificacao nas RPCs retorna mensagens amigaveis ao usuario.
+Keywords-alvo para as meta tags (baseadas no segmento HSE brasileiro):
+- "software gestao SST"
+- "gestao de seguranca do trabalho"
+- "controle de EPI"
+- "gestao de treinamentos NR"
+- "MTR residuos"
+- "licenca ambiental controle"
+- "plataforma HSE Brasil"
+- "gestao saude seguranca meio ambiente"
 

@@ -180,6 +180,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white text-foreground">
+      <a href="#conteudo-principal" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded">Pular para o conteúdo</a>
       {/* ── NAVBAR ─────────────────────────────── */}
       <nav className={`fixed top-0 inset-x-0 z-50 h-16 flex items-center px-[5%] transition-all duration-300 ${scrolled ? "bg-white/95 backdrop-blur-xl border-b shadow-sm" : ""}`}>
         <div className="max-w-[1200px] w-full mx-auto flex items-center justify-between">

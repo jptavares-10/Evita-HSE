@@ -700,6 +700,7 @@ export default function LandingPage() {
           </div>
         </Reveal>
       </section>
+      </main>
 
       {/* ── FOOTER ─────────────────────────────────── */}
       <footer className="py-14 px-[5%] border-t" style={{ background: "#070D1A", borderColor: "#1E293B" }}>

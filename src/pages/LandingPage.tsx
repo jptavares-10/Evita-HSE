@@ -228,6 +228,7 @@ export default function LandingPage() {
       )}
 
       {/* ── HERO ─────────────────────────────────── */}
+      <main id="conteudo-principal">
       <section className="relative min-h-screen flex items-center px-[5%] pt-24 pb-20 overflow-hidden" style={{ background: "linear-gradient(135deg, #070D1A 0%, #0A1628 40%, #0F1F3D 70%, #0D2451 100%)" }}>
         {/* Orbs */}
         <div className="absolute -top-24 -right-24 w-[600px] h-[600px] rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(37,99,235,0.18) 0%, transparent 70%)" }} />

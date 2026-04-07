@@ -195,6 +195,7 @@ export default function LandingPage() {
             {[["#como-funciona", "Como funciona"], ["#modulos", "Módulos"], ["#precos", "Preços"], ["#faq", "FAQ"]].map(([href, label]) => (
               <a key={href} href={href} className={`text-sm font-medium transition-colors hover:text-primary ${scrolled ? "text-muted-foreground" : "text-white/70"}`}>{label}</a>
             ))}
+            <Link to="/funcionalidades" className={`text-sm font-medium transition-colors hover:text-primary ${scrolled ? "text-muted-foreground" : "text-white/70"}`}>Funcionalidades</Link>
           </div>
 
           <div className="hidden md:flex items-center gap-2.5">

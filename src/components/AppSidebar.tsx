@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePlan } from "@/hooks/usePlan";
 import { supabase } from "@/integrations/supabase/client";
 import { usePeriodicServices } from "@/hooks/useServices";
+import { useMyPendingReviewCount } from "@/hooks/useDocumentReviews";
 import { useInspectionBadgeCount } from "@/hooks/useInspections";
 import { useOccurrences } from "@/hooks/useOccurrences";
 import { useEnvironmentalLicenses } from "@/hooks/useLicenses";
@@ -25,7 +26,7 @@ import {
   LayoutDashboard, ClipboardList, ShieldAlert, GraduationCap, Recycle, Truck,
   Building2, Users, CreditCard, LogOut, ChevronDown, ChevronLeft, ChevronRight,
   Shield, HeartPulse, Leaf, Eye, BookOpen, Grid3X3, Briefcase, ScrollText, FileText, HardHat, Stethoscope, ClipboardCheck,
-  Lock
+  Lock, Inbox
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

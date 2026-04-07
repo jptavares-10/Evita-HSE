@@ -518,3 +518,20 @@ function ConformityRow({ label, value, conformityBg }: { label: string; value: n
     </div>
   );
 }
+
+function ReviewDashboardCard() {
+  const count = useMyPendingReviewCount();
+  if (count === 0) return null;
+  return (
+    <div className="bg-card border rounded-lg p-3.5">
+      <div className="flex items-center gap-2 mb-2">
+        <Inbox className="h-4 w-4 text-blue-600" />
+        <p className="text-xs font-medium text-muted-foreground">Documentos para revisar</p>
+      </div>
+      <p className="text-lg font-bold tabular-nums">{count}</p>
+      <Link to="/revisoes" className="flex items-center gap-1 text-xs text-primary hover:underline mt-2 pt-2 border-t">
+        Ver pendências <ArrowRight className="h-3 w-3" />
+      </Link>
+    </div>
+  );
+}

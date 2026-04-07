@@ -28,22 +28,22 @@ const steps = [
   { num: "03", icon: Target, title: "Monitore sem perder prazos", desc: "O dashboard centraliza tudo. Alertas visuais mostram o que precisa de atenção." },
 ];
 
-const moduleGroups: Record<string, Array<{ icon: any; accent: string; name: string; desc: string }>> = {
+const moduleGroups: Record<string, Array<{ icon: any; accent: string; name: string; desc: string; slug: string }>> = {
   "Segurança": [
-    { icon: Calendar, accent: "bg-red-500", name: "Serviços Periódicos", desc: "Controle extintores, limpeza de cisterna, dedetização e qualquer serviço recorrente com alertas configuráveis." },
-    { icon: ClipboardCheck, accent: "bg-red-500", name: "Inspeções", desc: "Modelos de inspeção com frequência automática. Execuções, registros fotográficos e ações corretivas rastreáveis." },
-    { icon: AlertTriangle, accent: "bg-red-500", name: "IC & NC", desc: "Registre incidentes e não conformidades. Plano de ação corretiva com status, evidências e rastreabilidade." },
-    { icon: HardHat, accent: "bg-orange-500", name: "EPIs", desc: "Catálogo com CA, controle de estoque, entregas por colaborador e alertas de vencimento de certificado." },
-    { icon: BookOpen, accent: "bg-blue-500", name: "Biblioteca de Documentos", desc: "Centralize PGR, PCMSO, procedimentos e políticas. Controle de revisões com ciclo automático." },
+    { icon: Calendar, accent: "bg-red-500", name: "Serviços Periódicos", desc: "Controle extintores, limpeza de cisterna, dedetização e qualquer serviço recorrente com alertas configuráveis.", slug: "servicos-periodicos" },
+    { icon: ClipboardCheck, accent: "bg-red-500", name: "Inspeções", desc: "Modelos de inspeção com frequência automática. Execuções, registros fotográficos e ações corretivas rastreáveis.", slug: "inspecoes" },
+    { icon: AlertTriangle, accent: "bg-red-500", name: "IC & NC", desc: "Registre incidentes e não conformidades. Plano de ação corretiva com status, evidências e rastreabilidade.", slug: "incidentes" },
+    { icon: HardHat, accent: "bg-orange-500", name: "EPIs", desc: "Catálogo com CA, controle de estoque, entregas por colaborador e alertas de vencimento de certificado.", slug: "epi" },
+    { icon: BookOpen, accent: "bg-blue-500", name: "Biblioteca de Documentos", desc: "Centralize PGR, PCMSO, procedimentos e políticas. Controle de revisões com ciclo automático.", slug: "documentos" },
   ],
   "Saúde": [
-    { icon: GraduationCap, accent: "bg-amber-500", name: "Treinamentos", desc: "Matriz por cargo, certificados com validade e dashboard de conformidade. Saiba quem está em dia com as NRs." },
-    { icon: Stethoscope, accent: "bg-amber-500", name: "ASO / Exames", desc: "Registre exames admissionais, periódicos e demissionais. Alerta de vencimento e histórico por colaborador." },
+    { icon: GraduationCap, accent: "bg-amber-500", name: "Treinamentos", desc: "Matriz por cargo, certificados com validade e dashboard de conformidade. Saiba quem está em dia com as NRs.", slug: "treinamentos" },
+    { icon: Stethoscope, accent: "bg-amber-500", name: "ASO / Exames", desc: "Registre exames admissionais, periódicos e demissionais. Alerta de vencimento e histórico por colaborador.", slug: "aso" },
   ],
   "Meio Ambiente": [
-    { icon: Recycle, accent: "bg-emerald-500", name: "Gestão de MTR", desc: "MTR com prazo de CDF monitorado e alerta automático. Gráficos de geração mensal por categoria de resíduo." },
-    { icon: FileText, accent: "bg-cyan-500", name: "Licenças Ambientais", desc: "LO, LI, outorgas e autorizações com histórico de renovações. Alertas de vencimento configuráveis." },
-    { icon: Users, accent: "bg-emerald-500", name: "Portal de Fornecedores", desc: "Link único para o fornecedor enviar documentos. Sem WhatsApp, sem e-mail. Pastas organizadas." },
+    { icon: Recycle, accent: "bg-emerald-500", name: "Gestão de MTR", desc: "MTR com prazo de CDF monitorado e alerta automático. Gráficos de geração mensal por categoria de resíduo.", slug: "mtr" },
+    { icon: FileText, accent: "bg-cyan-500", name: "Licenças Ambientais", desc: "LO, LI, outorgas e autorizações com histórico de renovações. Alertas de vencimento configuráveis.", slug: "licencas" },
+    { icon: Users, accent: "bg-emerald-500", name: "Portal de Fornecedores", desc: "Link único para o fornecedor enviar documentos. Sem WhatsApp, sem e-mail. Pastas organizadas.", slug: "fornecedores" },
   ],
 };
 
@@ -195,6 +195,7 @@ export default function LandingPage() {
             {[["#como-funciona", "Como funciona"], ["#modulos", "Módulos"], ["#precos", "Preços"], ["#faq", "FAQ"]].map(([href, label]) => (
               <a key={href} href={href} className={`text-sm font-medium transition-colors hover:text-primary ${scrolled ? "text-muted-foreground" : "text-white/70"}`}>{label}</a>
             ))}
+            <Link to="/funcionalidades" className={`text-sm font-medium transition-colors hover:text-primary ${scrolled ? "text-muted-foreground" : "text-white/70"}`}>Funcionalidades</Link>
           </div>
 
           <div className="hidden md:flex items-center gap-2.5">
@@ -221,6 +222,7 @@ export default function LandingPage() {
           <a href="#modulos" className="block text-sm font-medium" onClick={() => setMenuOpen(false)}>Módulos</a>
           <a href="#precos" className="block text-sm font-medium" onClick={() => setMenuOpen(false)}>Preços</a>
           <a href="#faq" className="block text-sm font-medium" onClick={() => setMenuOpen(false)}>FAQ</a>
+          <Link to="/funcionalidades" className="block text-sm font-medium" onClick={() => setMenuOpen(false)}>Funcionalidades</Link>
           <div className="flex gap-2 pt-3">
             <Link to="/login" className="flex-1"><Button variant="outline" className="w-full" size="sm">Entrar</Button></Link>
             <Link to="/cadastro" className="flex-1"><Button className="w-full" size="sm">Criar conta</Button></Link>
@@ -482,14 +484,19 @@ export default function LandingPage() {
           {/* Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {(moduleGroups[activeGroup] || []).map((m, i) => (
-              <div key={m.name} className="bg-card border rounded-2xl overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-transparent group animate-fade-in">
-                <div className={`h-1 ${m.accent} group-hover:h-1.5 transition-all`} />
-                <div className="p-6 pt-7">
-                  <m.icon className="h-7 w-7 text-muted-foreground mb-3.5" />
-                  <h3 className="font-display font-bold text-base mb-2">{m.name}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{m.desc}</p>
+              <Link key={m.name} to={`/funcionalidades/${m.slug}`} className="block">
+                <div className="bg-card border rounded-2xl overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-transparent group animate-fade-in h-full">
+                  <div className={`h-1 ${m.accent} group-hover:h-1.5 transition-all`} />
+                  <div className="p-6 pt-7">
+                    <m.icon className="h-7 w-7 text-muted-foreground mb-3.5" />
+                    <h3 className="font-display font-bold text-base mb-2">{m.name}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed mb-3">{m.desc}</p>
+                    <span className="text-sm font-semibold text-primary flex items-center gap-1 group-hover:gap-2 transition-all">
+                      Saiba mais <ArrowRight className="h-3.5 w-3.5" />
+                    </span>
+                  </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -705,7 +712,7 @@ export default function LandingPage() {
       {/* ── FOOTER ─────────────────────────────────── */}
       <footer className="py-14 px-[5%] border-t" style={{ background: "#070D1A", borderColor: "#1E293B" }}>
         <div className="max-w-[1200px] mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
             <div>
               <div className="flex items-center gap-2.5 font-display font-bold text-white mb-3">
                 <Shield className="h-5 w-5 text-primary" /> Evita HSE
@@ -718,6 +725,27 @@ export default function LandingPage() {
                 {[["#como-funciona", "Como funciona"], ["#modulos", "Módulos"], ["#precos", "Preços"], ["#faq", "FAQ"]].map(([h, l]) => (
                   <li key={h}><a href={h} className="text-sm text-slate-500 hover:text-blue-400 transition-colors">{l}</a></li>
                 ))}
+                <li><Link to="/funcionalidades" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Funcionalidades</Link></li>
+              </ul>
+            </div>
+            <div>
+              <div className="text-xs font-bold tracking-[0.1em] uppercase text-slate-400 mb-4">Funcionalidades</div>
+              <ul className="space-y-2.5">
+                <li><Link to="/funcionalidades/servicos-periodicos" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Serviços Periódicos</Link></li>
+                <li><Link to="/funcionalidades/inspecoes" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Inspeções</Link></li>
+                <li><Link to="/funcionalidades/epi" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">EPIs</Link></li>
+                <li><Link to="/funcionalidades/treinamentos" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Treinamentos</Link></li>
+                <li><Link to="/funcionalidades/mtr" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">MTR</Link></li>
+              </ul>
+            </div>
+            <div>
+              <div className="text-xs font-bold tracking-[0.1em] uppercase text-slate-400 mb-4">&nbsp;</div>
+              <ul className="space-y-2.5">
+                <li><Link to="/funcionalidades/documentos" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Documentos</Link></li>
+                <li><Link to="/funcionalidades/licencas" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Licenças</Link></li>
+                <li><Link to="/funcionalidades/aso" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">ASO</Link></li>
+                <li><Link to="/funcionalidades/incidentes" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">IC & NC</Link></li>
+                <li><Link to="/funcionalidades/fornecedores" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Fornecedores</Link></li>
               </ul>
             </div>
             <div>
@@ -725,14 +753,7 @@ export default function LandingPage() {
               <ul className="space-y-2.5">
                 <li><Link to="/cadastro" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Criar conta</Link></li>
                 <li><Link to="/login" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Entrar</Link></li>
-                <li><Link to="/cadastro" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Trial grátis</Link></li>
-              </ul>
-            </div>
-            <div>
-              <div className="text-xs font-bold tracking-[0.1em] uppercase text-slate-400 mb-4">Contato</div>
-              <ul className="space-y-2.5">
                 <li><a href="mailto:contato@evitahse.com.br" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">contato@evitahse.com.br</a></li>
-                <li><span className="text-sm text-slate-500">Suporte em português</span></li>
               </ul>
             </div>
           </div>

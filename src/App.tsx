@@ -47,6 +47,19 @@ import Inspecoes from "./pages/Inspecoes";
 import InspecoesExecucoes from "./pages/InspecoesExecucoes";
 import InspecoesModelos from "./pages/InspecoesModelos";
 import InspecaoDetalhe from "./pages/InspecaoDetalhe";
+
+import Funcionalidades from "./pages/Funcionalidades";
+import ServicosPage from "./pages/funcionalidades/ServicosPage";
+import InspecoesPage from "./pages/funcionalidades/InspecoesPage";
+import IncidentesPage from "./pages/funcionalidades/IncidentesPage";
+import EpiPage from "./pages/funcionalidades/EpiPage";
+import DocumentosPage from "./pages/funcionalidades/DocumentosPage";
+import TreinamentosPage from "./pages/funcionalidades/TreinamentosPage";
+import AsoPage from "./pages/funcionalidades/AsoPage";
+import MtrPage from "./pages/funcionalidades/MtrPage";
+import LicencasPage from "./pages/funcionalidades/LicencasPage";
+import FornecedoresPage from "./pages/funcionalidades/FornecedoresPage";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -64,6 +77,21 @@ const App = () => (
             <Route path="/cadastro" element={<PublicRoute><Cadastro /></PublicRoute>} />
             <Route path="/convite" element={<Convite />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/portal/fornecedor/:token" element={<PortalFornecedor />} />
+            <Route path="/completar-cadastro" element={<CompletarCadastro />} />
+
+            {/* Public SEO pages */}
+            <Route path="/funcionalidades" element={<LandingRoute><Funcionalidades /></LandingRoute>} />
+            <Route path="/funcionalidades/servicos-periodicos" element={<LandingRoute><ServicosPage /></LandingRoute>} />
+            <Route path="/funcionalidades/inspecoes" element={<LandingRoute><InspecoesPage /></LandingRoute>} />
+            <Route path="/funcionalidades/incidentes" element={<LandingRoute><IncidentesPage /></LandingRoute>} />
+            <Route path="/funcionalidades/epi" element={<LandingRoute><EpiPage /></LandingRoute>} />
+            <Route path="/funcionalidades/documentos" element={<LandingRoute><DocumentosPage /></LandingRoute>} />
+            <Route path="/funcionalidades/treinamentos" element={<LandingRoute><TreinamentosPage /></LandingRoute>} />
+            <Route path="/funcionalidades/aso" element={<LandingRoute><AsoPage /></LandingRoute>} />
+            <Route path="/funcionalidades/mtr" element={<LandingRoute><MtrPage /></LandingRoute>} />
+            <Route path="/funcionalidades/licencas" element={<LandingRoute><LicencasPage /></LandingRoute>} />
+            <Route path="/funcionalidades/fornecedores" element={<LandingRoute><FornecedoresPage /></LandingRoute>} />
             <Route path="/portal/fornecedor/:token" element={<PortalFornecedor />} />
             <Route path="/completar-cadastro" element={<CompletarCadastro />} />
 

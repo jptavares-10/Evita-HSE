@@ -28,22 +28,22 @@ const steps = [
   { num: "03", icon: Target, title: "Monitore sem perder prazos", desc: "O dashboard centraliza tudo. Alertas visuais mostram o que precisa de atenção." },
 ];
 
-const moduleGroups: Record<string, Array<{ icon: any; accent: string; name: string; desc: string }>> = {
+const moduleGroups: Record<string, Array<{ icon: any; accent: string; name: string; desc: string; slug: string }>> = {
   "Segurança": [
-    { icon: Calendar, accent: "bg-red-500", name: "Serviços Periódicos", desc: "Controle extintores, limpeza de cisterna, dedetização e qualquer serviço recorrente com alertas configuráveis." },
-    { icon: ClipboardCheck, accent: "bg-red-500", name: "Inspeções", desc: "Modelos de inspeção com frequência automática. Execuções, registros fotográficos e ações corretivas rastreáveis." },
-    { icon: AlertTriangle, accent: "bg-red-500", name: "IC & NC", desc: "Registre incidentes e não conformidades. Plano de ação corretiva com status, evidências e rastreabilidade." },
-    { icon: HardHat, accent: "bg-orange-500", name: "EPIs", desc: "Catálogo com CA, controle de estoque, entregas por colaborador e alertas de vencimento de certificado." },
-    { icon: BookOpen, accent: "bg-blue-500", name: "Biblioteca de Documentos", desc: "Centralize PGR, PCMSO, procedimentos e políticas. Controle de revisões com ciclo automático." },
+    { icon: Calendar, accent: "bg-red-500", name: "Serviços Periódicos", desc: "Controle extintores, limpeza de cisterna, dedetização e qualquer serviço recorrente com alertas configuráveis.", slug: "servicos-periodicos" },
+    { icon: ClipboardCheck, accent: "bg-red-500", name: "Inspeções", desc: "Modelos de inspeção com frequência automática. Execuções, registros fotográficos e ações corretivas rastreáveis.", slug: "inspecoes" },
+    { icon: AlertTriangle, accent: "bg-red-500", name: "IC & NC", desc: "Registre incidentes e não conformidades. Plano de ação corretiva com status, evidências e rastreabilidade.", slug: "incidentes" },
+    { icon: HardHat, accent: "bg-orange-500", name: "EPIs", desc: "Catálogo com CA, controle de estoque, entregas por colaborador e alertas de vencimento de certificado.", slug: "epi" },
+    { icon: BookOpen, accent: "bg-blue-500", name: "Biblioteca de Documentos", desc: "Centralize PGR, PCMSO, procedimentos e políticas. Controle de revisões com ciclo automático.", slug: "documentos" },
   ],
   "Saúde": [
-    { icon: GraduationCap, accent: "bg-amber-500", name: "Treinamentos", desc: "Matriz por cargo, certificados com validade e dashboard de conformidade. Saiba quem está em dia com as NRs." },
-    { icon: Stethoscope, accent: "bg-amber-500", name: "ASO / Exames", desc: "Registre exames admissionais, periódicos e demissionais. Alerta de vencimento e histórico por colaborador." },
+    { icon: GraduationCap, accent: "bg-amber-500", name: "Treinamentos", desc: "Matriz por cargo, certificados com validade e dashboard de conformidade. Saiba quem está em dia com as NRs.", slug: "treinamentos" },
+    { icon: Stethoscope, accent: "bg-amber-500", name: "ASO / Exames", desc: "Registre exames admissionais, periódicos e demissionais. Alerta de vencimento e histórico por colaborador.", slug: "aso" },
   ],
   "Meio Ambiente": [
-    { icon: Recycle, accent: "bg-emerald-500", name: "Gestão de MTR", desc: "MTR com prazo de CDF monitorado e alerta automático. Gráficos de geração mensal por categoria de resíduo." },
-    { icon: FileText, accent: "bg-cyan-500", name: "Licenças Ambientais", desc: "LO, LI, outorgas e autorizações com histórico de renovações. Alertas de vencimento configuráveis." },
-    { icon: Users, accent: "bg-emerald-500", name: "Portal de Fornecedores", desc: "Link único para o fornecedor enviar documentos. Sem WhatsApp, sem e-mail. Pastas organizadas." },
+    { icon: Recycle, accent: "bg-emerald-500", name: "Gestão de MTR", desc: "MTR com prazo de CDF monitorado e alerta automático. Gráficos de geração mensal por categoria de resíduo.", slug: "mtr" },
+    { icon: FileText, accent: "bg-cyan-500", name: "Licenças Ambientais", desc: "LO, LI, outorgas e autorizações com histórico de renovações. Alertas de vencimento configuráveis.", slug: "licencas" },
+    { icon: Users, accent: "bg-emerald-500", name: "Portal de Fornecedores", desc: "Link único para o fornecedor enviar documentos. Sem WhatsApp, sem e-mail. Pastas organizadas.", slug: "fornecedores" },
   ],
 };
 

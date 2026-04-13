@@ -725,9 +725,10 @@ export default function LandingPage() {
             <div>
               <div className="text-xs font-bold tracking-[0.1em] uppercase text-slate-400 mb-4">Produto</div>
               <ul className="space-y-2.5">
-                {[["#como-funciona", "Como funciona"], ["#modulos", "Módulos"], ["#precos", "Preços"], ["#faq", "FAQ"]].map(([h, l]) => (
+                {[["#como-funciona", "Como funciona"], ["#modulos", "Módulos"], ["#precos", "Preços"]].map(([h, l]) => (
                   <li key={h}><a href={h} className="text-sm text-slate-500 hover:text-blue-400 transition-colors">{l}</a></li>
                 ))}
+                <li><Link to="/faq" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">FAQ</Link></li>
                 <li><Link to="/funcionalidades" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Funcionalidades</Link></li>
               </ul>
             </div>

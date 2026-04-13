@@ -164,7 +164,7 @@ export default function LandingPage() {
   const [billingAnnual, setBillingAnnual] = useState(false);
 
   usePageTitle("Evita HSE — Software de Gestão de Segurança do Trabalho, Saúde e Meio Ambiente", {
-    description: "Software de gestão de SST e meio ambiente para empresas brasileiras. Controle treinamentos NR, EPIs, inspeções, MTR, licenças ambientais, documentos e fornecedores em uma única plataforma.",
+    description: "Software completo de gestão de SST e meio ambiente para empresas brasileiras. Controle treinamentos NR, EPIs, inspeções, MTR, licenças ambientais, ASO, documentos e fornecedores em uma única plataforma online. Alertas automáticos de vencimento. Teste grátis por 14 dias.",
   });
 
   // Inject FAQ JSON-LD
@@ -265,7 +265,7 @@ export default function LandingPage() {
               <span className="bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">HSE.</span>
             </h1>
             <p className="text-lg text-slate-400 leading-relaxed mb-9 max-w-[480px]">
-              Centralize treinamentos, inspeções, EPIs, licenças, MTRs, documentos e fornecedores em uma plataforma simples. Nunca mais seja pego de surpresa por uma fiscalização.
+              Centralize treinamentos NR, inspeções de segurança, EPIs, licenças ambientais, MTRs, documentos e fornecedores em uma plataforma simples. Alertas automáticos de vencimento. Nunca mais seja pego de surpresa por uma fiscalização.
             </p>
             <div className="flex flex-wrap gap-3 mb-10">
               <Link to="/cadastro">
@@ -731,7 +731,7 @@ export default function LandingPage() {
               <div className="flex items-center gap-2.5 font-display font-bold text-white mb-3">
                 <Shield className="h-5 w-5 text-primary" /> Evita HSE
               </div>
-              <p className="text-sm text-slate-500 leading-relaxed max-w-[240px]">Plataforma de gestão de HSE para empresas brasileiras. Simples, segura e feita para quem trabalha com Saúde, Segurança e Meio Ambiente.</p>
+              <p className="text-sm text-slate-500 leading-relaxed max-w-[240px]">Software de gestão de Saúde, Segurança do Trabalho e Meio Ambiente para empresas brasileiras. Controle treinamentos NR, EPIs, inspeções, licenças ambientais e muito mais.</p>
             </div>
             <div>
               <div className="text-xs font-bold tracking-[0.1em] uppercase text-slate-400 mb-4">Produto</div>

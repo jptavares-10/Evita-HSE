@@ -36,6 +36,14 @@ export function usePageTitle(title: string, options?: PageSEOOptions) {
       setMetaTag("description", options.description);
     }
 
+    // Noindex for pages that should not appear in search results
+    if (options?.noindex) {
+      setMetaTag("robots", "noindex, nofollow");
+    } else {
+      const existing = document.querySelector('meta[name="robots"]');
+      if (existing) existing.remove();
+    }
+
     // Dynamic canonical
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
     if (canonical) {

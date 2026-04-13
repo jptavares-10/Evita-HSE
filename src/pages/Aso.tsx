@@ -220,7 +220,23 @@ export default function Aso() {
         onPageSizeChange={pagination.setPageSize}
       />
 
-      <AsoDrawer open={drawerOpen} onOpenChange={setDrawerOpen} editRecord={editRecord} preselectedEmployeeId={selectedEmployee?.id} />
+      <AsoDrawer open={drawerOpen} onOpenChange={setDrawerOpen} editRecord={editRecord} preselectedEmployeeId={selectedEmployee?.id || detailEmployee?.id} />
+      <AsoDetailDrawer
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+        employee={detailEmployee}
+        onEdit={(record) => {
+          setEditRecord(record);
+          setSelectedEmployee(detailEmployee);
+          setDrawerOpen(true);
+        }}
+        onDelete={(record) => setDeleteRecord(record)}
+      />
+      <DeleteAsoDialog
+        open={!!deleteRecord}
+        onOpenChange={(v) => { if (!v) setDeleteRecord(null); }}
+        recordId={deleteRecord?.id}
+      />
       <ManageExamTypesModal open={typesOpen} onOpenChange={setTypesOpen} />
     </div>
   );

@@ -51,6 +51,7 @@ import InspecaoDetalhe from "./pages/InspecaoDetalhe";
 import Revisoes from "./pages/Revisoes";
 
 import Funcionalidades from "./pages/Funcionalidades";
+import FAQ from "./pages/FAQ";
 import ServicosPage from "./pages/funcionalidades/ServicosPage";
 import InspecoesPage from "./pages/funcionalidades/InspecoesPage";
 import IncidentesPage from "./pages/funcionalidades/IncidentesPage";

@@ -682,6 +682,11 @@ export default function LandingPage() {
               </Reveal>
             ))}
           </div>
+          <Reveal className="text-center mt-8">
+            <Link to="/faq" className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline underline-offset-4">
+              Ver todas as perguntas <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </Reveal>
         </div>
       </section>
 

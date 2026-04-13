@@ -37,6 +37,9 @@ export default function Aso() {
   const [typesOpen, setTypesOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailEmployee, setDetailEmployee] = useState<any>(null);
+  const [deleteRecord, setDeleteRecord] = useState<any>(null);
 
   // For each active employee, compute latest ASO status
   const employeeAsoMap = useMemo(() => {

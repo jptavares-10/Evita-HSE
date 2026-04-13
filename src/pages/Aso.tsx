@@ -5,6 +5,7 @@ import { useEmployees } from "@/hooks/useTrainings";
 import { computeAsoStatus, getAsoStatusBadge, formatDateBR } from "@/lib/aso";
 import { AsoKpiCards } from "@/components/aso/AsoKpiCards";
 import { AsoDrawer } from "@/components/aso/AsoDrawer";
+import { AsoDetailDrawer } from "@/components/aso/AsoDetailDrawer";
 import { ManageExamTypesModal } from "@/components/aso/ManageExamTypesModal";
 import { DeleteAsoDialog } from "@/components/aso/DeleteAsoDialog";
 import { Button } from "@/components/ui/button";

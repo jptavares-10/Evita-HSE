@@ -7,6 +7,7 @@ const OG_IMAGE = "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f0e68888-8
 interface PageSEOOptions {
   description?: string;
   breadcrumbs?: Array<{ name: string; url: string }>;
+  noindex?: boolean;
 }
 
 function setMetaTag(property: string, content: string, isProperty = false) {
@@ -33,6 +34,14 @@ export function usePageTitle(title: string, options?: PageSEOOptions) {
     // Dynamic meta description
     if (options?.description) {
       setMetaTag("description", options.description);
+    }
+
+    // Noindex for pages that should not appear in search results
+    if (options?.noindex) {
+      setMetaTag("robots", "noindex, nofollow");
+    } else {
+      const existing = document.querySelector('meta[name="robots"]');
+      if (existing) existing.remove();
     }
 
     // Dynamic canonical

@@ -5,6 +5,7 @@ import { useEmployees } from "@/hooks/useTrainings";
 import { computeAsoStatus, getAsoStatusBadge, formatDateBR } from "@/lib/aso";
 import { AsoKpiCards } from "@/components/aso/AsoKpiCards";
 import { AsoDrawer } from "@/components/aso/AsoDrawer";
+import { AsoDetailDrawer } from "@/components/aso/AsoDetailDrawer";
 import { ManageExamTypesModal } from "@/components/aso/ManageExamTypesModal";
 import { DeleteAsoDialog } from "@/components/aso/DeleteAsoDialog";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,9 @@ export default function Aso() {
   const [typesOpen, setTypesOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailEmployee, setDetailEmployee] = useState<any>(null);
+  const [deleteRecord, setDeleteRecord] = useState<any>(null);
 
   // For each active employee, compute latest ASO status
   const employeeAsoMap = useMemo(() => {
@@ -186,7 +190,7 @@ export default function Aso() {
               <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Nenhum colaborador encontrado.</TableCell></TableRow>
             ) : (
               pagination.paginatedData.map((emp: any) => (
-                <TableRow key={emp.id}>
+                <TableRow key={emp.id} className="cursor-pointer hover:bg-muted/50" onClick={() => { setDetailEmployee(emp); setDetailOpen(true); }}>
                   <TableCell className="font-medium">{emp.name}</TableCell>
                   <TableCell>{emp.job_positions?.name || "—"}</TableCell>
                   <TableCell>{emp.asoRecord ? formatDateBR(emp.asoRecord.exam_date) : "—"}</TableCell>
@@ -194,7 +198,7 @@ export default function Aso() {
                   <TableCell>{getStatusBadge(emp.asoStatus)}</TableCell>
                   <TableCell className="text-right">
                     {canEdit && (
-                      <Button size="sm" variant="ghost" onClick={() => { setSelectedEmployee(emp); setEditRecord(emp.asoRecord); setDrawerOpen(true); }}>
+                      <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); setSelectedEmployee(emp); setEditRecord(emp.asoRecord); setDrawerOpen(true); }}>
                         <Pencil className="h-3.5 w-3.5 mr-1" />
                         {emp.asoRecord ? "Editar" : "Registrar"}
                       </Button>
@@ -216,7 +220,23 @@ export default function Aso() {
         onPageSizeChange={pagination.setPageSize}
       />
 
-      <AsoDrawer open={drawerOpen} onOpenChange={setDrawerOpen} editRecord={editRecord} preselectedEmployeeId={selectedEmployee?.id} />
+      <AsoDrawer open={drawerOpen} onOpenChange={setDrawerOpen} editRecord={editRecord} preselectedEmployeeId={selectedEmployee?.id || detailEmployee?.id} />
+      <AsoDetailDrawer
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+        employee={detailEmployee}
+        onEdit={(record) => {
+          setEditRecord(record);
+          setSelectedEmployee(detailEmployee);
+          setDrawerOpen(true);
+        }}
+        onDelete={(record) => setDeleteRecord(record)}
+      />
+      <DeleteAsoDialog
+        open={!!deleteRecord}
+        onOpenChange={(v) => { if (!v) setDeleteRecord(null); }}
+        recordId={deleteRecord?.id}
+      />
       <ManageExamTypesModal open={typesOpen} onOpenChange={setTypesOpen} />
     </div>
   );

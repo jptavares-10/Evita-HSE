@@ -33,7 +33,9 @@ async function waitForSession(maxMs = 5000, intervalMs = 500) {
 }
 
 export default function Cadastro() {
-  usePageTitle("Criar conta — Evita HSE");
+  usePageTitle("Criar conta — Evita HSE", {
+    description: "Crie sua conta grátis no Evita HSE. 14 dias de teste com acesso completo a todos os módulos de gestão de SST e meio ambiente.",
+  });
   const [companyName, setCompanyName] = useState("");
   const [cnpj, setCnpj] = useState("");
   const [segment, setSegment] = useState("");

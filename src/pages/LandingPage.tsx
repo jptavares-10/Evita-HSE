@@ -669,11 +669,12 @@ export default function LandingPage() {
       </section>
 
       {/* ── FAQ ─────────────────────────────────────── */}
-      <section id="faq" className="py-24 px-[5%] bg-muted/30">
+      <section id="faq" className="py-24 px-[5%] bg-muted/30" aria-labelledby="faq-heading">
         <div className="max-w-[1200px] mx-auto">
           <Reveal className="text-center">
-            <span className="text-[0.72rem] font-bold tracking-[0.12em] uppercase text-primary mb-4 block">FAQ</span>
-            <h2 className="font-display text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight">Ficou alguma dúvida?</h2>
+            <span className="text-[0.72rem] font-bold tracking-[0.12em] uppercase text-primary mb-4 block">Perguntas Frequentes</span>
+            <h2 id="faq-heading" className="font-display text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight">Dúvidas sobre software de gestão de SST?</h2>
+            <p className="text-muted-foreground mt-3 text-lg max-w-[560px] mx-auto">Respostas para as perguntas mais comuns sobre o Evita HSE e gestão de segurança do trabalho.</p>
           </Reveal>
           <div className="max-w-[740px] mx-auto mt-12 space-y-2.5">
             {faqs.map((faq, i) => (

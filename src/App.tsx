@@ -86,6 +86,7 @@ const App = () => (
 
             {/* Public SEO pages */}
             <Route path="/funcionalidades" element={<LandingRoute><Funcionalidades /></LandingRoute>} />
+            <Route path="/faq" element={<LandingRoute><FAQ /></LandingRoute>} />
             <Route path="/funcionalidades/servicos-periodicos" element={<LandingRoute><ServicosPage /></LandingRoute>} />
             <Route path="/funcionalidades/inspecoes" element={<LandingRoute><InspecoesPage /></LandingRoute>} />
             <Route path="/funcionalidades/incidentes" element={<LandingRoute><IncidentesPage /></LandingRoute>} />

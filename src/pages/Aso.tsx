@@ -190,7 +190,7 @@ export default function Aso() {
               <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Nenhum colaborador encontrado.</TableCell></TableRow>
             ) : (
               pagination.paginatedData.map((emp: any) => (
-                <TableRow key={emp.id}>
+                <TableRow key={emp.id} className="cursor-pointer hover:bg-muted/50" onClick={() => { setDetailEmployee(emp); setDetailOpen(true); }}>
                   <TableCell className="font-medium">{emp.name}</TableCell>
                   <TableCell>{emp.job_positions?.name || "—"}</TableCell>
                   <TableCell>{emp.asoRecord ? formatDateBR(emp.asoRecord.exam_date) : "—"}</TableCell>
@@ -198,7 +198,7 @@ export default function Aso() {
                   <TableCell>{getStatusBadge(emp.asoStatus)}</TableCell>
                   <TableCell className="text-right">
                     {canEdit && (
-                      <Button size="sm" variant="ghost" onClick={() => { setSelectedEmployee(emp); setEditRecord(emp.asoRecord); setDrawerOpen(true); }}>
+                      <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); setSelectedEmployee(emp); setEditRecord(emp.asoRecord); setDrawerOpen(true); }}>
                         <Pencil className="h-3.5 w-3.5 mr-1" />
                         {emp.asoRecord ? "Editar" : "Registrar"}
                       </Button>

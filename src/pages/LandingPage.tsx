@@ -821,9 +821,9 @@ export default function LandingPage() {
       <footer className="border-t border-lp-border bg-lp-bg py-16 px-6 lg:px-8">
         <div className="max-w-7xl mx-auto grid md:grid-cols-5 gap-10 mb-12">
           <div className="md:col-span-2">
-            <Link to="/" className="flex items-center gap-2 font-lp-display font-semibold text-lp-ink mb-4">
-              <span className="h-7 w-7 rounded-lg bg-lp-emerald grid place-items-center text-lp-bg text-sm font-bold">E</span>
-              <span className="text-lg">Evita<span className="text-lp-emerald">.</span></span>
+            <Link to="/" className="inline-flex items-center gap-2.5 mb-4" aria-label="Evita HSE">
+              <EvitaLogo className="h-9 w-9" />
+              <EvitaWordmark size="lg" />
             </Link>
             <p className="text-sm text-lp-muted leading-relaxed max-w-sm mb-4">
               Software de gestão de Saúde, Segurança e Meio Ambiente para a indústria brasileira.

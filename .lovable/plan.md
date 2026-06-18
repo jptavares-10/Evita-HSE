@@ -1,102 +1,94 @@
+## Objetivo
 
+Reformular `src/pages/LandingPage.tsx` adotando a estrutura editorial densa do protótipo v1 escolhido, preservando 100% das funcionalidades atuais (nav, hero com CTAs, trust strip, dor, módulos agrupados por área HSE, como funciona, depoimentos, planos, FAQ resumida com link para `/faq`, footer). Visual mais artístico-enterprise com motion sofisticado.
 
-## Plano: Paginas publicas de SEO por modulo
+## Tipografia (ajustada ao setor HSE/industrial)
 
-### Escopo
+O protótipo usava Fraunces (serifa fashion-editorial). Para soar mais "engenharia / indústria / institucional sério" — alinhado ao público HSE — proponho:
 
-Criar **11 paginas publicas indexaveis** — 1 pagina central `/funcionalidades` + 10 landing pages por modulo — todas vinculadas a landing page principal e seguindo o mesmo design (navbar, footer, Reveal animations, cores, tipografia).
+- **Display (headlines):** `IBM Plex Serif` — serifa técnica, com herança industrial/engenharia (família IBM), peso institucional sem soar luxo-moda
+- **Body / UI:** `IBM Plex Sans` — sans humanista da mesma família, ótima legibilidade técnica
+- **Mono opcional (números/kickers):** `IBM Plex Mono` para kickers tipo "01 / 04 — SEGURANÇA"
 
-### Paginas a criar
+A família Plex transmite rigor de engenharia + sofisticação editorial, o que casa melhor com SSMA/HSE do que Fraunces ou Cormorant. Cores permanecem **Emerald Prestige**: `#064e3b` (verde profundo), `#0d7a5f` (esmeralda), `#c9a84c` (dourado acento), `#f5f0e0` (creme).
 
-| Rota | Modulo | Keywords-alvo |
-|------|--------|---------------|
-| `/funcionalidades` | Hub central | software gestao SST, plataforma HSE |
-| `/funcionalidades/servicos-periodicos` | Servicos Periodicos | controle extintores, servicos recorrentes SST |
-| `/funcionalidades/inspecoes` | Inspecoes | inspecao seguranca trabalho, checklist NR |
-| `/funcionalidades/incidentes` | IC & NC | registro incidentes trabalho, nao conformidade SST |
-| `/funcionalidades/epi` | EPIs | controle EPI, gestao equipamento protecao individual |
-| `/funcionalidades/documentos` | Biblioteca Documentos | gestao documentos SST, controle PGR PCMSO |
-| `/funcionalidades/treinamentos` | Treinamentos | controle treinamentos NR, matriz treinamento |
-| `/funcionalidades/aso` | ASO / Exames | controle ASO, gestao exames ocupacionais |
-| `/funcionalidades/mtr` | Gestao MTR | controle MTR residuos, gestao CDF |
-| `/funcionalidades/licencas` | Licencas Ambientais | controle licenca ambiental, gestao LO LI |
-| `/funcionalidades/fornecedores` | Portal Fornecedores | portal fornecedor documentos, gestao fornecedores SST |
+> Se preferir alternativa, sugiro: `Newsreader + Inter Tight` (mais editorial-tech) ou `Libre Baskerville + IBM Plex Sans` (mais institucional-legal). Decida no review.
 
-### Arquitetura
+## Tokens de design (em `src/index.css` + `tailwind.config.ts`)
 
-**1. Layout compartilhado** — `src/components/landing/LandingLayout.tsx`
-- Extrai navbar e footer da LandingPage atual para componente reutilizavel
-- Recebe `children` e renderiza navbar + main + footer
-- Reutiliza o hook `useReveal` e componente `Reveal`
+- Adicionar variáveis HSL para a paleta esmeralda:
+  - `--lp-bg: 40 33% 98%` (creme #FDFCF9)
+  - `--lp-ink: 152 39% 9%` (verde-tinta #0c1f15)
+  - `--lp-emerald-deep: 159 84% 17%` (#064e3b)
+  - `--lp-emerald: 162 80% 27%` (#0d7a5f)
+  - `--lp-gold: 43 50% 54%` (#c9a84c)
+  - `--lp-cream: 42 47% 92%` (#f5f0e0)
+  - `--lp-sand: 38 25% 91%` (#F2EFE9)
+- Tokens só para a landing (prefixo `lp-`) para não afetar o app interno.
+- Mapear no Tailwind como `lp.bg, lp.ink, lp.emerald, lp.emeraldDeep, lp.gold, lp.cream, lp.sand`.
+- Famílias: `font-display` → `IBM Plex Serif`, `font-sans-lp` → `IBM Plex Sans`, `font-mono-lp` → `IBM Plex Mono`.
 
-**2. Pagina hub** — `src/pages/Funcionalidades.tsx`
-- Hero compacto com h1 "Todos os modulos do Evita HSE"
-- Grid dos 10 modulos como cards clicaveis (Link para cada sub-pagina)
-- Agrupados por categoria (Seguranca, Saude, Meio Ambiente)
-- CTA final "Comece gratis"
+## Carregamento das fontes
 
-**3. Pagina por modulo** — `src/pages/funcionalidades/[Modulo].tsx` (10 arquivos)
-Cada pagina segue estrutura identica:
-- **Hero** com icone, h1 do modulo, descricao rica com keywords, CTA
-- **Secao "Funcionalidades"** — 4-6 cards com as funcionalidades reais do modulo (baseadas nos componentes existentes)
-- **Secao "Como funciona"** — 3 passos especificos do modulo
-- **Secao "Perguntas frequentes"** — 3-4 FAQs especificas + JSON-LD FAQPage
-- **CTA final** — mesmo estilo da landing principal
-- `usePageTitle` com title e description otimizados para SEO
+Instalar via `@fontsource`:
+- `@fontsource/ibm-plex-serif` (300, 400 italic, 600)
+- `@fontsource/ibm-plex-sans` (300, 400, 500, 600)
+- `@fontsource/ibm-plex-mono` (400, 500)
 
-**4. Alteracoes na LandingPage principal**
-- Cards de modulos na secao "Modulos" viram links para `/funcionalidades/[slug]`
-- Footer ganha coluna "Funcionalidades" com links para as sub-paginas
-- Navbar ganha link "Funcionalidades" apontando para `/funcionalidades`
+Importar em `src/main.tsx`. Não usar `<link>` Google Fonts.
 
-**5. Rotas** — `src/App.tsx`
-- Adicionar rotas publicas com `<LandingRoute>` para todas as 11 paginas
+## Estrutura da nova LandingPage
 
-**6. SEO**
-- Atualizar `public/sitemap.xml` com as 11 novas URLs
-- Atualizar `public/robots.txt` — permitir todas as rotas `/funcionalidades/*`
-- Cada pagina injeta JSON-LD `FAQPage` e define canonical + description via `usePageTitle`
+Reescrita seguindo o esqueleto do v1, **adaptado à paleta esmeralda** (não preto-puro):
 
-### Estrutura de arquivos
+1. **Nav fixa** com `mix-blend-difference`, logo serifa "evita", links uppercase tracking-widest, botão Login outline → preenchido no hover.
+2. **Hero assimétrico** col-span 8/4: kicker "Gestão HSE Inteligente" → headline gigante serifa "Segurança que *respira* tecnologia." + parágrafo curto + CTAs (`Teste grátis` → `/auth?mode=signup`, `Ver demonstração` → âncora ou `/funcionalidades`). Blob esmeralda blur no fundo.
+3. **Trust strip** segmentos atuais (já em `trustSegments`) em cinza/grayscale, monospace + serifa misturados.
+4. **Seção Dor** fundo `lp.ink` (verde profundo quase preto), headline serifa centralizada, 3 stats em grid (reaproveitando dados ou mantendo "0% / 45% / Real-time" como motivos editoriais; idealmente puxar de painPoints existentes).
+5. **Módulos (Ecossistema Integrado)** — **manter as 4 áreas HSE com tabs** (`groupTabs`) já existentes; renderizar como grid editorial com hover invertendo cor para `lp.ink`. Sub-cards listam os 10 `modules` agrupados.
+6. **Como funciona** — fundo `lp.sand`, 3 passos com numeração italic serifa (já existe `steps`).
+7. **Depoimentos** — pull-quote serifa enorme com borda-esquerda esmeralda, iterando `testimonials`.
+8. **Pricing** — 4 planos (preservar `pricingPlans` completo, não reduzir para 3), card central em destaque com `bg-lp.ink text-lp.cream`, outline dourado fino no recomendado.
+9. **FAQ resumida** — top 4 perguntas do array `faqs` + link "Ver todas as perguntas →" para `/faq`.
+10. **Footer institucional** preservando links/contato atuais.
 
-```text
-src/
-├── components/landing/
-│   ├── LandingLayout.tsx       (navbar + footer compartilhados)
-│   ├── LandingHero.tsx         (hero reutilizavel para sub-paginas)
-│   ├── LandingCTA.tsx          (CTA final reutilizavel)
-│   └── LandingFAQ.tsx          (secao FAQ reutilizavel com JSON-LD)
-├── pages/
-│   ├── Funcionalidades.tsx     (hub central)
-│   ├── funcionalidades/
-│   │   ├── ServicosPage.tsx
-│   │   ├── InspecoesPage.tsx
-│   │   ├── IncidentesPage.tsx
-│   │   ├── EpiPage.tsx
-│   │   ├── DocumentosPage.tsx
-│   │   ├── TreinamentosPage.tsx
-│   │   ├── AsoPage.tsx
-│   │   ├── MtrPage.tsx
-│   │   ├── LicencasPage.tsx
-│   │   └── FornecedoresPage.tsx
-│   └── LandingPage.tsx         (editado — links nos cards + footer)
-├── App.tsx                     (11 novas rotas)
-public/
-├── sitemap.xml                 (atualizado)
-└── robots.txt                  (atualizado)
-```
+## Motion (animações)
 
-### Conteudo das paginas por modulo
+- Manter o hook `useReveal`/`Reveal` existente para fade-up por seção.
+- Adicionar nas seções-chave:
+  - Hero: fade-in + translate-y na headline com `letter-spacing` animado (CSS keyframe próprio).
+  - Trust strip: marquee infinito suave (CSS `@keyframes marquee`).
+  - Cards de módulo: barra inferior dourada que cresce no hover (já existe no protótipo).
+  - Stats da seção dor: count-up animado ao entrar viewport (hook simples com `requestAnimationFrame`).
+  - Parallax sutil no blob do hero via `transform: translateY(scrollY * 0.15)`.
+- Tudo via CSS/Tailwind + hooks leves — **sem adicionar framer-motion** (já não está no projeto e não justifica para uma página).
 
-O conteudo sera baseado nos dados ja existentes em `moduleGroups` na LandingPage e nas funcionalidades reais dos componentes do sistema (drawers, filtros, KPIs). Exemplo para EPI:
-- h1: "Gestao de EPIs — Controle de Equipamentos de Protecao Individual"
-- Features: Catalogo com CA, Controle de estoque, Entregas por colaborador, Ficha de EPI, Alertas de vencimento CA
-- FAQs: "O que e CA?", "Como controlar estoque de EPI?", "Como registrar entrega de EPI?"
+## Componentização
 
-### Vinculacao com landing principal
+Manter tudo em `src/pages/LandingPage.tsx` (como hoje), mas extrair sub-componentes locais no mesmo arquivo para legibilidade: `<Nav/>`, `<Hero/>`, `<TrustStrip/>`, `<PainSection/>`, `<ModulesSection/>`, `<StepsSection/>`, `<TestimonialsSection/>`, `<PricingSection/>`, `<FAQSection/>`, `<FooterSection/>`. Sem novos arquivos.
 
-- Navbar: link "Funcionalidades" visivel em desktop e mobile
-- Secao Modulos: cada card de modulo tem link "Saiba mais" para a sub-pagina
-- Footer: nova coluna "Funcionalidades" com os 10 links
-- Breadcrumb em cada sub-pagina: Inicio > Funcionalidades > [Modulo]
+## SEO / acessibilidade
 
+- Preservar `usePageTitle` e qualquer JSON-LD existente.
+- Garantir único `<h1>` (no hero), demais seções com `<h2>`.
+- `alt` em qualquer ícone decorativo = `aria-hidden`.
+- Contraste verificado para texto `lp.ink` sobre `lp.cream` e `lp.cream` sobre `lp.ink`.
+
+## Arquivos a alterar
+
+- `src/pages/LandingPage.tsx` — reescrita completa (preserva todos os arrays de dados atuais)
+- `src/index.css` — adicionar bloco de tokens `--lp-*` e keyframes `marquee`
+- `tailwind.config.ts` — registrar cores `lp.*` e famílias `font-display`, `font-sans-lp`, `font-mono-lp`
+- `src/main.tsx` — importar `@fontsource/ibm-plex-{serif,sans,mono}`
+- `package.json` — via `bun add` dos 3 pacotes fontsource
+
+## O que **não** muda
+
+- Rotas, autenticação, qualquer página interna do app (apenas a landing pública `/`).
+- Conteúdo (textos institucionais), preços, FAQ — apenas reformatados visualmente.
+- `src/pages/FAQ.tsx` permanece como está; o link no resumo continua apontando para `/faq`.
+- Tokens globais do app interno (sidebar, dashboards) ficam intactos — novos tokens são prefixados `lp-`.
+
+## Validação
+
+Após implementação: capturar screenshot da nova `/` via Playwright e comparar com o protótipo v1 para garantir composição, densidade e hierarquia equivalentes (com a paleta esmeralda + Plex no lugar de preto + Fraunces).

@@ -51,6 +51,16 @@
     --sidebar-border: 220 18% 22%;
     --sidebar-ring: 217 91% 60%;
     --sidebar-muted: 220 12% 40%;
+
+    /* Landing Page tokens (Emerald Prestige) — scoped to public landing only */
+    --lp-bg: 40 33% 98%;
+    --lp-ink: 152 39% 9%;
+    --lp-emerald-deep: 159 84% 17%;
+    --lp-emerald: 162 80% 27%;
+    --lp-gold: 43 50% 54%;
+    --lp-cream: 42 47% 92%;
+    --lp-sand: 38 25% 91%;
+    --lp-muted: 150 8% 40%;
   }
 }
 

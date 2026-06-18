@@ -16,6 +16,9 @@ export default {
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
         display: ["Sora", "Inter", "system-ui", "sans-serif"],
+        "lp-display": ['"IBM Plex Serif"', "Georgia", "serif"],
+        "lp-sans": ['"IBM Plex Sans"', "Inter", "system-ui", "sans-serif"],
+        "lp-mono": ['"IBM Plex Mono"', "ui-monospace", "monospace"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -70,6 +73,16 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
           muted: "hsl(var(--sidebar-muted))",
         },
+        lp: {
+          bg: "hsl(var(--lp-bg))",
+          ink: "hsl(var(--lp-ink))",
+          emerald: "hsl(var(--lp-emerald))",
+          "emerald-deep": "hsl(var(--lp-emerald-deep))",
+          gold: "hsl(var(--lp-gold))",
+          cream: "hsl(var(--lp-cream))",
+          sand: "hsl(var(--lp-sand))",
+          muted: "hsl(var(--lp-muted))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -89,10 +102,15 @@ export default {
           "0%, 100%": { transform: "translateY(0px)" },
           "50%": { transform: "translateY(-12px)" },
         },
+        "lp-marquee": {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "lp-marquee": "lp-marquee 40s linear infinite",
       },
     },
   },

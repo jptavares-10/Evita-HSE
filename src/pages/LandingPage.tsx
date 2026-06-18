@@ -226,8 +226,11 @@ function DashboardMockup() {
         {/* Sidebar */}
         <aside className="col-span-3 border-r border-lp-border p-4 space-y-1.5">
           <div className="flex items-center gap-2 mb-5 px-2">
-            <span className="h-6 w-6 rounded-md bg-lp-emerald/20 grid place-items-center text-lp-emerald text-xs font-bold">E</span>
-            <span className="text-xs font-semibold text-lp-ink">Evita HSE</span>
+            <EvitaLogo className="h-5 w-5" />
+            <span className="text-xs font-semibold text-lp-ink tracking-tight">
+              Evita
+              <span className="text-lp-emerald font-lp-mono text-[9px] tracking-[0.2em] ml-1">HSE</span>
+            </span>
           </div>
           {["Dashboard", "Serviços", "Treinamentos", "Inspeções", "EPIs", "MTR", "Licenças"].map((it, i) => (
             <div key={it} className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[11px] ${i === 0 ? "bg-lp-emerald/10 text-lp-emerald font-medium" : "text-lp-muted"}`}>

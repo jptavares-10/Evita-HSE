@@ -16,9 +16,9 @@ export default {
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
         display: ["Sora", "Inter", "system-ui", "sans-serif"],
-        "lp-display": ['"IBM Plex Serif"', "Georgia", "serif"],
-        "lp-sans": ['"IBM Plex Sans"', "Inter", "system-ui", "sans-serif"],
-        "lp-mono": ['"IBM Plex Mono"', "ui-monospace", "monospace"],
+        "lp-display": ['"Inter Tight Variable"', "Inter", "system-ui", "sans-serif"],
+        "lp-sans": ["Inter", "system-ui", "sans-serif"],
+        "lp-mono": ['"JetBrains Mono"', "ui-monospace", "monospace"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -78,10 +78,13 @@ export default {
           ink: "hsl(var(--lp-ink))",
           emerald: "hsl(var(--lp-emerald))",
           "emerald-deep": "hsl(var(--lp-emerald-deep))",
+          "emerald-glow": "hsl(var(--lp-emerald-glow))",
           gold: "hsl(var(--lp-gold))",
           cream: "hsl(var(--lp-cream))",
           sand: "hsl(var(--lp-sand))",
           muted: "hsl(var(--lp-muted))",
+          surface: "hsl(var(--lp-surface))",
+          border: "hsl(var(--lp-border))",
         },
       },
       borderRadius: {
@@ -106,11 +109,21 @@ export default {
           "0%": { transform: "translateX(0)" },
           "100%": { transform: "translateX(-50%)" },
         },
+        "lp-mesh": {
+          "0%, 100%": { transform: "translate3d(0,0,0) scale(1)" },
+          "50%": { transform: "translate3d(3%, -2%, 0) scale(1.1)" },
+        },
+        "lp-pulse-dot": {
+          "0%, 100%": { opacity: "0.4" },
+          "50%": { opacity: "1" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "lp-marquee": "lp-marquee 40s linear infinite",
+        "lp-mesh": "lp-mesh 18s ease-in-out infinite",
+        "lp-pulse-dot": "lp-pulse-dot 2s ease-in-out infinite",
       },
     },
   },

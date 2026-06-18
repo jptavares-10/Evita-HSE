@@ -1,94 +1,104 @@
 ## Objetivo
 
-Reformular `src/pages/LandingPage.tsx` adotando a estrutura editorial densa do protótipo v1 escolhido, preservando 100% das funcionalidades atuais (nav, hero com CTAs, trust strip, dor, módulos agrupados por área HSE, como funciona, depoimentos, planos, FAQ resumida com link para `/faq`, footer). Visual mais artístico-enterprise com motion sofisticado.
+Reformular `src/pages/LandingPage.tsx` abandonando a estética editorial densa (IBM Plex Serif, capítulos numerados, parágrafos longos) e adotando o padrão das referências citadas — **Linear / Notion / Stripe / Vercel / Supabase**: above-the-fold cristalino, produto sendo mostrado em vez de descrito, copy curta, muito espaço, motion sutil.
 
-## Tipografia (ajustada ao setor HSE/industrial)
+Mantém 100% do conteúdo funcional (rotas, módulos, planos, FAQ, SEO/JSON-LD, toggle mensal/anual, links pra `/funcionalidades/*`, `/faq`, `/auth`).
 
-O protótipo usava Fraunces (serifa fashion-editorial). Para soar mais "engenharia / indústria / institucional sério" — alinhado ao público HSE — proponho:
+---
 
-- **Display (headlines):** `IBM Plex Serif` — serifa técnica, com herança industrial/engenharia (família IBM), peso institucional sem soar luxo-moda
-- **Body / UI:** `IBM Plex Sans` — sans humanista da mesma família, ótima legibilidade técnica
-- **Mono opcional (números/kickers):** `IBM Plex Mono` para kickers tipo "01 / 04 — SEGURANÇA"
+## Princípios aplicados
 
-A família Plex transmite rigor de engenharia + sofisticação editorial, o que casa melhor com SSMA/HSE do que Fraunces ou Cormorant. Cores permanecem **Emerald Prestige**: `#064e3b` (verde profundo), `#0d7a5f` (esmeralda), `#c9a84c` (dourado acento), `#f5f0e0` (creme).
+1. **Regra dos 3 segundos** — hero entrega em 1 frase: "o que é + para quem + valor". Sem rolar você vê o produto, o CTA e prova social.
+2. **Produto > texto** — substituir blocos de parágrafos por mockups da UI real do app (dashboard, módulo de treinamentos, MTR, portal de fornecedores). Renderizados em HTML/CSS dentro de "browser frames" (não imagens de banco).
+3. **Transparência** — CTA primário "Começar grátis" sem cartão; link "Ver preços" visível no nav; preços âncora `#precos` mostrados sem ginástica.
 
-> Se preferir alternativa, sugiro: `Newsreader + Inter Tight` (mais editorial-tech) ou `Libre Baskerville + IBM Plex Sans` (mais institucional-legal). Decida no review.
+---
 
-## Tokens de design (em `src/index.css` + `tailwind.config.ts`)
+## Direção visual (Linear-inspired, mantendo Emerald Prestige)
 
-- Adicionar variáveis HSL para a paleta esmeralda:
-  - `--lp-bg: 40 33% 98%` (creme #FDFCF9)
-  - `--lp-ink: 152 39% 9%` (verde-tinta #0c1f15)
-  - `--lp-emerald-deep: 159 84% 17%` (#064e3b)
-  - `--lp-emerald: 162 80% 27%` (#0d7a5f)
-  - `--lp-gold: 43 50% 54%` (#c9a84c)
-  - `--lp-cream: 42 47% 92%` (#f5f0e0)
-  - `--lp-sand: 38 25% 91%` (#F2EFE9)
-- Tokens só para a landing (prefixo `lp-`) para não afetar o app interno.
-- Mapear no Tailwind como `lp.bg, lp.ink, lp.emerald, lp.emeraldDeep, lp.gold, lp.cream, lp.sand`.
-- Famílias: `font-display` → `IBM Plex Serif`, `font-sans-lp` → `IBM Plex Sans`, `font-mono-lp` → `IBM Plex Mono`.
+- **Tema escuro por padrão na landing** (não afeta app interno): fundo `#0a0f0d` quase preto com verde profundo, texto `#e6efe9`, esmeralda `#10b981` como acento, dourado `#c9a84c` reservado a 1-2 detalhes.
+- **Tipografia simplificada**: trocar IBM Plex Serif → **Inter Tight** (display) + **Inter** (body). Sem serifa. Mono apenas em snippets/badges (`JetBrains Mono`).
+- **Componentes-chave**: cards translúcidos com borda 1px `white/8`, glow esmeralda sutil em hover, grid de pontinhos de fundo, gradient blur radial no hero.
+- **Motion**: gradient mesh animado no hero, cursor-aware tilt em mockups, reveal-on-scroll já existente (manter `useReveal`), conta-regressiva de stats. Sem framer-motion (CSS + RAF).
 
-## Carregamento das fontes
+---
 
-Instalar via `@fontsource`:
-- `@fontsource/ibm-plex-serif` (300, 400 italic, 600)
-- `@fontsource/ibm-plex-sans` (300, 400, 500, 600)
-- `@fontsource/ibm-plex-mono` (400, 500)
+## Nova estrutura (above-the-fold first)
 
-Importar em `src/main.tsx`. Não usar `<link>` Google Fonts.
+```text
+[Nav fixa translúcida: logo · Produto · Preços · FAQ · Login · CTA]
 
-## Estrutura da nova LandingPage
+┌────────────────────────────────────────────────────┐
+│ HERO (100vh)                                       │
+│  Badge "Gestão HSE para indústria brasileira"      │
+│  H1: "A plataforma HSE que               "         │
+│      "elimina planilhas."         ← 2 linhas max   │
+│  Sub 1 linha + 2 CTAs (primário/secundário)        │
+│  Logos de segmentos (marquee discreto)             │
+│                                                    │
+│  [MOCKUP HERO: dashboard real do app em browser    │
+│   frame, com tilt 3D sutil no scroll]              │
+└────────────────────────────────────────────────────┘
 
-Reescrita seguindo o esqueleto do v1, **adaptado à paleta esmeralda** (não preto-puro):
+[Bento grid de 4 módulos — cada card com mini-mockup
+ da feature, hover revela detalhe]
 
-1. **Nav fixa** com `mix-blend-difference`, logo serifa "evita", links uppercase tracking-widest, botão Login outline → preenchido no hover.
-2. **Hero assimétrico** col-span 8/4: kicker "Gestão HSE Inteligente" → headline gigante serifa "Segurança que *respira* tecnologia." + parágrafo curto + CTAs (`Teste grátis` → `/auth?mode=signup`, `Ver demonstração` → âncora ou `/funcionalidades`). Blob esmeralda blur no fundo.
-3. **Trust strip** segmentos atuais (já em `trustSegments`) em cinza/grayscale, monospace + serifa misturados.
-4. **Seção Dor** fundo `lp.ink` (verde profundo quase preto), headline serifa centralizada, 3 stats em grid (reaproveitando dados ou mantendo "0% / 45% / Real-time" como motivos editoriais; idealmente puxar de painPoints existentes).
-5. **Módulos (Ecossistema Integrado)** — **manter as 4 áreas HSE com tabs** (`groupTabs`) já existentes; renderizar como grid editorial com hover invertendo cor para `lp.ink`. Sub-cards listam os 10 `modules` agrupados.
-6. **Como funciona** — fundo `lp.sand`, 3 passos com numeração italic serifa (já existe `steps`).
-7. **Depoimentos** — pull-quote serifa enorme com borda-esquerda esmeralda, iterando `testimonials`.
-8. **Pricing** — 4 planos (preservar `pricingPlans` completo, não reduzir para 3), card central em destaque com `bg-lp.ink text-lp.cream`, outline dourado fino no recomendado.
-9. **FAQ resumida** — top 4 perguntas do array `faqs` + link "Ver todas as perguntas →" para `/faq`.
-10. **Footer institucional** preservando links/contato atuais.
+[Section "Feito para sua operação" — tabs Segurança /
+ Saúde / Meio Ambiente com mockup correspondente ao
+ lado (split: lista + screenshot)]
 
-## Motion (animações)
+[Stats strip — 3 números grandes animados]
 
-- Manter o hook `useReveal`/`Reveal` existente para fade-up por seção.
-- Adicionar nas seções-chave:
-  - Hero: fade-in + translate-y na headline com `letter-spacing` animado (CSS keyframe próprio).
-  - Trust strip: marquee infinito suave (CSS `@keyframes marquee`).
-  - Cards de módulo: barra inferior dourada que cresce no hover (já existe no protótipo).
-  - Stats da seção dor: count-up animado ao entrar viewport (hook simples com `requestAnimationFrame`).
-  - Parallax sutil no blob do hero via `transform: translateY(scrollY * 0.15)`.
-- Tudo via CSS/Tailwind + hooks leves — **sem adicionar framer-motion** (já não está no projeto e não justifica para uma página).
+[Como funciona — 3 passos visuais, ilustração em vez
+ de texto longo]
 
-## Componentização
+[Depoimentos — 3 cards horizontais compactos com avatar]
 
-Manter tudo em `src/pages/LandingPage.tsx` (como hoje), mas extrair sub-componentes locais no mesmo arquivo para legibilidade: `<Nav/>`, `<Hero/>`, `<TrustStrip/>`, `<PainSection/>`, `<ModulesSection/>`, `<StepsSection/>`, `<TestimonialsSection/>`, `<PricingSection/>`, `<FAQSection/>`, `<FooterSection/>`. Sem novos arquivos.
+[Pricing — 4 cards, toggle mensal/anual, Professional
+ destacado com glow esmeralda]
 
-## SEO / acessibilidade
+[FAQ resumida — 4 perguntas + link /faq]
 
-- Preservar `usePageTitle` e qualquer JSON-LD existente.
-- Garantir único `<h1>` (no hero), demais seções com `<h2>`.
-- `alt` em qualquer ícone decorativo = `aria-hidden`.
-- Contraste verificado para texto `lp.ink` sobre `lp.cream` e `lp.cream` sobre `lp.ink`.
+[CTA final full-bleed + Footer]
+```
+
+---
+
+## Mockups do produto (sem banco de imagens)
+
+Construir 4 "screenshots" puramente em HTML/CSS dentro de browser frames:
+
+1. **Hero mockup** — Dashboard com KPIs, gráfico de barras, lista de alertas.
+2. **Treinamentos** — Tabela com status (OK / Vencendo / Vencido) coloridos.
+3. **MTR** — Card de transporte com timeline de prazo CDF.
+4. **Portal Fornecedores** — Tela de upload com checklist.
+
+Cada mockup vira componente local em `LandingPage.tsx` (`<DashboardMockup />`, etc.) — leve, sem dependências, dark-themed.
+
+---
 
 ## Arquivos a alterar
 
-- `src/pages/LandingPage.tsx` — reescrita completa (preserva todos os arrays de dados atuais)
-- `src/index.css` — adicionar bloco de tokens `--lp-*` e keyframes `marquee`
-- `tailwind.config.ts` — registrar cores `lp.*` e famílias `font-display`, `font-sans-lp`, `font-mono-lp`
-- `src/main.tsx` — importar `@fontsource/ibm-plex-{serif,sans,mono}`
-- `package.json` — via `bun add` dos 3 pacotes fontsource
+- **`src/pages/LandingPage.tsx`** — reescrita completa, mantendo arrays de dados (`moduleGroups`, `pricingPlans`, `testimonials`, `faqs`), SEO/JSON-LD, hook `useReveal`, toggle de pricing.
+- **`src/index.css`** — substituir tokens `--lp-*` editoriais pelos novos (dark base, esmeralda, glow shadows, grid background). Remover keyframes não usadas, adicionar `mesh-shift` e `tilt`.
+- **`tailwind.config.ts`** — atualizar `fontFamily.lp-display`/`lp-sans` para `Inter Tight`/`Inter`; manter `lp-mono`. Atualizar `colors.lp.*` para nova paleta dark.
+- **`src/main.tsx`** — substituir imports `@fontsource/ibm-plex-*` por `@fontsource/inter` + `@fontsource-variable/inter-tight` (manter `jetbrains-mono` para snippets).
+- **`package.json`** — `bun add @fontsource/inter @fontsource-variable/inter-tight @fontsource/jetbrains-mono`; remover `@fontsource/ibm-plex-{serif,sans,mono}`.
 
-## O que **não** muda
+---
 
-- Rotas, autenticação, qualquer página interna do app (apenas a landing pública `/`).
-- Conteúdo (textos institucionais), preços, FAQ — apenas reformatados visualmente.
-- `src/pages/FAQ.tsx` permanece como está; o link no resumo continua apontando para `/faq`.
-- Tokens globais do app interno (sidebar, dashboards) ficam intactos — novos tokens são prefixados `lp-`.
+## O que NÃO muda
+
+- Nenhuma rota, lógica de auth, backend, planos, FAQ ou tokens do app interno (sidebar/dashboards/admin permanecem com tema claro atual).
+- Conteúdo textual essencial (nomes de módulos, preços, perguntas) — apenas encurtado/reformatado.
+- `src/pages/FAQ.tsx`, `/funcionalidades/*` ficam intactos.
+
+---
 
 ## Validação
 
-Após implementação: capturar screenshot da nova `/` via Playwright e comparar com o protótipo v1 para garantir composição, densidade e hierarquia equivalentes (com a paleta esmeralda + Plex no lugar de preto + Fraunces).
+Capturar `/` via Playwright (1280×1800, dark), verificar:
+- Above-the-fold mostra headline + sub + CTA + mockup sem rolar
+- Mockups renderizam como UI real (não placeholder)
+- Pricing aparece com toggle funcionando
+- Nav fixa com link "Preços" visível

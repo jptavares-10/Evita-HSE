@@ -52,18 +52,18 @@
     --sidebar-ring: 217 91% 60%;
     --sidebar-muted: 220 12% 40%;
 
-    /* Landing Page tokens (dark SaaS, Linear-inspired) — scoped to public landing only */
-    --lp-bg: 158 30% 4%;            /* near-black emerald base */
-    --lp-surface: 158 22% 8%;       /* card surface */
-    --lp-ink: 150 25% 96%;          /* text on dark */
-    --lp-border: 158 15% 20%;
-    --lp-emerald: 160 84% 39%;      /* #10b981 emerald-500 */
-    --lp-emerald-deep: 161 94% 24%;
-    --lp-emerald-glow: 158 80% 50%;
-    --lp-gold: 43 70% 60%;
-    --lp-cream: 150 25% 96%;
-    --lp-sand: 158 18% 12%;
-    --lp-muted: 150 8% 60%;
+    /* Landing Page tokens — light, Emerald Prestige */
+    --lp-bg: 150 30% 99%;            /* off-white with green hint */
+    --lp-surface: 0 0% 100%;         /* card surface */
+    --lp-ink: 160 40% 10%;           /* deep emerald-charcoal */
+    --lp-border: 158 18% 89%;
+    --lp-emerald: 160 84% 32%;       /* deeper emerald for contrast on white */
+    --lp-emerald-deep: 161 94% 20%;
+    --lp-emerald-glow: 158 75% 42%;
+    --lp-gold: 43 65% 52%;
+    --lp-cream: 150 30% 97%;
+    --lp-sand: 150 25% 95%;
+    --lp-muted: 160 10% 42%;
   }
 }
 
@@ -137,24 +137,24 @@
 /* Landing page utilities */
 .lp-grid-bg {
   background-image:
-    radial-gradient(circle at 1px 1px, hsl(var(--lp-ink) / 0.06) 1px, transparent 0);
+    radial-gradient(circle at 1px 1px, hsl(var(--lp-ink) / 0.08) 1px, transparent 0);
   background-size: 24px 24px;
 }
 .lp-mesh-bg {
   background:
-    radial-gradient(ellipse 60% 50% at 50% 0%, hsl(var(--lp-emerald) / 0.18), transparent 60%),
-    radial-gradient(ellipse 40% 40% at 80% 20%, hsl(var(--lp-emerald-glow) / 0.10), transparent 60%),
-    radial-gradient(ellipse 50% 40% at 10% 30%, hsl(var(--lp-emerald-deep) / 0.20), transparent 60%);
+    radial-gradient(ellipse 60% 50% at 50% 0%, hsl(var(--lp-emerald) / 0.10), transparent 60%),
+    radial-gradient(ellipse 40% 40% at 80% 20%, hsl(var(--lp-emerald-glow) / 0.08), transparent 60%),
+    radial-gradient(ellipse 50% 40% at 10% 30%, hsl(var(--lp-gold) / 0.08), transparent 60%);
 }
 .lp-glow {
-  box-shadow: 0 0 0 1px hsl(var(--lp-emerald) / 0.25), 0 20px 60px -20px hsl(var(--lp-emerald) / 0.35);
+  box-shadow: 0 0 0 1px hsl(var(--lp-emerald) / 0.25), 0 20px 60px -20px hsl(var(--lp-emerald) / 0.45);
 }
 .lp-card {
-  background: hsl(var(--lp-surface) / 0.6);
-  border: 1px solid hsl(var(--lp-border) / 0.6);
-  backdrop-filter: blur(8px);
+  background: hsl(var(--lp-surface));
+  border: 1px solid hsl(var(--lp-border));
+  box-shadow: 0 1px 2px hsl(var(--lp-ink) / 0.04), 0 8px 24px -12px hsl(var(--lp-ink) / 0.08);
 }
 .lp-card:hover {
   border-color: hsl(var(--lp-emerald) / 0.4);
-  background: hsl(var(--lp-surface) / 0.9);
+  box-shadow: 0 1px 2px hsl(var(--lp-ink) / 0.04), 0 20px 40px -20px hsl(var(--lp-emerald) / 0.25);
 }

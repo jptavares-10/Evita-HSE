@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Shield, Folder, FolderOpen, FolderPlus, Upload, Eye, Download, FileText, AlertTriangle } from "lucide-react";
+import { Folder, FolderOpen, FolderPlus, Upload, Eye, Download, FileText, AlertTriangle } from "lucide-react";
+import { EvitaLogo, EvitaWordmark } from "@/components/landing/EvitaBrand";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { formatDateBR, getFileIcon, getFileExtension } from "@/lib/suppliers";
@@ -161,12 +162,12 @@ export default function PortalFornecedor() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-card px-6 py-4">
+      <header className="border-b border-lp-border bg-lp-bg/80 backdrop-blur px-6 py-4">
         <div className="max-w-5xl mx-auto flex items-center gap-3">
-          <Shield className="h-6 w-6 text-primary" />
-          <span className="font-semibold">Evita HSE</span>
-          <span className="text-muted-foreground">·</span>
-          <span className="text-sm text-muted-foreground">Portal de Documentos — {portalData.supplier_name}</span>
+          <EvitaLogo className="h-7 w-7" />
+          <EvitaWordmark />
+          <span className="text-lp-muted">·</span>
+          <span className="text-sm text-lp-muted">Portal de Documentos — {portalData.supplier_name}</span>
         </div>
       </header>
 

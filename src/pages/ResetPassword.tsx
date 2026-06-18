@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { AuthShell } from "@/components/landing/AuthShell";
 
 export default function ResetPassword() {
   const [password, setPassword] = useState("");
@@ -40,31 +39,27 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
-      <div className="w-full max-w-md animate-fade-up">
-        <div className="bg-card rounded-lg border shadow-lg p-8">
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <Shield className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold">Evita HSE</h1>
-          </div>
-          <h2 className="text-lg font-semibold text-center mb-6">Redefinir senha</h2>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label>Nova senha</Label>
-              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} />
-            </div>
-            <div className="space-y-2">
-              <Label>Confirmar nova senha</Label>
-              <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
-            </div>
-            {error && <p className="text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">{error}</p>}
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Atualizando..." : "Atualizar senha"}
-            </Button>
-          </form>
+    <AuthShell title="Redefinir senha" subtitle="Escolha uma nova senha segura para sua conta.">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <Label className="text-lp-ink">Nova senha</Label>
+          <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8}
+            className="bg-lp-surface border-lp-border text-lp-ink focus-visible:ring-lp-emerald/40 focus-visible:border-lp-emerald/40" />
         </div>
-      </div>
-    </div>
+        <div className="space-y-2">
+          <Label className="text-lp-ink">Confirmar nova senha</Label>
+          <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required
+            className="bg-lp-surface border-lp-border text-lp-ink focus-visible:ring-lp-emerald/40 focus-visible:border-lp-emerald/40" />
+        </div>
+        {error && <p className="text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">{error}</p>}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-2.5 rounded-lg bg-lp-emerald text-lp-bg font-medium hover:bg-lp-emerald-glow transition-all lp-glow disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {loading ? "Atualizando..." : "Atualizar senha"}
+        </button>
+      </form>
+    </AuthShell>
   );
 }

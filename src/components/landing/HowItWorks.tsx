@@ -9,24 +9,27 @@ interface Step {
 
 export function HowItWorks({ steps }: { steps: Step[] }) {
   return (
-    <section className="py-24 px-[5%] bg-muted/30">
-      <div className="max-w-[1200px] mx-auto">
-        <Reveal className="text-center">
-          <span className="text-[0.72rem] font-bold tracking-[0.12em] uppercase text-primary mb-4 block">Como funciona</span>
-          <h2 className="font-display text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight">Simples de usar</h2>
+    <section className="py-24 px-6 lg:px-8 border-t border-lp-border bg-lp-cream/40">
+      <div className="max-w-6xl mx-auto">
+        <Reveal className="text-center mb-14">
+          <p className="text-xs uppercase tracking-[0.2em] text-lp-emerald font-medium mb-3">Como funciona</p>
+          <h2 className="font-lp-display text-4xl md:text-5xl font-semibold tracking-tight text-lp-ink">Simples de usar.</h2>
         </Reveal>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-0 mt-14 relative">
-          <div className="hidden md:block absolute top-[52px] left-[calc(16.66%+32px)] right-[calc(16.66%+32px)] h-[2px] bg-gradient-to-r from-primary/20 via-primary/40 to-primary/20" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {steps.map((s, i) => {
             const StepIcon = s.icon;
             return (
-              <Reveal key={s.num} delay={i * 0.12} className="text-center px-8 py-8 relative">
-                <div className="absolute top-2 left-1/2 -translate-x-1/2 font-display text-[5.5rem] font-extrabold text-primary/[0.04] select-none pointer-events-none leading-none">{s.num}</div>
-                <div className="w-[72px] h-[72px] bg-gradient-to-br from-primary to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-7 relative z-10 shadow-[0_12px_32px_rgba(37,99,235,0.3)] ring-4 ring-primary/10">
-                  <StepIcon className="h-7 w-7 text-white" />
+              <Reveal key={s.num} delay={i * 0.08}>
+                <div className="lp-card rounded-2xl p-8 h-full relative overflow-hidden">
+                  <span className="absolute -top-2 right-4 font-lp-display text-7xl font-semibold text-lp-emerald/[0.08] select-none pointer-events-none leading-none">
+                    {s.num}
+                  </span>
+                  <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-lp-emerald to-lp-emerald-deep flex items-center justify-center mb-5 shadow-[0_10px_30px_-10px_hsl(var(--lp-emerald)/0.6)]">
+                    <StepIcon className="h-5 w-5 text-lp-bg" />
+                  </div>
+                  <h3 className="font-lp-display text-lg font-semibold text-lp-ink mb-2">{s.title}</h3>
+                  <p className="text-sm text-lp-muted leading-relaxed">{s.desc}</p>
                 </div>
-                <h3 className="font-display font-bold text-lg mb-2.5">{s.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed max-w-[280px] mx-auto">{s.desc}</p>
               </Reveal>
             );
           })}

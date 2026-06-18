@@ -2,12 +2,11 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { translateSupabaseError } from "@/lib/supabase-errors";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { AuthShell } from "@/components/landing/AuthShell";
 
 export default function Login() {
   usePageTitle("Entrar — Evita HSE", { noindex: true });
@@ -62,66 +61,63 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
-      <div className="w-full max-w-md animate-fade-up">
-        <div className="bg-card rounded-lg border shadow-lg p-8">
-          <div className="flex items-center justify-center gap-2 mb-8">
-            <Shield className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">Evita HSE</h1>
-          </div>
-
-          <h2 className="text-lg font-semibold text-center mb-6">Entrar na sua conta</h2>
-
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">E-mail</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="seu@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-
-            {error && (
-              <p className="text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">{error}</p>
-            )}
-
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Entrando..." : "Entrar"}
-            </Button>
-          </form>
-
-          <div className="mt-4 text-center space-y-2">
-            <button
-              onClick={handleForgotPassword}
-              className="text-sm text-primary hover:underline underline-offset-2"
-            >
-              Esqueci minha senha
-            </button>
-            <p className="text-sm text-muted-foreground">
-              Não tem conta?{" "}
-              <Link to="/cadastro" className="text-primary font-medium hover:underline underline-offset-2">
-                Criar conta
-              </Link>
-            </p>
-          </div>
+    <AuthShell
+      title="Entrar na sua conta"
+      footer={
+        <>
+          Não tem conta?{" "}
+          <Link to="/cadastro" className="text-lp-emerald font-medium hover:underline underline-offset-2">
+            Criar conta grátis
+          </Link>
+        </>
+      }
+    >
+      <form onSubmit={handleLogin} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="email" className="text-lp-ink">E-mail</Label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="seu@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="bg-lp-surface border-lp-border text-lp-ink placeholder:text-lp-muted focus-visible:ring-lp-emerald/40 focus-visible:border-lp-emerald/40"
+          />
         </div>
-      </div>
-    </div>
+        <div className="space-y-2">
+          <Label htmlFor="password" className="text-lp-ink">Senha</Label>
+          <Input
+            id="password"
+            type="password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="bg-lp-surface border-lp-border text-lp-ink placeholder:text-lp-muted focus-visible:ring-lp-emerald/40 focus-visible:border-lp-emerald/40"
+          />
+        </div>
+
+        {error && (
+          <p className="text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">{error}</p>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-2.5 rounded-lg bg-lp-emerald text-lp-bg font-medium hover:bg-lp-emerald-glow transition-all lp-glow disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {loading ? "Entrando..." : "Entrar"}
+        </button>
+
+        <button
+          type="button"
+          onClick={handleForgotPassword}
+          className="w-full text-center text-xs text-lp-muted hover:text-lp-emerald transition-colors mt-2"
+        >
+          Esqueci minha senha
+        </button>
+      </form>
+    </AuthShell>
   );
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ChevronDown, ArrowLeft, Search } from "lucide-react";
+import { Plus, ArrowLeft, Search } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { LandingLayout } from "@/components/landing/LandingLayout";
 import { Input } from "@/components/ui/input";
@@ -98,37 +98,45 @@ export default function FAQ() {
 
   return (
     <LandingLayout>
-      <main id="conteudo-principal" className="pt-24 pb-20 px-[5%]">
-        <div className="max-w-[800px] mx-auto">
-          {/* Breadcrumb */}
-          <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors mb-8">
+      <section className="relative pt-20 pb-12 px-6 lg:px-8 overflow-hidden">
+        <div aria-hidden className="absolute inset-0 lp-mesh-bg pointer-events-none" />
+        <div aria-hidden className="absolute inset-0 lp-grid-bg pointer-events-none opacity-40" />
+        <div className="relative z-10 max-w-3xl mx-auto">
+          <Link to="/" className="inline-flex items-center gap-1.5 text-xs text-lp-muted hover:text-lp-emerald transition-colors mb-8">
             <ArrowLeft className="h-3.5 w-3.5" /> Voltar ao início
           </Link>
-
-          <h1 className="font-display text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight mb-3">
-            Perguntas Frequentes
+          <div className="inline-flex items-center gap-2 rounded-full border border-lp-emerald/30 bg-lp-emerald/10 px-3 py-1.5 text-xs font-medium text-lp-emerald mb-6">
+            <span className="h-1.5 w-1.5 rounded-full bg-lp-emerald" />
+            FAQ
+          </div>
+          <h1 className="font-lp-display text-4xl md:text-5xl font-semibold tracking-tight leading-[1.05] text-lp-ink mb-4">
+            Perguntas frequentes.
           </h1>
-          <p className="text-lg text-muted-foreground mb-8 max-w-[560px]">
-            Tudo que você precisa saber sobre o Evita HSE e gestão de segurança do trabalho.
+          <p className="text-lg text-lp-muted max-w-xl mb-8">
+            Tudo que você precisa saber sobre o Evita HSE e gestão de SST e meio ambiente.
           </p>
 
-          {/* Search */}
-          <div className="relative mb-8">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="relative mb-6">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-lp-muted" />
             <Input
               placeholder="Buscar pergunta..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10"
+              className="pl-10 bg-lp-surface border-lp-border text-lp-ink placeholder:text-lp-muted focus-visible:ring-lp-emerald/40"
             />
           </div>
+        </div>
+      </section>
 
-          {/* Category pills */}
+      <section className="px-6 lg:px-8 pb-24 border-t border-lp-border">
+        <div className="max-w-3xl mx-auto pt-10">
           <div className="flex flex-wrap gap-2 mb-10">
             <button
               onClick={() => setActiveCategory(null)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
-                !activeCategory ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border text-muted-foreground hover:border-primary/40"
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                !activeCategory
+                  ? "bg-lp-emerald text-lp-bg border-lp-emerald"
+                  : "bg-lp-surface border-lp-border text-lp-muted hover:border-lp-emerald/40 hover:text-lp-ink"
               }`}
             >
               Todas
@@ -137,8 +145,10 @@ export default function FAQ() {
               <button
                 key={cat.label}
                 onClick={() => setActiveCategory(activeCategory === cat.label ? null : cat.label)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
-                  activeCategory === cat.label ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border text-muted-foreground hover:border-primary/40"
+                className={`px-3.5 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                  activeCategory === cat.label
+                    ? "bg-lp-emerald text-lp-bg border-lp-emerald"
+                    : "bg-lp-surface border-lp-border text-lp-muted hover:border-lp-emerald/40 hover:text-lp-ink"
                 }`}
               >
                 {cat.label}
@@ -146,35 +156,32 @@ export default function FAQ() {
             ))}
           </div>
 
-          {/* FAQ sections */}
           {filteredCategories.length === 0 && (
-            <p className="text-center text-muted-foreground py-12">Nenhuma pergunta encontrada para "{search}"</p>
+            <p className="text-center text-lp-muted py-12">Nenhuma pergunta encontrada para "{search}"</p>
           )}
 
           {filteredCategories.map((cat) => (
             <div key={cat.label} className="mb-10">
-              <h2 className="font-display font-bold text-lg mb-4 text-foreground">{cat.label}</h2>
+              <h2 className="font-lp-display font-semibold text-xl text-lp-ink mb-4">{cat.label}</h2>
               <div className="space-y-2">
                 {cat.faqs.map((faq) => {
                   const key = faq.q;
                   const isOpen = openFaq === key;
                   return (
-                    <div key={key} className={`bg-card border rounded-xl overflow-hidden transition-shadow hover:shadow-md ${isOpen ? "shadow-md" : ""}`}>
+                    <div key={key} className="rounded-lg border border-lp-border bg-lp-surface/40 overflow-hidden">
                       <button
-                        className="w-full flex items-center justify-between px-5 py-4 text-left font-semibold text-[0.93rem] gap-4"
+                        className="w-full flex items-center justify-between px-5 py-4 text-left gap-4"
                         onClick={() => setOpenFaq(isOpen ? null : key)}
+                        aria-expanded={isOpen}
                       >
-                        {faq.q}
-                        <span className={`w-6 h-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0 transition-all duration-200 ${isOpen ? "rotate-180 bg-blue-100 text-primary" : "text-muted-foreground"}`}>
-                          <ChevronDown className="h-3.5 w-3.5" />
-                        </span>
+                        <span className="text-lp-ink font-medium text-[0.95rem]">{faq.q}</span>
+                        <Plus className={`h-4 w-4 text-lp-muted shrink-0 transition-transform ${isOpen ? "rotate-45 text-lp-emerald" : ""}`} />
                       </button>
-                      {isOpen && (
-                        <>
-                          <div className="h-px bg-border mx-5" />
-                          <div className="px-5 pb-4 pt-3 text-sm text-muted-foreground leading-relaxed">{faq.a}</div>
-                        </>
-                      )}
+                      <div className={`grid transition-all duration-300 ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+                        <div className="overflow-hidden">
+                          <p className="px-5 pb-5 text-sm text-lp-muted leading-relaxed">{faq.a}</p>
+                        </div>
+                      </div>
                     </div>
                   );
                 })}
@@ -182,7 +189,7 @@ export default function FAQ() {
             </div>
           ))}
         </div>
-      </main>
+      </section>
     </LandingLayout>
   );
 }

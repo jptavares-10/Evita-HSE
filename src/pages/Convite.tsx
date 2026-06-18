@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { translateSupabaseError } from "@/lib/supabase-errors";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Shield } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { AuthShell } from "@/components/landing/AuthShell";
 
 async function waitForSession(maxMs = 5000, intervalMs = 500) {
   const start = Date.now();
@@ -170,64 +170,64 @@ export default function Convite() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-lp-bg">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-lp-emerald border-t-transparent" />
       </div>
     );
   }
 
   if (error && !invitation) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
-        <div className="bg-card rounded-lg border shadow-lg p-8 max-w-md w-full text-center">
-          <Shield className="h-8 w-8 text-destructive mx-auto mb-4" />
-          <h1 className="text-lg font-semibold mb-2">Convite inválido</h1>
-          <p className="text-muted-foreground text-sm">{error}</p>
-          <Button className="mt-4" onClick={() => navigate("/login")}>Ir para o login</Button>
+      <AuthShell title="Convite inválido">
+        <div className="text-center space-y-4">
+          <div className="mx-auto w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
+            <AlertTriangle className="h-5 w-5 text-destructive" />
+          </div>
+          <p className="text-sm text-lp-muted">{error}</p>
+          <button
+            onClick={() => navigate("/login")}
+            className="w-full py-2.5 rounded-lg bg-lp-emerald text-lp-bg font-medium hover:bg-lp-emerald-glow transition-all lp-glow"
+          >
+            Ir para o login
+          </button>
         </div>
-      </div>
+      </AuthShell>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
-      <div className="w-full max-w-md animate-fade-up">
-        <div className="bg-card rounded-lg border shadow-lg p-8">
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <Shield className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold">Evita HSE</h1>
-          </div>
-          <h2 className="text-lg font-semibold text-center mb-2">Aceitar convite</h2>
-          <p className="text-sm text-muted-foreground text-center mb-6">
-            Você foi convidado para se juntar a uma empresa.
-          </p>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label>E-mail</Label>
-              <Input value={invitation?.email ?? ""} disabled />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Nome completo *</Label>
-              <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Senha *</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirmar senha *</Label>
-              <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
-            </div>
-
-            {error && <p className="text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">{error}</p>}
-
-            <Button type="submit" className="w-full" disabled={submitting}>
-              {submitting ? "Criando conta..." : "Criar conta e entrar"}
-            </Button>
-          </form>
+    <AuthShell title="Aceitar convite" subtitle="Você foi convidado para se juntar a uma empresa.">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <Label className="text-lp-ink">E-mail</Label>
+          <Input value={invitation?.email ?? ""} disabled className="bg-lp-cream border-lp-border text-lp-muted" />
         </div>
-      </div>
-    </div>
+        <div className="space-y-2">
+          <Label htmlFor="fullName" className="text-lp-ink">Nome completo *</Label>
+          <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} required
+            className="bg-lp-surface border-lp-border text-lp-ink focus-visible:ring-lp-emerald/40 focus-visible:border-lp-emerald/40" />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="password" className="text-lp-ink">Senha *</Label>
+          <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8}
+            className="bg-lp-surface border-lp-border text-lp-ink focus-visible:ring-lp-emerald/40 focus-visible:border-lp-emerald/40" />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="confirmPassword" className="text-lp-ink">Confirmar senha *</Label>
+          <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required
+            className="bg-lp-surface border-lp-border text-lp-ink focus-visible:ring-lp-emerald/40 focus-visible:border-lp-emerald/40" />
+        </div>
+
+        {error && <p className="text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">{error}</p>}
+
+        <button
+          type="submit"
+          disabled={submitting}
+          className="w-full py-2.5 rounded-lg bg-lp-emerald text-lp-bg font-medium hover:bg-lp-emerald-glow transition-all lp-glow disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {submitting ? "Criando conta..." : "Criar conta e entrar"}
+        </button>
+      </form>
+    </AuthShell>
   );
 }

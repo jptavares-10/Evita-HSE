@@ -3,13 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { translateSupabaseError } from "@/lib/supabase-errors";
 import { formatCNPJ, isValidCNPJFormat } from "@/lib/cnpj";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { AuthShell } from "@/components/landing/AuthShell";
 
 const SEGMENTS = [
   "Construção Civil",
@@ -73,8 +72,8 @@ export default function CompletarCadastro() {
 
   if (loading || checking) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-lp-bg">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-lp-emerald border-t-transparent" />
       </div>
     );
   }
@@ -121,62 +120,51 @@ export default function CompletarCadastro() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4 py-8">
-      <div className="w-full max-w-md animate-fade-up">
-        <div className="bg-card rounded-lg border shadow-lg p-8">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Shield className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">Evita HSE</h1>
-          </div>
-
-          <div className="text-center mb-6">
-            <h2 className="text-lg font-semibold">Seu cadastro está incompleto</h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              Preencha os dados abaixo para finalizar a configuração da sua conta.
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="companyName">Nome da empresa *</Label>
-              <Input id="companyName" value={companyName} onChange={(e) => setCompanyName(e.target.value)} required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="cnpj">CNPJ</Label>
-              <Input
-                id="cnpj"
-                placeholder="XX.XXX.XXX/XXXX-XX"
-                value={cnpj}
-                onChange={(e) => setCnpj(formatCNPJ(e.target.value))}
-                maxLength={18}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Segmento</Label>
-              <Select value={segment} onValueChange={setSegment}>
-                <SelectTrigger><SelectValue placeholder="Selecione o segmento" /></SelectTrigger>
-                <SelectContent>
-                  {SEGMENTS.map((s) => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Nome completo *</Label>
-              <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
-            </div>
-
-            {error && (
-              <p className="text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">{error}</p>
-            )}
-
-            <Button type="submit" className="w-full" disabled={submitting}>
-              {submitting ? "Finalizando..." : "Finalizar cadastro"}
-            </Button>
-          </form>
+    <AuthShell title="Seu cadastro está incompleto" subtitle="Preencha os dados abaixo para finalizar a configuração da sua conta.">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="companyName" className="text-lp-ink">Nome da empresa *</Label>
+          <Input id="companyName" value={companyName} onChange={(e) => setCompanyName(e.target.value)} required
+            className="bg-lp-surface border-lp-border text-lp-ink focus-visible:ring-lp-emerald/40 focus-visible:border-lp-emerald/40" />
         </div>
-      </div>
-    </div>
+        <div className="space-y-2">
+          <Label htmlFor="cnpj" className="text-lp-ink">CNPJ</Label>
+          <Input
+            id="cnpj"
+            placeholder="XX.XXX.XXX/XXXX-XX"
+            value={cnpj}
+            onChange={(e) => setCnpj(formatCNPJ(e.target.value))}
+            maxLength={18}
+            className="bg-lp-surface border-lp-border text-lp-ink placeholder:text-lp-muted focus-visible:ring-lp-emerald/40 focus-visible:border-lp-emerald/40"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label className="text-lp-ink">Segmento</Label>
+          <Select value={segment} onValueChange={setSegment}>
+            <SelectTrigger className="bg-lp-surface border-lp-border text-lp-ink focus:ring-lp-emerald/40"><SelectValue placeholder="Selecione o segmento" /></SelectTrigger>
+            <SelectContent>
+              {SEGMENTS.map((s) => (
+                <SelectItem key={s} value={s}>{s}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="fullName" className="text-lp-ink">Nome completo *</Label>
+          <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} required
+            className="bg-lp-surface border-lp-border text-lp-ink focus-visible:ring-lp-emerald/40 focus-visible:border-lp-emerald/40" />
+        </div>
+
+        {error && <p className="text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">{error}</p>}
+
+        <button
+          type="submit"
+          disabled={submitting}
+          className="w-full py-2.5 rounded-lg bg-lp-emerald text-lp-bg font-medium hover:bg-lp-emerald-glow transition-all lp-glow disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {submitting ? "Finalizando..." : "Finalizar cadastro"}
+        </button>
+      </form>
+    </AuthShell>
   );
 }

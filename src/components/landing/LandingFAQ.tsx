@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Reveal } from "@/components/landing/Reveal";
 
 interface FAQ {
@@ -34,34 +34,33 @@ export function LandingFAQ({ faqs, jsonLdId = "module-faq-jsonld" }: LandingFAQP
   }, [faqs, jsonLdId]);
 
   return (
-    <section className="py-24 px-[5%] bg-muted/30">
-      <div className="max-w-[1200px] mx-auto">
-        <Reveal className="text-center">
-          <span className="text-[0.72rem] font-bold tracking-[0.12em] uppercase text-primary mb-4 block">FAQ</span>
-          <h2 className="font-display text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight">Perguntas frequentes</h2>
+    <section className="py-24 px-6 lg:px-8 border-t border-lp-border">
+      <div className="max-w-3xl mx-auto">
+        <Reveal className="text-center mb-12">
+          <p className="text-xs uppercase tracking-[0.2em] text-lp-emerald font-medium mb-3">FAQ</p>
+          <h2 className="font-lp-display text-4xl md:text-5xl font-semibold tracking-tight text-lp-ink">Perguntas frequentes.</h2>
         </Reveal>
-        <div className="max-w-[740px] mx-auto mt-12 space-y-2.5">
-          {faqs.map((faq, i) => (
-            <Reveal key={i} delay={0}>
-              <div className={`bg-card border rounded-xl overflow-hidden transition-shadow hover:shadow-md ${openFaq === i ? "shadow-md" : ""}`}>
+        <div className="space-y-2">
+          {faqs.map((faq, i) => {
+            const open = openFaq === i;
+            return (
+              <div key={i} className="rounded-lg border border-lp-border bg-lp-surface/40 overflow-hidden">
                 <button
-                  className="w-full flex items-center justify-between px-6 py-4 text-left font-semibold text-[0.95rem] gap-4"
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between p-5 text-left gap-4"
+                  onClick={() => setOpenFaq(open ? null : i)}
+                  aria-expanded={open}
                 >
-                  {faq.q}
-                  <span className={`w-6 h-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0 transition-all duration-200 ${openFaq === i ? "rotate-180 bg-blue-100 text-primary" : "text-muted-foreground"}`}>
-                    <ChevronDown className="h-3.5 w-3.5" />
-                  </span>
+                  <span className="text-lp-ink font-medium">{faq.q}</span>
+                  <Plus className={`h-4 w-4 text-lp-muted shrink-0 transition-transform ${open ? "rotate-45 text-lp-emerald" : ""}`} />
                 </button>
-                {openFaq === i && (
-                  <>
-                    <div className="h-px bg-border mx-6" />
-                    <div className="px-6 pb-5 pt-3 text-sm text-muted-foreground leading-relaxed">{faq.a}</div>
-                  </>
-                )}
+                <div className={`grid transition-all duration-300 ${open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+                  <div className="overflow-hidden">
+                    <p className="px-5 pb-5 text-sm text-lp-muted leading-relaxed">{faq.a}</p>
+                  </div>
+                </div>
               </div>
-            </Reveal>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

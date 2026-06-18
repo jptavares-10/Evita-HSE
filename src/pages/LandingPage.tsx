@@ -1,64 +1,59 @@
 import { Link } from "react-router-dom";
-import { Shield, Calendar, GraduationCap, FileText, Users, AlertTriangle, Recycle, ChevronDown, Check, Menu, X, ArrowRight, ClipboardCheck, HardHat, Stethoscope, BookOpen, Building2, Settings, Target } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ChevronDown, Check, Menu, X, ArrowUpRight, Plus } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 /* ── DATA ─────────────────────────────────────── */
 
 const trustSegments = [
-  "🏗️ Construção Civil",
-  "🏭 Indústria",
-  "🏢 Facilities",
-  "⛏️ Mineração",
-  "🛢️ Óleo e Gás",
-  "🌿 Meio Ambiente",
+  "Construção Civil",
+  "Indústria",
+  "Facilities",
+  "Mineração",
+  "Óleo & Gás",
+  "Meio Ambiente",
+  "Logística",
+  "Energia",
 ];
 
 const painPoints = [
-  { old: "Certificado vencido descoberto na fiscalização", new: "Alerta automático antes de qualquer vencimento" },
-  { old: "WhatsApp lotado de documentos de fornecedores", new: "Fornecedor envia pelo portal próprio" },
-  { old: "Ninguém sabe quem fez qual treinamento", new: "Matriz por cargo com status em tempo real" },
-  { old: "MTR sem CDF e multa ambiental", new: "CDF monitorado com prazo e alerta" },
+  { stat: "0", suffix: "%", label: "Prazos perdidos com alertas automáticos antes do vencimento." },
+  { stat: "10", suffix: "+", label: "Módulos integrados em uma única fonte de verdade operacional." },
+  { stat: "14", suffix: " dias", label: "De trial completo, sem cartão e sem consultoria técnica." },
 ];
 
 const steps = [
-  { num: "01", icon: Building2, title: "Cadastre sua empresa", desc: "Crie sua conta em menos de 2 minutos. Sem configuração técnica. Sem cartão de crédito." },
-  { num: "02", icon: Settings, title: "Configure seus módulos", desc: "Adicione colaboradores, treinamentos, serviços e documentos. Sem consultoria." },
-  { num: "03", icon: Target, title: "Monitore sem perder prazos", desc: "O dashboard centraliza tudo. Alertas visuais mostram o que precisa de atenção." },
+  { num: "01", title: "Cadastre sua empresa", desc: "Crie sua conta em menos de 2 minutos. Sem configuração técnica. Sem cartão de crédito." },
+  { num: "02", title: "Configure seus módulos", desc: "Adicione colaboradores, treinamentos, serviços e documentos. Sem consultoria." },
+  { num: "03", title: "Monitore sem perder prazos", desc: "O dashboard centraliza tudo. Alertas visuais mostram o que precisa de atenção." },
 ];
 
-const moduleGroups: Record<string, Array<{ icon: any; accent: string; name: string; desc: string; slug: string }>> = {
+type ModuleItem = { name: string; desc: string; slug: string };
+const moduleGroups: Record<string, ModuleItem[]> = {
   "Segurança": [
-    { icon: Calendar, accent: "bg-red-500", name: "Serviços Periódicos", desc: "Controle extintores, limpeza de cisterna, dedetização e qualquer serviço recorrente com alertas configuráveis.", slug: "servicos-periodicos" },
-    { icon: ClipboardCheck, accent: "bg-red-500", name: "Inspeções", desc: "Modelos de inspeção com frequência automática. Execuções, registros fotográficos e ações corretivas rastreáveis.", slug: "inspecoes" },
-    { icon: AlertTriangle, accent: "bg-red-500", name: "IC & NC", desc: "Registre incidentes e não conformidades. Plano de ação corretiva com status, evidências e rastreabilidade.", slug: "incidentes" },
-    { icon: HardHat, accent: "bg-orange-500", name: "EPIs", desc: "Catálogo com CA, controle de estoque, entregas por colaborador e alertas de vencimento de certificado.", slug: "epi" },
-    { icon: BookOpen, accent: "bg-blue-500", name: "Biblioteca de Documentos", desc: "Centralize PGR, PCMSO, procedimentos e políticas. Controle de revisões com ciclo automático.", slug: "documentos" },
+    { name: "Serviços Periódicos", desc: "Extintores, dedetização e qualquer serviço recorrente com alertas configuráveis.", slug: "servicos-periodicos" },
+    { name: "Inspeções", desc: "Modelos com frequência automática, registros fotográficos e ações corretivas rastreáveis.", slug: "inspecoes" },
+    { name: "IC & NC", desc: "Registre incidentes e não conformidades com plano de ação e evidências.", slug: "incidentes" },
+    { name: "EPIs", desc: "Catálogo com CA, controle de estoque, entregas e vencimento de certificado.", slug: "epi" },
+    { name: "Biblioteca de Documentos", desc: "PGR, PCMSO, procedimentos e políticas com ciclo de revisão automático.", slug: "documentos" },
   ],
   "Saúde": [
-    { icon: GraduationCap, accent: "bg-amber-500", name: "Treinamentos", desc: "Matriz por cargo, certificados com validade e dashboard de conformidade. Saiba quem está em dia com as NRs.", slug: "treinamentos" },
-    { icon: Stethoscope, accent: "bg-amber-500", name: "ASO / Exames", desc: "Registre exames admissionais, periódicos e demissionais. Alerta de vencimento e histórico por colaborador.", slug: "aso" },
+    { name: "Treinamentos", desc: "Matriz por cargo, certificados com validade e conformidade NR em tempo real.", slug: "treinamentos" },
+    { name: "ASO / Exames", desc: "Admissionais, periódicos e demissionais com alerta de vencimento e histórico.", slug: "aso" },
   ],
   "Meio Ambiente": [
-    { icon: Recycle, accent: "bg-emerald-500", name: "Gestão de MTR", desc: "MTR com prazo de CDF monitorado e alerta automático. Gráficos de geração mensal por categoria de resíduo.", slug: "mtr" },
-    { icon: FileText, accent: "bg-cyan-500", name: "Licenças Ambientais", desc: "LO, LI, outorgas e autorizações com histórico de renovações. Alertas de vencimento configuráveis.", slug: "licencas" },
-    { icon: Users, accent: "bg-emerald-500", name: "Portal de Fornecedores", desc: "Link único para o fornecedor enviar documentos. Sem WhatsApp, sem e-mail. Pastas organizadas.", slug: "fornecedores" },
+    { name: "Gestão de MTR", desc: "Prazo de CDF monitorado e gráficos de geração mensal por categoria.", slug: "mtr" },
+    { name: "Licenças Ambientais", desc: "LO, LI, outorgas e autorizações com histórico de renovações e alertas.", slug: "licencas" },
+    { name: "Portal de Fornecedores", desc: "Link único para envio de documentos. Sem WhatsApp, sem e-mail.", slug: "fornecedores" },
   ],
 };
 
-const modules = Object.values(moduleGroups).flat();
-
-const groupTabs = [
-  { key: "Segurança", color: "bg-red-500", textColor: "text-red-600", borderColor: "border-red-500" },
-  { key: "Saúde", color: "bg-amber-500", textColor: "text-amber-600", borderColor: "border-amber-500" },
-  { key: "Meio Ambiente", color: "bg-emerald-500", textColor: "text-emerald-600", borderColor: "border-emerald-500" },
-];
+const groupTabs = ["Segurança", "Saúde", "Meio Ambiente"] as const;
 
 const testimonials = [
-  { initials: "MS", name: "Marco S.", role: "Técnico de Segurança — Indústria", text: "Antes eu controlava tudo em planilha. Sempre descobria o vencimento na hora errada. Agora o sistema me avisa com antecedência e tenho histórico de tudo.", color: "bg-primary" },
-  { initials: "AT", name: "Ana T.", role: "Engenheira Ambiental — Construção", text: "O módulo de MTR me economiza horas por mês. Prazo de CDF nunca mais passou em branco. E o gráfico de resíduos é exatamente o que precisava.", color: "bg-emerald-500" },
-  { initials: "RL", name: "Rafael L.", role: "Gerente de HSE — Facilities", text: "O portal de fornecedores foi o que mais me surpreendeu. Acabou o WhatsApp de documento. Cada fornecedor tem o próprio link.", color: "bg-purple-500" },
+  { initials: "MS", name: "Marco S.", role: "Técnico de Segurança — Indústria", text: "Antes eu controlava tudo em planilha. Sempre descobria o vencimento na hora errada. Agora o sistema me avisa com antecedência e tenho histórico de tudo." },
+  { initials: "AT", name: "Ana T.", role: "Engenheira Ambiental — Construção", text: "O módulo de MTR me economiza horas por mês. Prazo de CDF nunca mais passou em branco. E o gráfico de resíduos é exatamente o que precisava." },
+  { initials: "RL", name: "Rafael L.", role: "Gerente de HSE — Facilities", text: "O portal de fornecedores foi o que mais me surpreendeu. Acabou o WhatsApp de documento. Cada fornecedor tem o próprio link." },
 ];
 
 const pricingPlans = [
@@ -68,8 +63,6 @@ const pricingPlans = [
     subtitle: "Para empresas em crescimento",
     priceMonthly: "R$ 97",
     priceAnnual: "R$ 970",
-    periodMonthly: "/mês",
-    periodAnnual: "/ano",
     savingsAnnual: "Economize R$ 194",
     features: ["Serviços Periódicos", "Treinamentos completo", "IC & NC", "ASO", "Até 5 usuários", "5GB de storage", "Suporte por e-mail"],
     featured: false,
@@ -77,12 +70,10 @@ const pricingPlans = [
   {
     key: "professional",
     label: "Professional",
-    badge: "⭐ Mais popular",
+    badge: "Mais escolhido",
     subtitle: "Para equipes HSE completas",
     priceMonthly: "R$ 247",
     priceAnnual: "R$ 2.470",
-    periodMonthly: "/mês",
-    periodAnnual: "/ano",
     savingsAnnual: "Economize R$ 494",
     features: ["Tudo do Starter", "Gestão de MTR", "Licenças Ambientais", "Portal de Fornecedores", "Biblioteca de Documentos", "Inspeções de Segurança", "Gestão de EPIs", "Permissões por módulo", "Até 10 usuários", "20GB de storage", "Suporte SLA 48h"],
     featured: true,
@@ -93,8 +84,6 @@ const pricingPlans = [
     subtitle: "Para grandes operações",
     priceMonthly: "R$ 497",
     priceAnnual: "R$ 4.970",
-    periodMonthly: "/mês",
-    periodAnnual: "/ano",
     savingsAnnual: "Economize R$ 994",
     features: ["Tudo do Professional", "Usuários ilimitados", "100GB de storage", "Múltiplas unidades (em breve)", "Suporte SLA 24h", "Onboarding assistido"],
     featured: false,
@@ -125,7 +114,11 @@ function useReveal() {
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
-  return { ref, className: visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6", style: { transition: "opacity 0.6s ease, transform 0.6s ease" } };
+  return {
+    ref,
+    className: visible ? "opacity-100 translate-y-0 blur-0" : "opacity-0 translate-y-6 blur-[6px]",
+    style: { transition: "opacity 0.9s ease, transform 0.9s ease, filter 0.9s ease" },
+  };
 }
 
 function Reveal({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
@@ -137,18 +130,51 @@ function Reveal({ children, className = "", delay = 0 }: { children: React.React
   );
 }
 
+/* ── COUNT-UP ─────────────────────────────────── */
+function CountUp({ to, duration = 1400 }: { to: number; duration?: number }) {
+  const [n, setN] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const started = useRef(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !started.current) {
+        started.current = true;
+        const start = performance.now();
+        const tick = (t: number) => {
+          const p = Math.min(1, (t - start) / duration);
+          const eased = 1 - Math.pow(1 - p, 3);
+          setN(Math.round(to * eased));
+          if (p < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      }
+    }, { threshold: 0.4 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [to, duration]);
+  return <span ref={ref}>{n}</span>;
+}
+
 /* ── COMPONENT ──────────────────────────────────── */
 
 export default function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [activeGroup, setActiveGroup] = useState("Segurança");
+  const [activeGroup, setActiveGroup] = useState<typeof groupTabs[number]>("Segurança");
   const [billingAnnual, setBillingAnnual] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
 
   usePageTitle("Evita HSE — Software de Gestão de Segurança do Trabalho, Saúde e Meio Ambiente", {
     description: "Software completo de gestão de SST e meio ambiente para empresas brasileiras. Controle treinamentos NR, EPIs, inspeções, MTR, licenças ambientais, ASO, documentos e fornecedores em uma única plataforma online. Alertas automáticos de vencimento. Teste grátis por 14 dias.",
   });
+
+  useEffect(() => {
+    const onScroll = () => setScrollY(window.scrollY);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Inject FAQ JSON-LD
   useEffect(() => {
@@ -169,602 +195,540 @@ export default function LandingPage() {
     return () => { document.getElementById("faq-jsonld")?.remove(); };
   }, []);
 
-  useEffect(() => {
-    const handle = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", handle, { passive: true });
-    return () => window.removeEventListener("scroll", handle);
-  }, []);
-
   return (
-    <div className="min-h-screen bg-white text-foreground">
-      <a href="#conteudo-principal" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded">Pular para o conteúdo</a>
+    <div className="min-h-screen bg-lp-bg text-lp-ink font-lp-sans selection:bg-lp-ink selection:text-lp-cream antialiased">
+      <a href="#conteudo-principal" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-lp-ink focus:text-lp-cream focus:px-4 focus:py-2">Pular para o conteúdo</a>
+
       {/* ── NAVBAR ─────────────────────────────── */}
-      <nav className={`fixed top-0 inset-x-0 z-50 h-16 flex items-center px-[5%] transition-all duration-300 ${scrolled ? "bg-white/95 backdrop-blur-xl border-b shadow-sm" : ""}`}>
-        <div className="max-w-[1200px] w-full mx-auto flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2.5 no-underline">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <Shield className={`h-4 w-4 ${scrolled ? "text-primary-foreground" : "text-primary-foreground"}`} />
-            </div>
-            <span className={`font-display font-bold text-lg transition-colors ${scrolled ? "text-foreground" : "text-white"}`}>Evita HSE</span>
-          </a>
-
-          <div className="hidden md:flex items-center gap-8">
-            {[["#como-funciona", "Como funciona"], ["#modulos", "Módulos"], ["#precos", "Preços"], ["#faq", "FAQ"]].map(([href, label]) => (
-              <a key={href} href={href} className={`text-sm font-medium transition-colors hover:text-primary ${scrolled ? "text-muted-foreground" : "text-white/70"}`}>{label}</a>
-            ))}
-            <Link to="/funcionalidades" className={`text-sm font-medium transition-colors hover:text-primary ${scrolled ? "text-muted-foreground" : "text-white/70"}`}>Funcionalidades</Link>
-          </div>
-
-          <div className="hidden md:flex items-center gap-2.5">
-            <Link to="/login">
-              <Button variant="outline" size="sm" className={`transition-all ${scrolled ? "" : "border-white/25 text-white/85 bg-transparent hover:bg-white/10"}`}>
-                Entrar
-              </Button>
-            </Link>
-            <Link to="/cadastro">
-              <Button size="sm">Começar grátis <ArrowRight className="ml-1 h-3.5 w-3.5" /></Button>
-            </Link>
-          </div>
-
-          <button className="md:hidden p-2" onClick={() => setMenuOpen(!menuOpen)}>
-            {menuOpen ? <X className={`h-5 w-5 ${scrolled ? "text-foreground" : "text-white"}`} /> : <Menu className={`h-5 w-5 ${scrolled ? "text-foreground" : "text-white"}`} />}
-          </button>
+      <nav className="fixed top-0 inset-x-0 z-50 px-6 lg:px-10 py-5 flex justify-between items-center mix-blend-difference">
+        <Link to="/" className="font-lp-display text-2xl font-semibold text-white tracking-tight">
+          evita<span className="italic font-light">hse</span>
+        </Link>
+        <div className="hidden md:flex gap-8 text-[11px] font-medium text-white/85 uppercase tracking-[0.2em]">
+          <a href="#modulos" className="hover:opacity-60 transition-opacity">Módulos</a>
+          <a href="#como-funciona" className="hover:opacity-60 transition-opacity">Metodologia</a>
+          <a href="#precos" className="hover:opacity-60 transition-opacity">Preços</a>
+          <a href="#faq" className="hover:opacity-60 transition-opacity">FAQ</a>
+          <Link to="/funcionalidades" className="hover:opacity-60 transition-opacity">Funcionalidades</Link>
         </div>
+        <div className="hidden md:flex items-center gap-3">
+          <Link to="/login" className="px-5 py-2 text-[11px] font-bold uppercase tracking-[0.2em] text-white border border-white/30 hover:bg-white hover:text-black transition-all duration-500">
+            Entrar
+          </Link>
+          <Link to="/cadastro" className="px-5 py-2 text-[11px] font-bold uppercase tracking-[0.2em] bg-white text-black border border-white hover:bg-transparent hover:text-white transition-all duration-500">
+            Teste grátis
+          </Link>
+        </div>
+        <button className="md:hidden p-2 text-white" onClick={() => setMenuOpen(!menuOpen)} aria-label="Abrir menu">
+          {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
       </nav>
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="fixed top-16 inset-x-0 z-40 bg-white border-b shadow-lg px-6 py-5 space-y-3 md:hidden">
-          <a href="#como-funciona" className="block text-sm font-medium" onClick={() => setMenuOpen(false)}>Como funciona</a>
-          <a href="#modulos" className="block text-sm font-medium" onClick={() => setMenuOpen(false)}>Módulos</a>
-          <a href="#precos" className="block text-sm font-medium" onClick={() => setMenuOpen(false)}>Preços</a>
-          <a href="#faq" className="block text-sm font-medium" onClick={() => setMenuOpen(false)}>FAQ</a>
-          <Link to="/funcionalidades" className="block text-sm font-medium" onClick={() => setMenuOpen(false)}>Funcionalidades</Link>
-          <div className="flex gap-2 pt-3">
-            <Link to="/login" className="flex-1"><Button variant="outline" className="w-full" size="sm">Entrar</Button></Link>
-            <Link to="/cadastro" className="flex-1"><Button className="w-full" size="sm">Criar conta</Button></Link>
+        <div className="fixed top-16 inset-x-0 z-40 bg-lp-ink text-lp-cream px-6 py-6 space-y-4 md:hidden">
+          <a href="#modulos" className="block text-sm uppercase tracking-widest" onClick={() => setMenuOpen(false)}>Módulos</a>
+          <a href="#como-funciona" className="block text-sm uppercase tracking-widest" onClick={() => setMenuOpen(false)}>Metodologia</a>
+          <a href="#precos" className="block text-sm uppercase tracking-widest" onClick={() => setMenuOpen(false)}>Preços</a>
+          <a href="#faq" className="block text-sm uppercase tracking-widest" onClick={() => setMenuOpen(false)}>FAQ</a>
+          <Link to="/funcionalidades" className="block text-sm uppercase tracking-widest" onClick={() => setMenuOpen(false)}>Funcionalidades</Link>
+          <div className="flex gap-3 pt-4">
+            <Link to="/login" className="flex-1 text-center py-3 border border-lp-cream/30 text-xs uppercase tracking-widest">Entrar</Link>
+            <Link to="/cadastro" className="flex-1 text-center py-3 bg-lp-cream text-lp-ink text-xs uppercase tracking-widest">Teste grátis</Link>
           </div>
         </div>
       )}
 
-      {/* ── HERO ─────────────────────────────────── */}
       <main id="conteudo-principal">
-      <section className="relative min-h-screen flex items-center px-[5%] pt-24 pb-20 overflow-hidden" style={{ background: "linear-gradient(135deg, #070D1A 0%, #0A1628 40%, #0F1F3D 70%, #0D2451 100%)" }}>
-        {/* Orbs */}
-        <div className="absolute -top-24 -right-24 w-[600px] h-[600px] rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(37,99,235,0.18) 0%, transparent 70%)" }} />
-        <div className="absolute bottom-0 left-[10%] w-[400px] h-[400px] rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(6,182,212,0.1) 0%, transparent 70%)" }} />
-        {/* Dots */}
-        <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
 
-        <div className="relative z-10 max-w-[1200px] w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          {/* Left */}
-          <div className="order-2 lg:order-1">
-            <div className="inline-flex items-center gap-2 bg-primary/15 border border-primary/35 rounded-full px-4 py-1.5 text-[0.8rem] font-semibold text-blue-300 mb-6">
-              <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
-              Feito para profissionais de HSE no Brasil
-            </div>
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-[3.8rem] font-extrabold text-white leading-[1.08] tracking-tight mb-5">
-              Pare de perder{" "}prazos de{" "}
-              <span className="bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">HSE.</span>
+      {/* ── HERO ─────────────────────────────────── */}
+      <section className="relative min-h-screen flex flex-col justify-center px-6 lg:px-24 pt-32 pb-20 overflow-hidden">
+        {/* Parallax emerald blob */}
+        <div
+          aria-hidden
+          className="absolute top-1/2 right-0 -translate-y-1/2 w-[55%] h-[80%] rounded-l-full -z-10 blur-3xl pointer-events-none"
+          style={{
+            background: "radial-gradient(circle, hsl(var(--lp-emerald-deep)/0.18) 0%, transparent 70%)",
+            transform: `translate(0, calc(-50% + ${scrollY * 0.12}px))`,
+          }}
+        />
+        {/* Hairline ornament */}
+        <div aria-hidden className="absolute top-32 left-6 lg:left-24 flex items-center gap-4">
+          <span className="font-lp-mono text-[10px] uppercase tracking-[0.3em] text-lp-ink/40">N°01 — 2026</span>
+          <span className="w-12 h-px bg-lp-ink/20" />
+          <span className="font-lp-mono text-[10px] uppercase tracking-[0.3em] text-lp-ink/40">Edição Anual</span>
+        </div>
+
+        <div className="grid lg:grid-cols-12 gap-12 items-end relative z-10">
+          <div className="lg:col-span-8">
+            <span className="inline-block mb-8 text-[11px] font-semibold uppercase tracking-[0.3em] text-lp-emerald-deep">
+              · Gestão HSE Inteligente
+            </span>
+            <h1 className="font-lp-display text-5xl md:text-7xl lg:text-[7.5rem] font-light leading-[0.92] tracking-tight mb-8 text-lp-ink">
+              Segurança que{" "}
+              <span className="italic text-lp-emerald-deep">respira</span>{" "}
+              <br className="hidden md:block" />
+              tecnologia.
             </h1>
-            <p className="text-lg text-slate-400 leading-relaxed mb-9 max-w-[480px]">
-              Centralize treinamentos NR, inspeções de segurança, EPIs, licenças ambientais, MTRs, documentos e fornecedores em uma plataforma simples. Alertas automáticos de vencimento. Nunca mais seja pego de surpresa por uma fiscalização.
-            </p>
-            <div className="flex flex-wrap gap-3 mb-10">
-              <Link to="/cadastro">
-                <Button size="lg" className="text-base px-7 shadow-[0_4px_24px_rgba(37,99,235,0.4)] hover:shadow-[0_8px_32px_rgba(37,99,235,0.5)]">
-                  Começar grátis — 14 dias <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-              <a href="#como-funciona">
-                <Button size="lg" variant="outline" className="text-base px-7 border-white/20 text-white/80 bg-transparent hover:bg-white/[0.08] hover:border-white/35">
-                  Como funciona
-                </Button>
-              </a>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex -space-x-2">
-                {["bg-primary", "bg-emerald-500", "bg-purple-500", "bg-amber-500", "bg-red-500"].map((c, i) => (
-                  <div key={i} className={`w-8 h-8 rounded-full border-2 border-[#070D1A] ${c} flex items-center justify-center text-[0.65rem] font-bold text-white`}>
-                    {["MS", "AT", "RL", "JP", "CL"][i]}
-                  </div>
-                ))}
-              </div>
-              <p className="text-sm text-slate-400 leading-tight">
-                <strong className="text-white">Gestores de HSE</strong> já usam o Evita
-                <br />⭐⭐⭐⭐⭐ Avaliação média 4.9
-              </p>
-            </div>
           </div>
-
-          {/* Right — Mockup */}
-          <div className="order-1 lg:order-2 flex justify-center items-center">
-            <div className="relative animate-[float_4s_ease-in-out_infinite]">
-              <div className="absolute -inset-5 rounded-2xl pointer-events-none" style={{ background: "radial-gradient(ellipse, rgba(37,99,235,0.25) 0%, transparent 70%)" }} />
-              <div className="w-full max-w-[440px] bg-[#0D1829] border border-white/10 rounded-2xl overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.6)]">
-                {/* Title bar */}
-                <div className="bg-[#070D1A] px-4 py-3 flex items-center gap-2.5 border-b border-white/[0.07]">
-                  <div className="flex gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                  </div>
-                  <div className="flex-1 bg-white/5 rounded-md px-3 py-1 text-[0.65rem] text-slate-500 text-center">evitahse.com.br/dashboard</div>
-                  <div className="w-6 h-6 bg-primary rounded-full text-[0.55rem] text-white flex items-center justify-center font-bold">JT</div>
-                </div>
-                {/* Body */}
-                <div className="grid grid-cols-[140px_1fr] min-h-[300px]">
-                  {/* Sidebar */}
-                  <div className="bg-[#070D1A] border-r border-white/[0.06] py-4">
-                    <div className="px-4 pb-4 border-b border-white/[0.06] mb-2 font-display text-[0.75rem] font-bold text-white">🛡️ Evita HSE</div>
-                    <div className="px-4 py-1.5 text-[0.65rem] text-blue-300 bg-primary/20 border-r-2 border-primary flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> Dashboard
-                    </div>
-                    <div className="px-4 mt-2 mb-1 text-[0.5rem] text-white/25 tracking-widest uppercase">Segurança</div>
-                    <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> Serviços
-                      <span className="ml-auto bg-red-500 text-white text-[0.5rem] font-bold px-1.5 rounded-full">3</span>
-                    </div>
-                    <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> Inspeções
-                      <span className="ml-auto bg-red-500 text-white text-[0.5rem] font-bold px-1.5 rounded-full">2</span>
-                    </div>
-                    <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> IC & NC
-                    </div>
-                    <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> EPIs
-                    </div>
-                    <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> Documentos
-                    </div>
-                    <div className="px-4 mt-2 mb-1 text-[0.5rem] text-white/25 tracking-widest uppercase">Saúde</div>
-                    <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> Treinamentos
-                      <span className="ml-auto bg-red-500 text-white text-[0.5rem] font-bold px-1.5 rounded-full">5</span>
-                    </div>
-                    <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> ASO
-                    </div>
-                    <div className="px-4 mt-2 mb-1 text-[0.5rem] text-white/25 tracking-widest uppercase">Meio Amb.</div>
-                    <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> MTR
-                      <span className="ml-auto bg-red-500 text-white text-[0.5rem] font-bold px-1.5 rounded-full">1</span>
-                    </div>
-                    <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> Licenças
-                    </div>
-                    <div className="px-4 py-1.5 text-[0.65rem] text-white/40 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" /> Fornecedores
-                    </div>
-                  </div>
-                  {/* Main */}
-                  <div className="p-4">
-                    <div className="text-[0.7rem] text-slate-400 mb-3 font-display">Olá, João Tavares 👋</div>
-                    <div className="grid grid-cols-2 gap-2 mb-3">
-                      {[
-                        { num: "3", label: "Vencidos", color: "text-red-300" },
-                        { num: "24", label: "Em dia", color: "text-emerald-300" },
-                        { num: "5", label: "Pendentes", color: "text-amber-200" },
-                        { num: "87%", label: "Conformidade", color: "text-blue-300" },
-                      ].map((k) => (
-                        <div key={k.label} className="bg-white/[0.04] border border-white/[0.07] rounded-lg p-2.5">
-                          <div className={`font-display text-xl font-bold ${k.color}`}>{k.num}</div>
-                          <div className="text-[0.55rem] text-slate-500 uppercase tracking-wide">{k.label}</div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="text-[0.6rem] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Atenção necessária</div>
-                    {[
-                      { icon: "🔔", text: "Extintor — Bloco A", status: "Vencido", statusClass: "bg-red-500/20 text-red-300" },
-                      { icon: "🎓", text: "NR-35 — João Silva", status: "7 dias", statusClass: "bg-amber-500/20 text-amber-200" },
-                      { icon: "♻️", text: "MTR-2024-089 CDF", status: "3 dias", statusClass: "bg-amber-500/20 text-amber-200" },
-                    ].map((r) => (
-                      <div key={r.text} className="flex items-center gap-1.5 py-1.5 border-b border-white/[0.04] text-[0.6rem] text-white/50">
-                        {r.icon} {r.text}
-                        <span className={`ml-auto px-1.5 py-0.5 rounded text-[0.5rem] font-semibold ${r.statusClass}`}>{r.status}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+          <div className="lg:col-span-4 pb-2">
+            <p className="text-lg text-lp-ink/75 leading-relaxed mb-10 max-w-sm">
+              Centralize Saúde, Segurança e Meio Ambiente em uma plataforma editorialmente intuitiva e tecnicamente rigorosa. Alertas automáticos para nunca mais perder um prazo de fiscalização.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link
+                to="/cadastro"
+                className="group relative px-8 py-4 bg-lp-ink text-lp-cream text-[11px] font-bold uppercase tracking-[0.25em] overflow-hidden inline-flex items-center justify-center gap-2"
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  Teste grátis
+                  <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </span>
+                <span className="absolute inset-0 bg-lp-emerald-deep translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+              </Link>
+              <a
+                href="#como-funciona"
+                className="px-8 py-4 border border-lp-ink text-[11px] font-bold uppercase tracking-[0.25em] hover:bg-lp-ink hover:text-lp-cream transition-colors duration-500 inline-flex items-center justify-center"
+              >
+                Ver demonstração
+              </a>
             </div>
           </div>
         </div>
+
+        {/* Scroll hint */}
+        <div className="absolute bottom-10 left-6 lg:left-24 flex items-center gap-4">
+          <span className="w-12 h-px bg-lp-ink/30" />
+          <span className="font-lp-mono text-[10px] uppercase tracking-[0.3em] text-lp-ink/40 italic">role para explorar</span>
+        </div>
       </section>
 
-      {/* ── TRUST BAR ─────────────────────────────── */}
-      <div className="bg-white border-y py-6 px-[5%]">
-        <div className="max-w-[1200px] mx-auto flex flex-col items-center gap-4">
-          <span className="text-[0.7rem] font-bold text-muted-foreground tracking-[0.12em] uppercase">Confiado por profissionais de HSE em todo o Brasil</span>
-          <div className="flex flex-wrap justify-center items-center gap-4 md:gap-8">
-            {trustSegments.map((s, i) => (
-              <span key={s} className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+      {/* ── TRUST STRIP (marquee) ─────────────── */}
+      <section className="py-10 border-y border-lp-ink/10 overflow-hidden bg-lp-bg">
+        <div className="container mx-auto px-6 mb-6">
+          <p className="text-center text-[10px] uppercase tracking-[0.4em] font-bold text-lp-ink/40">
+            Empresas e operações que confiam na Evita
+          </p>
+        </div>
+        <div className="flex overflow-hidden">
+          <div className="flex shrink-0 animate-lp-marquee gap-16 px-8 opacity-50">
+            {[...trustSegments, ...trustSegments].map((s, i) => (
+              <span
+                key={i}
+                className={`font-lp-display text-2xl tracking-tight whitespace-nowrap ${i % 2 === 0 ? "italic font-light" : "font-normal"}`}
+              >
                 {s}
-                {i < trustSegments.length - 1 && <span className="hidden md:block w-px h-5 bg-border ml-4" />}
+              </span>
+            ))}
+          </div>
+          <div className="flex shrink-0 animate-lp-marquee gap-16 px-8 opacity-50" aria-hidden>
+            {[...trustSegments, ...trustSegments].map((s, i) => (
+              <span
+                key={i}
+                className={`font-lp-display text-2xl tracking-tight whitespace-nowrap ${i % 2 === 0 ? "italic font-light" : "font-normal"}`}
+              >
+                {s}
               </span>
             ))}
           </div>
         </div>
-      </div>
-
-      {/* ── DOR vs SOLUÇÃO ─────────────────────────── */}
-      <section id="problema" className="py-24 px-[5%] bg-muted/30">
-        <div className="max-w-[900px] mx-auto">
-          <Reveal className="text-center">
-            <span className="text-[0.72rem] font-bold tracking-[0.12em] uppercase text-primary mb-4 block">O Problema</span>
-            <h2 className="font-display text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight mb-4">Sua gestão de HSE ainda<br />depende de planilha?</h2>
-            <p className="text-lg text-muted-foreground leading-relaxed max-w-[560px] mx-auto">A maioria das empresas perde prazos críticos porque os dados estão espalhados.</p>
-          </Reveal>
-          <div className="mt-14 space-y-4">
-            {painPoints.map((p, i) => (
-              <Reveal key={i} delay={i * 0.08}>
-                <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center gap-4 md:gap-6">
-                  <div className="bg-red-50/80 border border-red-100 rounded-xl px-5 py-4 flex items-center gap-3">
-                    <X className="h-4 w-4 text-red-400 flex-shrink-0" />
-                    <span className="text-sm text-red-700">{p.old}</span>
-                  </div>
-                  <div className="hidden md:flex">
-                    <ArrowRight className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="bg-emerald-50/80 border border-emerald-100 rounded-xl px-5 py-4 flex items-center gap-3">
-                    <Check className="h-4 w-4 text-emerald-500 flex-shrink-0" />
-                    <span className="text-sm text-emerald-700 font-medium">{p.new}</span>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
       </section>
 
-      {/* ── COMO FUNCIONA ──────────────────────────── */}
-      <section id="como-funciona" className="py-24 px-[5%] bg-white">
-        <div className="max-w-[1200px] mx-auto">
-          <Reveal className="text-center">
-            <span className="text-[0.72rem] font-bold tracking-[0.12em] uppercase text-primary mb-4 block">Como funciona</span>
-            <h2 className="font-display text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight">Do cadastro ao controle<br />em minutos</h2>
-          </Reveal>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 mt-14 relative">
-            {/* Connector line */}
-            <div className="hidden md:block absolute top-[52px] left-[calc(16.66%+32px)] right-[calc(16.66%+32px)] h-[2px] bg-gradient-to-r from-primary/20 via-primary/40 to-primary/20" />
-            {steps.map((s, i) => {
-              const StepIcon = s.icon;
-              return (
-                <Reveal key={s.num} delay={i * 0.12} className="text-center px-8 py-8 relative">
-                  <div className="absolute top-2 left-1/2 -translate-x-1/2 font-display text-[5.5rem] font-extrabold text-primary/[0.04] select-none pointer-events-none leading-none">{s.num}</div>
-                  <div className="w-[72px] h-[72px] bg-gradient-to-br from-primary to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-7 relative z-10 shadow-[0_12px_32px_rgba(37,99,235,0.3)] ring-4 ring-primary/10">
-                    <StepIcon className="h-7 w-7 text-white" />
-                  </div>
-                  <h3 className="font-display font-bold text-lg mb-2.5">{s.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed max-w-[280px] mx-auto">{s.desc}</p>
-                </Reveal>
-              );
-            })}
-          </div>
-          <Reveal className="text-center mt-12">
-            <Link to="/cadastro">
-              <Button size="lg" className="text-base px-8 shadow-[0_4px_24px_rgba(37,99,235,0.4)]">
-                Começar agora — é grátis por 14 dias <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ── MÓDULOS ────────────────────────────────── */}
-      <section id="modulos" className="py-24 px-[5%] bg-muted/30">
-        <div className="max-w-[1200px] mx-auto">
+      {/* ── PROBLEMA ─────────────────────────── */}
+      <section id="problema" className="py-32 bg-lp-ink text-lp-cream">
+        <div className="max-w-5xl mx-auto px-6 text-center">
           <Reveal>
-            <span className="text-[0.72rem] font-bold tracking-[0.12em] uppercase text-primary mb-4 block">Módulos</span>
-            <h2 className="font-display text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight mb-4">Tudo que sua operação<br />HSE precisa</h2>
-            <p className="text-lg text-muted-foreground leading-relaxed max-w-[560px]">Dez módulos integrados. Navegue por área para conhecer cada um.</p>
-          </Reveal>
-
-          {/* Tabs */}
-          <div className="flex flex-wrap gap-2 mt-10 mb-8">
-            {groupTabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveGroup(tab.key)}
-                className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 border-2 ${
-                  activeGroup === tab.key
-                    ? `${tab.color} text-white border-transparent shadow-md`
-                    : `bg-white ${tab.textColor} ${tab.borderColor} hover:bg-muted/50`
-                }`}
-              >
-                {tab.key}
-              </button>
-            ))}
-          </div>
-
-          {/* Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {(moduleGroups[activeGroup] || []).map((m, i) => (
-              <Link key={m.name} to={`/funcionalidades/${m.slug}`} className="block">
-                <div className="bg-card border rounded-2xl overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-transparent group animate-fade-in h-full">
-                  <div className={`h-1 ${m.accent} group-hover:h-1.5 transition-all`} />
-                  <div className="p-6 pt-7">
-                    <m.icon className="h-7 w-7 text-muted-foreground mb-3.5" />
-                    <h3 className="font-display font-bold text-base mb-2">{m.name}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed mb-3">{m.desc}</p>
-                    <span className="text-sm font-semibold text-primary flex items-center gap-1 group-hover:gap-2 transition-all">
-                      Saiba mais <ArrowRight className="h-3.5 w-3.5" />
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-
-
-      {/* ── DEPOIMENTOS ─────────────────────────────── */}
-      <section className="py-24 px-[5%]" style={{ background: "linear-gradient(135deg, hsl(214 100% 97%) 0%, hsl(214 95% 93%) 100%)" }}>
-        <div className="max-w-[1200px] mx-auto">
-          <Reveal className="text-center">
-            <span className="text-[0.72rem] font-bold tracking-[0.12em] uppercase text-primary mb-4 block">Para quem é</span>
-            <h2 className="font-display text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight">Feito por quem entende<br />a rotina de HSE</h2>
-          </Reveal>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-12">
-            {testimonials.map((t, i) => (
-              <Reveal key={t.name} delay={i * 0.1}>
-                <div className="bg-white rounded-2xl p-7 shadow-sm border border-white/80 transition-transform hover:-translate-y-0.5">
-                  <div className="text-3xl text-blue-100 font-serif leading-none mb-3">"</div>
-                  <p className="text-sm text-muted-foreground leading-relaxed italic mb-5">{t.text}</p>
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-full ${t.color} flex items-center justify-center text-xs font-bold text-white flex-shrink-0`}>{t.initials}</div>
-                    <div>
-                      <div className="font-bold text-sm">{t.name}</div>
-                      <div className="text-xs text-muted-foreground">{t.role}</div>
-                    </div>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-          <p className="text-center text-xs text-muted-foreground mt-6">* Baseado em perfis reais de profissionais da área de HSE.</p>
-        </div>
-      </section>
-
-      {/* ── PREÇOS ──────────────────────────────────── */}
-      <section id="precos" className="py-24 px-[5%]" style={{ background: "#F8FAFC" }}>
-        <div className="max-w-[1200px] mx-auto">
-          <Reveal className="text-center">
-            <span className="text-[0.72rem] font-bold tracking-[0.12em] uppercase text-primary mb-4 block">Preços</span>
-            <h2 className="font-display text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight mb-4">Simples e transparente</h2>
-            <p className="text-lg text-muted-foreground mx-auto max-w-[560px]">Comece grátis. Faça upgrade quando precisar. Cancele quando quiser.</p>
-          </Reveal>
-
-          {/* Toggle Mensal / Anual */}
-          <div className="flex items-center justify-center gap-3 mt-10">
-            <span className={`text-sm font-semibold transition-colors duration-200 ${!billingAnnual ? "text-foreground" : "text-muted-foreground"}`}>Mensal</span>
-            <button
-              onClick={() => setBillingAnnual(!billingAnnual)}
-              className={`relative w-14 h-7 rounded-full transition-colors duration-200 ${billingAnnual ? "bg-primary" : "bg-muted-foreground/30"}`}
-              aria-label="Alternar entre mensal e anual"
-            >
-              <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-200 ${billingAnnual ? "translate-x-7" : "translate-x-0"}`} />
-            </button>
-            <span className={`text-sm font-semibold transition-colors duration-200 flex items-center gap-2 ${billingAnnual ? "text-foreground" : "text-muted-foreground"}`}>
-              Anual
-              {billingAnnual && (
-                <span className="bg-emerald-100 text-emerald-700 text-[0.7rem] font-bold px-2.5 py-1 rounded-full whitespace-nowrap">2 meses grátis</span>
-              )}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-10 items-stretch">
-            {pricingPlans.map((plan, i) => {
-              const monthlyNum = parseInt(plan.priceMonthly.replace(/\D/g, ""));
-              const annualNum = parseInt(plan.priceAnnual.replace(/\D/g, ""));
-              const equivMonthly = Math.round(annualNum / 12);
-
-              return (
-                <Reveal key={plan.key} delay={i * 0.1}>
-                  <div className={`relative rounded-2xl p-8 flex flex-col h-full transition-all duration-200 hover:shadow-xl ${
-                    plan.featured
-                      ? "bg-gradient-to-br from-[#1E40AF] to-[#2563EB] text-white shadow-[0_4px_24px_rgba(0,0,0,0.06)] border-2 border-white/30 md:scale-[1.04]"
-                      : "bg-white border border-[#E2E8F0] shadow-[0_4px_24px_rgba(0,0,0,0.06)]"
-                  }`}>
-                    {plan.badge && (
-                      <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#F59E0B] text-amber-900 text-[0.7rem] font-bold px-4 py-1.5 rounded-full whitespace-nowrap shadow-sm">{plan.badge}</span>
-                    )}
-                    <div className={`text-xs font-bold tracking-[0.1em] uppercase mb-3 ${plan.featured ? "text-white/70" : "text-muted-foreground"}`}>{plan.label}</div>
-                    <p className={`text-sm mb-4 ${plan.featured ? "text-white/60" : "text-muted-foreground"}`}>{plan.subtitle}</p>
-
-                    <div className="mb-1">
-                      {billingAnnual ? (
-                        <div style={{ transition: "opacity 0.2s ease" }}>
-                          <div className="flex items-baseline gap-1">
-                            <span className={`font-display text-5xl font-extrabold leading-none ${plan.featured ? "text-white" : ""}`}>R$ {equivMonthly}</span>
-                            <span className={`text-base ${plan.featured ? "text-white/70" : "text-muted-foreground"}`}>/mês</span>
-                          </div>
-                          <div className={`text-sm mt-1 ${plan.featured ? "text-white/50" : "text-muted-foreground"}`}>
-                            <span className="line-through">R$ {monthlyNum}/mês</span>
-                            <span className="mx-1.5">·</span>
-                            cobrado {plan.priceAnnual}/ano
-                          </div>
-                          <span className={`inline-block mt-2 text-[0.7rem] font-bold px-2.5 py-1 rounded-full ${plan.featured ? "bg-white/20 text-white" : "bg-emerald-100 text-emerald-700"}`}>
-                            {plan.savingsAnnual}
-                          </span>
-                        </div>
-                      ) : (
-                        <div style={{ transition: "opacity 0.2s ease" }}>
-                          <div className="flex items-baseline gap-1">
-                            <span className={`font-display text-5xl font-extrabold leading-none ${plan.featured ? "text-white" : ""}`}>{plan.priceMonthly}</span>
-                            <span className={`text-base ${plan.featured ? "text-white/70" : "text-muted-foreground"}`}>{plan.periodMonthly}</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className={`h-px my-6 ${plan.featured ? "bg-white/20" : "bg-[#E2E8F0]"}`} />
-
-                    <ul className="space-y-2.5 mb-7 flex-1">
-                      {plan.features.map((f) => (
-                        <li key={f} className={`flex items-center gap-2.5 text-sm ${plan.featured ? "text-white/90" : "text-[#374151]"}`}>
-                          <span className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
-                            plan.featured
-                              ? "bg-white/20 text-white"
-                              : plan.key === "starter"
-                                ? "bg-emerald-500/15 text-emerald-500"
-                                : "bg-purple-500/15 text-purple-500"
-                          }`}>
-                            <Check className="h-3 w-3" />
-                          </span>
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-
-                    <Link to="/cadastro">
-                      <Button className={`w-full ${
-                        plan.featured
-                          ? "bg-white text-[#1E40AF] hover:bg-white/90 shadow-md font-semibold"
-                          : "border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold"
-                      }`} variant={plan.featured ? "secondary" : "outline"}>
-                        Começar trial grátis{plan.featured ? " →" : ""}
-                      </Button>
-                    </Link>
-                  </div>
-                </Reveal>
-              );
-            })}
-          </div>
-
-          {/* Trial highlight box */}
-          <Reveal className="mt-10">
-            <div className="max-w-[700px] mx-auto bg-blue-50 border border-blue-200 rounded-2xl px-8 py-6 text-center">
-              <p className="text-base font-bold text-blue-800 mb-1">🎁 Trial de 14 dias grátis em todos os planos</p>
-              <p className="text-sm text-blue-700">Acesso completo a todos os módulos. Sem cartão de crédito. Sem compromisso.</p>
-            </div>
-          </Reveal>
-
-          <Reveal className="text-center mt-6">
-            <p className="text-[13px] text-muted-foreground max-w-[500px] mx-auto">
-              Pagamentos serão ativados em breve. Crie sua conta agora e aproveite o acesso completo durante o trial.
+            <span className="block text-[11px] uppercase tracking-[0.4em] font-semibold text-lp-gold mb-8">— Capítulo I · O problema</span>
+            <h2 className="font-lp-display text-4xl md:text-6xl font-light leading-[1.05] mb-12 text-balance">
+              Planilhas isoladas são o{" "}
+              <span className="italic text-lp-cream/60">ponto cego</span>{" "}
+              da sua conformidade.
+            </h2>
+            <p className="text-lg text-lp-cream/70 leading-relaxed max-w-2xl mx-auto mb-20">
+              Dados fragmentados geram riscos invisíveis. A Evita unifica cada métrica HSE em um ecossistema visual que <span className="italic">previne antes de remediar</span>.
             </p>
           </Reveal>
-        </div>
-      </section>
 
-      {/* ── FAQ ─────────────────────────────────────── */}
-      <section id="faq" className="py-24 px-[5%] bg-muted/30" aria-labelledby="faq-heading">
-        <div className="max-w-[1200px] mx-auto">
-          <Reveal className="text-center">
-            <span className="text-[0.72rem] font-bold tracking-[0.12em] uppercase text-primary mb-4 block">Perguntas Frequentes</span>
-            <h2 id="faq-heading" className="font-display text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight">Dúvidas sobre software de gestão de SST?</h2>
-            <p className="text-muted-foreground mt-3 text-lg max-w-[560px] mx-auto">Respostas para as perguntas mais comuns sobre o Evita HSE e gestão de segurança do trabalho.</p>
-          </Reveal>
-          <div className="max-w-[740px] mx-auto mt-12 space-y-2.5">
-            {faqs.map((faq, i) => (
-              <Reveal key={i} delay={0}>
-                <div className={`bg-card border rounded-xl overflow-hidden transition-shadow hover:shadow-md ${openFaq === i ? "shadow-md" : ""}`}>
-                  <button
-                    className="w-full flex items-center justify-between px-6 py-4.5 text-left font-semibold text-[0.95rem] gap-4"
-                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  >
-                    {faq.q}
-                    <span className={`w-6 h-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0 transition-all duration-200 ${openFaq === i ? "rotate-180 bg-blue-100 text-primary" : "text-muted-foreground"}`}>
-                      <ChevronDown className="h-3.5 w-3.5" />
-                    </span>
-                  </button>
-                  {openFaq === i && (
-                    <>
-                      <div className="h-px bg-border mx-6" />
-                      <div className="px-6 pb-5 pt-3 text-sm text-muted-foreground leading-relaxed">{faq.a}</div>
-                    </>
-                  )}
+          <div className="grid md:grid-cols-3 gap-px bg-lp-cream/10">
+            {painPoints.map((p, i) => (
+              <Reveal key={i} delay={i * 0.1}>
+                <div className="p-12 bg-lp-ink h-full flex flex-col items-center md:items-start text-center md:text-left">
+                  <div className="font-lp-display text-6xl font-light mb-4 flex items-baseline">
+                    <CountUp to={parseInt(p.stat)} />
+                    <span className="text-lp-gold">{p.suffix}</span>
+                  </div>
+                  <p className="text-sm text-lp-cream/55 leading-relaxed max-w-[260px]">{p.label}</p>
                 </div>
               </Reveal>
             ))}
           </div>
-          <Reveal className="text-center mt-8">
-            <Link to="/faq" className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline underline-offset-4">
-              Ver todas as perguntas <ArrowRight className="h-3.5 w-3.5" />
+        </div>
+      </section>
+
+      {/* ── MÓDULOS ─────────────────────────── */}
+      <section id="modulos" className="py-32 px-6 lg:px-24 bg-lp-bg">
+        <Reveal>
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 mb-16">
+            <div>
+              <span className="block text-[11px] uppercase tracking-[0.4em] font-semibold text-lp-emerald-deep mb-6">— Capítulo II · Ecossistema</span>
+              <h2 className="font-lp-display text-5xl md:text-6xl font-light leading-tight max-w-2xl">
+                Dez módulos. <span className="italic">Três pilares.</span> Uma única fonte de verdade.
+              </h2>
+            </div>
+            <p className="max-w-md text-lp-ink/60 text-base leading-relaxed">
+              Projetados para cobrir cada detalhe da sua operação HSE — do extintor vencido à licença ambiental anual.
+            </p>
+          </div>
+        </Reveal>
+
+        {/* Tabs */}
+        <div className="flex flex-wrap gap-0 border-b border-lp-ink/15 mb-12">
+          {groupTabs.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveGroup(tab)}
+              className={`relative px-6 py-4 text-[11px] uppercase tracking-[0.25em] font-bold transition-colors ${
+                activeGroup === tab ? "text-lp-ink" : "text-lp-ink/40 hover:text-lp-ink/70"
+              }`}
+            >
+              <span className="font-lp-mono mr-2">0{groupTabs.indexOf(tab) + 1}</span>
+              {tab}
+              {activeGroup === tab && (
+                <span className="absolute bottom-[-1px] left-0 right-0 h-[2px] bg-lp-emerald-deep" />
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Cards */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {(moduleGroups[activeGroup] || []).map((m, i) => (
+            <Link
+              key={m.slug}
+              to={`/funcionalidades/${m.slug}`}
+              className="group relative p-8 border border-lp-ink/10 hover:bg-lp-ink hover:text-lp-cream transition-all duration-500 cursor-pointer flex flex-col animate-fade-in"
+              style={{ animationDelay: `${i * 60}ms` }}
+            >
+              <span className="font-lp-mono text-[10px] tracking-[0.3em] opacity-30 group-hover:opacity-60 transition-opacity">
+                0{i + 1}
+              </span>
+              <h3 className="font-lp-display text-2xl font-normal mt-10 mb-4">{m.name}</h3>
+              <p className="text-sm opacity-60 mb-12 leading-relaxed flex-1">{m.desc}</p>
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] uppercase tracking-[0.25em] font-bold opacity-60">Saiba mais</span>
+                <ArrowUpRight className="h-4 w-4 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+              </div>
+              <div className="absolute bottom-0 left-0 h-px w-0 bg-lp-gold group-hover:w-full transition-all duration-700" />
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* ── COMO FUNCIONA ─────────────────────── */}
+      <section id="como-funciona" className="py-32 bg-lp-sand">
+        <div className="container mx-auto px-6 lg:px-24">
+          <Reveal>
+            <span className="block text-[11px] uppercase tracking-[0.4em] font-semibold text-lp-emerald-deep mb-6">— Capítulo III · Metodologia</span>
+            <h2 className="font-lp-display text-5xl md:text-6xl font-light mb-20 max-w-3xl">
+              Simplicidade em <span className="italic">cada etapa</span>.
+            </h2>
+          </Reveal>
+          <div className="max-w-4xl space-y-20">
+            {steps.map((s, i) => (
+              <Reveal key={s.num} delay={i * 0.1}>
+                <div
+                  className="flex flex-col md:flex-row gap-8 md:gap-16 items-start border-t border-lp-ink/15 pt-10"
+                  style={{ marginLeft: `${i * 48}px` }}
+                >
+                  <div className="font-lp-display text-5xl font-light italic text-lp-emerald-deep w-24 shrink-0">
+                    {s.num}.
+                  </div>
+                  <div>
+                    <h3 className="font-lp-display text-3xl font-normal mb-4">{s.title}</h3>
+                    <p className="text-lg text-lp-ink/60 leading-relaxed max-w-xl">{s.desc}</p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── DEPOIMENTOS ─────────────────────────── */}
+      <section className="py-32 px-6 lg:px-24 bg-lp-bg">
+        <Reveal>
+          <span className="block text-[11px] uppercase tracking-[0.4em] font-semibold text-lp-emerald-deep mb-6">— Capítulo IV · Vozes do campo</span>
+        </Reveal>
+        <div className="space-y-24 max-w-6xl mx-auto">
+          {testimonials.map((t, i) => (
+            <Reveal key={t.name} delay={i * 0.05}>
+              <div className={`border-l-2 border-lp-emerald-deep pl-8 md:pl-16 max-w-5xl ${i % 2 === 1 ? "md:ml-auto" : ""}`}>
+                <p className="font-lp-display text-3xl md:text-5xl font-light italic leading-[1.15] mb-10 text-lp-ink/90">
+                  <span className="text-lp-gold not-italic mr-2">“</span>
+                  {t.text}
+                  <span className="text-lp-gold not-italic ml-1">”</span>
+                </p>
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-lp-ink text-lp-cream flex items-center justify-center text-xs font-bold font-lp-mono">
+                    {t.initials}
+                  </div>
+                  <div>
+                    <p className="font-bold uppercase tracking-[0.2em] text-xs">{t.name}</p>
+                    <p className="text-xs text-lp-ink/50 mt-1">{t.role}</p>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+        <p className="text-center text-[10px] uppercase tracking-[0.3em] text-lp-ink/40 mt-16">
+          * Baseado em perfis reais de profissionais da área de HSE.
+        </p>
+      </section>
+
+      {/* ── PREÇOS ─────────────────────────────── */}
+      <section id="precos" className="py-32 px-6 lg:px-24 bg-lp-cream">
+        <Reveal>
+          <div className="text-center mb-16">
+            <span className="block text-[11px] uppercase tracking-[0.4em] font-semibold text-lp-emerald-deep mb-6">— Capítulo V · Investimento</span>
+            <h2 className="font-lp-display text-5xl md:text-6xl font-light mb-6">
+              Estratégico, <span className="italic">não burocrático</span>.
+            </h2>
+            <p className="text-lp-ink/60 text-base max-w-xl mx-auto">
+              Comece grátis. Faça upgrade quando precisar. Cancele quando quiser.
+            </p>
+          </div>
+        </Reveal>
+
+        {/* Toggle */}
+        <div className="flex items-center justify-center gap-4 mb-14">
+          <span className={`text-[11px] uppercase tracking-[0.25em] font-bold transition-colors ${!billingAnnual ? "text-lp-ink" : "text-lp-ink/40"}`}>
+            Mensal
+          </span>
+          <button
+            onClick={() => setBillingAnnual(!billingAnnual)}
+            className={`relative w-14 h-7 rounded-full transition-colors border ${billingAnnual ? "bg-lp-emerald-deep border-lp-emerald-deep" : "bg-lp-bg border-lp-ink/20"}`}
+            aria-label="Alternar entre mensal e anual"
+          >
+            <span className={`absolute top-[2px] left-[2px] w-[22px] h-[22px] bg-lp-cream rounded-full transition-transform ${billingAnnual ? "translate-x-7" : "translate-x-0"}`} />
+          </button>
+          <span className={`text-[11px] uppercase tracking-[0.25em] font-bold flex items-center gap-3 transition-colors ${billingAnnual ? "text-lp-ink" : "text-lp-ink/40"}`}>
+            Anual
+            {billingAnnual && (
+              <span className="bg-lp-emerald-deep text-lp-cream text-[9px] tracking-widest font-bold px-2.5 py-1">2 MESES GRÁTIS</span>
+            )}
+          </span>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto items-stretch">
+          {pricingPlans.map((plan, i) => {
+            const monthlyNum = parseInt(plan.priceMonthly.replace(/\D/g, ""));
+            const annualNum = parseInt(plan.priceAnnual.replace(/\D/g, ""));
+            const equivMonthly = Math.round(annualNum / 12);
+            const featured = plan.featured;
+            return (
+              <Reveal key={plan.key} delay={i * 0.1}>
+                <div className={`relative p-10 flex flex-col h-full transition-all ${
+                  featured
+                    ? "bg-lp-ink text-lp-cream md:-translate-y-6 shadow-[0_20px_60px_-15px_rgba(12,31,21,0.4)]"
+                    : "bg-lp-bg border border-lp-ink/10"
+                }`}>
+                  {featured && (
+                    <span className="absolute top-0 left-0 right-0 -translate-y-1/2 mx-auto w-max bg-lp-gold text-lp-ink text-[9px] font-bold uppercase tracking-[0.3em] px-4 py-2">
+                      {plan.badge}
+                    </span>
+                  )}
+                  {/* Gold outline accent for featured */}
+                  {featured && <div className="absolute inset-0 border border-lp-gold/40 pointer-events-none" />}
+
+                  <p className={`text-[10px] font-bold uppercase tracking-[0.3em] mb-8 ${featured ? "text-lp-gold" : "text-lp-ink/40"}`}>
+                    {plan.label}
+                  </p>
+                  <p className={`text-sm mb-8 ${featured ? "text-lp-cream/60" : "text-lp-ink/60"}`}>{plan.subtitle}</p>
+
+                  <div className="mb-8">
+                    {billingAnnual ? (
+                      <>
+                        <div className="flex items-baseline gap-2">
+                          <span className={`font-lp-display text-5xl font-light ${featured ? "text-lp-cream" : "text-lp-ink"}`}>R$ {equivMonthly}</span>
+                          <span className={`text-sm ${featured ? "text-lp-cream/50" : "text-lp-ink/50"}`}>/mês</span>
+                        </div>
+                        <div className={`text-xs mt-2 ${featured ? "text-lp-cream/50" : "text-lp-ink/50"}`}>
+                          <span className="line-through">R$ {monthlyNum}/mês</span>
+                          <span className="mx-2">·</span>
+                          cobrado {plan.priceAnnual}/ano
+                        </div>
+                        <span className={`inline-block mt-3 text-[10px] uppercase tracking-widest font-bold px-2 py-1 ${featured ? "bg-lp-gold/20 text-lp-gold" : "bg-lp-emerald-deep/10 text-lp-emerald-deep"}`}>
+                          {plan.savingsAnnual}
+                        </span>
+                      </>
+                    ) : (
+                      <div className="flex items-baseline gap-2">
+                        <span className={`font-lp-display text-5xl font-light ${featured ? "text-lp-cream" : "text-lp-ink"}`}>{plan.priceMonthly}</span>
+                        <span className={`text-sm ${featured ? "text-lp-cream/50" : "text-lp-ink/50"}`}>/mês</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className={`h-px mb-8 ${featured ? "bg-lp-cream/15" : "bg-lp-ink/10"}`} />
+
+                  <ul className="space-y-3 mb-10 flex-1">
+                    {plan.features.map((f) => (
+                      <li key={f} className={`flex items-start gap-3 text-sm ${featured ? "text-lp-cream/85" : "text-lp-ink/80"}`}>
+                        <Check className={`h-4 w-4 mt-0.5 flex-shrink-0 ${featured ? "text-lp-gold" : "text-lp-emerald-deep"}`} />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Link
+                    to="/cadastro"
+                    className={`block text-center py-4 text-[11px] uppercase tracking-[0.25em] font-bold transition-all ${
+                      featured
+                        ? "bg-lp-cream text-lp-ink hover:bg-lp-gold"
+                        : "border border-lp-ink text-lp-ink hover:bg-lp-ink hover:text-lp-cream"
+                    }`}
+                  >
+                    Começar trial grátis
+                  </Link>
+                </div>
+              </Reveal>
+            );
+          })}
+        </div>
+
+        <Reveal className="mt-14 max-w-2xl mx-auto text-center">
+          <div className="border border-lp-emerald-deep/20 bg-lp-bg px-8 py-6">
+            <p className="font-lp-display text-xl italic text-lp-emerald-deep mb-1">14 dias grátis em todos os planos</p>
+            <p className="text-sm text-lp-ink/60">Acesso completo a todos os módulos. Sem cartão de crédito. Sem compromisso.</p>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* ── FAQ ─────────────────────────────────── */}
+      <section id="faq" className="py-32 bg-lp-bg border-t border-lp-ink/10" aria-labelledby="faq-heading">
+        <div className="max-w-3xl mx-auto px-6">
+          <Reveal>
+            <span className="block text-[11px] uppercase tracking-[0.4em] font-semibold text-lp-emerald-deep mb-6">— Capítulo VI · Esclarecimentos</span>
+            <h2 id="faq-heading" className="font-lp-display text-4xl md:text-5xl font-light mb-12">
+              Perguntas <span className="italic">frequentes</span>.
+            </h2>
+          </Reveal>
+          <div className="space-y-0 border-t border-lp-ink/15">
+            {faqs.slice(0, 4).map((faq, i) => {
+              const open = openFaq === i;
+              return (
+                <div key={i} className="border-b border-lp-ink/15">
+                  <button
+                    className="w-full flex items-center justify-between py-6 text-left gap-6 group"
+                    onClick={() => setOpenFaq(open ? null : i)}
+                    aria-expanded={open}
+                  >
+                    <span className="font-lp-display text-xl md:text-2xl font-normal text-lp-ink leading-snug">{faq.q}</span>
+                    <span className={`flex-shrink-0 transition-transform duration-300 ${open ? "rotate-45" : ""}`}>
+                      <Plus className="h-5 w-5 text-lp-ink/60" />
+                    </span>
+                  </button>
+                  <div className={`grid transition-all duration-300 ${open ? "grid-rows-[1fr] opacity-100 pb-6" : "grid-rows-[0fr] opacity-0"}`}>
+                    <div className="overflow-hidden">
+                      <p className="text-lp-ink/60 leading-relaxed pr-12">{faq.a}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <Reveal className="mt-10 text-center">
+            <Link to="/faq" className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.25em] font-bold text-lp-emerald-deep hover:gap-3 transition-all">
+              Ver todas as perguntas <ArrowUpRight className="h-3.5 w-3.5" />
             </Link>
           </Reveal>
         </div>
       </section>
 
-      {/* ── CTA FINAL ──────────────────────────────── */}
-      <section className="relative py-24 px-[5%] text-center overflow-hidden" style={{ background: "linear-gradient(135deg, #070D1A 0%, #0A1628 40%, #0F1F3D 70%)" }}>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(37,99,235,0.15) 0%, transparent 70%)" }} />
-        <Reveal className="relative z-10 max-w-[640px] mx-auto">
-          <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-white leading-tight tracking-tight mb-4">Comece a controlar sua operação HSE hoje.</h2>
-          <p className="text-lg text-slate-400 mb-9">14 dias grátis. Sem cartão de crédito. Sem configuração complexa.</p>
+      {/* ── CTA FINAL ──────────────────────────── */}
+      <section className="relative py-32 px-6 bg-lp-ink text-lp-cream overflow-hidden">
+        <div
+          aria-hidden
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full pointer-events-none blur-3xl"
+          style={{ background: "radial-gradient(circle, hsl(var(--lp-emerald)/0.25) 0%, transparent 70%)" }}
+        />
+        <Reveal className="relative z-10 max-w-3xl mx-auto text-center">
+          <span className="block text-[11px] uppercase tracking-[0.4em] font-semibold text-lp-gold mb-6">— Epílogo</span>
+          <h2 className="font-lp-display text-5xl md:text-6xl font-light leading-tight mb-8">
+            Comece a controlar sua operação HSE <span className="italic">hoje</span>.
+          </h2>
+          <p className="text-lg text-lp-cream/60 mb-12">14 dias grátis. Sem cartão de crédito. Sem configuração complexa.</p>
           <div className="flex flex-wrap gap-3 justify-center">
-            <Link to="/cadastro">
-              <Button size="lg" className="text-base px-8 shadow-[0_4px_24px_rgba(37,99,235,0.4)]">
-                Criar conta grátis <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
+            <Link
+              to="/cadastro"
+              className="group px-10 py-5 bg-lp-cream text-lp-ink text-[11px] font-bold uppercase tracking-[0.25em] hover:bg-lp-gold transition-colors inline-flex items-center gap-2"
+            >
+              Criar conta grátis
+              <ArrowUpRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </Link>
-            <Link to="/login">
-              <Button size="lg" variant="outline" className="text-base px-7 border-white/20 text-white/75 bg-transparent hover:bg-white/[0.08]">
-                Já tenho conta — Entrar
-              </Button>
+            <Link
+              to="/login"
+              className="px-10 py-5 border border-lp-cream/30 text-lp-cream text-[11px] font-bold uppercase tracking-[0.25em] hover:bg-lp-cream/10 transition-colors"
+            >
+              Já tenho conta — Entrar
             </Link>
           </div>
         </Reveal>
       </section>
+
       </main>
 
-      {/* ── FOOTER ─────────────────────────────────── */}
-      <footer className="py-14 px-[5%] border-t" style={{ background: "#070D1A", borderColor: "#1E293B" }}>
-        <div className="max-w-[1200px] mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
-            <div>
-              <div className="flex items-center gap-2.5 font-display font-bold text-white mb-3">
-                <Shield className="h-5 w-5 text-primary" /> Evita HSE
-              </div>
-              <p className="text-sm text-slate-500 leading-relaxed max-w-[240px]">Software de gestão de Saúde, Segurança do Trabalho e Meio Ambiente para empresas brasileiras. Controle treinamentos NR, EPIs, inspeções, licenças ambientais e muito mais.</p>
+      {/* ── FOOTER ─────────────────────────────── */}
+      <footer className="bg-lp-ink text-lp-cream/60 py-20 px-6 lg:px-24 border-t border-lp-cream/10">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-5 gap-12 mb-16">
+          <div className="md:col-span-2">
+            <div className="font-lp-display text-3xl font-semibold text-lp-cream mb-6">
+              evita<span className="italic font-light">hse</span>
             </div>
-            <div>
-              <div className="text-xs font-bold tracking-[0.1em] uppercase text-slate-400 mb-4">Produto</div>
-              <ul className="space-y-2.5">
-                {[["#como-funciona", "Como funciona"], ["#modulos", "Módulos"], ["#precos", "Preços"]].map(([h, l]) => (
-                  <li key={h}><a href={h} className="text-sm text-slate-500 hover:text-blue-400 transition-colors">{l}</a></li>
-                ))}
-                <li><Link to="/faq" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">FAQ</Link></li>
-                <li><Link to="/funcionalidades" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Funcionalidades</Link></li>
-              </ul>
-            </div>
-            <div>
-              <div className="text-xs font-bold tracking-[0.1em] uppercase text-slate-400 mb-4">Funcionalidades</div>
-              <ul className="space-y-2.5">
-                <li><Link to="/funcionalidades/servicos-periodicos" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Serviços Periódicos</Link></li>
-                <li><Link to="/funcionalidades/inspecoes" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Inspeções</Link></li>
-                <li><Link to="/funcionalidades/epi" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">EPIs</Link></li>
-                <li><Link to="/funcionalidades/treinamentos" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Treinamentos</Link></li>
-                <li><Link to="/funcionalidades/mtr" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">MTR</Link></li>
-              </ul>
-            </div>
-            <div>
-              <div className="text-xs font-bold tracking-[0.1em] uppercase text-slate-400 mb-4">&nbsp;</div>
-              <ul className="space-y-2.5">
-                <li><Link to="/funcionalidades/documentos" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Documentos</Link></li>
-                <li><Link to="/funcionalidades/licencas" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Licenças</Link></li>
-                <li><Link to="/funcionalidades/aso" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">ASO</Link></li>
-                <li><Link to="/funcionalidades/incidentes" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">IC & NC</Link></li>
-                <li><Link to="/funcionalidades/fornecedores" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Fornecedores</Link></li>
-              </ul>
-            </div>
-            <div>
-              <div className="text-xs font-bold tracking-[0.1em] uppercase text-slate-400 mb-4">Acesso</div>
-              <ul className="space-y-2.5">
-                <li><Link to="/cadastro" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Criar conta</Link></li>
-                <li><Link to="/login" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">Entrar</Link></li>
-                <li><a href="mailto:contato@evitahse.com.br" className="text-sm text-slate-500 hover:text-blue-400 transition-colors">contato@evitahse.com.br</a></li>
-              </ul>
+            <p className="text-sm leading-relaxed max-w-sm mb-8">
+              Software de gestão de Saúde, Segurança do Trabalho e Meio Ambiente para empresas brasileiras. Controle treinamentos NR, EPIs, inspeções, licenças ambientais e muito mais.
+            </p>
+            <div className="flex gap-6 text-[10px] uppercase tracking-[0.3em]">
+              <a href="mailto:contato@evitahse.com.br" className="hover:text-lp-cream transition-colors">contato@evitahse.com.br</a>
             </div>
           </div>
-          <div className="border-t border-slate-800 pt-7 flex flex-col sm:flex-row justify-between items-center gap-3">
-            <p className="text-xs text-slate-500">© 2026 <span className="text-slate-400">Evita HSE</span>. Todos os direitos reservados.</p>
-            <p className="text-xs text-slate-600">Feito no Brasil 🇧🇷 para profissionais de HSE</p>
+          <div>
+            <h5 className="text-lp-cream text-[10px] uppercase tracking-[0.3em] mb-6">Produto</h5>
+            <ul className="space-y-3 text-sm">
+              <li><a href="#como-funciona" className="hover:text-lp-cream transition-colors">Metodologia</a></li>
+              <li><a href="#modulos" className="hover:text-lp-cream transition-colors">Módulos</a></li>
+              <li><a href="#precos" className="hover:text-lp-cream transition-colors">Preços</a></li>
+              <li><Link to="/faq" className="hover:text-lp-cream transition-colors">FAQ</Link></li>
+              <li><Link to="/funcionalidades" className="hover:text-lp-cream transition-colors">Funcionalidades</Link></li>
+            </ul>
           </div>
+          <div>
+            <h5 className="text-lp-cream text-[10px] uppercase tracking-[0.3em] mb-6">Funcionalidades</h5>
+            <ul className="space-y-3 text-sm">
+              <li><Link to="/funcionalidades/servicos-periodicos" className="hover:text-lp-cream transition-colors">Serviços Periódicos</Link></li>
+              <li><Link to="/funcionalidades/inspecoes" className="hover:text-lp-cream transition-colors">Inspeções</Link></li>
+              <li><Link to="/funcionalidades/epi" className="hover:text-lp-cream transition-colors">EPIs</Link></li>
+              <li><Link to="/funcionalidades/treinamentos" className="hover:text-lp-cream transition-colors">Treinamentos</Link></li>
+              <li><Link to="/funcionalidades/mtr" className="hover:text-lp-cream transition-colors">MTR</Link></li>
+              <li><Link to="/funcionalidades/licencas" className="hover:text-lp-cream transition-colors">Licenças</Link></li>
+              <li><Link to="/funcionalidades/aso" className="hover:text-lp-cream transition-colors">ASO</Link></li>
+              <li><Link to="/funcionalidades/incidentes" className="hover:text-lp-cream transition-colors">IC & NC</Link></li>
+              <li><Link to="/funcionalidades/documentos" className="hover:text-lp-cream transition-colors">Documentos</Link></li>
+              <li><Link to="/funcionalidades/fornecedores" className="hover:text-lp-cream transition-colors">Fornecedores</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h5 className="text-lp-cream text-[10px] uppercase tracking-[0.3em] mb-6">Acesso</h5>
+            <ul className="space-y-3 text-sm">
+              <li><Link to="/cadastro" className="hover:text-lp-cream transition-colors">Criar conta</Link></li>
+              <li><Link to="/login" className="hover:text-lp-cream transition-colors">Entrar</Link></li>
+            </ul>
+          </div>
+        </div>
+        <div className="max-w-7xl mx-auto pt-8 border-t border-lp-cream/10 flex flex-col sm:flex-row justify-between gap-4 text-[10px] uppercase tracking-[0.3em]">
+          <span>© 2026 Evita HSE · Todos os direitos reservados</span>
+          <span className="italic font-lp-display normal-case tracking-normal text-sm">Feito no Brasil para profissionais de HSE.</span>
         </div>
       </footer>
     </div>

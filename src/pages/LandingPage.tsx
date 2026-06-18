@@ -418,9 +418,9 @@ export default function LandingPage() {
       {/* ── NAVBAR ──────────────────── */}
       <nav className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${scrolled ? "bg-lp-bg/80 backdrop-blur-lg border-b border-lp-border" : "bg-transparent"}`}>
         <div className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex justify-between items-center">
-          <Link to="/" className="flex items-center gap-2 font-lp-display font-semibold text-lp-ink">
-            <span className="h-7 w-7 rounded-lg bg-lp-emerald grid place-items-center text-lp-bg text-sm font-bold">E</span>
-            <span className="text-lg tracking-tight">Evita<span className="text-lp-emerald">.</span></span>
+          <Link to="/" className="group flex items-center gap-2.5" aria-label="Evita HSE — Início">
+            <EvitaLogo className="h-8 w-8 transition-transform duration-300 group-hover:scale-105 group-hover:rotate-[-4deg]" />
+            <EvitaWordmark />
           </Link>
           <div className="hidden md:flex items-center gap-7 text-sm text-lp-muted">
             <a href="#produto" className="hover:text-lp-ink transition-colors">Produto</a>

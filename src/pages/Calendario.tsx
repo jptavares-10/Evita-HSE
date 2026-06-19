@@ -102,7 +102,7 @@ export default function Calendario() {
   };
 
   return (
-    <div className="p-6 space-y-6 min-w-[1280px]">
+    <div className="p-6 space-y-6">
       <header className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Calendário</h1>
@@ -115,7 +115,7 @@ export default function Calendario() {
         </PermissionButton>
       </header>
 
-      <div className="grid grid-cols-[1fr_360px] gap-6">
+      <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-6">
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">

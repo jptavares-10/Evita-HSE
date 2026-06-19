@@ -398,7 +398,7 @@ export default function Dashboard() {
         {/* Right: Sidebar */}
         <div className="space-y-3">
           {/* Urgent items */}
-          <div className="bg-card border rounded-lg p-3.5">
+          <div className="lp-card rounded-xl p-4">
             <p className="text-xs font-medium text-muted-foreground mb-3">Pendências urgentes</p>
             {urgentItems.length === 0 ? (
               <div className="flex items-center gap-2 text-xs text-green-600 py-2">
@@ -430,7 +430,7 @@ export default function Dashboard() {
           <ReviewDashboardCard />
 
           {/* Conformity by module */}
-          <div className="bg-card border rounded-lg p-3.5">
+          <div className="lp-card rounded-xl p-4">
             <p className="text-xs font-medium text-muted-foreground mb-3">Conformidade por módulo</p>
             <div className="space-y-3">
               <ConformityRow label="Treinamentos" value={trainingStats.conformity} conformityBg={conformityBg} />
@@ -440,7 +440,7 @@ export default function Dashboard() {
           </div>
 
           {/* Inspections this week */}
-          <div className="bg-card border rounded-lg p-3.5">
+          <div className="lp-card rounded-xl p-4">
             <p className="text-xs font-medium text-muted-foreground mb-3">Inspeções — semana atual</p>
             <div className="flex gap-4">
               <div className="text-center">
@@ -530,7 +530,7 @@ function ReviewDashboardCard() {
   const count = useMyPendingReviewCount();
   if (count === 0) return null;
   return (
-    <div className="bg-card border rounded-lg p-3.5">
+    <div className="lp-card rounded-xl p-4">
       <div className="flex items-center gap-2 mb-2">
         <Inbox className="h-4 w-4 text-blue-600" />
         <p className="text-xs font-medium text-muted-foreground">Documentos para revisar</p>

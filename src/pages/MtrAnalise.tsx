@@ -99,7 +99,7 @@ export default function MtrAnalise() {
       ) : (
         <>
           {/* Chart */}
-          <div className="bg-card border rounded-lg p-6">
+          <div className="lp-card rounded-xl p-6">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">Evolução Mensal de Resíduos (ton)</h2>
             <ResponsiveContainer width="100%" height={320}>
               <LineChart data={chartData}>
@@ -118,26 +118,26 @@ export default function MtrAnalise() {
 
           {/* Summary cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-card border rounded-lg p-4">
+            <div className="lp-card rounded-xl p-4">
               <div className="flex items-center gap-2 mb-1"><TrendingUp className="h-4 w-4 text-muted-foreground" /><span className="text-xs text-muted-foreground">Total gerado</span></div>
               <p className="text-xl font-bold">{formatTons(totalTons)} ton</p>
             </div>
-            <div className="bg-card border rounded-lg p-4">
+            <div className="lp-card rounded-xl p-4">
               <div className="flex items-center gap-2 mb-1"><BarChart3 className="h-4 w-4 text-muted-foreground" /><span className="text-xs text-muted-foreground">Média mensal</span></div>
               <p className="text-xl font-bold">{formatTons(avgMonthly)} ton</p>
             </div>
-            <div className="bg-card border rounded-lg p-4">
+            <div className="lp-card rounded-xl p-4">
               <div className="flex items-center gap-2 mb-1"><Layers className="h-4 w-4 text-muted-foreground" /><span className="text-xs text-muted-foreground">Maior volume</span></div>
               <p className="text-xl font-bold">{topCategory?.name || "—"}</p>
             </div>
-            <div className="bg-card border rounded-lg p-4">
+            <div className="lp-card rounded-xl p-4">
               <div className="flex items-center gap-2 mb-1"><FileWarning className="h-4 w-4 text-muted-foreground" /><span className="text-xs text-muted-foreground">MTRs sem CDF</span></div>
               <p className="text-xl font-bold">{mtrsWithoutCdf}</p>
             </div>
           </div>
 
           {/* Category table */}
-          <div className="bg-card border rounded-lg">
+          <div className="lp-card rounded-xl">
             <div className="p-4 border-b"><h3 className="text-sm font-semibold">Resumo por Categoria</h3></div>
             <CatBreakdownTable data={catBreakdown.filter((c) => c.total > 0)} totalTons={totalTons} months={months} />
           </div>

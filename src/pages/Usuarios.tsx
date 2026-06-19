@@ -160,7 +160,7 @@ export default function Usuarios() {
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Convites pendentes</h2>
           <div className="space-y-2">
             {invitations.map((inv) => (
-              <div key={inv.id} className="flex items-center justify-between bg-card border rounded-lg px-4 py-3">
+              <div key={inv.id} className="flex items-center justify-between lp-card rounded-xl px-4 py-3">
                 <div className="flex items-center gap-3">
                   <Clock className="h-4 w-4 text-warning" />
                   <div>
@@ -192,7 +192,7 @@ function UsersTable({ users, onClickUser }: { users: Profile[]; onClickUser: (u:
 
   return (
     <>
-      <div className="bg-card border rounded-lg overflow-hidden">
+      <div className="lp-card rounded-xl overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b bg-muted/50">

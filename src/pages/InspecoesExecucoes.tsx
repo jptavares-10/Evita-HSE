@@ -168,7 +168,7 @@ export default function InspecoesExecucoes() {
         </div>
       ) : (
         <>
-          <div className="bg-card border rounded-lg">
+          <div className="lp-card rounded-xl">
             <Table>
               <TableHeader>
                 <TableRow>

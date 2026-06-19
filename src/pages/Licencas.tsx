@@ -152,7 +152,7 @@ export default function Licencas() {
         <div className="text-center py-12 text-muted-foreground">Nenhuma licença encontrada com os filtros aplicados.</div>
       ) : (
         <>
-          <div className="bg-card border rounded-lg overflow-x-auto">
+          <div className="lp-card rounded-xl overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>

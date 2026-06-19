@@ -149,7 +149,7 @@ export default function InspecaoDetalhe() {
       </div>
 
       {/* Entries Section */}
-      <section className="bg-card border rounded-lg p-5 space-y-4">
+      <section className="lp-card rounded-xl p-5 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold flex items-center gap-2">
             <FileText className="h-4 w-4" />
@@ -198,7 +198,7 @@ export default function InspecaoDetalhe() {
       </section>
 
       {/* Corrective Actions Section */}
-      <section className="bg-card border rounded-lg p-5 space-y-4">
+      <section className="lp-card rounded-xl p-5 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold flex items-center gap-2">
             <AlertTriangle className="h-4 w-4" />

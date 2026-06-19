@@ -96,7 +96,7 @@ export default function Perfil() {
         <p className="text-muted-foreground text-sm mt-1">Gerencie suas informações pessoais.</p>
       </div>
 
-      <div className="bg-card border rounded-lg p-6 space-y-6">
+      <div className="lp-card rounded-xl p-6 space-y-6">
         <div className="flex items-center gap-4">
           <Avatar className="h-16 w-16">
             <AvatarImage src={profile?.avatar_url ?? undefined} />

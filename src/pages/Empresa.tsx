@@ -1,110 +1,18 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { formatCNPJ, isValidCNPJFormat } from "@/lib/cnpj";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { Upload, Trash2 } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-
-const SEGMENTS = [
-  "Construção Civil", "Indústria", "Facilities", "Mineração",
-  "Óleo e Gás", "Saúde", "Logística", "Outro",
-];
+import { Lock } from "lucide-react";
 
 export default function Empresa() {
-  const { company, profile, refreshCompany } = useAuth();
-  const { toast } = useToast();
-  const [name, setName] = useState("");
-  const [cnpj, setCnpj] = useState("");
-  const [segment, setSegment] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const isExpired = company?.plan === "expired";
-  const isAdmin = profile?.role === "admin";
+  const { company } = useAuth();
 
-  useEffect(() => {
-    if (company) {
-      setName(company.name);
-      setCnpj(company.cnpj ?? "");
-      setSegment(company.segment ?? "");
-    }
-  }, [company]);
-
-  const handleSave = async () => {
-    if (!company) return;
-    if (cnpj && !isValidCNPJFormat(cnpj)) {
-      toast({ title: "CNPJ inválido", description: "Use o formato XX.XXX.XXX/XXXX-XX.", variant: "destructive" });
-      return;
-    }
-    setLoading(true);
-    const { data, error } = await supabase.rpc("update_company_safe_fields", {
-      p_name: name.trim(),
-      p_cnpj: cnpj || null,
-      p_segment: segment || null,
-      p_logo_url: company.logo_url,
-    });
-
-    const rpcError = error || (data && !(data as any).success ? new Error((data as any).error) : null);
-    if (rpcError) {
-      toast({ title: "Erro", description: typeof rpcError === "string" ? rpcError : (rpcError as any).message || "Erro ao atualizar dados.", variant: "destructive" });
-    } else {
-      toast({ title: "Dados atualizados com sucesso!" });
-      await refreshCompany();
-    }
-    setLoading(false);
-  };
-
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!company || !e.target.files?.[0]) return;
-    setUploading(true);
-    const file = e.target.files[0];
-    const ext = file.name.split(".").pop();
-    const path = `${company.id}/logo.${ext}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("company-logos")
-      .upload(path, file, { upsert: true });
-
-    if (uploadError) {
-      toast({ title: "Erro", description: "Erro ao enviar logo.", variant: "destructive" });
-      setUploading(false);
-      return;
-    }
-
-    const { data: { publicUrl } } = supabase.storage.from("company-logos").getPublicUrl(path);
-
-    await supabase.rpc("update_company_safe_fields", {
-      p_name: company.name,
-      p_cnpj: company.cnpj,
-      p_segment: company.segment,
-      p_logo_url: publicUrl,
-    });
-    toast({ title: "Logo atualizada!" });
-    await refreshCompany();
-    setUploading(false);
-  };
-
-  const handleRemoveLogo = async () => {
-    if (!company?.logo_url) return;
-    setUploading(true);
-    const { data: files } = await supabase.storage.from("company-logos").list(company.id);
-    if (files?.length) {
-      await supabase.storage.from("company-logos").remove(files.map((f) => `${company.id}/${f.name}`));
-    }
-    await supabase.rpc("update_company_safe_fields", {
-      p_name: company.name,
-      p_cnpj: company.cnpj,
-      p_segment: company.segment,
-      p_logo_url: "",
-    });
-    toast({ title: "Logo removida!" });
-    await refreshCompany();
-    setUploading(false);
-  };
+  const Field = ({ label, value }: { label: string; value?: string | null }) => (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      <div className="h-10 px-3 flex items-center rounded-md border bg-muted/40 text-sm text-foreground">
+        {value || <span className="text-muted-foreground">—</span>}
+      </div>
+    </div>
+  );
 
   return (
     <div className="max-w-xl mx-auto space-y-6 animate-fade-up">
@@ -114,78 +22,17 @@ export default function Empresa() {
       </div>
 
       <div className="lp-card rounded-xl p-6 space-y-4">
-        {/* Logo */}
-        <div className="flex items-center gap-4">
-          <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center overflow-hidden border">
-            {company?.logo_url ? (
-              <img src={company.logo_url} alt="Logo" className="h-full w-full object-cover" />
-            ) : (
-              <Upload className="h-6 w-6 text-muted-foreground" />
-            )}
-          </div>
-          <div className="flex flex-col gap-1">
-            <Label htmlFor="logo" className="cursor-pointer text-sm text-primary font-medium hover:underline underline-offset-2">
-              {uploading ? "Enviando..." : "Alterar logo"}
-            </Label>
-            <input id="logo" type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} disabled={uploading} />
-            <p className="text-xs text-muted-foreground">JPG, PNG. Máx 2MB.</p>
-            {company?.logo_url && isAdmin && (
-              <button
-                type="button"
-                onClick={handleRemoveLogo}
-                className="flex items-center gap-1 text-xs text-destructive hover:underline underline-offset-2"
-              >
-                <Trash2 className="h-3 w-3" />
-                Remover logo
-              </button>
-            )}
-          </div>
+        <Field label="Nome da empresa" value={company?.name} />
+        <Field label="CNPJ" value={company?.cnpj} />
+        <Field label="Segmento" value={company?.segment} />
+
+        <div className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/40 border rounded-md p-3">
+          <Lock className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
+          <span>
+            Os dados da empresa não podem ser alterados por aqui. Para solicitar mudanças, entre em
+            contato com o suporte.
+          </span>
         </div>
-
-        <div className="space-y-2">
-          <Label>Nome da empresa</Label>
-          <Input value={name} onChange={(e) => setName(e.target.value)} disabled={!isAdmin} />
-        </div>
-
-        <div className="space-y-2">
-          <Label>CNPJ</Label>
-          <Input
-            placeholder="XX.XXX.XXX/XXXX-XX"
-            value={cnpj}
-            onChange={(e) => setCnpj(formatCNPJ(e.target.value))}
-            maxLength={18}
-            disabled={!isAdmin}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label>Segmento</Label>
-          <Select value={segment} onValueChange={setSegment} disabled={!isAdmin}>
-            <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-            <SelectContent>
-              {SEGMENTS.map((s) => (
-                <SelectItem key={s} value={s}>{s}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {!isAdmin && (
-          <p className="text-sm text-muted-foreground">Apenas administradores podem editar os dados da empresa.</p>
-        )}
-
-        {isAdmin && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div>
-                <Button onClick={handleSave} disabled={loading || isExpired}>
-                  {loading ? "Salvando..." : "Salvar alterações"}
-                </Button>
-              </div>
-            </TooltipTrigger>
-            {isExpired && <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>}
-          </Tooltip>
-        )}
       </div>
     </div>
   );

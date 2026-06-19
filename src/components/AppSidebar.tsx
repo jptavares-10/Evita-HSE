@@ -29,6 +29,7 @@ import {
   Lock, Inbox
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { EvitaLogo, EvitaWordmark } from "@/components/landing/EvitaBrand";
 
 const GROUP_STORAGE_KEY = "evita-sidebar-groups";
 const COLLAPSED_STORAGE_KEY = "evita-sidebar-collapsed";
@@ -350,13 +351,13 @@ export function AppSidebar() {
       >
         {/* ── Header: Logo + Collapse toggle ── */}
         <div className="flex items-center border-b border-border px-3 py-4">
-          <Link to="/dashboard" className="flex items-center gap-2 flex-1 min-w-0">
+          <Link to="/dashboard" className="flex items-center gap-2 flex-1 min-w-0 group" aria-label="Evita HSE — Dashboard">
             {company?.logo_url ? (
               <img src={company.logo_url} alt="Logo" className="h-8 w-8 rounded object-contain flex-shrink-0" />
             ) : (
-              <div className="h-8 w-8 rounded bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold flex-shrink-0">E</div>
+              <EvitaLogo className="h-8 w-8 flex-shrink-0 transition-transform group-hover:rotate-[-4deg]" />
             )}
-            {!collapsed && <span className="font-bold text-lg text-white truncate">Evita HSE</span>}
+            {!collapsed && <span className="truncate"><EvitaWordmark size="md" /></span>}
           </Link>
           <button
             onClick={() => setCollapsed((c) => !c)}
@@ -549,7 +550,7 @@ export function AppSidebar() {
                   </Avatar>
                 </Link>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white truncate">{profile?.full_name || "Usuário"}</p>
+                  <p className="text-sm font-medium text-foreground truncate">{profile?.full_name || "Usuário"}</p>
                   <p className="text-[10px] text-muted-foreground truncate">{profile?.email}</p>
                 </div>
                 <button

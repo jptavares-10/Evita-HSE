@@ -76,6 +76,7 @@ export function LandingLayout({ children }: { children: React.ReactNode }) {
               <li><Link to="/funcionalidades" className="hover:text-lp-ink transition-colors">Funcionalidades</Link></li>
               <li><Link to="/#precos" className="hover:text-lp-ink transition-colors">Preços</Link></li>
               <li><Link to="/faq" className="hover:text-lp-ink transition-colors">FAQ</Link></li>
+              <li><Link to="/seguranca" className="hover:text-lp-ink transition-colors">Segurança</Link></li>
             </ul>
           </div>
           <div>

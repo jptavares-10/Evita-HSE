@@ -143,6 +143,147 @@ export type Database = {
           },
         ]
       }
+      calendar_event_attachments: {
+        Row: {
+          company_id: string
+          event_id: string
+          file_name: string
+          file_size: number | null
+          file_type: string | null
+          file_url: string
+          id: string
+          uploaded_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          company_id: string
+          event_id: string
+          file_name: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url: string
+          id?: string
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          company_id?: string
+          event_id?: string
+          file_name?: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_event_attachments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_event_attachments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_event_attachments_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_event_attachments_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_events: {
+        Row: {
+          all_day: boolean
+          area: Database["public"]["Enums"]["calendar_area"]
+          category: Database["public"]["Enums"]["calendar_category"]
+          color: string | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          ends_at: string | null
+          id: string
+          location: string | null
+          starts_at: string
+          status: Database["public"]["Enums"]["calendar_event_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          all_day?: boolean
+          area?: Database["public"]["Enums"]["calendar_area"]
+          category?: Database["public"]["Enums"]["calendar_category"]
+          color?: string | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          location?: string | null
+          starts_at: string
+          status?: Database["public"]["Enums"]["calendar_event_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          all_day?: boolean
+          area?: Database["public"]["Enums"]["calendar_area"]
+          category?: Database["public"]["Enums"]["calendar_category"]
+          color?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          location?: string | null
+          starts_at?: string
+          status?: Database["public"]["Enums"]["calendar_event_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_events_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           cnpj: string | null
@@ -3154,6 +3295,18 @@ export type Database = {
       }
     }
     Views: {
+      calendar_due_items: {
+        Row: {
+          company_id: string | null
+          deep_link: string | null
+          due_date: string | null
+          source_id: string | null
+          source_module: string | null
+          subtitle: string | null
+          title: string | null
+        }
+        Relationships: []
+      }
       companies_safe: {
         Row: {
           cnpj: string | null
@@ -3387,7 +3540,15 @@ export type Database = {
       validate_invitation_token: { Args: { p_token: string }; Returns: Json }
     }
     Enums: {
-      [_ in never]: never
+      calendar_area: "meio_ambiente" | "seguranca" | "saude" | "geral"
+      calendar_category:
+        | "evento"
+        | "campanha"
+        | "auditoria"
+        | "reuniao"
+        | "treinamento_interno"
+        | "outro"
+      calendar_event_status: "planejado" | "concluido" | "cancelado"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3514,6 +3675,17 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      calendar_area: ["meio_ambiente", "seguranca", "saude", "geral"],
+      calendar_category: [
+        "evento",
+        "campanha",
+        "auditoria",
+        "reuniao",
+        "treinamento_interno",
+        "outro",
+      ],
+      calendar_event_status: ["planejado", "concluido", "cancelado"],
+    },
   },
 } as const

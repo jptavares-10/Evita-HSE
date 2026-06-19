@@ -31,6 +31,31 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Server-side file type validation (allowlist) + size limit
+    const ALLOWED_EXTENSIONS = ["pdf", "jpg", "jpeg", "png", "doc", "docx"];
+    const ALLOWED_MIME: Record<string, string> = {
+      pdf: "application/pdf",
+      jpg: "image/jpeg",
+      jpeg: "image/jpeg",
+      png: "image/png",
+      doc: "application/msword",
+      docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    };
+    const MAX_SIZE = 20 * 1024 * 1024; // 20MB
+    const extCheck = (file.name.split(".").pop() ?? "").toLowerCase();
+    if (!ALLOWED_EXTENSIONS.includes(extCheck)) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Tipo de arquivo não permitido. Use PDF, JPG, PNG, DOC ou DOCX." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    if (file.size > MAX_SIZE) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Arquivo excede o limite de 20MB." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Validate supplier token
     const { data: supplier, error: supErr } = await supabase
       .from("suppliers")
@@ -69,7 +94,7 @@ Deno.serve(async (req) => {
     const { error: uploadError } = await supabase.storage
       .from("supplier-documents")
       .upload(filePath, arrayBuffer, {
-        contentType: file.type,
+        contentType: ALLOWED_MIME[extCheck],
         upsert: false,
       });
 

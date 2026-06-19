@@ -285,13 +285,25 @@ export default function Dashboard() {
   return (
     <div className="space-y-5 animate-fade-up">
       {/* SECTION 1 — Header */}
-      <div>
-        <h1 className="text-xl font-medium text-foreground">
-          Olá, {profile?.full_name?.split(" ")[0]}
-        </h1>
-        <p className="text-[13px] text-muted-foreground mt-0.5">
-          {todayCapitalized} · Aqui está o resumo da sua operação.
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl lg:text-3xl font-display font-semibold tracking-tight text-foreground">
+            Olá, {profile?.full_name?.split(" ")[0] ?? "bem-vindo"}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {todayCapitalized} · Aqui está o resumo da sua operação.
+          </p>
+        </div>
+        {globalExpired + globalWarning === 0 ? (
+          <span className="inline-flex items-center gap-2 rounded-full bg-success/10 px-3 py-1 text-xs font-medium text-success">
+            <span className="h-1.5 w-1.5 rounded-full bg-success" /> Tudo em dia
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-2 rounded-full bg-warning/10 px-3 py-1 text-xs font-medium text-warning">
+            <span className="h-1.5 w-1.5 rounded-full bg-warning" />
+            {globalExpired + globalWarning} pendência{globalExpired + globalWarning === 1 ? "" : "s"} em aberto
+          </span>
+        )}
       </div>
 
       {/* SECTION 2 — Critical Alert Banner */}
@@ -316,9 +328,9 @@ export default function Dashboard() {
       {/* SECTION 3 — KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <KpiCard label="Conformidade geral" value={`${globalConformity}%`} colorClass={conformityColor(globalConformity)} />
-        <KpiCard label="Colaboradores ativos" value={activeEmployeeCount} />
-        <KpiCard label="Itens vencidos" value={globalExpired} colorClass={globalExpired > 0 ? "text-destructive" : "text-green-600"} />
-        <KpiCard label="Vencendo em 30 dias" value={globalWarning} colorClass={globalWarning > 0 ? "text-yellow-600" : "text-green-600"} />
+        <KpiCard label="Colaboradores ativos" value={activeEmployeeCount} link="/treinamentos/colaboradores" />
+        <KpiCard label="Itens vencidos" value={globalExpired} colorClass={globalExpired > 0 ? "text-destructive" : "text-success"} />
+        <KpiCard label="Vencendo em 30 dias" value={globalWarning} colorClass={globalWarning > 0 ? "text-warning" : "text-success"} />
       </div>
 
       {/* SECTION 4 — Main Grid */}

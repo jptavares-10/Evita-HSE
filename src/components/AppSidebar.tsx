@@ -122,7 +122,7 @@ function SidebarItem({ to, icon: Icon, label, badge, active, sub, collapsed, loc
         "flex items-center gap-2.5 rounded-md transition-colors relative",
         collapsed ? "justify-center px-2 py-2.5" : sub ? "pl-9 pr-3 py-1.5 text-xs" : "px-3 py-2 text-sm",
         active
-          ? "bg-primary text-primary-foreground font-medium"
+          ? "bg-accent text-accent-foreground font-semibold ring-1 ring-primary/20"
           : "text-foreground/80 hover:bg-accent hover:text-foreground"
       )}
     >
@@ -368,7 +368,7 @@ export function AppSidebar() {
         </div>
 
         {/* ── Navigation ── */}
-        <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-1 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20">
+        <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-1 scrollbar-thin-light">
           {/* Dashboard */}
           <SidebarItem to="/dashboard" icon={LayoutDashboard} label="Dashboard" active={path === "/dashboard"} collapsed={collapsed} />
           <SidebarItem to="/revisoes" icon={Inbox} label="Revisões" badge={reviewBadge} active={path === "/revisoes"} collapsed={collapsed} />
@@ -401,7 +401,7 @@ export function AppSidebar() {
                     className={cn(
                       "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm w-full transition-colors",
                       path.startsWith("/inspecoes")
-                        ? "bg-primary text-primary-foreground font-medium"
+                        ? "bg-accent text-accent-foreground font-semibold ring-1 ring-primary/20"
                         : "text-foreground/80 hover:bg-accent hover:text-foreground"
                     )}
                   >
@@ -452,7 +452,7 @@ export function AppSidebar() {
                     className={cn(
                       "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm w-full transition-colors",
                       path.startsWith("/treinamentos")
-                        ? "bg-primary text-primary-foreground font-medium"
+                        ? "bg-accent text-accent-foreground font-semibold ring-1 ring-primary/20"
                         : "text-foreground/80 hover:bg-accent hover:text-foreground"
                     )}
                   >

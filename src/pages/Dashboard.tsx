@@ -114,7 +114,7 @@ export default function Dashboard() {
         expired++;
       }
     }
-    const conformity = total > 0 ? Math.round((ok / total) * 100) : 0;
+    const conformity = total > 0 ? Math.round((ok / total) * 100) : 100;
     return { ok, warning, expired, conformity };
   }, [employees, asoRecords]);
 

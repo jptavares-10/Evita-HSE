@@ -62,6 +62,7 @@ import AsoPage from "./pages/funcionalidades/AsoPage";
 import MtrPage from "./pages/funcionalidades/MtrPage";
 import LicencasPage from "./pages/funcionalidades/LicencasPage";
 import FornecedoresPage from "./pages/funcionalidades/FornecedoresPage";
+import Seguranca from "./pages/Seguranca";
 
 const queryClient = new QueryClient();
 
@@ -87,6 +88,7 @@ const App = () => (
             {/* Public SEO pages */}
             <Route path="/funcionalidades" element={<LandingRoute><Funcionalidades /></LandingRoute>} />
             <Route path="/faq" element={<LandingRoute><FAQ /></LandingRoute>} />
+            <Route path="/seguranca" element={<LandingRoute><Seguranca /></LandingRoute>} />
             <Route path="/funcionalidades/servicos-periodicos" element={<LandingRoute><ServicosPage /></LandingRoute>} />
             <Route path="/funcionalidades/inspecoes" element={<LandingRoute><InspecoesPage /></LandingRoute>} />
             <Route path="/funcionalidades/incidentes" element={<LandingRoute><IncidentesPage /></LandingRoute>} />

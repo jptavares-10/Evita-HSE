@@ -222,7 +222,7 @@ export default function Planos() {
 
   return (
     <div className="min-h-full" style={{ background: "#F8FAFC" }}>
-      <div className="max-w-5xl mx-auto px-4 py-10 space-y-8">
+      <div className="max-w-6xl mx-auto px-4 py-5 space-y-4">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
@@ -283,7 +283,7 @@ export default function Planos() {
         </div>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 items-stretch">
           {plans.map((plan) => {
             const isCurrent = (currentPlan || company?.plan) === plan.key;
             const planIndex = planOrder.indexOf(plan.key);
@@ -301,7 +301,7 @@ export default function Planos() {
             return (
               <div
                 key={plan.key}
-                className={`relative rounded-xl p-6 flex flex-col transition-all duration-200 ${
+                className={`relative rounded-xl p-4 flex flex-col transition-all duration-200 ${
                   isHighlight
                     ? "bg-gradient-to-br from-[#1E40AF] to-[#2563EB] text-white border-2 border-white/30 shadow-[0_4px_24px_rgba(37,99,235,0.25)]"
                     : "bg-white border border-[#E2E8F0] shadow-[0_4px_24px_rgba(0,0,0,0.06)]"

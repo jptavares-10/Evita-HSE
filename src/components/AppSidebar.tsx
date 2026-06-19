@@ -26,7 +26,7 @@ import {
   LayoutDashboard, ClipboardList, ShieldAlert, GraduationCap, Recycle, Truck,
   Building2, Users, CreditCard, LogOut, ChevronDown, ChevronLeft, ChevronRight,
   Shield, HeartPulse, Leaf, Eye, BookOpen, Grid3X3, Briefcase, ScrollText, FileText, HardHat, Stethoscope, ClipboardCheck,
-  Lock, Inbox
+  Lock, Inbox, CalendarDays
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EvitaLogo, EvitaWordmark } from "@/components/landing/EvitaBrand";
@@ -371,6 +371,7 @@ export function AppSidebar() {
         <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-1 scrollbar-thin-light">
           {/* Dashboard */}
           <SidebarItem to="/dashboard" icon={LayoutDashboard} label="Dashboard" active={path === "/dashboard"} collapsed={collapsed} />
+          <SidebarItem to="/calendario" icon={CalendarDays} label="Calendário" active={path === "/calendario"} collapsed={collapsed} />
           <SidebarItem to="/revisoes" icon={Inbox} label="Revisões" badge={reviewBadge} active={path === "/revisoes"} collapsed={collapsed} />
 
           <div className="h-1" />

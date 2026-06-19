@@ -1,80 +1,84 @@
-# Unificar o novo visual em todas as rotas públicas
+## Objetivo
 
-Hoje o novo design (light, Emerald Prestige, logo + wordmark `Evita HSE`, tokens `lp-*`, fontes Inter Tight/Inter/JetBrains Mono) vive só em `LandingPage.tsx`. Tudo que está fora da `/` ainda usa o tema antigo: azul corporativo (`#2563EB`, gradientes `#070D1A → #0D2451`), logo de escudo azul, fonte padrão e badges/cards no estilo SaaS genérico.
+Trazer o software autenticado para o mesmo padrão visual da landing (Emerald Prestige light), padronizar como cards de KPI e cards de módulo se comportam, e elevar o Dashboard. Atualizar a landing para usar o dashboard real como hero.
 
-A intervenção é **puramente visual/apresentação** — nenhuma lógica de auth, RPC, RLS, rota, Stripe ou Supabase muda.
+## 1. Sistema de design unificado (app interno)
 
-## Escopo — rotas a migrar
+Sem mexer em lógica de dados, hooks, RLS, Stripe ou onboarding.
 
-**Auth / onboarding**
-- `src/pages/Cadastro.tsx` (imagem 3 do usuário — logo escudo azul, botão azul "Criar conta")
-- `src/pages/Login.tsx`
-- `src/pages/CompletarCadastro.tsx`
-- `src/pages/Convite.tsx`
-- `src/pages/ResetPassword.tsx`
+- **Tokens do app**: trazer os tokens `lp-*` (bg cream `#FAFBF8`, ink, border, emerald, gold, mesh, grid) para `src/index.css` como base também do app autenticado. Mapear shadcn `--background / --card / --primary / --border / --muted` para esses tokens, mantendo `--destructive`, `--warning`, `--success` como acentos semânticos.
+- **Tipografia interna**: títulos em Inter Tight, corpo em Inter (mesma stack da landing). Números/KPIs em tabular-nums.
+- **Sidebar `AppSidebar.tsx`**:
+  - Trocar tema escuro por superfície clara (cream/white) com texto ink, hover esmeralda suave, item ativo com pill esmeralda à esquerda + bg `emerald/8`.
+  - Logo do header usa `EvitaLogo` + `EvitaWordmark` (mesmo da landing).
+  - **Badges intuitivos preservados**: vermelho = vencido/crítico, âmbar = atenção/vencendo, verde = ok, azul = informativo. Reutilizar tokens semânticos existentes; só ajustar saturação para harmonizar com cream.
+- **Header de página padrão**: novo componente `PageHeader` (título Inter Tight 28-32, subtítulo muted, slot para ação primária). Aplicar em todas as páginas (Licenças, EPI, IC&NC, Serviços, ASO, MTR, Treinamentos, Inspeções, Documentos, Fornecedores, Usuários, Empresa, Perfil).
+- **Componentes compartilhados**: criar `KpiCard`, `ModuleCard`, `SectionCard` em `src/components/ui/` com variantes (default, success, warning, danger, info, neutral). Cor de fundo neutra + barra/ícone colorido em vez de tile inteiro pastel.
 
-**Landing pública**
-- `src/pages/Funcionalidades.tsx` (hero azul-escuro com pontinhos — imagem 2)
-- `src/pages/FAQ.tsx`
-- `src/pages/Planos.tsx`
-- `src/pages/funcionalidades/*Page.tsx` (10 arquivos: Aso, Documentos, Epi, Fornecedores, Incidentes, Inspecoes, Licencas, Mtr, Servicos, Treinamentos)
-- `src/pages/PortalFornecedor.tsx`
-- `src/pages/NotFound.tsx`
+## 2. Padronização de interatividade (KPI & cards de módulo)
 
-**App interno**: NÃO muda. Dashboard, sidebar, gestão (Epi, Mtr, Treinamentos, Usuários, Empresa, Perfil etc.) ficam exatamente como estão — são o "produto" no tema claro azul, e a memória do projeto exige preservá-los.
+Comportamento único em toda a app:
 
-## Estratégia técnica
+- **KPI cards (todas as listas: Licenças, EPI, IC&NC, MTR, Serviços, ASO, Treinamentos)** ficam clicáveis e filtram a tabela da própria página (`Total` limpa filtros, `Vencendo` aplica filtro de status warning, etc.). Estado ativo com ring esmeralda + check sutil; usar `aria-pressed`. Reaproveita filtros já existentes nas páginas.
+- **Cards de módulo (Dashboard)**: a área inteira é clicável e leva à página do módulo. "Ver todos →" deixa de ser um link separado; o card todo vira `role="link"` com `:focus-visible` ring. Subitens numéricos (Em dia / Vencendo / Vencidos) tornam-se chips que, ao clicar, abrem a página com pré-filtro aplicado (via querystring, ex.: `/servicos?status=expired`).
+- **Hover/foco consistente**: classe utilitária `lp-interactive` (hover translate-y -1px, shadow esmeralda suave, border emerald/20). Aplicada em todo card clicável.
+- **Cards estritamente informativos** (ex.: "Conformidade por módulo", "Pendências urgentes") perdem hover/cursor e ganham um leve fundo neutro para diferenciar.
 
-### 1. Extrair componentes compartilhados do novo visual
-Mover do `LandingPage.tsx` para `src/components/landing/`:
-- `EvitaLogo.tsx` — SVG do escudo esmeralda com folha/check e acento dourado
-- `EvitaWordmark.tsx` — "Evita" display + "HSE" mono com ponto verde
-- `BrowserFrame.tsx` — wrapper de mockups
-- `AuthShell.tsx` (novo) — layout para páginas de auth: fundo `lp-bg` com `lp-grid-bg` + glow esmeralda sutil, card central glassmorphism com borda `lp-border`, logo+wordmark no topo, link "voltar para o início"
+## 3. Dashboard redesenhado
 
-`LandingPage.tsx` passa a importar esses componentes (não muda visualmente).
+Estrutura:
 
-### 2. Refatorar `src/components/landing/*` para o novo tema
-Hoje `LandingLayout`, `LandingHero`, `FeatureSection`, `HowItWorks`, `LandingFAQ`, `LandingCTA` ainda usam gradientes azuis e cores hardcoded. Reescrever cada um para:
-- Header e footer idênticos ao da `LandingPage` (nav fixa translúcida, EvitaLogo + EvitaWordmark, links Produto/Preços/FAQ/Login, CTA "Começar grátis" com glow esmeralda)
-- `LandingHero` — fundo `lp-bg` com `lp-mesh-bg` + `lp-grid-bg`, breadcrumb em `lp-muted`, badge `lp-emerald/10` com borda esmeralda, headline `font-lp-display`, highlight em gradient esmeralda→dourado, CTAs estilo do hero principal
-- `FeatureSection` / `HowItWorks` — cards `lp-card` com hover-glow, ícones em containers esmeralda, tipografia Inter Tight
-- `LandingFAQ` — accordion com bordas `lp-border`, ícone "+/−" esmeralda, sem fundo azul
-- `LandingCTA` — bloco final com gradient mesh esmeralda + dourado e botão glow
+```
+HEADER
+  Olá, {nome} · {data} · status global (chip: Tudo em dia / X pendências)
+  → ação rápida "Ver pendências"
 
-Isso atualiza todos os 10 `/funcionalidades/*Page.tsx` em cascata, sem precisar tocar em cada arquivo.
+BANNER DE ATENÇÃO (se houver itens críticos)
+  itens com link direto para a página do módulo
 
-### 3. Reescrever `Funcionalidades.tsx`
-Remover o hero `linear-gradient(#070D1A → #0D2451)` e os pontinhos azuis. Usar o novo header/footer + bento grid no estilo da LandingPage, agrupando por Segurança / Saúde / Meio Ambiente com cards `lp-card` clicáveis.
+GRID PRINCIPAL (12 cols)
+  ┌───────────────────────────────┬─────────────────────────┐
+  │ KPIs gerais (4 cards small)   │ Pendências urgentes     │
+  │ conformidade · ativos · venc. │ (lista compacta, top 5) │
+  ├───────────────────────────────┤                         │
+  │ Grid bento de MÓDULOS         │                         │
+  │ (cards clicáveis padronizados)│                         │
+  │ - Serviços   - Treinamentos   │ Conformidade por módulo │
+  │ - MTR        - ASO            │ (mini barras horiz.)    │
+  │ - Licenças   - IC&NC          │                         │
+  │ - EPI        - Inspeções      │ Inspeções da semana     │
+  └───────────────────────────────┴─────────────────────────┘
+```
 
-### 4. Migrar páginas de auth
-Padrão único usando `<AuthShell>`:
-- `Cadastro` — substitui logo escudo azul por `EvitaLogo` + `EvitaWordmark`, troca seções `DADOS DA EMPRESA` por headings `font-lp-display` com divisores esmeralda, inputs com borda `lp-border` + focus ring esmeralda, botão "Criar conta" com gradient esmeralda + glow (mantém toda a lógica de signUp/RPC/retry)
-- `Login`, `ResetPassword`, `CompletarCadastro`, `Convite` — mesmo shell, mesma tipografia/inputs/CTA
+- KPI cards e module cards usam os novos componentes padronizados; toda área clicável vai para o módulo correspondente com filtro.
+- Lista "Pendências urgentes" ganha agrupamento por módulo, ícone semântico (vermelho/âmbar) e ação rápida.
+- Mini barras de conformidade usam token esmeralda com track neutro.
+- Tudo light, sem fundos pastel cheios; ênfase via tipografia e acento esmeralda/dourado.
 
-### 5. Migrar `Planos.tsx` (público)
-Usar o nav/footer novo. Reusar o bloco de pricing já desenhado na `LandingPage` (4 cards com toggle mensal/anual, Professional destacado com glow), expandindo apenas com a tabela comparativa que essa página tem hoje. Toda a lógica de Stripe/checkout permanece.
+## 4. Landing: hero com dashboard real
 
-### 6. `FAQ.tsx`, `PortalFornecedor.tsx`, `NotFound.tsx`
-- FAQ: nav + footer novos, accordion estilo `LandingFAQ` reformulado
-- PortalFornecedor: header com `EvitaLogo`/`EvitaWordmark` e card central no padrão `AuthShell` (mantém token de fornecedor + upload + RLS)
-- NotFound: fundo `lp-bg` + mensagem com tipografia display + CTA "voltar ao início"
+- Capturar screenshot do Dashboard novo via Playwright (logado com a sessão pré-injetada, 1280×800, modo retina) e usar `lovable-assets` para servir via CDN.
+- Substituir o mockup atual no `LandingHero` por esse screenshot dentro do `BrowserFrame` existente, com badge "Dashboard real do produto".
+- Demais seções (Funcionalidades, FeatureSection) **mantêm mockups SVG/HTML** estilizados, conforme escolha.
 
-## Detalhes técnicos
+## 5. Validação
 
-- **Sem mudança de tokens globais**: `src/index.css` e `tailwind.config.ts` já têm os tokens `lp-*` light. Reusar.
-- **Sem mudança de dependências** (fontes já instaladas).
-- **App interno fica isolado** — nenhum arquivo dentro de `src/pages/Dashboard|Epi(exceto landing)|Mtr|Treinamentos|Usuarios|Empresa|Perfil|Servicos|Inspecoes|Documentos|Licencas|Incidentes|Fornecedores|Revisoes|Aso|MtrAnalise|InspecaoDetalhe|EpiCatalogo|EpiEntregas|EpiEstoque|EpiFicha|EpiVisaoGeral|TreinamentosCargos|TreinamentosCatalogo|TreinamentosColaboradores|TreinamentosMatriz|TreinamentosVisaoGeral|InspecoesExecucoes|InspecoesModelos|FornecedorDocumentos` será alterado.
-- **Zero `text-white`/`bg-[#xxxx]` em components** — só tokens semânticos `lp-*`.
-- **SEO preservado**: `usePageTitle`, breadcrumbs e JSON-LD permanecem.
+- Playwright em 1280×1800 capturando: Dashboard, Licenças, EPI, IC&NC, Serviços, Treinamentos (visão geral), Sidebar colapsado/expandido. Comparar contraste de badges semânticos.
+- Verificar que filtros por KPI funcionam (clicar em "Vencidas" filtra a tabela).
+- Build + lint.
 
-## Validação
+## Fora de escopo
 
-Playwright em 1280×1800 capturando: `/`, `/cadastro`, `/login`, `/funcionalidades`, `/funcionalidades/epi`, `/funcionalidades/mtr`, `/precos`, `/faq`, `/portal-fornecedor/preview` (se aplicável) e `/404`. Confirmar visualmente: mesmo header com EvitaLogo+wordmark, mesmo footer, fundo claro `lp-bg`, nenhuma faixa azul escura, CTAs com glow esmeralda.
+- Lógica de negócio, RLS, edge functions, Stripe, onboarding, permissões.
+- Páginas de auth (já migradas).
+- Tema dark.
 
-## Fora do escopo
+## Arquivos principais a tocar
 
-- Conteúdo textual / copy
-- Lógica de signUp, RPC, Stripe, RLS, edge functions
-- Tema do app autenticado (sidebar, dashboards, tabelas de gestão)
-- Adicionar/remover rotas
+- `src/index.css`, `tailwind.config.ts` (tokens compartilhados app + landing)
+- `src/components/AppSidebar.tsx`, `src/components/AppLayout.tsx`
+- `src/components/ui/` (novos: `KpiCard`, `ModuleCard`, `PageHeader`, `SectionCard`)
+- `src/pages/Dashboard.tsx` (rewrite estrutural)
+- Todas as páginas de lista: substituir cards KPI ad-hoc pelo `KpiCard` + ligar filtros
+- `src/pages/LandingPage.tsx` + `src/components/landing/LandingHero.tsx` (novo screenshot)
+- 1 asset novo: `src/assets/dashboard-hero.png.asset.json`

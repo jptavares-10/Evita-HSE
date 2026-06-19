@@ -376,7 +376,7 @@ export default function TreinamentosVisaoGeral() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Training pendencies */}
-        <div className="bg-card border rounded-lg p-5 space-y-3">
+        <div className="lp-card rounded-xl p-5 space-y-3">
           <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Pendências por Treinamento</h3>
           {trainingPendencies.length === 0 ? (
             <div className="flex items-center gap-2 text-sm text-green-600 py-4"><CheckCircle2 className="h-4 w-4" /> Nenhuma pendência</div>
@@ -386,7 +386,7 @@ export default function TreinamentosVisaoGeral() {
         </div>
 
         {/* Position pendencies */}
-        <div className="bg-card border rounded-lg p-5 space-y-3">
+        <div className="lp-card rounded-xl p-5 space-y-3">
           <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Pendências por Cargo</h3>
           {positionPendencies.length === 0 ? (
             <div className="flex items-center gap-2 text-sm text-green-600 py-4"><CheckCircle2 className="h-4 w-4" /> Nenhuma pendência</div>

@@ -24,7 +24,7 @@ export function OccurrenceKpiCards({ occurrences, actions }: Props) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div className="bg-card border rounded-lg p-4">
+      <div className="lp-card rounded-xl p-4">
         <div className="flex items-center gap-3">
           <AlertTriangle className="h-8 w-8 text-primary" />
           <div>
@@ -34,7 +34,7 @@ export function OccurrenceKpiCards({ occurrences, actions }: Props) {
         </div>
       </div>
 
-      <div className="bg-card border rounded-lg p-4">
+      <div className="lp-card rounded-xl p-4">
         <p className="text-xs text-muted-foreground mb-2">Por tipo</p>
         <div className="flex flex-wrap gap-1.5">
           {["incident", "near_miss", "non_conformity", "safety_observation"].map((t) => {
@@ -51,7 +51,7 @@ export function OccurrenceKpiCards({ occurrences, actions }: Props) {
         </div>
       </div>
 
-      <div className="bg-card border rounded-lg p-4">
+      <div className="lp-card rounded-xl p-4">
         <p className="text-xs text-muted-foreground mb-2">Por gravidade</p>
         <div className="flex flex-wrap gap-1.5">
           {["low", "medium", "high", "critical"].map((s) => {
@@ -68,7 +68,7 @@ export function OccurrenceKpiCards({ occurrences, actions }: Props) {
         </div>
       </div>
 
-      <div className="bg-card border rounded-lg p-4">
+      <div className="lp-card rounded-xl p-4">
         <div className="flex items-center gap-3">
           <Activity className="h-8 w-8 text-primary" />
           <div className="flex-1">

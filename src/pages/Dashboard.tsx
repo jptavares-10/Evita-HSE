@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { CheckCircle2, ArrowRight, Inbox } from "lucide-react";
+import { CheckCircle2, ArrowRight, ArrowUpRight, Inbox } from "lucide-react";
 import { usePeriodicServices } from "@/hooks/useServices";
 import { getServiceStatus } from "@/lib/services";
 import { useEmployees, useTrainingMatrix, useAllRecords } from "@/hooks/useTrainings";
@@ -285,13 +285,25 @@ export default function Dashboard() {
   return (
     <div className="space-y-5 animate-fade-up">
       {/* SECTION 1 — Header */}
-      <div>
-        <h1 className="text-xl font-medium text-foreground">
-          Olá, {profile?.full_name?.split(" ")[0]}
-        </h1>
-        <p className="text-[13px] text-muted-foreground mt-0.5">
-          {todayCapitalized} · Aqui está o resumo da sua operação.
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl lg:text-3xl font-display font-semibold tracking-tight text-foreground">
+            Olá, {profile?.full_name?.split(" ")[0] ?? "bem-vindo"}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {todayCapitalized} · Aqui está o resumo da sua operação.
+          </p>
+        </div>
+        {globalExpired + globalWarning === 0 ? (
+          <span className="inline-flex items-center gap-2 rounded-full bg-success/10 px-3 py-1 text-xs font-medium text-success">
+            <span className="h-1.5 w-1.5 rounded-full bg-success" /> Tudo em dia
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-2 rounded-full bg-warning/10 px-3 py-1 text-xs font-medium text-warning">
+            <span className="h-1.5 w-1.5 rounded-full bg-warning" />
+            {globalExpired + globalWarning} pendência{globalExpired + globalWarning === 1 ? "" : "s"} em aberto
+          </span>
+        )}
       </div>
 
       {/* SECTION 2 — Critical Alert Banner */}
@@ -316,9 +328,9 @@ export default function Dashboard() {
       {/* SECTION 3 — KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <KpiCard label="Conformidade geral" value={`${globalConformity}%`} colorClass={conformityColor(globalConformity)} />
-        <KpiCard label="Colaboradores ativos" value={activeEmployeeCount} />
-        <KpiCard label="Itens vencidos" value={globalExpired} colorClass={globalExpired > 0 ? "text-destructive" : "text-green-600"} />
-        <KpiCard label="Vencendo em 30 dias" value={globalWarning} colorClass={globalWarning > 0 ? "text-yellow-600" : "text-green-600"} />
+        <KpiCard label="Colaboradores ativos" value={activeEmployeeCount} link="/treinamentos/colaboradores" />
+        <KpiCard label="Itens vencidos" value={globalExpired} colorClass={globalExpired > 0 ? "text-destructive" : "text-success"} />
+        <KpiCard label="Vencendo em 30 dias" value={globalWarning} colorClass={globalWarning > 0 ? "text-warning" : "text-success"} />
       </div>
 
       {/* SECTION 4 — Main Grid */}
@@ -398,7 +410,7 @@ export default function Dashboard() {
         {/* Right: Sidebar */}
         <div className="space-y-3">
           {/* Urgent items */}
-          <div className="bg-card border rounded-lg p-3.5">
+          <div className="lp-card rounded-xl p-4">
             <p className="text-xs font-medium text-muted-foreground mb-3">Pendências urgentes</p>
             {urgentItems.length === 0 ? (
               <div className="flex items-center gap-2 text-xs text-green-600 py-2">
@@ -430,7 +442,7 @@ export default function Dashboard() {
           <ReviewDashboardCard />
 
           {/* Conformity by module */}
-          <div className="bg-card border rounded-lg p-3.5">
+          <div className="lp-card rounded-xl p-4">
             <p className="text-xs font-medium text-muted-foreground mb-3">Conformidade por módulo</p>
             <div className="space-y-3">
               <ConformityRow label="Treinamentos" value={trainingStats.conformity} conformityBg={conformityBg} />
@@ -440,7 +452,7 @@ export default function Dashboard() {
           </div>
 
           {/* Inspections this week */}
-          <div className="bg-card border rounded-lg p-3.5">
+          <div className="lp-card rounded-xl p-4">
             <p className="text-xs font-medium text-muted-foreground mb-3">Inspeções — semana atual</p>
             <div className="flex gap-4">
               <div className="text-center">
@@ -468,42 +480,49 @@ export default function Dashboard() {
 
 /* ---- Sub-components ---- */
 
-function KpiCard({ label, value, colorClass }: { label: string; value: string | number; colorClass?: string }) {
-  return (
-    <div className="bg-card border rounded-lg px-4 py-3.5">
-      <p className={`text-xl font-bold tabular-nums ${colorClass || "text-foreground"}`}>{value}</p>
-      <p className="text-[11px] text-muted-foreground mt-0.5">{label}</p>
-    </div>
+function KpiCard({ label, value, colorClass, link }: { label: string; value: string | number; colorClass?: string; link?: string }) {
+  const inner = (
+    <>
+      <p className={`text-2xl font-display font-semibold tabular-nums ${colorClass || "text-foreground"}`}>{value}</p>
+      <p className="text-[11px] text-muted-foreground mt-1">{label}</p>
+    </>
   );
+  const cls = "lp-card lp-interactive rounded-xl px-4 py-3.5 block";
+  if (link) {
+    return <Link to={link} className={cls}>{inner}</Link>;
+  }
+  return <div className="lp-card rounded-xl px-4 py-3.5">{inner}</div>;
 }
 
-function ModuleCard({ dotColor, title, link, linkLabel, stats }: {
+function ModuleCard({ dotColor, title, link, stats }: {
   dotColor: string;
   title: string;
   link: string;
-  linkLabel: string;
-  stats: { label: string; value: string | number; color?: string }[];
+  linkLabel?: string;
+  stats: { label: string; value: string | number; color?: string; filter?: string }[];
 }) {
   return (
-    <div className="bg-card border rounded-lg px-4 py-3.5 flex flex-col">
+    <Link
+      to={link}
+      className="lp-card lp-interactive rounded-xl px-4 py-4 flex flex-col group"
+      aria-label={`Abrir ${title}`}
+    >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <span className={`h-2 w-2 rounded-full ${dotColor}`} />
-          <span className="text-[13px] font-medium text-foreground">{title}</span>
+          <span className="text-[13px] font-semibold text-foreground">{title}</span>
         </div>
-        <Link to={link} className="text-[11px] text-primary hover:underline flex items-center gap-0.5">
-          {linkLabel} <ArrowRight className="h-3 w-3" />
-        </Link>
+        <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
       </div>
-      <div className="flex flex-wrap gap-x-5 gap-y-1">
+      <div className="flex flex-wrap gap-x-6 gap-y-2">
         {stats.map(s => (
           <div key={s.label}>
-            <p className={`text-xl font-bold tabular-nums ${s.color || ""}`}>{s.value}</p>
-            <p className="text-[11px] text-muted-foreground leading-tight">{s.label}</p>
+            <p className={`text-xl font-display font-semibold tabular-nums ${s.color || "text-foreground"}`}>{s.value}</p>
+            <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">{s.label}</p>
           </div>
         ))}
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -523,7 +542,7 @@ function ReviewDashboardCard() {
   const count = useMyPendingReviewCount();
   if (count === 0) return null;
   return (
-    <div className="bg-card border rounded-lg p-3.5">
+    <div className="lp-card rounded-xl p-4">
       <div className="flex items-center gap-2 mb-2">
         <Inbox className="h-4 w-4 text-blue-600" />
         <p className="text-xs font-medium text-muted-foreground">Documentos para revisar</p>

@@ -15,7 +15,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
-        display: ["Sora", "Inter", "system-ui", "sans-serif"],
+        display: ['"Inter Tight Variable"', "Inter", "system-ui", "sans-serif"],
         "lp-display": ['"Inter Tight Variable"', "Inter", "system-ui", "sans-serif"],
         "lp-sans": ["Inter", "system-ui", "sans-serif"],
         "lp-mono": ['"JetBrains Mono"', "ui-monospace", "monospace"],

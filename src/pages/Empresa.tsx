@@ -113,7 +113,7 @@ export default function Empresa() {
         <p className="text-muted-foreground text-sm mt-1">Informações da empresa.</p>
       </div>
 
-      <div className="bg-card border rounded-lg p-6 space-y-4">
+      <div className="lp-card rounded-xl p-6 space-y-4">
         {/* Logo */}
         <div className="flex items-center gap-4">
           <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center overflow-hidden border">

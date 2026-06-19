@@ -163,7 +163,7 @@ export default function Servicos() {
         <div className="text-center py-12 text-muted-foreground">Nenhum serviço encontrado com os filtros aplicados.</div>
       ) : (
         <>
-          <div className="bg-card border rounded-lg">
+          <div className="lp-card rounded-xl">
             <Table>
               <TableHeader>
                 <TableRow>

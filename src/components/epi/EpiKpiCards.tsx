@@ -1,5 +1,5 @@
 import { HardHat, AlertTriangle, Package, HandMetal } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Kpi, KpiGrid, KpiTone } from "@/components/ui/kpi";
 
 interface Props {
   totalEpis: number;
@@ -9,28 +9,18 @@ interface Props {
 }
 
 export function EpiKpiCards({ totalEpis, lowStock, caExpiring, deliveriesThisMonth }: Props) {
-  const cards = [
-    { label: "EPIs Cadastrados", value: totalEpis, icon: HardHat, color: "text-primary" },
-    { label: "Estoque Baixo", value: lowStock, icon: Package, color: lowStock > 0 ? "text-yellow-600" : "text-green-600" },
-    { label: "CAs Vencendo/Vencidos", value: caExpiring, icon: AlertTriangle, color: caExpiring > 0 ? "text-destructive" : "text-green-600" },
-    { label: "Entregas no Mês", value: deliveriesThisMonth, icon: HandMetal, color: "text-primary" },
+  const cards: { label: string; value: number; icon: any; tone: KpiTone }[] = [
+    { label: "EPIs Cadastrados", value: totalEpis, icon: HardHat, tone: "primary" },
+    { label: "Estoque Baixo", value: lowStock, icon: Package, tone: lowStock > 0 ? "warning" : "success" },
+    { label: "CAs Vencendo/Vencidos", value: caExpiring, icon: AlertTriangle, tone: caExpiring > 0 ? "danger" : "success" },
+    { label: "Entregas no Mês", value: deliveriesThisMonth, icon: HandMetal, tone: "primary" },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <KpiGrid cols={4}>
       {cards.map((c) => (
-        <Card key={c.label}>
-          <CardContent className="p-4 flex items-center gap-4">
-            <div className={`p-2.5 rounded-lg bg-muted ${c.color}`}>
-              <c.icon className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{c.value}</p>
-              <p className="text-xs text-muted-foreground">{c.label}</p>
-            </div>
-          </CardContent>
-        </Card>
+        <Kpi key={c.label} label={c.label} value={c.value} icon={c.icon} tone={c.tone} />
       ))}
-    </div>
+    </KpiGrid>
   );
 }

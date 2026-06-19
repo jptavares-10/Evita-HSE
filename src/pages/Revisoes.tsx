@@ -59,7 +59,7 @@ export default function Revisoes() {
         </h2>
 
         {pending.length === 0 ? (
-          <div className="text-center py-12 bg-card border rounded-lg">
+          <div className="text-center py-12 lp-card rounded-xl">
             <Inbox className="h-10 w-10 mx-auto text-muted-foreground/30 mb-2" />
             <p className="text-sm text-muted-foreground">Nenhuma revisão pendente.</p>
           </div>
@@ -74,7 +74,7 @@ export default function Revisoes() {
                 const daysLeft = cycle.due_date ? differenceInDays(parseISO(cycle.due_date), new Date()) : null;
 
                 return (
-                  <div key={r.id} className="bg-card border rounded-lg p-4 space-y-2">
+                  <div key={r.id} className="lp-card rounded-xl p-4 space-y-2">
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <Badge variant="destructive" className="text-[10px] mb-1.5">PENDENTE</Badge>
@@ -136,7 +136,7 @@ export default function Revisoes() {
               if (!cycle || !doc) return null;
 
               return (
-                <div key={r.id} className="bg-card border rounded-lg p-4 flex items-center justify-between gap-4">
+                <div key={r.id} className="lp-card rounded-xl p-4 flex items-center justify-between gap-4">
                   <div>
                     <p className="font-medium text-sm">
                       {doc.code && <span className="text-muted-foreground font-mono mr-1">{doc.code}</span>}

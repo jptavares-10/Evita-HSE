@@ -6,64 +6,67 @@
 
 @layer base {
   :root {
-    --background: 0 0% 99%;
-    --foreground: 220 20% 14%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 220 20% 14%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 14%;
-
-    --primary: 217 91% 53%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 214 32% 96%;
-    --secondary-foreground: 220 20% 14%;
-
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 46%;
-
-    --accent: 214 32% 96%;
-    --accent-foreground: 220 20% 14%;
-
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-
-    --success: 142 71% 45%;
-    --success-foreground: 0 0% 100%;
-
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
-
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 217 91% 53%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 220 20% 14%;
-    --sidebar-foreground: 220 14% 96%;
-    --sidebar-primary: 217 91% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 18% 20%;
-    --sidebar-accent-foreground: 220 14% 96%;
-    --sidebar-border: 220 18% 22%;
-    --sidebar-ring: 217 91% 60%;
-    --sidebar-muted: 220 12% 40%;
-
-    /* Landing Page tokens — light, Emerald Prestige */
-    --lp-bg: 150 30% 99%;            /* off-white with green hint */
-    --lp-surface: 0 0% 100%;         /* card surface */
-    --lp-ink: 160 40% 10%;           /* deep emerald-charcoal */
+    /* ── Emerald Prestige tokens (shared by landing + app) ── */
+    --lp-bg: 150 30% 99%;
+    --lp-surface: 0 0% 100%;
+    --lp-ink: 160 40% 10%;
     --lp-border: 158 18% 89%;
-    --lp-emerald: 160 84% 32%;       /* deeper emerald for contrast on white */
+    --lp-emerald: 160 84% 32%;
     --lp-emerald-deep: 161 94% 20%;
     --lp-emerald-glow: 158 75% 42%;
     --lp-gold: 43 65% 52%;
     --lp-cream: 150 30% 97%;
     --lp-sand: 150 25% 95%;
     --lp-muted: 160 10% 42%;
+
+    /* Shadcn semantic tokens mapped to the Emerald Prestige palette */
+    --background: var(--lp-bg);
+    --foreground: var(--lp-ink);
+
+    --card: var(--lp-surface);
+    --card-foreground: var(--lp-ink);
+
+    --popover: var(--lp-surface);
+    --popover-foreground: var(--lp-ink);
+
+    --primary: var(--lp-emerald);
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: var(--lp-cream);
+    --secondary-foreground: var(--lp-ink);
+
+    --muted: var(--lp-cream);
+    --muted-foreground: var(--lp-muted);
+
+    --accent: 158 60% 94%;
+    --accent-foreground: var(--lp-emerald-deep);
+
+    /* Intuitive semantic accents preserved */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 160 84% 32%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --info: 217 91% 53%;
+    --info-foreground: 0 0% 100%;
+
+    --border: var(--lp-border);
+    --input: var(--lp-border);
+    --ring: var(--lp-emerald);
+
+    --radius: 0.75rem;
+
+    /* Light sidebar */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: var(--lp-ink);
+    --sidebar-primary: var(--lp-emerald);
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 158 60% 96%;
+    --sidebar-accent-foreground: var(--lp-emerald-deep);
+    --sidebar-border: var(--lp-border);
+    --sidebar-ring: var(--lp-emerald);
+    --sidebar-muted: var(--lp-muted);
   }
 }
 
@@ -74,10 +77,11 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "ss01", "cv11";
   }
 
   h1, h2, h3, h4 {
-    @apply tracking-tight;
+    @apply tracking-tight font-display;
     text-wrap: balance;
   }
 
@@ -157,4 +161,31 @@
 .lp-card:hover {
   border-color: hsl(var(--lp-emerald) / 0.4);
   box-shadow: 0 1px 2px hsl(var(--lp-ink) / 0.04), 0 20px 40px -20px hsl(var(--lp-emerald) / 0.25);
+}
+
+/* ── App interactive surface utilities ── */
+.lp-interactive {
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 180ms ease,
+              border-color 180ms ease;
+}
+.lp-interactive:hover {
+  transform: translateY(-1px);
+  border-color: hsl(var(--lp-emerald) / 0.45);
+  box-shadow: 0 1px 2px hsl(var(--lp-ink) / 0.04), 0 18px 40px -20px hsl(var(--lp-emerald) / 0.28);
+}
+.lp-interactive:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px hsl(var(--lp-bg)), 0 0 0 4px hsl(var(--lp-emerald) / 0.55);
+}
+
+/* Sidebar scrollbar — light variant */
+.scrollbar-thin-light::-webkit-scrollbar { width: 4px; }
+.scrollbar-thin-light::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-thin-light::-webkit-scrollbar-thumb {
+  background: hsl(var(--lp-ink) / 0.12);
+  border-radius: 9999px;
+}
+.scrollbar-thin-light:hover::-webkit-scrollbar-thumb {
+  background: hsl(var(--lp-ink) / 0.22);
 }

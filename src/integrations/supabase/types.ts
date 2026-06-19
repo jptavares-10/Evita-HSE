@@ -3334,6 +3334,10 @@ export type Database = {
       get_supplier_portal_data: { Args: { p_token: string }; Returns: Json }
       get_user_company_id: { Args: never; Returns: string }
       get_user_permissions: { Args: { p_user_id: string }; Returns: Json }
+      has_module_editor_permission: {
+        Args: { p_module: string }
+        Returns: boolean
+      }
       has_pending_invitation: {
         Args: { p_company_id: string; p_email: string }
         Returns: boolean

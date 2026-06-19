@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { CheckCircle2, ArrowRight, Inbox } from "lucide-react";
+import { CheckCircle2, ArrowRight, ArrowUpRight, Inbox } from "lucide-react";
 import { usePeriodicServices } from "@/hooks/useServices";
 import { getServiceStatus } from "@/lib/services";
 import { useEmployees, useTrainingMatrix, useAllRecords } from "@/hooks/useTrainings";
@@ -468,42 +468,49 @@ export default function Dashboard() {
 
 /* ---- Sub-components ---- */
 
-function KpiCard({ label, value, colorClass }: { label: string; value: string | number; colorClass?: string }) {
-  return (
-    <div className="bg-card border rounded-lg px-4 py-3.5">
-      <p className={`text-xl font-bold tabular-nums ${colorClass || "text-foreground"}`}>{value}</p>
-      <p className="text-[11px] text-muted-foreground mt-0.5">{label}</p>
-    </div>
+function KpiCard({ label, value, colorClass, link }: { label: string; value: string | number; colorClass?: string; link?: string }) {
+  const inner = (
+    <>
+      <p className={`text-2xl font-display font-semibold tabular-nums ${colorClass || "text-foreground"}`}>{value}</p>
+      <p className="text-[11px] text-muted-foreground mt-1">{label}</p>
+    </>
   );
+  const cls = "lp-card lp-interactive rounded-xl px-4 py-3.5 block";
+  if (link) {
+    return <Link to={link} className={cls}>{inner}</Link>;
+  }
+  return <div className="lp-card rounded-xl px-4 py-3.5">{inner}</div>;
 }
 
-function ModuleCard({ dotColor, title, link, linkLabel, stats }: {
+function ModuleCard({ dotColor, title, link, stats }: {
   dotColor: string;
   title: string;
   link: string;
-  linkLabel: string;
-  stats: { label: string; value: string | number; color?: string }[];
+  linkLabel?: string;
+  stats: { label: string; value: string | number; color?: string; filter?: string }[];
 }) {
   return (
-    <div className="bg-card border rounded-lg px-4 py-3.5 flex flex-col">
+    <Link
+      to={link}
+      className="lp-card lp-interactive rounded-xl px-4 py-4 flex flex-col group"
+      aria-label={`Abrir ${title}`}
+    >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <span className={`h-2 w-2 rounded-full ${dotColor}`} />
-          <span className="text-[13px] font-medium text-foreground">{title}</span>
+          <span className="text-[13px] font-semibold text-foreground">{title}</span>
         </div>
-        <Link to={link} className="text-[11px] text-primary hover:underline flex items-center gap-0.5">
-          {linkLabel} <ArrowRight className="h-3 w-3" />
-        </Link>
+        <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
       </div>
-      <div className="flex flex-wrap gap-x-5 gap-y-1">
+      <div className="flex flex-wrap gap-x-6 gap-y-2">
         {stats.map(s => (
           <div key={s.label}>
-            <p className={`text-xl font-bold tabular-nums ${s.color || ""}`}>{s.value}</p>
-            <p className="text-[11px] text-muted-foreground leading-tight">{s.label}</p>
+            <p className={`text-xl font-display font-semibold tabular-nums ${s.color || "text-foreground"}`}>{s.value}</p>
+            <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">{s.label}</p>
           </div>
         ))}
       </div>
-    </div>
+    </Link>
   );
 }
 

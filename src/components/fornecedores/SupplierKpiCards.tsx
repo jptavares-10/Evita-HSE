@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Users, FileText, AlertTriangle } from "lucide-react";
+import { Kpi, KpiGrid, KpiTone } from "@/components/ui/kpi";
 
 interface Props {
   suppliers: any[];
@@ -15,25 +16,17 @@ export function SupplierKpiCards({ suppliers, docCounts = {} }: Props) {
     return { activeCount, totalDocs, withoutDocs };
   }, [suppliers, docCounts]);
 
-  const cards = [
-    { label: "Fornecedores ativos", value: stats.activeCount, icon: Users, color: "text-primary" },
-    { label: "Documentos recebidos", value: stats.totalDocs, icon: FileText, color: "text-primary" },
-    { label: "Sem documentos", value: stats.withoutDocs, icon: AlertTriangle, color: "text-yellow-600" },
+  const cards: { label: string; value: number; icon: any; tone: KpiTone }[] = [
+    { label: "Fornecedores ativos", value: stats.activeCount, icon: Users, tone: "primary" },
+    { label: "Documentos recebidos", value: stats.totalDocs, icon: FileText, tone: "primary" },
+    { label: "Sem documentos", value: stats.withoutDocs, icon: AlertTriangle, tone: stats.withoutDocs > 0 ? "warning" : "neutral" },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <KpiGrid cols={3}>
       {cards.map((c) => (
-        <div key={c.label} className="bg-card border rounded-lg p-4 flex items-center gap-4">
-          <div className="p-2 rounded-lg bg-muted">
-            <c.icon className={`h-5 w-5 ${c.color}`} />
-          </div>
-          <div>
-            <p className="text-2xl font-bold tabular-nums">{c.value}</p>
-            <p className="text-xs text-muted-foreground">{c.label}</p>
-          </div>
-        </div>
+        <Kpi key={c.label} label={c.label} value={c.value} icon={c.icon} tone={c.tone} />
       ))}
-    </div>
+    </KpiGrid>
   );
 }

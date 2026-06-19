@@ -1,4 +1,4 @@
-import { CheckCircle2, AlertTriangle, XCircle, BarChart3 } from "lucide-react";
+import { CheckCircle2, AlertTriangle, XCircle, BarChart3, PowerOff } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Kpi, KpiGrid, KpiTone } from "@/components/ui/kpi";

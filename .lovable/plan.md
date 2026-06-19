@@ -1,84 +1,107 @@
-## Objetivo
 
-Trazer o software autenticado para o mesmo padrão visual da landing (Emerald Prestige light), padronizar como cards de KPI e cards de módulo se comportam, e elevar o Dashboard. Atualizar a landing para usar o dashboard real como hero.
+## Módulo Calendário
 
-## 1. Sistema de design unificado (app interno)
+Novo item de menu único na sidebar (área "Gestão" / topo). Visualização principal em mês (estilo agenda), com painéis lateral/dia ao clicar em uma data. Desktop-first (≥1280px), seguindo o design system existente.
 
-Sem mexer em lógica de dados, hooks, RLS, Stripe ou onboarding.
+### 1. Eventos manuais (CRUD)
 
-- **Tokens do app**: trazer os tokens `lp-*` (bg cream `#FAFBF8`, ink, border, emerald, gold, mesh, grid) para `src/index.css` como base também do app autenticado. Mapear shadcn `--background / --card / --primary / --border / --muted` para esses tokens, mantendo `--destructive`, `--warning`, `--success` como acentos semânticos.
-- **Tipografia interna**: títulos em Inter Tight, corpo em Inter (mesma stack da landing). Números/KPIs em tabular-nums.
-- **Sidebar `AppSidebar.tsx`**:
-  - Trocar tema escuro por superfície clara (cream/white) com texto ink, hover esmeralda suave, item ativo com pill esmeralda à esquerda + bg `emerald/8`.
-  - Logo do header usa `EvitaLogo` + `EvitaWordmark` (mesmo da landing).
-  - **Badges intuitivos preservados**: vermelho = vencido/crítico, âmbar = atenção/vencendo, verde = ok, azul = informativo. Reutilizar tokens semânticos existentes; só ajustar saturação para harmonizar com cream.
-- **Header de página padrão**: novo componente `PageHeader` (título Inter Tight 28-32, subtítulo muted, slot para ação primária). Aplicar em todas as páginas (Licenças, EPI, IC&NC, Serviços, ASO, MTR, Treinamentos, Inspeções, Documentos, Fornecedores, Usuários, Empresa, Perfil).
-- **Componentes compartilhados**: criar `KpiCard`, `ModuleCard`, `SectionCard` em `src/components/ui/` com variantes (default, success, warning, danger, info, neutral). Cor de fundo neutra + barra/ícone colorido em vez de tile inteiro pastel.
+Nova tabela `calendar_events`:
+- `title` (obrigatório)
+- `description`
+- `area` enum: `meio_ambiente` | `seguranca` | `saude` | `geral`
+- `category` enum: `evento` | `campanha` | `auditoria` | `reuniao` | `treinamento_interno` | `outro`
+- `starts_at`, `ends_at` (timestamps, suporta dia inteiro via flag `all_day`)
+- `location` (texto livre — sala, planta, link de reunião)
+- `color` (override opcional; padrão pela área)
+- `status` enum: `planejado` | `concluido` | `cancelado`
+- `created_by`, `company_id`, `created_at`, `updated_at`
 
-## 2. Padronização de interatividade (KPI & cards de módulo)
+CRUD via Sheet/Drawer (padrão do app). Botão "Novo evento" no topo da página.
 
-Comportamento único em toda a app:
+### 2. Anexos (somente eventos/campanhas)
 
-- **KPI cards (todas as listas: Licenças, EPI, IC&NC, MTR, Serviços, ASO, Treinamentos)** ficam clicáveis e filtram a tabela da própria página (`Total` limpa filtros, `Vencendo` aplica filtro de status warning, etc.). Estado ativo com ring esmeralda + check sutil; usar `aria-pressed`. Reaproveita filtros já existentes nas páginas.
-- **Cards de módulo (Dashboard)**: a área inteira é clicável e leva à página do módulo. "Ver todos →" deixa de ser um link separado; o card todo vira `role="link"` com `:focus-visible` ring. Subitens numéricos (Em dia / Vencendo / Vencidos) tornam-se chips que, ao clicar, abrem a página com pré-filtro aplicado (via querystring, ex.: `/servicos?status=expired`).
-- **Hover/foco consistente**: classe utilitária `lp-interactive` (hover translate-y -1px, shadow esmeralda suave, border emerald/20). Aplicada em todo card clicável.
-- **Cards estritamente informativos** (ex.: "Conformidade por módulo", "Pendências urgentes") perdem hover/cursor e ganham um leve fundo neutro para diferenciar.
+Nova tabela `calendar_event_attachments` (máx. 5 por evento, validado em trigger):
+- `event_id`, `file_url`, `file_name`, `file_type`, `file_size`, `uploaded_by`, `company_id`
 
-## 3. Dashboard redesenhado
+Novo bucket privado `calendar-attachments`, estrutura `{company_id}/{event_id}/{filename}`, URLs assinadas de 1h, limite global 20MB por arquivo (regra do projeto). Tipos aceitos: JPG, PNG, PDF.
 
-Estrutura:
+### 3. Agregação de vencimentos dos demais módulos
 
+Os vencimentos não são duplicados em tabela — são lidos em tempo real via uma **view segura** `calendar_due_items` (`security_invoker = true`) que une:
+
+| Fonte | Campo de data | Módulo / rota destino |
+|---|---|---|
+| `periodic_services.next_due_at` | Serviços Periódicos → `/servicos/:id` |
+| `environmental_licenses.expires_at` (quando `has_expiry`) | Licenças Ambientais → `/licencas/:id` |
+| `license_renewals.expires_at` | Licenças Ambientais (renovação) → `/licencas/:id` |
+| `mtrs.cdf_deadline_at` | MTR → `/mtr/:id` |
+| `inspection_executions.due_date` | Inspeções → `/inspecoes/execucoes/:id` |
+| `inspection_corrective_actions.due_date` | Inspeções (ação corretiva) → `/inspecoes/:id` |
+| `document_review_cycles.due_date` | Biblioteca / Revisões → `/revisoes/:id` |
+
+Cada linha expõe: `source_module`, `source_id`, `title`, `due_date`, `status` (ok/warning/expired), `deep_link`, `company_id`.
+
+**Excluídos por regra:** vencimentos de ASO, Treinamentos (employee_training_records), EPI (CA) e EPI entregas.
+
+**Pergunta no card de dúvidas abaixo** sobre dois opcionais que tenho dúvida se devem entrar.
+
+### 4. Busca
+
+Barra de pesquisa no topo da página que filtra simultaneamente:
+- Eventos (`title`, `description`, `location`, `area`)
+- Vencimentos da view (`title`, `source_module`)
+
+Resultados aparecem como lista lateral além de continuarem destacados no calendário.
+
+### 5. UX do calendário
+
+```text
+┌─────────────────────────────────────────────────┬──────────────┐
+│ [<] Junho 2026 [>]    [Mês|Semana]   [Buscar…] │  Painel do   │
+├─────────────────────────────────────────────────┤  dia/seleção │
+│ Dom Seg Ter Qua Qui Sex Sáb                      │  ▸ Eventos   │
+│  …  …  …  ●●  …  …  …                            │  ▸ Vencim.   │
+│  …  ●  …  …  ●  …  …                             │  (com link)  │
+└─────────────────────────────────────────────────┴──────────────┘
 ```
-HEADER
-  Olá, {nome} · {data} · status global (chip: Tudo em dia / X pendências)
-  → ação rápida "Ver pendências"
+- Bolinha colorida por área (segurança vermelho, ambiente verde, saúde azul, geral cinza); vencimentos com ícone distinto.
+- Clique no dia → painel direito lista eventos + vencimentos; cada vencimento é um link para o registro original.
+- Filtros rápidos: por área, por módulo de origem, por status.
 
-BANNER DE ATENÇÃO (se houver itens críticos)
-  itens com link direto para a página do módulo
+### 6. Segurança
 
-GRID PRINCIPAL (12 cols)
-  ┌───────────────────────────────┬─────────────────────────┐
-  │ KPIs gerais (4 cards small)   │ Pendências urgentes     │
-  │ conformidade · ativos · venc. │ (lista compacta, top 5) │
-  ├───────────────────────────────┤                         │
-  │ Grid bento de MÓDULOS         │                         │
-  │ (cards clicáveis padronizados)│                         │
-  │ - Serviços   - Treinamentos   │ Conformidade por módulo │
-  │ - MTR        - ASO            │ (mini barras horiz.)    │
-  │ - Licenças   - IC&NC          │                         │
-  │ - EPI        - Inspeções      │ Inspeções da semana     │
-  └───────────────────────────────┴─────────────────────────┘
-```
+- RLS multi-tenant por `company_id` em `calendar_events` e `calendar_event_attachments`.
+- Leitura: qualquer membro da empresa.
+- Escrita (insert/update/delete): exige `has_module_editor_permission('calendar')` (novo módulo adicionado ao enum/lista usada por `user_permissions`, `seed_viewer_permissions` e `get_user_permissions`).
+- Trigger `enforce_max_5_attachments` no `BEFORE INSERT` de `calendar_event_attachments`.
+- Storage `calendar-attachments`: políticas RLS em `storage.objects` validando `company_id` via `foldername[1]` (padrão já usado no projeto). Privado, URLs assinadas 1h.
+- View `calendar_due_items` com `security_invoker = true` para herdar as RLS de cada tabela de origem (usuário só vê o que já podia ver).
+- Validação Zod no frontend (título 1–200, descrição ≤2000, máx. 5 anexos por evento, tamanho/tipo de arquivo).
+- Plano: respeitar `get_company_access_status()` (read-only quando expirado).
 
-- KPI cards e module cards usam os novos componentes padronizados; toda área clicável vai para o módulo correspondente com filtro.
-- Lista "Pendências urgentes" ganha agrupamento por módulo, ícone semântico (vermelho/âmbar) e ação rápida.
-- Mini barras de conformidade usam token esmeralda com track neutro.
-- Tudo light, sem fundos pastel cheios; ênfase via tipografia e acento esmeralda/dourado.
+### 7. Integrações com o app existente
 
-## 4. Landing: hero com dashboard real
+- Adicionar rota `/calendario` em `App.tsx`.
+- Item na sidebar (categoria a confirmar — ver pergunta).
+- Acrescentar `'calendar'` à lista de módulos em: `seed_viewer_permissions`, `get_user_permissions`, `set_user_permission`, e no painel de permissões do usuário (`UserPermissionsDrawer`).
+- Atalho na busca global (Ctrl+F3) para eventos do calendário.
 
-- Capturar screenshot do Dashboard novo via Playwright (logado com a sessão pré-injetada, 1280×800, modo retina) e usar `lovable-assets` para servir via CDN.
-- Substituir o mockup atual no `LandingHero` por esse screenshot dentro do `BrowserFrame` existente, com badge "Dashboard real do produto".
-- Demais seções (Funcionalidades, FeatureSection) **mantêm mockups SVG/HTML** estilizados, conforme escolha.
+### Detalhes técnicos
 
-## 5. Validação
+- Lib calendário: `react-day-picker` (já no projeto) para grade do mês — sem nova dependência pesada. Painel de eventos custom.
+- Hooks: `useCalendarEvents`, `useCalendarDueItems(monthRange)`, `useCalendarSearch(query)`.
+- Componentes: `CalendarPage`, `MonthGrid`, `DayPanel`, `EventFormSheet`, `EventAttachmentsList`, `DueItemRow`.
+- Migração cria: tabelas + GRANTs + RLS + policies + view + função/trigger de limite de anexos + bucket via tool.
 
-- Playwright em 1280×1800 capturando: Dashboard, Licenças, EPI, IC&NC, Serviços, Treinamentos (visão geral), Sidebar colapsado/expandido. Comparar contraste de badges semânticos.
-- Verificar que filtros por KPI funcionam (clicar em "Vencidas" filtra a tabela).
-- Build + lint.
+### Dúvidas antes de implementar
 
-## Fora de escopo
+1. **Vencimentos opcionais** — quero confirmar se devem aparecer no calendário (ou ficar de fora como ASO/Treinamentos/EPI):
+   - **Ações corretivas de inspeção** (`inspection_corrective_actions.due_date`) — são tarefas pessoais, podem poluir o calendário corporativo.
+   - **Ciclos de revisão de documentos** (`document_review_cycles.due_date`) — fluxo interno da Biblioteca.
+   - Minha sugestão: incluir **execuções de inspeção** e **revisões de documentos**, e deixar **ações corretivas fora** (já têm visão própria). OK?
 
-- Lógica de negócio, RLS, edge functions, Stripe, onboarding, permissões.
-- Páginas de auth (já migradas).
-- Tema dark.
+2. **Localização na sidebar** — criar como item próprio no topo (acima das áreas), dentro de "Gestão", ou dentro de uma nova seção "Planejamento"?
 
-## Arquivos principais a tocar
+3. **Visualizações** — basta Mês + painel do dia, ou você também quer visão Semana e Lista (agenda corrida)?
 
-- `src/index.css`, `tailwind.config.ts` (tokens compartilhados app + landing)
-- `src/components/AppSidebar.tsx`, `src/components/AppLayout.tsx`
-- `src/components/ui/` (novos: `KpiCard`, `ModuleCard`, `PageHeader`, `SectionCard`)
-- `src/pages/Dashboard.tsx` (rewrite estrutural)
-- Todas as páginas de lista: substituir cards KPI ad-hoc pelo `KpiCard` + ligar filtros
-- `src/pages/LandingPage.tsx` + `src/components/landing/LandingHero.tsx` (novo screenshot)
-- 1 asset novo: `src/assets/dashboard-hero.png.asset.json`
+4. **Notificações** — quer alerta visual (badge) no menu para eventos do dia / próximos 7 dias? (Sem e-mail por enquanto.)

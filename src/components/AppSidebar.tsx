@@ -88,7 +88,7 @@ function SidebarItem({ to, icon: Icon, label, badge, active, sub, collapsed, loc
         className={cn(
           "flex items-center gap-2.5 rounded-md transition-colors relative w-full",
           collapsed ? "justify-center px-2 py-2.5" : sub ? "pl-9 pr-3 py-1.5 text-xs" : "px-3 py-2 text-sm",
-          "text-[#6B7280] hover:bg-[#1F2937] cursor-pointer"
+          "text-muted-foreground hover:bg-accent cursor-pointer"
         )}
       >
         <Icon className={cn("flex-shrink-0 opacity-50", sub ? "h-3.5 w-3.5" : "h-4 w-4")} />
@@ -121,8 +121,8 @@ function SidebarItem({ to, icon: Icon, label, badge, active, sub, collapsed, loc
         "flex items-center gap-2.5 rounded-md transition-colors relative",
         collapsed ? "justify-center px-2 py-2.5" : sub ? "pl-9 pr-3 py-1.5 text-xs" : "px-3 py-2 text-sm",
         active
-          ? "bg-[#1D4ED8] text-white font-medium"
-          : "text-[#D1D5DB] hover:bg-[#1F2937] hover:text-white"
+          ? "bg-primary text-primary-foreground font-medium"
+          : "text-foreground/80 hover:bg-accent hover:text-foreground"
       )}
     >
       <Icon className={cn("flex-shrink-0", sub ? "h-3.5 w-3.5" : "h-4 w-4")} />
@@ -173,7 +173,7 @@ function SidebarGroupHeader({ label, icon: Icon, iconColor, open, onToggle, badg
       <div className="flex justify-center py-2 relative">
         <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>
-            <button onClick={onToggle} className="p-1.5 rounded hover:bg-[#1F2937] transition-colors relative">
+            <button onClick={onToggle} className="p-1.5 rounded hover:bg-accent transition-colors relative">
               <Icon className={cn("h-4 w-4", iconColor)} />
               {badge !== undefined && badge > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full h-4 min-w-[16px] px-1 text-[9px] font-bold flex items-center justify-center">
@@ -191,7 +191,7 @@ function SidebarGroupHeader({ label, icon: Icon, iconColor, open, onToggle, badg
   return (
     <button
       onClick={onToggle}
-      className="flex items-center gap-2 w-full px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-[#6B7280] hover:text-[#9CA3AF] transition-colors"
+      className="flex items-center gap-2 w-full px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
     >
       <Icon className={cn("h-3.5 w-3.5", iconColor)} />
       <span className="flex-1 text-left">{label}</span>
@@ -344,23 +344,23 @@ export function AppSidebar() {
     <TooltipProvider delayDuration={0}>
       <aside
         className={cn(
-          "bg-[#111827] flex flex-col h-screen sticky top-0 z-50 transition-all duration-300",
+          "bg-card flex flex-col h-screen sticky top-0 z-50 transition-all duration-300",
           collapsed ? "w-16" : "w-64"
         )}
       >
         {/* ── Header: Logo + Collapse toggle ── */}
-        <div className="flex items-center border-b border-[#1F2937] px-3 py-4">
+        <div className="flex items-center border-b border-border px-3 py-4">
           <Link to="/dashboard" className="flex items-center gap-2 flex-1 min-w-0">
             {company?.logo_url ? (
               <img src={company.logo_url} alt="Logo" className="h-8 w-8 rounded object-contain flex-shrink-0" />
             ) : (
-              <div className="h-8 w-8 rounded bg-[#1D4ED8] text-white flex items-center justify-center text-xs font-bold flex-shrink-0">E</div>
+              <div className="h-8 w-8 rounded bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold flex-shrink-0">E</div>
             )}
             {!collapsed && <span className="font-bold text-lg text-white truncate">Evita HSE</span>}
           </Link>
           <button
             onClick={() => setCollapsed((c) => !c)}
-            className="text-[#6B7280] hover:text-white transition-colors p-1 rounded hover:bg-[#1F2937] flex-shrink-0"
+            className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded hover:bg-accent flex-shrink-0"
           >
             {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </button>
@@ -373,7 +373,7 @@ export function AppSidebar() {
           <SidebarItem to="/revisoes" icon={Inbox} label="Revisões" badge={reviewBadge} active={path === "/revisoes"} collapsed={collapsed} />
 
           <div className="h-1" />
-          <div className="border-t border-[#1F2937] my-1" />
+          <div className="border-t border-border my-1" />
 
           {/* ── SEGURANÇA ── */}
           <SidebarGroupHeader
@@ -386,7 +386,7 @@ export function AppSidebar() {
             collapsed={collapsed}
           />
           {(groups.seguranca ?? true) && (
-            <div className={cn("space-y-0.5", !collapsed && "relative ml-4 pl-2 border-l border-[#1F2937]")}>
+            <div className={cn("space-y-0.5", !collapsed && "relative ml-4 pl-2 border-l border-border")}>
               <SidebarItem to="/servicos" icon={ClipboardList} label="Serviços Periódicos" badge={serviceBadge} active={path === "/servicos"} collapsed={collapsed} locked={isLocked("/servicos")} onLockedClick={() => handleLockedClick("/servicos")} />
               <SidebarItem to="/incidentes" icon={ShieldAlert} label="IC & NC" badge={incidentBadge} active={path === "/incidentes"} collapsed={collapsed} locked={isLocked("/incidentes")} onLockedClick={() => handleLockedClick("/incidentes")} />
               {collapsed ? (
@@ -400,8 +400,8 @@ export function AppSidebar() {
                     className={cn(
                       "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm w-full transition-colors",
                       path.startsWith("/inspecoes")
-                        ? "bg-[#1D4ED8] text-white font-medium"
-                        : "text-[#D1D5DB] hover:bg-[#1F2937] hover:text-white"
+                        ? "bg-primary text-primary-foreground font-medium"
+                        : "text-foreground/80 hover:bg-accent hover:text-foreground"
                     )}
                   >
                     <ClipboardCheck className="h-4 w-4 flex-shrink-0" />
@@ -414,7 +414,7 @@ export function AppSidebar() {
                     <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", inspecoesExpanded ? "" : "-rotate-90")} />
                   </button>
                   {inspecoesExpanded && (
-                    <div className="space-y-0.5 ml-2 pl-2 border-l border-[#1F2937]">
+                    <div className="space-y-0.5 ml-2 pl-2 border-l border-border">
                       <SidebarItem to="/inspecoes" icon={Eye} label="Execuções" active={path === "/inspecoes"} sub />
                       <SidebarItem to="/inspecoes/modelos" icon={BookOpen} label="Modelos" active={path === "/inspecoes/modelos"} sub />
                     </div>
@@ -426,7 +426,7 @@ export function AppSidebar() {
             </div>
           )}
 
-          <div className="border-t border-[#1F2937] my-1" />
+          <div className="border-t border-border my-1" />
 
           {/* ── SAÚDE ── */}
           <SidebarGroupHeader
@@ -439,7 +439,7 @@ export function AppSidebar() {
             collapsed={collapsed}
           />
           {(groups.saude ?? true) && (
-            <div className={cn("space-y-0.5", !collapsed && "relative ml-4 pl-2 border-l border-[#1F2937]")}>
+            <div className={cn("space-y-0.5", !collapsed && "relative ml-4 pl-2 border-l border-border")}>
               {collapsed ? (
                 <SidebarItem to="/treinamentos" icon={GraduationCap} label="Treinamentos" badge={trainingBadge} active={path.startsWith("/treinamentos")} collapsed={collapsed} locked={isLocked("/treinamentos")} onLockedClick={() => handleLockedClick("/treinamentos")} />
               ) : isLocked("/treinamentos") ? (
@@ -451,8 +451,8 @@ export function AppSidebar() {
                     className={cn(
                       "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm w-full transition-colors",
                       path.startsWith("/treinamentos")
-                        ? "bg-[#1D4ED8] text-white font-medium"
-                        : "text-[#D1D5DB] hover:bg-[#1F2937] hover:text-white"
+                        ? "bg-primary text-primary-foreground font-medium"
+                        : "text-foreground/80 hover:bg-accent hover:text-foreground"
                     )}
                   >
                     <GraduationCap className="h-4 w-4 flex-shrink-0" />
@@ -465,7 +465,7 @@ export function AppSidebar() {
                     <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", treinoExpanded ? "" : "-rotate-90")} />
                   </button>
                   {treinoExpanded && (
-                    <div className="space-y-0.5 ml-2 pl-2 border-l border-[#1F2937]">
+                    <div className="space-y-0.5 ml-2 pl-2 border-l border-border">
                       <SidebarItem to="/treinamentos" icon={Eye} label="Visão Geral" active={path === "/treinamentos"} sub />
                       <SidebarItem to="/treinamentos/colaboradores" icon={Users} label="Colaboradores" active={path === "/treinamentos/colaboradores"} sub />
                       <SidebarItem to="/treinamentos/catalogo" icon={BookOpen} label="Treinamentos" active={path === "/treinamentos/catalogo"} sub />
@@ -479,7 +479,7 @@ export function AppSidebar() {
             </div>
           )}
 
-          <div className="border-t border-[#1F2937] my-1" />
+          <div className="border-t border-border my-1" />
 
           {/* ── MEIO AMBIENTE ── */}
           <SidebarGroupHeader
@@ -492,18 +492,18 @@ export function AppSidebar() {
             collapsed={collapsed}
           />
           {(groups.meio_ambiente ?? true) && (
-            <div className={cn("space-y-0.5", !collapsed && "relative ml-4 pl-2 border-l border-[#1F2937]")}>
+            <div className={cn("space-y-0.5", !collapsed && "relative ml-4 pl-2 border-l border-border")}>
               <SidebarItem to="/mtr" icon={Recycle} label="Gestão de MTR" badge={mtrBadge} active={path.startsWith("/mtr")} collapsed={collapsed} locked={isLocked("/mtr")} onLockedClick={() => handleLockedClick("/mtr")} />
               <SidebarItem to="/licencas" icon={ScrollText} label="Licenças Ambientais" badge={licenseBadge} active={path === "/licencas"} collapsed={collapsed} locked={isLocked("/licencas")} onLockedClick={() => handleLockedClick("/licencas")} />
               <SidebarItem to="/fornecedores" icon={Truck} label="Fornecedores" active={path.startsWith("/fornecedores")} collapsed={collapsed} locked={isLocked("/fornecedores")} onLockedClick={() => handleLockedClick("/fornecedores")} />
             </div>
           )}
 
-          <div className="border-t border-[#1F2937] my-1" />
+          <div className="border-t border-border my-1" />
 
           {/* ── CONFIGURAÇÕES ── */}
           {!collapsed && (
-            <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-[#6B7280]">
+            <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
               Configurações
             </div>
           )}
@@ -511,7 +511,7 @@ export function AppSidebar() {
             <div className="flex justify-center py-2">
               <Tooltip delayDuration={0}>
                 <TooltipTrigger asChild>
-                  <div className="h-px w-6 bg-[#374151]" />
+                  <div className="h-px w-6 bg-border" />
                 </TooltipTrigger>
                 <TooltipContent side="right">Configurações</TooltipContent>
               </Tooltip>
@@ -523,7 +523,7 @@ export function AppSidebar() {
         </nav>
 
         {/* ── Footer: User ── */}
-        <div className="bg-[#0F172A] border-t border-[#1F2937] p-3">
+        <div className="bg-muted/40 border-t border-border p-3">
           <div className={cn("flex items-center", collapsed ? "justify-center" : "gap-3")}>
             {collapsed ? (
               <Tooltip delayDuration={0}>
@@ -531,7 +531,7 @@ export function AppSidebar() {
                   <Link to="/perfil">
                     <Avatar className="h-9 w-9">
                       <AvatarImage src={profile?.avatar_url || undefined} />
-                      <AvatarFallback className="text-xs bg-[#1D4ED8] text-white">{initials}</AvatarFallback>
+                      <AvatarFallback className="text-xs bg-primary text-primary-foreground">{initials}</AvatarFallback>
                     </Avatar>
                   </Link>
                 </TooltipTrigger>
@@ -545,16 +545,16 @@ export function AppSidebar() {
                 <Link to="/perfil">
                   <Avatar className="h-9 w-9">
                     <AvatarImage src={profile?.avatar_url || undefined} />
-                    <AvatarFallback className="text-xs bg-[#1D4ED8] text-white">{initials}</AvatarFallback>
+                    <AvatarFallback className="text-xs bg-primary text-primary-foreground">{initials}</AvatarFallback>
                   </Avatar>
                 </Link>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-white truncate">{profile?.full_name || "Usuário"}</p>
-                  <p className="text-[10px] text-[#6B7280] truncate">{profile?.email}</p>
+                  <p className="text-[10px] text-muted-foreground truncate">{profile?.email}</p>
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="text-[#6B7280] hover:text-white transition-colors p-1.5 rounded hover:bg-[#1F2937] flex-shrink-0"
+                  className="text-muted-foreground hover:text-foreground transition-colors p-1.5 rounded hover:bg-accent flex-shrink-0"
                 >
                   <LogOut className="h-4 w-4" />
                 </button>

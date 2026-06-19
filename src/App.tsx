@@ -49,6 +49,7 @@ import InspecoesExecucoes from "./pages/InspecoesExecucoes";
 import InspecoesModelos from "./pages/InspecoesModelos";
 import InspecaoDetalhe from "./pages/InspecaoDetalhe";
 import Revisoes from "./pages/Revisoes";
+import Calendario from "./pages/Calendario";
 
 import Funcionalidades from "./pages/Funcionalidades";
 import FAQ from "./pages/FAQ";
@@ -105,6 +106,7 @@ const App = () => (
             {/* Protected routes with layout */}
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/calendario" element={<Calendario />} />
               <Route path="/servicos" element={<ModuleGuard module="periodic_services"><Servicos /></ModuleGuard>} />
               <Route path="/usuarios" element={<Usuarios />} />
               <Route path="/empresa" element={<Empresa />} />

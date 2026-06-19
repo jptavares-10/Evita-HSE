@@ -13,7 +13,8 @@ export type ModuleKey =
   | "document_library"
   | "inspections"
   | "aso"
-  | "epi";
+  | "epi"
+  | "calendar";
 
 // Global cache so multiple hooks share the same data
 let permissionsCache: Record<string, Record<ModuleKey, string>> = {};

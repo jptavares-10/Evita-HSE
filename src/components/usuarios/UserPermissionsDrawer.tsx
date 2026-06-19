@@ -11,7 +11,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Trash2, ShieldCheck, ShieldOff, Loader2, Bell, ClipboardCheck, AlertTriangle, GraduationCap, Stethoscope, Recycle, FileText, Handshake, BookOpen, HardHat } from "lucide-react";
+import { Trash2, ShieldCheck, ShieldOff, Loader2, Bell, ClipboardCheck, AlertTriangle, GraduationCap, Stethoscope, Recycle, FileText, Handshake, BookOpen, HardHat, CalendarDays } from "lucide-react";
 import type { ModuleKey } from "@/hooks/usePermission";
 import { clearPermissionsCache } from "@/hooks/usePermission";
 
@@ -60,6 +60,7 @@ const MODULE_GROUPS = [
     label: "GERAL",
     modules: [
       { key: "document_library" as ModuleKey, label: "Biblioteca de Documentos", icon: BookOpen },
+      { key: "calendar" as ModuleKey, label: "Calendário", icon: CalendarDays },
     ],
   },
 ];

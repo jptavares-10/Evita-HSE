@@ -1,0 +1,23 @@
+# Evita HSE
+
+> Plataforma SaaS brasileira de gestão de Saúde, Segurança do Trabalho e Meio Ambiente (HSE/SST). Controla treinamentos NR, EPIs, inspeções, MTR, licenças ambientais, ASO, documentos e fornecedores em uma única plataforma com alertas automáticos de vencimento.
+
+## Pages
+
+- [Início](/): Visão geral do produto, módulos e planos.
+- [Funcionalidades](/funcionalidades): Lista de todos os módulos disponíveis.
+- [FAQ](/faq): Perguntas frequentes sobre a plataforma.
+- [Cadastro](/cadastro): Criar conta e iniciar período de teste gratuito.
+
+## Módulos
+
+- [Serviços Periódicos](/funcionalidades/servicos-periodicos): Controle de serviços recorrentes de SST.
+- [Treinamentos](/funcionalidades/treinamentos): Gestão de treinamentos NR e certificados.
+- [EPIs](/funcionalidades/epi): Controle de Equipamentos de Proteção Individual.
+- [Inspeções](/funcionalidades/inspecoes): Checklist e ações corretivas.
+- [IC & NC](/funcionalidades/incidentes): Incidentes e não conformidades.
+- [ASO](/funcionalidades/aso): Exames ocupacionais.
+- [MTR](/funcionalidades/mtr): Manifesto de Transporte de Resíduos.
+- [Licenças Ambientais](/funcionalidades/licencas): Controle de LO, LI e autorizações.
+- [Documentos](/funcionalidades/documentos): Biblioteca de documentos SST.
+- [Fornecedores](/funcionalidades/fornecedores): Portal e documentos de fornecedores.

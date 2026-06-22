@@ -37,8 +37,8 @@ const groups = [
 ];
 
 export default function Funcionalidades() {
-  usePageTitle("Funcionalidades — Todos os Módulos do Evita HSE", {
-    description: "Conheça os 10 módulos integrados do Evita HSE: serviços periódicos, inspeções, EPIs, treinamentos, ASO, MTR, licenças ambientais, documentos, incidentes e portal de fornecedores.",
+  usePageTitle("Funcionalidades — Módulos do Evita HSE", {
+    description: "Conheça os 10 módulos do Evita HSE: serviços, inspeções, EPIs, treinamentos, ASO, MTR, licenças, documentos, incidentes e fornecedores.",
   });
 
   return (

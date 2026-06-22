@@ -29,7 +29,7 @@ const faqs = [
 ];
 
 export default function DocumentosPage() {
-  usePageTitle("Biblioteca de Documentos — Gestão de Documentos SST", {
+  usePageTitle("Biblioteca de Documentos SST", {
     description: "Centralize PGR, PCMSO, laudos e procedimentos de SST. Controle de revisões automático, histórico de versões e alertas de vencimento.",
     breadcrumbs: [
       { name: "Início", url: "https://evita-hse-br.lovable.app/" },

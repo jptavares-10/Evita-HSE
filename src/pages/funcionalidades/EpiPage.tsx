@@ -30,7 +30,7 @@ const faqs = [
 ];
 
 export default function EpiPage() {
-  usePageTitle("Gestão de EPIs — Controle de Equipamentos de Proteção Individual", {
+  usePageTitle("Gestão de EPIs e Equipamentos de Proteção", {
     description: "Controle de EPIs com catálogo CA, estoque com mínimo, entregas por colaborador, ficha de EPI e alertas de vencimento de certificado.",
     breadcrumbs: [
       { name: "Início", url: "https://evita-hse-br.lovable.app/" },

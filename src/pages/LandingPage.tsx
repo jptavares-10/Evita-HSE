@@ -370,6 +370,7 @@ export default function LandingPage() {
             <a href="#precos" className="hover:text-lp-ink transition-colors">Preços</a>
             <a href="#faq" className="hover:text-lp-ink transition-colors">FAQ</a>
             <Link to="/funcionalidades" className="hover:text-lp-ink transition-colors">Funcionalidades</Link>
+            <Link to="/blog" className="hover:text-lp-ink transition-colors">Blog</Link>
           </div>
           <div className="hidden md:flex items-center gap-2">
             <Link to="/login" className="px-3 py-1.5 text-sm text-lp-muted hover:text-lp-ink transition-colors">Entrar</Link>
@@ -777,6 +778,7 @@ export default function LandingPage() {
               <li><a href="#precos" className="hover:text-lp-ink transition-colors">Preços</a></li>
               <li><Link to="/faq" className="hover:text-lp-ink transition-colors">FAQ</Link></li>
               <li><Link to="/funcionalidades" className="hover:text-lp-ink transition-colors">Funcionalidades</Link></li>
+              <li><Link to="/blog" className="hover:text-lp-ink transition-colors">Blog</Link></li>
             </ul>
           </div>
           <div>

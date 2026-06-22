@@ -53,6 +53,8 @@ import Calendario from "./pages/Calendario";
 
 import Funcionalidades from "./pages/Funcionalidades";
 import FAQ from "./pages/FAQ";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import ServicosPage from "./pages/funcionalidades/ServicosPage";
 import InspecoesPage from "./pages/funcionalidades/InspecoesPage";
 import IncidentesPage from "./pages/funcionalidades/IncidentesPage";
@@ -102,6 +104,10 @@ const App = () => (
             <Route path="/funcionalidades/fornecedores" element={<LandingRoute><FornecedoresPage /></LandingRoute>} />
             <Route path="/portal/fornecedor/:token" element={<PortalFornecedor />} />
             <Route path="/completar-cadastro" element={<CompletarCadastro />} />
+
+            {/* Blog */}
+            <Route path="/blog" element={<LandingRoute><Blog /></LandingRoute>} />
+            <Route path="/blog/:slug" element={<LandingRoute><BlogPost /></LandingRoute>} />
 
             {/* Protected routes with layout */}
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>

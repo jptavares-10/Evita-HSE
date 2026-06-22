@@ -11,7 +11,7 @@ const tabs = [
 ];
 
 export default function Epi() {
-  usePageTitle("EPIs — Evita HSE");
+  usePageTitle("EPIs — Evita HSE", { description: "Controle de EPIs, entregas e estoque.", noindex: true });
   const location = useLocation();
 
   return (

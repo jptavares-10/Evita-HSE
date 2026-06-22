@@ -23,7 +23,7 @@ import { Progress } from "@/components/ui/progress";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function Dashboard() {
-  usePageTitle("Dashboard — Evita HSE");
+  usePageTitle("Dashboard — Evita HSE", { description: "Visão geral de indicadores HSE e alertas.", noindex: true });
   const { profile } = useAuth();
   const { data: services = [], isLoading: loadingServices } = usePeriodicServices();
   const { data: employees = [], isLoading: loadingEmployees } = useEmployees();

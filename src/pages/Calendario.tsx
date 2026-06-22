@@ -20,7 +20,7 @@ import { DayPanel } from "@/components/calendario/DayPanel";
 import { PermissionButton } from "@/components/PermissionButton";
 
 export default function Calendario() {
-  usePageTitle("Calendário");
+  usePageTitle("Calendário", { description: "Calendário de eventos e atividades HSE.", noindex: true });
   const { canEdit } = usePermission("calendar");
 
   const [cursor, setCursor] = useState(() => new Date());

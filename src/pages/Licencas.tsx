@@ -24,7 +24,7 @@ import { useTablePagination } from "@/hooks/useTablePagination";
 import { DataTablePagination } from "@/components/DataTablePagination";
 
 export default function Licencas() {
-  usePageTitle("Licenças Ambientais — Evita HSE");
+  usePageTitle("Licenças Ambientais — Evita HSE", { description: "Controle de licenças ambientais e renovações.", noindex: true });
   const { company } = useAuth();
   const { data: licenses = [], isLoading } = useEnvironmentalLicenses();
   const { data: types = [] } = useLicenseTypes();

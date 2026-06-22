@@ -18,6 +18,8 @@ Disallow: /planos
 Disallow: /completar-cadastro
 Disallow: /convite
 Disallow: /reset-password
+Disallow: /login
+Disallow: /portal/fornecedor
 
 User-agent: Bingbot
 Allow: /
@@ -36,6 +38,11 @@ Disallow: /empresa
 Disallow: /usuarios
 Disallow: /perfil
 Disallow: /planos
+Disallow: /login
+Disallow: /convite
+Disallow: /reset-password
+Disallow: /completar-cadastro
+Disallow: /portal/fornecedor
 
 User-agent: Twitterbot
 Allow: /
@@ -60,5 +67,10 @@ Disallow: /empresa
 Disallow: /usuarios
 Disallow: /perfil
 Disallow: /planos
+Disallow: /login
+Disallow: /convite
+Disallow: /reset-password
+Disallow: /completar-cadastro
+Disallow: /portal/fornecedor
 
 Sitemap: https://evita-hse-br.lovable.app/sitemap.xml

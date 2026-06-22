@@ -11,7 +11,7 @@ const tabs = [
 ];
 
 export default function Treinamentos() {
-  usePageTitle("Treinamentos — Evita HSE");
+  usePageTitle("Treinamentos — Evita HSE", { description: "Treinamentos NR, certificados e matriz.", noindex: true });
   const location = useLocation();
 
   return (

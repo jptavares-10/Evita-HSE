@@ -25,7 +25,7 @@ import { DataTablePagination } from "@/components/DataTablePagination";
 
 
 export default function Servicos() {
-  usePageTitle("Serviços Periódicos — Evita HSE");
+  usePageTitle("Serviços Periódicos — Evita HSE", { description: "Serviços periódicos de SST e meio ambiente.", noindex: true });
   const { company } = useAuth();
   const { data: services = [], isLoading } = usePeriodicServices();
   const { data: categories = [] } = useServiceCategories();

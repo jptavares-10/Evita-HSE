@@ -14,7 +14,7 @@ export function BlogLayout({ children }: BlogLayoutProps) {
       <header className="sticky top-0 z-40 border-b border-lp-border bg-lp-bg/85 backdrop-blur-md">
         <div className="max-w-6xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <EvitaWordmark className="h-7 w-auto text-lp-ink" />
+            <EvitaWordmark size="md" />
           </Link>
           <nav className="hidden md:flex items-center gap-7 text-sm text-lp-muted">
             <Link to="/funcionalidades" className="hover:text-lp-ink transition-colors">Funcionalidades</Link>

@@ -323,8 +323,8 @@ export default function LandingPage() {
   const [billingAnnual, setBillingAnnual] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  usePageTitle("Evita HSE — Software de Gestão de Segurança do Trabalho, Saúde e Meio Ambiente", {
-    description: "Software completo de gestão de SST e meio ambiente. Treinamentos NR, EPIs, inspeções, MTR, licenças e ASO em uma plataforma. Alertas automáticos de vencimento. 14 dias grátis.",
+  usePageTitle("Evita HSE — Gestão de SST e Meio Ambiente", {
+    description: "Plataforma de gestão de SST: treinamentos NR, EPIs, inspeções, MTR, licenças e ASO. Alertas de vencimento automáticos. Teste 14 dias grátis.",
   });
 
   useEffect(() => {

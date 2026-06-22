@@ -8,7 +8,7 @@ const tabs = [
 ];
 
 export default function Inspecoes() {
-  usePageTitle("Inspeções — Evita HSE");
+  usePageTitle("Inspeções — Evita HSE", { description: "Inspeções de segurança e ações corretivas.", noindex: true });
   const location = useLocation();
 
   return (

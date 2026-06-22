@@ -24,7 +24,7 @@ import { useTablePagination } from "@/hooks/useTablePagination";
 import { DataTablePagination } from "@/components/DataTablePagination";
 
 export default function Mtr() {
-  usePageTitle("Gestão de MTR — Evita HSE");
+  usePageTitle("Gestão de MTR — Evita HSE", { description: "Manifestos de Transporte de Resíduos e CDF.", noindex: true });
   const { company } = useAuth();
   const { data: mtrs = [], isLoading } = useMtrs();
   const isExpired = company?.plan === "expired";

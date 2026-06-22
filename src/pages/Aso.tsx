@@ -23,7 +23,7 @@ import { useTablePagination } from "@/hooks/useTablePagination";
 import { DataTablePagination } from "@/components/DataTablePagination";
 export default function Aso() {
   const navigate = useNavigate();
-  usePageTitle("ASO — Evita HSE");
+  usePageTitle("ASO — Evita HSE", { description: "Gestão de ASO e exames ocupacionais.", noindex: true });
   const { canEdit } = usePermission("aso");
 
   const { data: records = [], isLoading } = useAsoRecords();

@@ -23,7 +23,7 @@ import { useTablePagination } from "@/hooks/useTablePagination";
 import { DataTablePagination } from "@/components/DataTablePagination";
 
 export default function Documentos() {
-  usePageTitle("Biblioteca de Documentos — Evita HSE");
+  usePageTitle("Biblioteca de Documentos — Evita HSE", { description: "Biblioteca de documentos SST com revisões.", noindex: true });
   const { company } = useAuth();
   const { data: documents = [], isLoading } = useDocuments();
   const { data: types = [] } = useDocumentTypes();

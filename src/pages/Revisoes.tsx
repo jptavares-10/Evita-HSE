@@ -11,7 +11,7 @@ import { differenceInDays, parseISO } from "date-fns";
 import { Inbox, FileText, Clock } from "lucide-react";
 
 export default function Revisoes() {
-  usePageTitle("Documentos para Revisar — Evita HSE");
+  usePageTitle("Documentos para Revisar — Evita HSE", { description: "Documentos pendentes de revisão.", noindex: true });
   const { data: allReviews = [], isLoading } = useMyPendingReviews();
   const [selectedAssignment, setSelectedAssignment] = useState<any>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);

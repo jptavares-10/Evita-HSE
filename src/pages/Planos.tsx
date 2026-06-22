@@ -89,7 +89,7 @@ const plans = [
 const planOrder = ["trial", "starter", "professional", "enterprise"];
 
 export default function Planos() {
-  usePageTitle("Planos — Evita HSE");
+  usePageTitle("Planos — Evita HSE", { description: "Planos e assinatura do Evita HSE.", noindex: true });
   const { company, profile, refreshCompany } = useAuth();
   const { plan: currentPlan, daysRemaining, status } = usePlan();
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");

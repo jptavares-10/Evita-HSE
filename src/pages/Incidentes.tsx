@@ -23,7 +23,7 @@ import { useTablePagination } from "@/hooks/useTablePagination";
 import { DataTablePagination } from "@/components/DataTablePagination";
 
 export default function Incidentes() {
-  usePageTitle("IC & NC — Evita HSE");
+  usePageTitle("IC & NC — Evita HSE", { description: "Incidentes e não conformidades com plano de ação.", noindex: true });
   const { company } = useAuth();
   const planExpired = company?.plan === "expired";
   const { canEdit } = usePermission("ic_nc");

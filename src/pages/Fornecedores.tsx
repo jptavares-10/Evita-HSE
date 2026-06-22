@@ -24,7 +24,7 @@ import { useTablePagination } from "@/hooks/useTablePagination";
 import { DataTablePagination } from "@/components/DataTablePagination";
 
 export default function Fornecedores() {
-  usePageTitle("Fornecedores — Evita HSE");
+  usePageTitle("Fornecedores — Evita HSE", { description: "Gestão de fornecedores e documentos.", noindex: true });
   const { company } = useAuth();
   const { data: suppliers = [], isLoading } = useSuppliers();
   const { data: categories = [] } = useSupplierCategories();

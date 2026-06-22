@@ -82,7 +82,7 @@ export function AddAttachmentModal({ deliveryId, onClose }: Props) {
             <p className="text-xs text-muted-foreground mb-2">JPG, PNG ou WebP — máx. 5MB</p>
             {preview ? (
               <div className="relative inline-block">
-                <img src={preview} alt="Preview" className="max-h-48 rounded-lg border" />
+                <img src={preview} alt="Pré-visualização do comprovante" className="max-h-48 rounded-lg border" />
                 <Button
                   size="icon"
                   variant="secondary"

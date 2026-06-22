@@ -25,6 +25,7 @@ export function LandingLayout({ children }: { children: React.ReactNode }) {
           <div className="hidden md:flex items-center gap-7 text-sm text-lp-muted">
             <Link to="/funcionalidades" className="hover:text-lp-ink transition-colors">Funcionalidades</Link>
             <Link to="/#precos" className="hover:text-lp-ink transition-colors">Preços</Link>
+            <Link to="/blog" className="hover:text-lp-ink transition-colors">Blog</Link>
             <Link to="/faq" className="hover:text-lp-ink transition-colors">FAQ</Link>
           </div>
 
@@ -44,6 +45,7 @@ export function LandingLayout({ children }: { children: React.ReactNode }) {
           <div className="md:hidden border-t border-lp-border bg-lp-bg px-6 py-5 space-y-3">
             <Link to="/funcionalidades" className="block text-sm text-lp-muted" onClick={() => setMenuOpen(false)}>Funcionalidades</Link>
             <Link to="/#precos" className="block text-sm text-lp-muted" onClick={() => setMenuOpen(false)}>Preços</Link>
+            <Link to="/blog" className="block text-sm text-lp-muted" onClick={() => setMenuOpen(false)}>Blog</Link>
             <Link to="/faq" className="block text-sm text-lp-muted" onClick={() => setMenuOpen(false)}>FAQ</Link>
             <div className="flex gap-2 pt-3">
               <Link to="/login" className="flex-1 text-center py-2.5 border border-lp-border rounded-lg text-sm">Entrar</Link>
@@ -75,6 +77,7 @@ export function LandingLayout({ children }: { children: React.ReactNode }) {
             <ul className="space-y-2 text-sm text-lp-muted">
               <li><Link to="/funcionalidades" className="hover:text-lp-ink transition-colors">Funcionalidades</Link></li>
               <li><Link to="/#precos" className="hover:text-lp-ink transition-colors">Preços</Link></li>
+              <li><Link to="/blog" className="hover:text-lp-ink transition-colors">Blog</Link></li>
               <li><Link to="/faq" className="hover:text-lp-ink transition-colors">FAQ</Link></li>
               <li><Link to="/seguranca" className="hover:text-lp-ink transition-colors">Segurança</Link></li>
             </ul>

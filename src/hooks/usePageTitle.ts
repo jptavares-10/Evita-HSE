@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 
-const BASE_TITLE = "Evita HSE — Software de Gestão de Segurança do Trabalho, Saúde e Meio Ambiente";
+const BASE_TITLE = "Evita HSE — Gestão de SST e Meio Ambiente";
+const BASE_DESCRIPTION = "Plataforma de gestão de SST: treinamentos NR, EPIs, inspeções, MTR, licenças e ASO. Alertas de vencimento automáticos. Teste 14 dias grátis.";
 const BASE_URL = "https://evita-hse-br.lovable.app";
 const OG_IMAGE = "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f0e68888-85c8-45e8-bf0c-f8a7622ec777/id-preview-b4231701--13a6f3b0-7d66-463d-aaf0-2c8c73ab3512.lovable.app-1774239475213.png";
 
@@ -86,9 +87,12 @@ export function usePageTitle(title: string, options?: PageSEOOptions) {
     return () => {
       document.title = BASE_TITLE;
       document.getElementById("breadcrumb-jsonld")?.remove();
-      // Reset OG to defaults
+      // Reset OG and description to sitewide defaults to avoid stale metadata
       setMetaTag("og:title", BASE_TITLE, true);
       setMetaTag("og:url", BASE_URL, true);
+      setMetaTag("og:description", BASE_DESCRIPTION, true);
+      setMetaTag("description", BASE_DESCRIPTION);
+      setMetaTag("twitter:description", BASE_DESCRIPTION);
     };
   }, [title, options?.description]);
 }

@@ -30,7 +30,7 @@ const faqs = [
 ];
 
 export default function ServicosPage() {
-  usePageTitle("Serviços Periódicos — Controle de Serviços Recorrentes de SST", {
+  usePageTitle("Serviços Periódicos de SST", {
     description: "Controle extintores, dedetização, laudos e serviços recorrentes de SST. Alertas automáticos, histórico de execuções e dashboard de conformidade.",
     breadcrumbs: [
       { name: "Início", url: "https://evita-hse-br.lovable.app/" },

@@ -353,7 +353,7 @@ export function AppSidebar() {
         <div className="flex items-center border-b border-border px-3 py-4">
           <Link to="/dashboard" className="flex items-center gap-2 flex-1 min-w-0 group" aria-label="Evita HSE — Dashboard">
             {company?.logo_url ? (
-              <img src={company.logo_url} alt="Logo" className="h-8 w-8 rounded object-contain flex-shrink-0" />
+              <img src={company.logo_url} alt={`Logo${company?.name ? " da " + company.name : ""}`} className="h-8 w-8 rounded object-contain flex-shrink-0" />
             ) : (
               <EvitaLogo className="h-8 w-8 flex-shrink-0 transition-transform group-hover:rotate-[-4deg]" />
             )}

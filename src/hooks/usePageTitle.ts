@@ -26,7 +26,9 @@ function setMetaTag(property: string, content: string, isProperty = false) {
 
 export function usePageTitle(title: string, options?: PageSEOOptions) {
   useEffect(() => {
-    const displayTitle = title === BASE_TITLE ? title : `${title} | Evita HSE`;
+    // Avoid appending the brand if the title already contains it (prevents redundancy like "… — Evita HSE | Evita HSE")
+    const alreadyBranded = /evita\s*hse/i.test(title) || title === BASE_TITLE;
+    const displayTitle = alreadyBranded ? title : `${title} | Evita HSE`;
     document.title = displayTitle;
 
     const path = window.location.pathname;

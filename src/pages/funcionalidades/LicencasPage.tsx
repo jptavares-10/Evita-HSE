@@ -30,7 +30,7 @@ const faqs = [
 ];
 
 export default function LicencasPage() {
-  usePageTitle("Licenças Ambientais — Controle de LO, LI e Autorizações", {
+  usePageTitle("Licenças Ambientais — LO, LI e Autorizações", {
     description: "Controle de licenças ambientais com histórico de renovações, alertas de vencimento, condicionantes e classificação por esfera regulatória.",
     breadcrumbs: [
       { name: "Início", url: "https://evita-hse-br.lovable.app/" },

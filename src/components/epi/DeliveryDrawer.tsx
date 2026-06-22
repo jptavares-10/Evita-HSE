@@ -116,7 +116,7 @@ export function DeliveryDrawer({ open, onOpenChange, defaultEpiTypeId, defaultEm
             <p className="text-xs text-muted-foreground mb-2">Foto da assinatura, recibo ou comprovante — JPG, PNG, máx 5MB</p>
             {preview ? (
               <div className="relative inline-block">
-                <img src={preview} alt="Preview" className="max-h-32 rounded-lg border" />
+                <img src={preview} alt="Pré-visualização do comprovante de entrega" className="max-h-32 rounded-lg border" />
                 <Button
                   size="icon"
                   variant="secondary"

@@ -30,7 +30,7 @@ const faqs = [
 ];
 
 export default function InspecoesPage() {
-  usePageTitle("Inspeções de Segurança — Checklist e Ações Corretivas", {
+  usePageTitle("Inspeções de Segurança e Ações Corretivas", {
     description: "Inspeções de segurança do trabalho com modelos reutilizáveis, execuções automáticas, registros fotográficos e ações corretivas rastreáveis.",
     breadcrumbs: [
       { name: "Início", url: "https://evita-hse-br.lovable.app/" },

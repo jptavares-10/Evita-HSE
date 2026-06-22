@@ -30,7 +30,7 @@ const faqs = [
 ];
 
 export default function TreinamentosPage() {
-  usePageTitle("Gestão de Treinamentos — Controle de NRs e Certificados", {
+  usePageTitle("Gestão de Treinamentos NR e Certificados", {
     description: "Controle treinamentos NR com matriz por cargo, certificados com validade, importação em massa e dashboard de conformidade.",
     breadcrumbs: [
       { name: "Início", url: "https://evita-hse-br.lovable.app/" },

@@ -318,21 +318,13 @@ function PortalMockup() {
 /* ── PAGE ──────────────────────────────────── */
 
 export default function LandingPage() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [activeGroup, setActiveGroup] = useState<typeof groupTabs[number]>("Segurança");
   const [billingAnnual, setBillingAnnual] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
 
   usePageTitle("Evita HSE — Gestão de SST e Meio Ambiente", {
     description: "Plataforma de gestão de SST: treinamentos NR, EPIs, inspeções, MTR, licenças e ASO. Alertas de vencimento automáticos. Teste 14 dias grátis.",
   });
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   useEffect(() => {
     const faqJsonLd = {

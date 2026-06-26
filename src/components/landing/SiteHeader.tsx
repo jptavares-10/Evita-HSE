@@ -100,8 +100,8 @@ export function SiteHeader() {
             <Link
               key={l.label}
               to={l.hash ? `${l.to}#${l.hash}` : l.to}
-              onClick={(e) => handleNav(e, l)}
               className="block text-sm text-lp-muted"
+              onClick={(e) => { handleNav(e, l); setMenuOpen(false); }}
             >
               {l.label}
             </Link>

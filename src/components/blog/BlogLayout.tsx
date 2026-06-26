@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { ReactNode } from "react";
-import { ArrowRight } from "lucide-react";
-import { EvitaWordmark } from "@/components/landing/EvitaBrand";
+import { SiteHeader } from "@/components/landing/SiteHeader";
 
 interface BlogLayoutProps {
   children: ReactNode;
@@ -9,25 +8,9 @@ interface BlogLayoutProps {
 
 export function BlogLayout({ children }: BlogLayoutProps) {
   return (
-    <div className="min-h-screen bg-lp-bg text-lp-ink">
-      {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-lp-border bg-lp-bg/85 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <EvitaWordmark size="md" />
-          </Link>
-          <nav className="hidden md:flex items-center gap-7 text-sm text-lp-muted">
-            <Link to="/funcionalidades" className="hover:text-lp-ink transition-colors">Funcionalidades</Link>
-            <Link to="/blog" className="text-lp-ink font-medium">Blog</Link>
-            <Link to="/faq" className="hover:text-lp-ink transition-colors">FAQ</Link>
-            <Link to="/cadastro" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-lp-emerald text-white font-medium hover:bg-lp-emerald-deep transition-colors">
-              Testar grátis <ArrowRight className="w-4 h-4" />
-            </Link>
-          </nav>
-        </div>
-      </header>
-
-      <main>{children}</main>
+    <div className="min-h-screen bg-lp-bg text-lp-ink font-lp-sans antialiased">
+      <SiteHeader />
+      <main className="pt-16">{children}</main>
 
       {/* Footer */}
       <footer className="border-t border-lp-border bg-lp-bg py-12 px-6 lg:px-8 mt-24">

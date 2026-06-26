@@ -19,6 +19,7 @@ import {
 import { useState, useEffect, useRef } from "react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { EvitaLogo, EvitaWordmark } from "@/components/landing/EvitaBrand";
+import { SiteHeader } from "@/components/landing/SiteHeader";
 
 /* ── DATA ─────────────────────────────────────── */
 

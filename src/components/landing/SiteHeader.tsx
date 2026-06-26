@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
-import { Menu, X, ArrowRight } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Menu, X, ArrowRight, Home } from "lucide-react";
 import { useEffect, useState } from "react";
 import { EvitaBrandLink } from "@/components/landing/EvitaBrand";
 
@@ -10,6 +10,8 @@ import { EvitaBrandLink } from "@/components/landing/EvitaBrand";
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const handle = () => setScrolled(window.scrollY > 20);
@@ -18,12 +20,32 @@ export function SiteHeader() {
     return () => window.removeEventListener("scroll", handle);
   }, []);
 
-  const navLinks = [
+  const navLinks: Array<{ to: string; label: string; hash?: string }> = [
+    { to: "/", label: "Início" },
     { to: "/funcionalidades", label: "Funcionalidades" },
-    { to: "/#precos", label: "Preços" },
+    { to: "/", hash: "precos", label: "Preços" },
     { to: "/blog", label: "Blog" },
     { to: "/faq", label: "FAQ" },
   ];
+
+  const scrollToHash = (hash: string) => {
+    requestAnimationFrame(() => {
+      const el = document.getElementById(hash);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  };
+
+  const handleNav = (e: React.MouseEvent, link: { to: string; hash?: string }) => {
+    if (!link.hash) return;
+    e.preventDefault();
+    setMenuOpen(false);
+    if (location.pathname === link.to) {
+      scrollToHash(link.hash);
+    } else {
+      navigate(link.to);
+      setTimeout(() => scrollToHash(link.hash!), 80);
+    }
+  };
 
   return (
     <nav
@@ -38,7 +60,13 @@ export function SiteHeader() {
 
         <div className="hidden md:flex items-center gap-7 text-sm text-lp-muted">
           {navLinks.map((l) => (
-            <Link key={l.to} to={l.to} className="hover:text-lp-ink transition-colors">
+            <Link
+              key={l.label}
+              to={l.hash ? `${l.to}#${l.hash}` : l.to}
+              onClick={(e) => handleNav(e, l)}
+              className="hover:text-lp-ink transition-colors inline-flex items-center gap-1.5"
+            >
+              {l.label === "Início" && <Home className="h-3.5 w-3.5" />}
               {l.label}
             </Link>
           ))}
@@ -70,10 +98,10 @@ export function SiteHeader() {
         <div className="md:hidden border-t border-lp-border bg-lp-bg px-6 py-5 space-y-3">
           {navLinks.map((l) => (
             <Link
-              key={l.to}
-              to={l.to}
+              key={l.label}
+              to={l.hash ? `${l.to}#${l.hash}` : l.to}
               className="block text-sm text-lp-muted"
-              onClick={() => setMenuOpen(false)}
+              onClick={(e) => { handleNav(e, l); setMenuOpen(false); }}
             >
               {l.label}
             </Link>

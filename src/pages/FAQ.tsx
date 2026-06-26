@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Plus, ArrowLeft, Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { LandingLayout } from "@/components/landing/LandingLayout";
 import { Input } from "@/components/ui/input";
@@ -102,9 +101,6 @@ export default function FAQ() {
         <div aria-hidden className="absolute inset-0 lp-mesh-bg pointer-events-none" />
         <div aria-hidden className="absolute inset-0 lp-grid-bg pointer-events-none opacity-40" />
         <div className="relative z-10 max-w-3xl mx-auto">
-          <Link to="/" className="inline-flex items-center gap-1.5 text-xs text-lp-muted hover:text-lp-emerald transition-colors mb-8">
-            <ArrowLeft className="h-3.5 w-3.5" /> Voltar ao início
-          </Link>
           <div className="inline-flex items-center gap-2 rounded-full border border-lp-emerald/30 bg-lp-emerald/10 px-3 py-1.5 text-xs font-medium text-lp-emerald mb-6">
             <span className="h-1.5 w-1.5 rounded-full bg-lp-emerald" />
             FAQ

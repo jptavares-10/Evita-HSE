@@ -38,6 +38,7 @@ const COLLAPSED_STORAGE_KEY = "evita-sidebar-collapsed";
 const ROUTE_MODULE_MAP: Record<string, string> = {
   "/servicos": "periodic_services",
   "/incidentes": "ic_nc",
+  "/incidentes/licoes-aprendidas": "ic_nc",
   "/inspecoes": "inspections",
   "/epi": "epi",
   "/documentos": "document_library",

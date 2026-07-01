@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOccurrences, useAllCorrectiveActions, useCloseOccurrence } from "@/hooks/useOccurrences";
 import { OccurrenceKpiCards } from "@/components/incidentes/OccurrenceKpiCards";
@@ -11,7 +12,9 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Plus, Search, Eye, Pencil, XCircle, Trash2, AlertTriangle, FileWarning } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Plus, Search, Eye, Pencil, XCircle, Trash2, AlertTriangle, FileWarning, BookOpen, ShieldAlert } from "lucide-react";
+import LicoesAprendidas from "@/pages/LicoesAprendidas";
 import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
 import { getTypeInfo, getSeverityInfo, getStatusInfo, formatDateTimeBR, OCCURRENCE_TYPES, SEVERITY_LEVELS, STATUS_OPTIONS } from "@/lib/occurrences";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -25,6 +28,9 @@ import { DataTablePagination } from "@/components/DataTablePagination";
 export default function Incidentes() {
   usePageTitle("IC & NC — Evita HSE", { description: "Incidentes e não conformidades com plano de ação.", noindex: true });
   const { company } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const activeTab = location.pathname.endsWith("/licoes-aprendidas") ? "licoes" : "ocorrencias";
   const planExpired = company?.plan === "expired";
   const { canEdit } = usePermission("ic_nc");
   const isDisabled = planExpired || !canEdit;
@@ -79,13 +85,22 @@ export default function Incidentes() {
         </div>
         <div className="flex items-center gap-3">
           {!canEdit && <ViewerBadge />}
-          <PermissionButton canEdit={canEdit} onClick={() => { setEditingOcc(null); setDrawerOpen(true); }} disabled={isDisabled}>
-            <Plus className="h-4 w-4 mr-2" />Registrar ocorrência
-          </PermissionButton>
+          {activeTab === "ocorrencias" && (
+            <PermissionButton canEdit={canEdit} onClick={() => { setEditingOcc(null); setDrawerOpen(true); }} disabled={isDisabled}>
+              <Plus className="h-4 w-4 mr-2" />Registrar ocorrência
+            </PermissionButton>
+          )}
         </div>
       </div>
 
-      <OccurrenceKpiCards occurrences={occurrences} actions={allActions} />
+      <Tabs value={activeTab} onValueChange={(v) => navigate(v === "licoes" ? "/incidentes/licoes-aprendidas" : "/incidentes")}>
+        <TabsList>
+          <TabsTrigger value="ocorrencias" className="gap-1.5"><ShieldAlert className="h-3.5 w-3.5" />Ocorrências</TabsTrigger>
+          <TabsTrigger value="licoes" className="gap-1.5"><BookOpen className="h-3.5 w-3.5" />Lições Aprendidas</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="ocorrencias" className="space-y-6 mt-6">
+          <OccurrenceKpiCards occurrences={occurrences} actions={allActions} />
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3 items-end">
@@ -211,6 +226,12 @@ export default function Incidentes() {
         planExpired={isDisabled}
       />
       <DeleteOccurrenceDialog open={deleteOpen} onOpenChange={setDeleteOpen} occurrence={selectedOcc} />
+        </TabsContent>
+
+        <TabsContent value="licoes" className="mt-6">
+          <LicoesAprendidas />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

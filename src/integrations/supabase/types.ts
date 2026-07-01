@@ -349,48 +349,88 @@ export type Database = {
       }
       corrective_actions: {
         Row: {
+          cause_id: string | null
           company_id: string
           completed_at: string | null
           completed_by: string | null
           completion_notes: string | null
+          control_hierarchy: string | null
+          cost_estimated: number | null
           created_at: string
           created_by: string | null
           description: string
+          due_date: string | null
+          effectiveness_check_date: string | null
+          effectiveness_result: string | null
           evidence_name: string | null
           evidence_url: string | null
+          how_method: string | null
           id: string
           occurrence_id: string
+          responsible_employee_id: string | null
+          responsible_profile_id: string | null
           status: string
+          where_location: string | null
+          why: string | null
         }
         Insert: {
+          cause_id?: string | null
           company_id: string
           completed_at?: string | null
           completed_by?: string | null
           completion_notes?: string | null
+          control_hierarchy?: string | null
+          cost_estimated?: number | null
           created_at?: string
           created_by?: string | null
           description: string
+          due_date?: string | null
+          effectiveness_check_date?: string | null
+          effectiveness_result?: string | null
           evidence_name?: string | null
           evidence_url?: string | null
+          how_method?: string | null
           id?: string
           occurrence_id: string
+          responsible_employee_id?: string | null
+          responsible_profile_id?: string | null
           status?: string
+          where_location?: string | null
+          why?: string | null
         }
         Update: {
+          cause_id?: string | null
           company_id?: string
           completed_at?: string | null
           completed_by?: string | null
           completion_notes?: string | null
+          control_hierarchy?: string | null
+          cost_estimated?: number | null
           created_at?: string
           created_by?: string | null
           description?: string
+          due_date?: string | null
+          effectiveness_check_date?: string | null
+          effectiveness_result?: string | null
           evidence_name?: string | null
           evidence_url?: string | null
+          how_method?: string | null
           id?: string
           occurrence_id?: string
+          responsible_employee_id?: string | null
+          responsible_profile_id?: string | null
           status?: string
+          where_location?: string | null
+          why?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "corrective_actions_cause_id_fkey"
+            columns: ["cause_id"]
+            isOneToOne: false
+            referencedRelation: "occurrence_causes"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "corrective_actions_company_id_fkey"
             columns: ["company_id"]
@@ -424,6 +464,20 @@ export type Database = {
             columns: ["occurrence_id"]
             isOneToOne: false
             referencedRelation: "occurrences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "corrective_actions_responsible_employee_id_fkey"
+            columns: ["responsible_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "corrective_actions_responsible_profile_id_fkey"
+            columns: ["responsible_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -2151,6 +2205,121 @@ export type Database = {
           },
         ]
       }
+      occurrence_bowtie: {
+        Row: {
+          company_id: string
+          created_at: string
+          description: string
+          hazard: string | null
+          id: string
+          linked_to: string | null
+          node_type: string
+          occurrence_id: string
+          order_index: number
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          description: string
+          hazard?: string | null
+          id?: string
+          linked_to?: string | null
+          node_type: string
+          occurrence_id: string
+          order_index?: number
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          description?: string
+          hazard?: string | null
+          id?: string
+          linked_to?: string | null
+          node_type?: string
+          occurrence_id?: string
+          order_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "occurrence_bowtie_linked_to_fkey"
+            columns: ["linked_to"]
+            isOneToOne: false
+            referencedRelation: "occurrence_bowtie"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "occurrence_bowtie_occurrence_id_fkey"
+            columns: ["occurrence_id"]
+            isOneToOne: false
+            referencedRelation: "occurrences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      occurrence_causes: {
+        Row: {
+          category_6m: string | null
+          cause_type: string
+          company_id: string
+          created_at: string
+          created_by: string | null
+          description: string
+          id: string
+          occurrence_id: string
+          order_index: number
+          parent_cause_id: string | null
+          source_method: string | null
+        }
+        Insert: {
+          category_6m?: string | null
+          cause_type: string
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          description: string
+          id?: string
+          occurrence_id: string
+          order_index?: number
+          parent_cause_id?: string | null
+          source_method?: string | null
+        }
+        Update: {
+          category_6m?: string | null
+          cause_type?: string
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          occurrence_id?: string
+          order_index?: number
+          parent_cause_id?: string | null
+          source_method?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "occurrence_causes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "occurrence_causes_occurrence_id_fkey"
+            columns: ["occurrence_id"]
+            isOneToOne: false
+            referencedRelation: "occurrences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "occurrence_causes_parent_cause_id_fkey"
+            columns: ["parent_cause_id"]
+            isOneToOne: false
+            referencedRelation: "occurrence_causes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       occurrence_employees: {
         Row: {
           company_id: string
@@ -2204,17 +2373,71 @@ export type Database = {
           },
         ]
       }
+      occurrence_witnesses: {
+        Row: {
+          company_id: string
+          created_at: string
+          employee_id: string | null
+          id: string
+          occurrence_id: string
+          statement: string | null
+          witness_name: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          employee_id?: string | null
+          id?: string
+          occurrence_id: string
+          statement?: string | null
+          witness_name: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          employee_id?: string | null
+          id?: string
+          occurrence_id?: string
+          statement?: string | null
+          witness_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "occurrence_witnesses_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "occurrence_witnesses_occurrence_id_fkey"
+            columns: ["occurrence_id"]
+            isOneToOne: false
+            referencedRelation: "occurrences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       occurrences: {
         Row: {
           body_part_affected: string | null
+          cat_issued_at: string | null
+          cat_number: string | null
+          cat_required: boolean
           cause_analysis: string | null
           company_id: string
+          cost_estimated: number | null
           created_at: string
           description: string
           id: string
+          investigation_method: string | null
+          lesson_summary: string | null
+          lesson_tags: string[] | null
+          lesson_title: string | null
           location: string
           lost_days: number
           occurred_at: string
+          published_as_lesson: boolean
           registered_by: string | null
           severity: string
           status: string
@@ -2224,14 +2447,23 @@ export type Database = {
         }
         Insert: {
           body_part_affected?: string | null
+          cat_issued_at?: string | null
+          cat_number?: string | null
+          cat_required?: boolean
           cause_analysis?: string | null
           company_id: string
+          cost_estimated?: number | null
           created_at?: string
           description: string
           id?: string
+          investigation_method?: string | null
+          lesson_summary?: string | null
+          lesson_tags?: string[] | null
+          lesson_title?: string | null
           location: string
           lost_days?: number
           occurred_at: string
+          published_as_lesson?: boolean
           registered_by?: string | null
           severity: string
           status?: string
@@ -2241,14 +2473,23 @@ export type Database = {
         }
         Update: {
           body_part_affected?: string | null
+          cat_issued_at?: string | null
+          cat_number?: string | null
+          cat_required?: boolean
           cause_analysis?: string | null
           company_id?: string
+          cost_estimated?: number | null
           created_at?: string
           description?: string
           id?: string
+          investigation_method?: string | null
+          lesson_summary?: string | null
+          lesson_tags?: string[] | null
+          lesson_title?: string | null
           location?: string
           lost_days?: number
           occurred_at?: string
+          published_as_lesson?: boolean
           registered_by?: string | null
           severity?: string
           status?: string

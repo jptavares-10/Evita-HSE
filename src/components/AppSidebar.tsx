@@ -38,6 +38,7 @@ const COLLAPSED_STORAGE_KEY = "evita-sidebar-collapsed";
 const ROUTE_MODULE_MAP: Record<string, string> = {
   "/servicos": "periodic_services",
   "/incidentes": "ic_nc",
+  "/incidentes/licoes-aprendidas": "ic_nc",
   "/inspecoes": "inspections",
   "/epi": "epi",
   "/documentos": "document_library",
@@ -391,6 +392,7 @@ export function AppSidebar() {
             <div className={cn("space-y-0.5", !collapsed && "relative ml-4 pl-2 border-l border-border")}>
               <SidebarItem to="/servicos" icon={ClipboardList} label="Serviços Periódicos" badge={serviceBadge} active={path === "/servicos"} collapsed={collapsed} locked={isLocked("/servicos")} onLockedClick={() => handleLockedClick("/servicos")} />
               <SidebarItem to="/incidentes" icon={ShieldAlert} label="IC & NC" badge={incidentBadge} active={path === "/incidentes"} collapsed={collapsed} locked={isLocked("/incidentes")} onLockedClick={() => handleLockedClick("/incidentes")} />
+              <SidebarItem to="/incidentes/licoes-aprendidas" icon={BookOpen} label="Lições Aprendidas" active={path === "/incidentes/licoes-aprendidas"} collapsed={collapsed} locked={isLocked("/incidentes")} onLockedClick={() => handleLockedClick("/incidentes")} />
               {collapsed ? (
                 <SidebarItem to="/inspecoes" icon={ClipboardCheck} label="Inspeções" badge={inspectionBadge} active={path.startsWith("/inspecoes")} collapsed={collapsed} locked={isLocked("/inspecoes")} onLockedClick={() => handleLockedClick("/inspecoes")} />
               ) : isLocked("/inspecoes") ? (

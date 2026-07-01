@@ -1,14 +1,14 @@
 import { useMemo, useState } from "react";
-import { PageHeader } from "@/components/PageHeader";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Search, MapPin, Calendar, Tag } from "lucide-react";
 import { useLessonsLearned } from "@/hooks/useInvestigation";
 import { getTypeInfo, getSeverityInfo, formatDateBR } from "@/lib/occurrences";
-import { Helmet } from "react-helmet-async";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function LicoesAprendidas() {
+  usePageTitle("Lições Aprendidas", { description: "Biblioteca de aprendizados de HSE.", noindex: true });
   const { data: lessons = [], isLoading } = useLessonsLearned();
   const [q, setQ] = useState("");
   const [tag, setTag] = useState<string | null>(null);
@@ -34,14 +34,16 @@ export default function LicoesAprendidas() {
   }, [lessons, q, tag]);
 
   return (
-    <>
-      <Helmet><title>Lições Aprendidas · Evita HSE</title><meta name="robots" content="noindex" /></Helmet>
-      <div className="space-y-6">
-        <PageHeader
-          title="Lições Aprendidas"
-          description="Biblioteca de aprendizados extraídos de incidentes e não-conformidades investigados."
-          icon={BookOpen}
-        />
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+          <BookOpen className="h-5 w-5 text-primary" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold">Lições Aprendidas</h1>
+          <p className="text-sm text-muted-foreground">Biblioteca de aprendizados extraídos de incidentes e não-conformidades investigados.</p>
+        </div>
+      </div>
 
         <div className="flex flex-col sm:flex-row gap-2">
           <div className="relative flex-1">
@@ -100,8 +102,7 @@ export default function LicoesAprendidas() {
               );
             })}
           </div>
-        )}
-      </div>
-    </>
+      )}
+    </div>
   );
 }

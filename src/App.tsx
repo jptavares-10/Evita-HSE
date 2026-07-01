@@ -50,7 +50,6 @@ import InspecoesModelos from "./pages/InspecoesModelos";
 import InspecaoDetalhe from "./pages/InspecaoDetalhe";
 import Revisoes from "./pages/Revisoes";
 import Calendario from "./pages/Calendario";
-import LicoesAprendidas from "./pages/LicoesAprendidas";
 
 import Funcionalidades from "./pages/Funcionalidades";
 import FAQ from "./pages/FAQ";

@@ -66,8 +66,7 @@ export function SignatureKioskModal({ open, onOpenChange, summary, onConfirm }: 
   return (
     <Dialog open={open} onOpenChange={(v) => (v ? onOpenChange(v) : handleCancel())}>
       <DialogContent
-        className="max-w-none w-screen h-screen sm:rounded-none p-0 flex flex-col bg-background"
-        hideClose
+        className="max-w-none w-screen h-screen sm:rounded-none p-0 flex flex-col bg-background [&>button.absolute]:hidden"
       >
         <div ref={wrapRef} className="flex flex-col h-full">
           {/* Header */}

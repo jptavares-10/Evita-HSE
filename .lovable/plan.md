@@ -1,94 +1,59 @@
 
-## 1) Fix: duplicate "IC & NC" no sidebar
+## Objetivo
 
-Em `src/components/AppSidebar.tsx` (linhas 394-395) existem dois `SidebarItem` idênticos para `/incidentes`. Remover a segunda ocorrência (linha 395). Mantém apenas: `SidebarItem to="/incidentes" ... active={path.startsWith("/incidentes")}` para que a página de Lições Aprendidas (`/incidentes/licoes-aprendidas`) também destaque o item.
+1. Renomear em toda a UI o conceito de "Comprovante" (upload da ficha em papel já assinada) para **"Ficha Física"**.
+2. Adicionar um botão **"Exportar Ficha de EPI (PDF)"** na ficha do colaborador que gera um PDF único, no formato exigido pela NR-6, contendo:
+   - Dados da empresa e do colaborador (cargo, setor, admissão se disponível).
+   - Termo de responsabilidade da NR-6 e CLT art. 158.
+   - Tabela cronológica de todas as entregas (data, EPI, CA, quantidade, motivo).
+   - Coluna/linha de **assinatura por entrega** — usa a assinatura digital coletada no tablet quando existir, senão deixa o campo em branco para assinatura manual.
+   - Rodapé de auditoria (data de geração, empresa, colaborador, total de entregas, hash da última assinatura quando houver).
 
-## 2) Entrega de EPI com assinatura digital no tablet (Nível 1)
+## Mudanças
 
-Objetivo: substituir a foto do comprovante por uma assinatura desenhada no próprio tablet, com trilha de auditoria e PDF gerado automaticamente.
+### 1. Renomear "Comprovante" → "Ficha Física"
+Ajustar strings (sem mudar schema; `attachment_url` continua sendo a coluna, só muda o rótulo):
 
-### Fluxo do usuário (almoxarife com tablet)
-1. Almoxarife abre "EPI → Entregas → Nova Entrega".
-2. Seleciona EPI, colaborador, quantidade, motivo.
-3. Clica em **"Coletar assinatura"** → abre modal em tela cheia (modo quiosque).
-4. Colaborador vê resumo (nome, EPI, CA, quantidade, data) + termo curto de ciência.
-5. Colaborador assina no canvas com o dedo. Botões: **Limpar** / **Confirmar**.
-6. Ao confirmar, o sistema:
-   - Salva PNG da assinatura no storage privado.
-   - Gera **PDF** com dados + assinatura + hash + trilha.
-   - Grava metadados de auditoria no banco.
-7. Volta pro drawer, mostra "✔ Assinatura coletada" e salva a entrega.
+- `src/components/epi/AddAttachmentModal.tsx`
+  - Título: "Adicionar Ficha Física"
+  - Label: "Foto da ficha de EPI assinada pelo colaborador"
+  - Toast: "Ficha física adicionada"
+- `src/pages/EpiEntregas.tsx`
+  - Header da coluna: "Ficha física"
+  - Botão inline: "Adicionar ficha"
+- `src/components/epi/EpiFichaDrawer.tsx`
+  - Link "Adicionar comprovante" → "Adicionar ficha física"
+  - Alt das imagens: "Ficha física de entrega de EPI"
 
-### Modo Quiosque
-- Modal fullscreen com `requestFullscreen()`.
-- Bloqueia navegação (nenhum link/menu visível durante a coleta).
-- Layout otimizado para toque: fontes grandes, botões grandes, canvas ocupando ~60% da tela em landscape.
-- Sai só via botão "Cancelar" (requer confirmação) ou "Confirmar".
+### 2. Nova exportação "Ficha de EPI (PDF)"
 
-### Schema (migration)
+**Novo arquivo:** `src/lib/epi-ficha-pdf.ts`
+- Função `buildEmployeeEpiFichaPdf({ company, employee, deliveries, signedMap })` → `Blob`.
+- Layout A4 com `jspdf` (já instalado):
+  - **Cabeçalho:** logo (se `company.logo_url`), nome/CNPJ da empresa, título "Ficha de Controle de EPI — NR-6".
+  - **Bloco Colaborador:** nome, cargo, setor.
+  - **Termo NR-6:** texto padrão de ciência e responsabilidade (mesmo já usado em `epi-signature.ts`, adaptado para lista de entregas).
+  - **Tabela de entregas** com colunas: Data, EPI, CA, Qtd, Motivo, Assinatura.
+     - Se a entrega tem `signature_url` (PNG assinado no tablet), embutir a imagem redimensionada dentro da célula "Assinatura".
+     - Se não tem, desenhar linha tracejada para assinatura manual.
+  - Quebra de página automática (repetir cabeçalho da tabela em cada página).
+  - **Rodapé:** "Documento gerado em {data} — {n} entregas registradas — Sistema Evita HSE".
+- Reutilizar `fetchClientIp`/hash não é necessário aqui (é um consolidado, não uma nova assinatura).
 
-Estender `epi_deliveries` (não criar tabela nova — a entrega já existe):
+**Alterações em `src/components/epi/EpiFichaDrawer.tsx`:**
+- Adicionar botão secundário no header (ao lado do "Nova entrega") ou como ação: **"Exportar Ficha PDF"** com ícone `FileDown`.
+- Ao clicar:
+  1. Resolver signed URLs de todas as assinaturas do bucket `epi-signatures` para as entregas (usando `getSignedUrls`).
+  2. Baixar cada PNG como dataURL (fetch + FileReader) para embutir no PDF.
+  3. Chamar `buildEmployeeEpiFichaPdf` e disparar download via `URL.createObjectURL` com nome `ficha-epi-{colaborador}-{yyyymmdd}.pdf`.
+- Estado local `exporting` para desabilitar o botão durante geração.
 
-```
-ALTER TABLE public.epi_deliveries ADD COLUMN
-  signature_url text,           -- caminho no storage (PNG da assinatura)
-  signature_pdf_url text,       -- caminho do PDF assinado
-  signature_hash text,          -- SHA-256 dos dados assinados
-  signed_at timestamptz,        -- momento da assinatura
-  signed_ip text,               -- IP capturado no cliente (best-effort)
-  signed_user_agent text,       -- navegador/dispositivo
-  signed_by_profile uuid        -- profile do almoxarife que coletou
-    REFERENCES public.profiles(id) ON DELETE SET NULL;
-```
+### 3. Detalhes técnicos
 
-Bucket privado `epi-signatures` (20MB, private, RLS por `company_id/<delivery_id>/...`). Signed URLs 1h para exibir/baixar.
+- Manter o botão "Adicionar Ficha Física" (upload da versão assinada em papel) — os dois fluxos coexistem: assinatura digital no tablet (Nível 2) e upload da ficha física escaneada (Nível 1 legado).
+- Nenhuma mudança de schema, RLS ou edge function.
+- Sem novas dependências (jspdf já está no projeto).
 
-### Componentes novos
-- `src/components/epi/SignatureKioskModal.tsx` — modal fullscreen com canvas de assinatura (usando `react-signature-canvas` — leve, testado), resumo de ciência, e handlers Limpar/Confirmar/Cancelar.
-- `src/lib/epi-signature.ts` — utilitários:
-  - `dataUrlToBlob(pngDataUrl)`
-  - `computeHash(payload)` (SHA-256 via `crypto.subtle`)
-  - `buildDeliveryPdf({ company, employee, epi, quantity, reason, deliveredAt, signaturePng, hash, signedAt, signedBy })` usando `jspdf`.
-- `src/lib/epi-signature-fingerprint.ts` — coleta IP (via `https://api.ipify.org` best-effort, silencioso em falha) e user-agent.
-
-### Componentes editados
-- `src/components/epi/DeliveryDrawer.tsx`:
-  - Substituir a seção "Comprovante de entrega (foto)" por bloco **"Assinatura do colaborador"** com botão "Coletar assinatura".
-  - Após confirmação do kiosque, guardar em estado local: `signaturePng`, `signatureHash`, `signedAt`, `signedIp`, `signedUserAgent`, `pdfBlob`.
-  - Manter opção "Pular assinatura" (com aviso) apenas para admin — colaboradores sem assinatura ficam marcados como "pendente de assinatura" na listagem.
-  - No submit: enviar tudo pro hook.
-- `src/hooks/useEpi.ts` (`useSaveDelivery`):
-  - Fazer upload da assinatura PNG e do PDF no bucket `epi-signatures`.
-  - Popular novos campos na insert.
-- `src/pages/EpiEntregas.tsx` e `src/components/epi/EpiFichaDrawer.tsx`:
-  - Nova coluna/badge "Assinatura" (✔ assinada / ⚠ pendente).
-  - Botão "Baixar PDF assinado" (signed URL do PDF).
-
-### PDF gerado (uma página A4)
-- Cabeçalho: logo da empresa + "Ficha de Entrega de EPI".
-- Dados: empresa/CNPJ, colaborador, cargo, setor, data.
-- Tabela: EPI, CA, quantidade, motivo.
-- Termo de ciência (parágrafo curto NR-6).
-- Assinatura (imagem PNG) + nome legível + data/hora.
-- Rodapé: hash SHA-256 + IP + user-agent + ID da entrega (trilha de auditoria).
-
-### Dependências novas
-- `react-signature-canvas` (canvas de assinatura)
-- `jspdf` (geração de PDF client-side)
-
-### Segurança / RLS
-- Bucket `epi-signatures` privado, RLS espelhando o padrão existente (`company_id` no primeiro segmento do path).
-- PDFs e PNGs só acessíveis via signed URL (1h) para membros da mesma company.
-- Hash calculado sobre `{delivery_id, employee_id, epi_type_id, quantity, delivered_at, signed_at}` para provar integridade.
-
-### Plano de rollout
-1. Migration + bucket.
-2. Componentes/hook.
-3. Ajuste UI (drawer, listagem, ficha).
-4. Manter compat: entregas antigas (sem assinatura) continuam visíveis com badge "sem assinatura".
-5. Correção do sidebar duplicado (item independente e trivial).
-
-### Fora do escopo (fica para próxima fase)
-- Nível 2 (link por e-mail/OTP).
-- ICP-Brasil / integração Clicksign/D4Sign.
-- Assinatura em listas de treinamento e APR (mesmo motor será reutilizável depois).
+## Fora de escopo
+- Não altero fluxo de assinatura digital nem o `SignatureKioskModal`.
+- Não crio nova coluna no banco; apenas renomeações de UI + novo utilitário PDF.

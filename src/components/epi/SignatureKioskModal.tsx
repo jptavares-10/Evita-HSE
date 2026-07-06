@@ -43,7 +43,7 @@ export function SignatureKioskModal({ open, onOpenChange, summary, onConfirm }: 
 
   const handleConfirm = () => {
     if (!ref.current || ref.current.isEmpty()) return;
-    const png = ref.current.getTrimmedCanvas().toDataURL("image/png");
+    const png = ref.current.getCanvas().toDataURL("image/png");
     onConfirm(png);
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     onOpenChange(false);

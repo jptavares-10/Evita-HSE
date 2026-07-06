@@ -55,10 +55,10 @@ export function AddAttachmentModal({ deliveryId, onClose }: Props) {
 
       qc.invalidateQueries({ queryKey: ["epi-deliveries"] });
       qc.invalidateQueries({ queryKey: ["epi-employee-deliveries"] });
-      toast({ title: "Comprovante adicionado" });
+      toast({ title: "Ficha física adicionada" });
       handleClose();
     } catch (err: any) {
-      toast({ title: "Erro ao salvar comprovante", description: err.message, variant: "destructive" });
+      toast({ title: "Erro ao salvar ficha física", description: err.message, variant: "destructive" });
     } finally {
       setSaving(false);
     }
@@ -74,15 +74,15 @@ export function AddAttachmentModal({ deliveryId, onClose }: Props) {
     <Dialog open={!!deliveryId} onOpenChange={(v) => { if (!v) handleClose(); }}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Adicionar Comprovante</DialogTitle>
+          <DialogTitle>Adicionar Ficha Física</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label>Foto da assinatura, recibo ou comprovante da entrega</Label>
-            <p className="text-xs text-muted-foreground mb-2">JPG, PNG ou WebP — máx. 5MB</p>
+            <Label>Foto da ficha de EPI assinada pelo colaborador</Label>
+            <p className="text-xs text-muted-foreground mb-2">Envie a foto/escaneamento da ficha assinada em papel. JPG, PNG ou WebP — máx. 5MB</p>
             {preview ? (
               <div className="relative inline-block">
-                <img src={preview} alt="Pré-visualização do comprovante" className="max-h-48 rounded-lg border" />
+                <img src={preview} alt="Pré-visualização da ficha física" className="max-h-48 rounded-lg border" />
                 <Button
                   size="icon"
                   variant="secondary"

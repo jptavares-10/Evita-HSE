@@ -1250,6 +1250,13 @@ export type Database = {
           reason: string | null
           registered_by: string | null
           returned_at: string | null
+          signature_hash: string | null
+          signature_pdf_url: string | null
+          signature_url: string | null
+          signed_at: string | null
+          signed_by_profile: string | null
+          signed_ip: string | null
+          signed_user_agent: string | null
         }
         Insert: {
           attachment_name?: string | null
@@ -1265,6 +1272,13 @@ export type Database = {
           reason?: string | null
           registered_by?: string | null
           returned_at?: string | null
+          signature_hash?: string | null
+          signature_pdf_url?: string | null
+          signature_url?: string | null
+          signed_at?: string | null
+          signed_by_profile?: string | null
+          signed_ip?: string | null
+          signed_user_agent?: string | null
         }
         Update: {
           attachment_name?: string | null
@@ -1280,6 +1294,13 @@ export type Database = {
           reason?: string | null
           registered_by?: string | null
           returned_at?: string | null
+          signature_hash?: string | null
+          signature_pdf_url?: string | null
+          signature_url?: string | null
+          signed_at?: string | null
+          signed_by_profile?: string | null
+          signed_ip?: string | null
+          signed_user_agent?: string | null
         }
         Relationships: [
           {
@@ -1313,6 +1334,13 @@ export type Database = {
           {
             foreignKeyName: "epi_deliveries_registered_by_fkey"
             columns: ["registered_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "epi_deliveries_signed_by_profile_fkey"
+            columns: ["signed_by_profile"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]

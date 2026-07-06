@@ -66,6 +66,7 @@ import MtrPage from "./pages/funcionalidades/MtrPage";
 import LicencasPage from "./pages/funcionalidades/LicencasPage";
 import FornecedoresPage from "./pages/funcionalidades/FornecedoresPage";
 import Seguranca from "./pages/Seguranca";
+import OAuthConsent from "./pages/OAuthConsent";
 
 const queryClient = new QueryClient();
 
@@ -87,6 +88,9 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/portal/fornecedor/:token" element={<PortalFornecedor />} />
             <Route path="/completar-cadastro" element={<CompletarCadastro />} />
+
+            {/* OAuth consent (MCP / agent integrations) */}
+            <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
 
             {/* Public SEO pages */}
             <Route path="/funcionalidades" element={<LandingRoute><Funcionalidades /></LandingRoute>} />

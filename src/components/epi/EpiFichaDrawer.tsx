@@ -186,7 +186,7 @@ export function EpiFichaDrawer({ employeeId, onClose }: Props) {
                                   onClick={() => setLightboxUrl(signedUrl)}
                                   className="mt-1 rounded border overflow-hidden w-20 h-20 hover:opacity-80 transition-opacity"
                                 >
-                                  <img src={signedUrl} alt="Comprovante de entrega de EPI" className="w-full h-full object-cover" />
+                                  <img src={signedUrl} alt="Ficha física de entrega de EPI" className="w-full h-full object-cover" />
                                 </button>
                               )}
                               {!d.attachment_url && (
@@ -230,7 +230,7 @@ export function EpiFichaDrawer({ employeeId, onClose }: Props) {
           onClick={() => setLightboxUrl(null)}
         >
           <div className="relative max-w-[90%] max-h-[80vh]" onClick={(e) => e.stopPropagation()}>
-            <img src={lightboxUrl} alt="Comprovante de entrega de EPI" className="max-w-full max-h-[80vh] rounded-lg" />
+            <img src={lightboxUrl} alt="Ficha física de entrega de EPI" className="max-w-full max-h-[80vh] rounded-lg" />
             <div className="absolute top-2 right-2 flex gap-2">
               <Button size="icon" variant="secondary" asChild>
                 <a href={lightboxUrl} target="_blank" rel="noopener noreferrer"><Download className="h-4 w-4" /></a>

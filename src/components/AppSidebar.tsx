@@ -26,7 +26,7 @@ import {
   LayoutDashboard, ClipboardList, ShieldAlert, GraduationCap, Recycle, Truck,
   Building2, Users, CreditCard, LogOut, ChevronDown, ChevronLeft, ChevronRight,
   Shield, HeartPulse, Leaf, Eye, BookOpen, Grid3X3, Briefcase, ScrollText, FileText, HardHat, Stethoscope, ClipboardCheck,
-  Lock, Inbox, CalendarDays
+  Lock, Inbox, CalendarDays, QrCode
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EvitaLogo, EvitaWordmark } from "@/components/landing/EvitaBrand";
@@ -419,6 +419,7 @@ export function AppSidebar() {
                   {inspecoesExpanded && (
                     <div className="space-y-0.5 ml-2 pl-2 border-l border-border">
                       <SidebarItem to="/inspecoes" icon={Eye} label="Execuções" active={path === "/inspecoes"} sub />
+                      <SidebarItem to="/inspecoes/ativos" icon={QrCode} label="Ativos & QR" active={path === "/inspecoes/ativos"} sub />
                       <SidebarItem to="/inspecoes/modelos" icon={BookOpen} label="Modelos" active={path === "/inspecoes/modelos"} sub />
                     </div>
                   )}

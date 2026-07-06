@@ -10,6 +10,7 @@ import { useDocuments } from "@/hooks/useDocuments";
 import { useAuth } from "@/contexts/AuthContext";
 import { FREQUENCY_TYPES } from "@/lib/inspections";
 import { X, FileText } from "lucide-react";
+import { ChecklistItemsEditor } from "./ChecklistItemsEditor";
 
 interface Props {
   open: boolean;
@@ -199,6 +200,22 @@ export function InspectionModelDrawer({ open, onOpenChange, editing, employees, 
             </div>
             {!isActive && <p className="text-xs text-muted-foreground">Modelos inativos não geram novas execuções.</p>}
           </section>
+
+          {/* Checklist estruturado (só depois de criado) */}
+          {editing?.id && (
+            <section className="space-y-3">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Itens do checklist</h3>
+              <p className="text-xs text-muted-foreground">
+                Perguntas que o inspetor responde no celular durante a execução. Marque como <strong>crítico</strong> itens que reprovam a inspeção se estiverem não conformes.
+              </p>
+              <ChecklistItemsEditor modelId={editing.id} />
+            </section>
+          )}
+          {!editing?.id && (
+            <p className="text-xs text-muted-foreground bg-muted/50 rounded px-3 py-2">
+              Salve o modelo para começar a montar o checklist estruturado.
+            </p>
+          )}
 
           <div className="flex gap-3 pt-4">
             <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>Cancelar</Button>

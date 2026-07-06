@@ -98,7 +98,10 @@ export function DeliveryDrawer({ open, onOpenChange, defaultEpiTypeId, defaultEm
           companyCnpj: (company as any)?.cnpj || null,
           employeeName: selectedEmployee?.name || "",
           employeeJob: selectedEmployee?.job_positions?.name || null,
-          employeeSector: selectedEmployee?.sectors?.name || null,
+          employeeSector:
+            (selectedEmployee as any)?.job_positions?.sectors?.name ||
+            (selectedEmployee as any)?.sector ||
+            null,
           epiName: selectedEpi?.name || "",
           caNumber: selectedEpi?.ca_number || null,
           quantity: parseInt(quantity) || 1,

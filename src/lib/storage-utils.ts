@@ -18,6 +18,7 @@ const PRIVATE_BUCKETS = [
   "epi-files",
   "review-attachments",
   "calendar-attachments",
+  "epi-signatures",
 ] as const;
 
 export type PrivateBucket = (typeof PRIVATE_BUCKETS)[number];

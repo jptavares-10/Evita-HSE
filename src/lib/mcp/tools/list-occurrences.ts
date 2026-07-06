@@ -16,7 +16,7 @@ export default defineTool({
     const supabase = supabaseForUser(ctx);
     let query = supabase
       .from("occurrences")
-      .select("id,title,type,severity,status,occurred_at,lost_days")
+      .select("id,description,type,severity,status,occurred_at,lost_days,location")
       .order("occurred_at", { ascending: false })
       .limit(limit);
     if (type) query = query.eq("type", type);

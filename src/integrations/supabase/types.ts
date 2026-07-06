@@ -1482,8 +1482,156 @@ export type Database = {
           },
         ]
       }
+      inspection_assets: {
+        Row: {
+          asset_type: string
+          company_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          location_description: string | null
+          metadata: Json
+          name: string
+          qr_token: string
+          sector_id: string | null
+          status: string
+          tag_code: string
+          updated_at: string
+        }
+        Insert: {
+          asset_type?: string
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          location_description?: string | null
+          metadata?: Json
+          name: string
+          qr_token?: string
+          sector_id?: string | null
+          status?: string
+          tag_code: string
+          updated_at?: string
+        }
+        Update: {
+          asset_type?: string
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          location_description?: string | null
+          metadata?: Json
+          name?: string
+          qr_token?: string
+          sector_id?: string | null
+          status?: string
+          tag_code?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inspection_assets_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_assets_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_assets_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_assets_sector_id_fkey"
+            columns: ["sector_id"]
+            isOneToOne: false
+            referencedRelation: "sectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inspection_checklist_items: {
+        Row: {
+          company_id: string
+          created_at: string
+          expected_answer: string | null
+          help_text: string | null
+          id: string
+          is_critical: boolean
+          model_id: string
+          photo_required: boolean
+          position: number
+          question: string
+          reference: string | null
+          response_type: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          expected_answer?: string | null
+          help_text?: string | null
+          id?: string
+          is_critical?: boolean
+          model_id: string
+          photo_required?: boolean
+          position?: number
+          question: string
+          reference?: string | null
+          response_type?: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          expected_answer?: string | null
+          help_text?: string | null
+          id?: string
+          is_critical?: boolean
+          model_id?: string
+          photo_required?: boolean
+          position?: number
+          question?: string
+          reference?: string | null
+          response_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inspection_checklist_items_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_checklist_items_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_checklist_items_model_id_fkey"
+            columns: ["model_id"]
+            isOneToOne: false
+            referencedRelation: "inspection_models"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inspection_corrective_actions: {
         Row: {
+          answer_id: string | null
           company_id: string
           completed_at: string | null
           completed_by: string | null
@@ -1502,6 +1650,7 @@ export type Database = {
           status: string
         }
         Insert: {
+          answer_id?: string | null
           company_id: string
           completed_at?: string | null
           completed_by?: string | null
@@ -1520,6 +1669,7 @@ export type Database = {
           status?: string
         }
         Update: {
+          answer_id?: string | null
           company_id?: string
           completed_at?: string | null
           completed_by?: string | null
@@ -1538,6 +1688,13 @@ export type Database = {
           status?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "inspection_corrective_actions_answer_id_fkey"
+            columns: ["answer_id"]
+            isOneToOne: false
+            referencedRelation: "inspection_execution_answers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "inspection_corrective_actions_company_id_fkey"
             columns: ["company_id"]
@@ -1660,8 +1817,99 @@ export type Database = {
           },
         ]
       }
+      inspection_execution_answers: {
+        Row: {
+          answer_value: string | null
+          answered_at: string
+          answered_by: string | null
+          company_id: string
+          created_at: string
+          execution_id: string
+          id: string
+          is_conformant: boolean | null
+          item_id: string
+          location_accuracy: number | null
+          location_lat: number | null
+          location_lng: number | null
+          note: string | null
+          photo_urls: string[]
+          updated_at: string
+        }
+        Insert: {
+          answer_value?: string | null
+          answered_at?: string
+          answered_by?: string | null
+          company_id: string
+          created_at?: string
+          execution_id: string
+          id?: string
+          is_conformant?: boolean | null
+          item_id: string
+          location_accuracy?: number | null
+          location_lat?: number | null
+          location_lng?: number | null
+          note?: string | null
+          photo_urls?: string[]
+          updated_at?: string
+        }
+        Update: {
+          answer_value?: string | null
+          answered_at?: string
+          answered_by?: string | null
+          company_id?: string
+          created_at?: string
+          execution_id?: string
+          id?: string
+          is_conformant?: boolean | null
+          item_id?: string
+          location_accuracy?: number | null
+          location_lat?: number | null
+          location_lng?: number | null
+          note?: string | null
+          photo_urls?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inspection_execution_answers_answered_by_fkey"
+            columns: ["answered_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_execution_answers_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_execution_answers_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_execution_answers_execution_id_fkey"
+            columns: ["execution_id"]
+            isOneToOne: false
+            referencedRelation: "inspection_executions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_execution_answers_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "inspection_checklist_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inspection_executions: {
         Row: {
+          asset_id: string | null
           company_id: string
           completed_at: string | null
           completed_by: string | null
@@ -1670,9 +1918,18 @@ export type Database = {
           id: string
           model_id: string
           reference: string
+          signature_url: string | null
+          signed_at: string | null
+          signed_location_lat: number | null
+          signed_location_lng: number | null
+          signed_user_agent: string | null
+          signer_name: string | null
+          signer_role: string | null
+          started_at: string | null
           status: string
         }
         Insert: {
+          asset_id?: string | null
           company_id: string
           completed_at?: string | null
           completed_by?: string | null
@@ -1681,9 +1938,18 @@ export type Database = {
           id?: string
           model_id: string
           reference?: string
+          signature_url?: string | null
+          signed_at?: string | null
+          signed_location_lat?: number | null
+          signed_location_lng?: number | null
+          signed_user_agent?: string | null
+          signer_name?: string | null
+          signer_role?: string | null
+          started_at?: string | null
           status?: string
         }
         Update: {
+          asset_id?: string | null
           company_id?: string
           completed_at?: string | null
           completed_by?: string | null
@@ -1692,9 +1958,24 @@ export type Database = {
           id?: string
           model_id?: string
           reference?: string
+          signature_url?: string | null
+          signed_at?: string | null
+          signed_location_lat?: number | null
+          signed_location_lng?: number | null
+          signed_user_agent?: string | null
+          signer_name?: string | null
+          signer_role?: string | null
+          started_at?: string | null
           status?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "inspection_executions_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "inspection_assets"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "inspection_executions_company_id_fkey"
             columns: ["company_id"]

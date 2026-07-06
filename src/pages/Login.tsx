@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { translateSupabaseError } from "@/lib/supabase-errors";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,9 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const nextRaw = params.get("next") ?? "";
+  const nextPath = nextRaw.startsWith("/") && !nextRaw.startsWith("//") ? nextRaw : "/dashboard";
   const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -33,7 +36,7 @@ export default function Login() {
       return;
     }
 
-    navigate("/dashboard");
+    navigate(nextPath);
   };
 
   const handleForgotPassword = async () => {

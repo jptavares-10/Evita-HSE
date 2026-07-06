@@ -68,7 +68,7 @@ export default function EpiEntregas() {
                 <TableHead>Motivo</TableHead>
                 <TableHead>Observações</TableHead>
                 <TableHead>Registrado por</TableHead>
-                <TableHead className="text-center">Comprovante</TableHead>
+                <TableHead className="text-center">Ficha física</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -89,7 +89,7 @@ export default function EpiEntregas() {
                         onClick={() => setAttachModalDeliveryId(d.id)}
                         className="text-xs text-primary hover:underline inline-flex items-center gap-1"
                       >
-                        <FileImage className="h-3 w-3" />Adicionar
+                        <FileImage className="h-3 w-3" />Adicionar ficha
                       </button>
                     ) : (
                       <span className="text-xs text-muted-foreground">—</span>

@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Plus, FileText, Download, User, Calendar, Clock, CheckCircle2, AlertTriangle, Trash2, Play } from "lucide-react";
+import { ArrowLeft, Plus, FileText, Download, User, Calendar, Clock, CheckCircle2, AlertTriangle, Trash2, Play, Smartphone, FileSignature, MapPin } from "lucide-react";
 import { useSignedUrl, useSignedUrls } from "@/hooks/useSignedUrl";
 import { useEmployees } from "@/hooks/useTrainings";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -146,7 +146,40 @@ export default function InspecaoDetalhe() {
             </a>
           )}
         </div>
+        {!isCompleted && canEdit && (
+          <Button onClick={() => navigate(`/inspecoes/${id}/campo`)} className="bg-primary">
+            <Smartphone className="h-4 w-4 mr-1.5" />
+            Inspecionar em campo
+          </Button>
+        )}
       </div>
+
+      {/* Signature summary when signed */}
+      {execution.signer_name && (
+        <section className="lp-card rounded-xl p-5 space-y-2">
+          <h2 className="font-semibold flex items-center gap-2 text-sm">
+            <FileSignature className="h-4 w-4" />
+            Assinatura de fechamento
+          </h2>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <div className="text-xs text-muted-foreground uppercase tracking-wide">Responsável</div>
+              <div className="font-medium">{execution.signer_name}</div>
+              {execution.signer_role && <div className="text-xs text-muted-foreground">{execution.signer_role}</div>}
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground uppercase tracking-wide">Data/Hora</div>
+              <div className="font-medium">{formatDateTimeBR(execution.signed_at)}</div>
+              {(execution.signed_location_lat != null && execution.signed_location_lng != null) && (
+                <div className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                  <MapPin className="h-3 w-3" />
+                  {Number(execution.signed_location_lat).toFixed(5)}, {Number(execution.signed_location_lng).toFixed(5)}
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Entries Section */}
       <section className="lp-card rounded-xl p-5 space-y-4">

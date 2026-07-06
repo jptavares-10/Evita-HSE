@@ -188,6 +188,12 @@ export function useSaveDelivery() {
       reason?: string | null;
       notes?: string | null;
       attachment_file?: File;
+      signature_png?: string | null; // dataURL
+      signature_pdf_blob?: Blob | null;
+      signature_hash?: string | null;
+      signed_at?: string | null;
+      signed_ip?: string | null;
+      signed_user_agent?: string | null;
     }) => {
       if (!company || !profile) throw new Error("Sem empresa");
 
@@ -201,6 +207,11 @@ export function useSaveDelivery() {
         reason: v.reason || null,
         notes: v.notes || null,
         registered_by: profile.id,
+        signature_hash: v.signature_hash || null,
+        signed_at: v.signed_at || null,
+        signed_ip: v.signed_ip || null,
+        signed_user_agent: v.signed_user_agent || null,
+        signed_by_profile: v.signature_png ? profile.id : null,
       }).select("id").single();
       if (delErr) throw delErr;
 
@@ -213,6 +224,29 @@ export function useSaveDelivery() {
           await supabase.from("epi_deliveries").update({
             attachment_url: path,
             attachment_name: v.attachment_file.name,
+          }).eq("id", delivery.id);
+        }
+      }
+
+      // 2b. Upload signature PNG + PDF
+      if (v.signature_png) {
+        const { dataUrlToBlob } = await import("@/lib/epi-signature");
+        const pngBlob = dataUrlToBlob(v.signature_png);
+        const pngPath = `${company.id}/${delivery.id}/signature.png`;
+        const { error: sigErr } = await supabase.storage
+          .from("epi-signatures")
+          .upload(pngPath, pngBlob, { upsert: true, contentType: "image/png" });
+        let pdfPath: string | null = null;
+        if (v.signature_pdf_blob) {
+          pdfPath = `${company.id}/${delivery.id}/entrega.pdf`;
+          await supabase.storage
+            .from("epi-signatures")
+            .upload(pdfPath, v.signature_pdf_blob, { upsert: true, contentType: "application/pdf" });
+        }
+        if (!sigErr) {
+          await supabase.from("epi_deliveries").update({
+            signature_url: pngPath,
+            signature_pdf_url: pdfPath,
           }).eq("id", delivery.id);
         }
       }

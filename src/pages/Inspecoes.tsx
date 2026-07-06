@@ -4,6 +4,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 
 const tabs = [
   { label: "Execuções", to: "/inspecoes" },
+  { label: "Ativos & QR", to: "/inspecoes/ativos" },
   { label: "Modelos", to: "/inspecoes/modelos" },
 ];
 

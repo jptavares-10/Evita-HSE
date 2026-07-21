@@ -22,7 +22,7 @@ export default function InspecaoQr() {
 
   useEffect(() => {
     if (!loading && !user) {
-      navigate(`/login?redirect=${encodeURIComponent(`/i/${token}`)}`);
+      navigate(`/login?next=${encodeURIComponent(`/i/${token}`)}`);
     }
   }, [loading, user, token, navigate]);
 

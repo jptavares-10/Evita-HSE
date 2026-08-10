@@ -362,3 +362,102 @@
 .scrollbar-thin-light:hover::-webkit-scrollbar-thumb {
   background: hsl(var(--lp-ink) / 0.22);
 }
+
+/* ── Cards ousados da landing (sem ícones, tipografia como protagonista) ── */
+.lp-card-bold {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(165deg, hsl(var(--lp-surface)), hsl(var(--lp-cream)));
+  border: 1px solid hsl(var(--lp-border));
+  box-shadow: 0 1px 2px hsl(var(--lp-ink) / 0.04), 0 18px 40px -26px hsl(var(--lp-ink) / 0.16);
+  transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 420ms ease,
+    border-color 300ms ease;
+  will-change: transform;
+}
+.lp-card-bold::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 400ms ease;
+  background: linear-gradient(140deg, hsl(var(--lp-emerald) / 0.10), transparent 55%, hsl(var(--lp-gold) / 0.12));
+}
+.lp-card-bold:hover {
+  transform: translateY(-6px) rotate(-0.35deg);
+  border-color: hsl(var(--lp-emerald) / 0.45);
+  box-shadow: 0 1px 2px hsl(var(--lp-ink) / 0.04), 0 34px 60px -28px hsl(var(--lp-emerald) / 0.35);
+}
+.lp-card-bold:hover::before { opacity: 1; }
+
+/* Numeral gigante de fundo */
+.lp-numeral {
+  position: absolute;
+  right: 1rem;
+  top: -0.75rem;
+  font-weight: 600;
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  user-select: none;
+  pointer-events: none;
+  color: transparent;
+  background: linear-gradient(160deg, hsl(var(--lp-emerald) / 0.22), hsl(var(--lp-gold) / 0.18));
+  -webkit-background-clip: text;
+  background-clip: text;
+  opacity: 0.55;
+  transition: opacity 400ms ease, transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.group:hover .lp-numeral,
+.lp-card-bold:hover .lp-numeral {
+  opacity: 1;
+  transform: translateY(4px) scale(1.06);
+}
+
+/* Etiqueta tipográfica (substitui os ícones) */
+.lp-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: hsl(var(--lp-emerald-deep));
+}
+.lp-eyebrow::before {
+  content: "";
+  width: 1.75rem;
+  height: 2px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, hsl(var(--lp-emerald)), hsl(var(--lp-gold)));
+  transition: width 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.group:hover .lp-eyebrow::before,
+.lp-card-bold:hover .lp-eyebrow::before { width: 3rem; }
+
+/* Marcador de lista tipográfico */
+.lp-tick {
+  position: relative;
+  padding-left: 1rem;
+}
+.lp-tick::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 0.5rem;
+  height: 2px;
+  border-radius: 9999px;
+  background: hsl(var(--lp-emerald));
+}
+
+/* Inclinação leve em repouso, alinhando no hover */
+.lp-askew { transform: rotate(-1deg); transition: transform 500ms cubic-bezier(0.16, 1, 0.3, 1); }
+.lp-askew-alt { transform: rotate(1.2deg); transition: transform 500ms cubic-bezier(0.16, 1, 0.3, 1); }
+.lp-askew:hover, .lp-askew-alt:hover { transform: rotate(0deg) translateY(-4px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-card-bold, .lp-card-bold:hover,
+  .lp-askew, .lp-askew-alt,
+  .lp-askew:hover, .lp-askew-alt:hover { transform: none; }
+}

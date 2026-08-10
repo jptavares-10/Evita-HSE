@@ -740,7 +740,7 @@ export default function LandingPage() {
           <div aria-hidden className="absolute inset-0 lp-mesh-bg animate-lp-mesh opacity-60 pointer-events-none" />
           <div className="relative max-w-3xl mx-auto text-center">
             <Reveal variant="blur">
-              <p className="lp-eyebrow justify-center mb-6">Configuração em minutos</p>
+              <p className="lp-eyebrow !flex justify-center mb-6">Configuração em minutos</p>
               <h2 className="font-lp-display text-4xl md:text-6xl font-semibold tracking-tight text-lp-ink mb-5 leading-[1.05]">
                 O próximo vencimento já está a caminho.
               </h2>

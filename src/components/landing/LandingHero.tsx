@@ -29,7 +29,7 @@ export function LandingHero({ badge, title, highlight, description, breadcrumb }
         </Reveal>
 
         <Reveal delay={0.05}>
-          <p className="lp-eyebrow justify-center mb-6">{badge}</p>
+          <p className="lp-eyebrow !flex justify-center mb-6">{badge}</p>
         </Reveal>
 
         <Reveal delay={0.1}>

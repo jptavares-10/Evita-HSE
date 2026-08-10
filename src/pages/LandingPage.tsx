@@ -546,7 +546,7 @@ export default function LandingPage() {
                   <Link
                     key={m.slug}
                     to={`/funcionalidades/${m.slug}`}
-                    className="group block p-4 rounded-lg border border-lp-border bg-lp-surface/40 hover:bg-lp-surface hover:border-lp-emerald/40 transition-all animate-fade-in"
+                    className="group block p-5 rounded-xl border border-lp-border bg-lp-surface/50 hover:bg-lp-surface hover:border-lp-emerald/45 hover:-translate-y-0.5 hover:shadow-[0_20px_40px_-28px_hsl(var(--lp-emerald)/0.45)] transition-all animate-fade-in"
                     style={{ animationDelay: `${i * 50}ms` }}
                   >
                     <div className="flex items-start justify-between gap-3">
@@ -554,12 +554,12 @@ export default function LandingPage() {
                         <p className="font-lp-display font-semibold text-lp-ink mb-1">{m.name}</p>
                         <p className="text-sm text-lp-muted">{m.desc}</p>
                       </div>
-                      <ArrowRight className="h-4 w-4 text-lp-muted shrink-0 mt-1 transition-all group-hover:text-lp-emerald group-hover:translate-x-0.5" />
+                      <span aria-hidden className="text-lp-muted shrink-0 mt-0.5 transition-all group-hover:text-lp-emerald group-hover:translate-x-1">→</span>
                     </div>
                   </Link>
                 ))}
               </div>
-              <div className="lg:col-span-3">{moduleMockup[activeGroup]}</div>
+              <div key={activeGroup} className="lg:col-span-3 animate-fade-in">{moduleMockup[activeGroup]}</div>
             </div>
           </div>
         </section>
@@ -572,8 +572,8 @@ export default function LandingPage() {
             </Reveal>
             <div className="grid md:grid-cols-3 gap-5">
               {testimonials.map((t, i) => (
-                <Reveal key={t.name} delay={i * 0.05}>
-                  <div className="lp-card rounded-xl p-6 h-full flex flex-col">
+                <Reveal key={t.name} delay={i * 0.08} variant="blur">
+                  <div className={`lp-card-bold rounded-[1.4rem] p-7 h-full flex flex-col ${i === 1 ? "lp-askew-alt" : "lp-askew"}`}>
                     <p className="text-lp-ink text-base leading-relaxed mb-5 flex-1">"{t.text}"</p>
                     <div className="flex items-center gap-3 pt-4 border-t border-lp-border">
                       <div className="h-9 w-9 rounded-full bg-lp-emerald/20 grid place-items-center text-lp-emerald text-xs font-bold">{t.initials}</div>
@@ -606,20 +606,19 @@ export default function LandingPage() {
             </Reveal>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
               {trustPillars.map((p, i) => (
-                <Reveal key={p.title} delay={i * 0.06} variant="scale">
-                  <div className="lp-card lp-spot rounded-2xl p-6 h-full" onMouseMove={spotlight.onMouseMove}>
-                    <div className="w-11 h-11 rounded-xl bg-lp-emerald/10 border border-lp-emerald/25 grid place-items-center mb-4">
-                      <p.icon className="h-5 w-5 text-lp-emerald-glow" />
-                    </div>
-                    <h3 className="font-lp-display text-base font-semibold text-lp-ink mb-2">{p.title}</h3>
-                    <p className="text-sm text-lp-muted leading-relaxed">{p.desc}</p>
+                <Reveal key={p.title} delay={i * 0.08} variant="scale" className={i % 2 === 1 ? "lg:mt-8" : ""}>
+                  <div className="group lp-card-bold lp-spot lp-ring-gradient rounded-[1.4rem] p-7 h-full" onMouseMove={spotlight.onMouseMove}>
+                    <span aria-hidden className="lp-numeral font-lp-display text-[4.5rem]">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="lp-eyebrow relative">{p.eyebrow}</span>
+                    <h3 className="relative font-lp-display text-lg font-semibold text-lp-ink mt-4 mb-2 leading-snug">{p.title}</h3>
+                    <p className="relative text-sm text-lp-muted leading-relaxed">{p.desc}</p>
                   </div>
                 </Reveal>
               ))}
             </div>
             <Reveal className="mt-10 text-center">
-              <Link to="/seguranca" className="text-sm text-lp-emerald-glow font-medium inline-flex items-center gap-1.5 hover:gap-2.5 transition-all">
-                Ver como protegemos sua operação <ArrowRight className="h-3.5 w-3.5" />
+              <Link to="/seguranca" className="text-sm text-lp-emerald font-semibold inline-flex items-center gap-1.5 hover:gap-3 transition-all">
+                Ver como protegemos sua operação <span aria-hidden>→</span>
               </Link>
             </Reveal>
           </div>

@@ -3,7 +3,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { FileText, Download, ExternalLink, Calendar, Clock, User, Pencil, RotateCw } from "lucide-react";
+import { FileText, Download, ExternalLink, Calendar, Clock, User, Pencil, RotateCw, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useConditionants } from "@/hooks/useConditionants";
+import { EFFECTIVE_STATUS_META, daysRemainingLabel, deadlineTypeLabel, formatDateBR as fmtCond } from "@/lib/conditionants";
 import { computeLicenseStatus, getStatusBadgeInfo, getSphereBadgeInfo, getDaysRemainingInfo, formatDateBR, formatDateTimeBR } from "@/lib/licenses";
 import { useLicenseRenewals } from "@/hooks/useLicenses";
 import { useSignedUrl } from "@/hooks/useSignedUrl";
@@ -21,6 +24,7 @@ interface Props {
 export function LicenseDetailDrawer({ open, onOpenChange, license, onEdit, onRenew, isExpired }: Props) {
   const { canEdit } = usePermission("environmental_licenses");
   const { data: renewals = [] } = useLicenseRenewals(license?.id ?? null);
+  const { data: conditionants = [] } = useConditionants(license?.id ?? undefined);
   const signedUrl = useSignedUrl("environmental-licenses", license?.file_url);
 
   if (!license) return null;
@@ -46,7 +50,8 @@ export function LicenseDetailDrawer({ open, onOpenChange, license, onEdit, onRen
         <Tabs defaultValue="details" className="mt-4">
           <TabsList className="w-full">
             <TabsTrigger value="details" className="flex-1">Detalhes</TabsTrigger>
-            <TabsTrigger value="history" className="flex-1">Histórico de Renovações</TabsTrigger>
+            <TabsTrigger value="conditionants" className="flex-1">Condicionantes ({conditionants.length})</TabsTrigger>
+            <TabsTrigger value="history" className="flex-1">Renovações</TabsTrigger>
           </TabsList>
 
           <TabsContent value="details" className="space-y-5 mt-4">
@@ -135,6 +140,43 @@ export function LicenseDetailDrawer({ open, onOpenChange, license, onEdit, onRen
 
           <TabsContent value="history" className="mt-4">
             <RenewalTimeline renewals={renewals} currentLicenseNumber={license.license_number} />
+          </TabsContent>
+
+          <TabsContent value="conditionants" className="mt-4 space-y-3">
+            {conditionants.length === 0 ? (
+              <p className="py-8 text-center text-sm text-muted-foreground">
+                Nenhuma condicionante cadastrada para esta licença.
+              </p>
+            ) : (
+              conditionants.map((c) => {
+                const meta = EFFECTIVE_STATUS_META[c._status];
+                const days = daysRemainingLabel(c._resolved_due, c.alert_days_before);
+                return (
+                  <div key={c.id} className="space-y-1.5 rounded-lg border p-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-medium">{c.item_code || "Condicionante"}</p>
+                      <Badge variant="outline" className={`text-[10px] ${meta.className}`}>{meta.label}</Badge>
+                    </div>
+                    <p className="line-clamp-2 text-sm text-muted-foreground">{c.description}</p>
+                    <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                      <span>{deadlineTypeLabel(c.deadline_type, c.recurrence, c.days_before_license_expiry)}</span>
+                      {c.deadline_type !== "continuous" && (
+                        <>
+                          <span>·</span>
+                          <span>{fmtCond(c._resolved_due)}</span>
+                          <span className={`font-medium ${days.color}`}>{days.label}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+            <Button variant="outline" size="sm" asChild className="w-full">
+              <Link to="/licencas/condicionantes">
+                Gerenciar condicionantes <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+            </Button>
           </TabsContent>
         </Tabs>
       </SheetContent>

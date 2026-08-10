@@ -265,7 +265,7 @@ function MTRMockup() {
             <div className="h-full bg-gradient-to-r from-lp-emerald via-yellow-400 to-red-400" style={{ width: "92%" }} />
           </div>
           <div className="flex items-center justify-between text-[10px]">
-            <span className="flex items-center gap-1.5 text-yellow-300"><Bell className="h-3 w-3" /> Alerta de prazo enviado</span>
+            <span className="text-yellow-600">Alerta de prazo enviado</span>
             <span className="text-lp-muted font-lp-mono">CDF pendente</span>
           </div>
         </div>
@@ -291,7 +291,7 @@ function PortalMockup() {
             <div key={d.n} className="flex items-center justify-between px-3 py-2.5 rounded-md border border-lp-border bg-lp-bg/40 text-[11px]">
               <span className="text-lp-ink">{d.n}</span>
               {d.ok ? (
-                <span className="flex items-center gap-1.5 text-lp-emerald text-[10px] font-medium"><Check className="h-3 w-3" /> Recebido</span>
+                <span className="text-lp-emerald text-[10px] font-medium">Recebido</span>
               ) : (
                 <span className="text-[10px] px-2 py-0.5 rounded-full border border-lp-border text-lp-muted">Enviar</span>
               )}

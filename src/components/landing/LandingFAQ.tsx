@@ -37,14 +37,13 @@ export function LandingFAQ({ faqs, jsonLdId = "module-faq-jsonld" }: LandingFAQP
     <section className="py-24 px-6 lg:px-8 border-t border-lp-border">
       <div className="max-w-3xl mx-auto">
         <Reveal className="text-center mb-12">
-          <p className="text-xs uppercase tracking-[0.2em] text-lp-emerald font-medium mb-3">FAQ</p>
           <h2 className="font-lp-display text-4xl md:text-5xl font-semibold tracking-tight text-lp-ink">Perguntas frequentes.</h2>
         </Reveal>
         <div className="space-y-2">
           {faqs.map((faq, i) => {
             const open = openFaq === i;
             return (
-              <div key={i} className="rounded-lg border border-lp-border bg-lp-surface/40 overflow-hidden">
+              <div key={i} className={`rounded-xl border overflow-hidden transition-colors ${open ? "border-lp-emerald/40 bg-lp-surface/70" : "border-lp-border bg-lp-surface/40"}`}>
                 <button
                   className="w-full flex items-center justify-between p-5 text-left gap-4"
                   onClick={() => setOpenFaq(open ? null : i)}

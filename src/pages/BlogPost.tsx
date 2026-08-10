@@ -68,9 +68,9 @@ export default function BlogPost() {
         </Link>
 
         {post.category && (
-          <p className="text-xs uppercase tracking-[0.2em] text-lp-emerald font-medium mb-3">
+          <span className="inline-block mb-4 px-2.5 py-1 rounded-full border border-lp-emerald/30 bg-lp-emerald/10 text-[11px] font-medium text-lp-emerald-glow">
             {post.category}
-          </p>
+          </span>
         )}
         <h1 className="text-3xl lg:text-5xl font-semibold tracking-tight text-lp-ink leading-tight">
           {post.title}
@@ -103,17 +103,17 @@ export default function BlogPost() {
           </div>
         )}
 
-        <div className="prose prose-lg prose-slate mt-10 max-w-none
+        <div className="prose prose-lg prose-invert mt-10 max-w-none
           prose-headings:font-semibold prose-headings:text-lp-ink prose-headings:tracking-tight
           prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4
           prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
           prose-p:text-lp-ink/85 prose-p:leading-relaxed
           prose-strong:text-lp-ink prose-strong:font-semibold
-          prose-a:text-lp-emerald-deep prose-a:no-underline hover:prose-a:underline
+          prose-a:text-lp-emerald-glow prose-a:no-underline hover:prose-a:underline
           prose-li:text-lp-ink/85 prose-li:my-1
           prose-ul:my-5 prose-ol:my-5
           prose-blockquote:border-l-lp-emerald prose-blockquote:text-lp-muted prose-blockquote:not-italic
-          prose-code:text-lp-emerald-deep prose-code:bg-lp-surface prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none
+          prose-code:text-lp-emerald-glow prose-code:bg-lp-surface prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none
         ">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content}</ReactMarkdown>
         </div>

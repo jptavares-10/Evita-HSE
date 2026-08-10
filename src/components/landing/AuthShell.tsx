@@ -14,8 +14,11 @@ export function AuthShell({ title, subtitle, children, footer, width = "md" }: A
   const maxW = width === "lg" ? "max-w-xl" : width === "sm" ? "max-w-sm" : "max-w-md";
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center bg-lp-bg text-lp-ink font-lp-sans antialiased px-4 py-12 overflow-hidden">
+      <div aria-hidden className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="lp-aurora" />
+      </div>
       <div aria-hidden className="absolute inset-0 lp-mesh-bg pointer-events-none" />
-      <div aria-hidden className="absolute inset-0 lp-grid-bg pointer-events-none opacity-30" />
+      <div aria-hidden className="absolute inset-0 lp-grid-bg pointer-events-none opacity-40" />
 
       <Link to="/" className="relative z-10 inline-flex items-center gap-1.5 text-xs text-lp-muted hover:text-lp-emerald transition-colors mb-8">
         <ArrowLeft className="h-3.5 w-3.5" /> Voltar ao início

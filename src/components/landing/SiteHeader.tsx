@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, ArrowRight, Home } from "lucide-react";
 import { useEffect, useState } from "react";
 import { EvitaBrandLink } from "@/components/landing/EvitaBrand";
+import { useScrollProgress } from "@/hooks/useMotion";
 
 /**
  * Topbar única e padronizada para Landing, Funcionalidades, Blog e FAQ.
@@ -12,6 +13,7 @@ export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const progress = useScrollProgress();
 
   useEffect(() => {
     const handle = () => setScrolled(window.scrollY > 20);
@@ -49,13 +51,18 @@ export function SiteHeader() {
 
   return (
     <nav
-      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${
         scrolled
-          ? "bg-lp-bg/80 backdrop-blur-lg border-b border-lp-border"
-          : "bg-lp-bg/60 backdrop-blur border-b border-transparent"
+          ? "bg-lp-bg/85 backdrop-blur-xl border-b border-lp-border shadow-[0_20px_40px_-30px_hsl(0_0%_0%/0.8)]"
+          : "bg-transparent backdrop-blur-sm border-b border-transparent"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div
+        aria-hidden
+        className="absolute bottom-0 left-0 h-px bg-gradient-to-r from-lp-emerald via-lp-emerald-glow to-lp-gold transition-[width] duration-150"
+        style={{ width: `${progress * 100}%` }}
+      />
+      <div className={`relative max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between transition-all duration-500 ${scrolled ? "h-14" : "h-16"}`}>
         <EvitaBrandLink />
 
         <div className="hidden md:flex items-center gap-7 text-sm text-lp-muted">
@@ -78,7 +85,7 @@ export function SiteHeader() {
           </Link>
           <Link
             to="/cadastro"
-            className="group px-4 py-1.5 text-sm font-medium bg-lp-ink text-lp-bg rounded-lg hover:bg-lp-emerald transition-colors inline-flex items-center gap-1.5"
+            className="group px-4 py-1.5 text-sm font-medium bg-lp-emerald text-lp-bg rounded-lg hover:bg-lp-emerald-glow transition-all inline-flex items-center gap-1.5 lp-glow"
           >
             Começar grátis
             <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />

@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/landing/Reveal";
 
 export function LandingCTA() {
@@ -14,7 +13,7 @@ export function LandingCTA() {
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link to="/cadastro" className="group px-6 py-3 bg-lp-emerald text-lp-bg font-medium rounded-lg hover:bg-lp-emerald-glow transition-all inline-flex items-center justify-center gap-2 lp-glow">
             Criar conta grátis
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
           </Link>
           <Link to="/login" className="px-6 py-3 border border-lp-border text-lp-ink font-medium rounded-lg hover:bg-lp-surface transition-colors">
             Já tenho conta

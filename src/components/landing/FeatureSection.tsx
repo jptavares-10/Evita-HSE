@@ -1,7 +1,7 @@
 import { Reveal } from "@/components/landing/Reveal";
 
 interface Feature {
-  icon: React.ElementType;
+  icon?: React.ElementType;
   title: string;
   description: string;
 }
@@ -17,15 +17,16 @@ export function FeatureSection({ features }: FeatureSectionProps) {
         <Reveal className="text-center mb-14">
           <h2 className="font-lp-display text-4xl md:text-5xl font-semibold tracking-tight text-lp-ink">O que você pode fazer.</h2>
         </Reveal>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-start">
           {features.map((f, i) => (
-            <Reveal key={f.title} delay={i * 0.06} variant="blur">
-              <div className="lp-card lp-spot rounded-2xl p-6 h-full transition-all">
-                <div className="w-11 h-11 rounded-lg bg-lp-emerald/10 flex items-center justify-center mb-4 border border-lp-emerald/20">
-                  <f.icon className="h-5 w-5 text-lp-emerald" />
-                </div>
-                <h3 className="font-lp-display text-lg font-semibold text-lp-ink mb-2">{f.title}</h3>
-                <p className="text-sm text-lp-muted leading-relaxed">{f.description}</p>
+            <Reveal key={f.title} delay={i * 0.07} variant="blur" className={i % 3 === 1 ? "lg:mt-8" : i % 3 === 2 ? "lg:mt-16" : ""}>
+              <div className="group lp-card-bold lp-spot rounded-[1.4rem] p-7 h-full">
+                <span aria-hidden className="lp-numeral font-lp-display text-6xl">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="lp-eyebrow relative mb-5">Recurso</span>
+                <h3 className="relative font-lp-display text-xl font-semibold text-lp-ink mt-4 mb-2 leading-snug">{f.title}</h3>
+                <p className="relative text-sm text-lp-muted leading-relaxed">{f.description}</p>
               </div>
             </Reveal>
           ))}

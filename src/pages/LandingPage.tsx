@@ -1,22 +1,4 @@
 import { Link } from "react-router-dom";
-import {
-  ArrowRight,
-  Check,
-  Plus,
-  GraduationCap,
-  Truck,
-  FileText,
-  Bell,
-  TrendingUp,
-  Users,
-  Lock,
-  AlertTriangle,
-  ShieldCheck,
-  Fingerprint,
-  Clock,
-  ServerCog,
-  Sparkles,
-} from "lucide-react";
 import { useState, useEffect } from "react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { EvitaLogo, EvitaWordmark } from "@/components/landing/EvitaBrand";
@@ -47,27 +29,27 @@ const heroStats = [
 
 const painPoints = [
   {
-    icon: AlertTriangle,
-    problem: "Você descobre o vencimento quando o fiscal chega.",
-    solution: "O Evita avisa semanas antes — treinamento, ASO, licença, CA de EPI, CDF de MTR. Tudo com data e responsável.",
+    eyebrow: "Prazos",
+    problem: "O fiscal não avisa. O Evita avisa.",
+    solution: "Treinamento NR, ASO, licença, CA de EPI e CDF de MTR entram na mesma régua de prazo — com semanas de antecedência, data certa e responsável nomeado.",
   },
   {
-    icon: FileText,
-    problem: "A evidência existe, mas está perdida no WhatsApp.",
-    solution: "Cada certificado, laudo e protocolo fica anexado ao registro certo, com histórico imutável e download em segundos.",
+    eyebrow: "Evidência",
+    problem: "Sua evidência não mora no WhatsApp.",
+    solution: "Certificado, laudo e protocolo ficam anexados ao registro certo, com histórico imutável e download em segundos — inclusive de dois anos atrás.",
   },
   {
-    icon: Clock,
-    problem: "Auditoria vira três dias montando planilha.",
-    solution: "Filtre, exporte e apresente conformidade por área, cargo ou unidade sem depender de ninguém do time.",
+    eyebrow: "Auditoria",
+    problem: "Auditoria em minutos, não em três dias.",
+    solution: "Filtre por área, cargo ou unidade, exporte e apresente conformidade na hora — sem depender de ninguém do time para montar planilha.",
   },
 ];
 
 const trustPillars = [
-  { icon: Fingerprint, title: "Isolamento por empresa", desc: "Row Level Security no banco: nenhum dado atravessa a fronteira da sua operação." },
-  { icon: Lock, title: "Documentos privados", desc: "Arquivos em buckets fechados, acessados apenas por URLs assinadas com validade de 1 hora." },
-  { icon: ShieldCheck, title: "Trilha de auditoria", desc: "Quem criou, quem alterou, quando e com qual evidência. Pronto para fiscalização." },
-  { icon: ServerCog, title: "Permissão por módulo", desc: "Editor ou leitor em cada área. O campo registra, a gestão audita, ninguém apaga histórico." },
+  { eyebrow: "Isolamento", title: "Cada empresa em sua própria fronteira.", desc: "Row Level Security no banco: nenhum dado atravessa a fronteira da sua operação, nem por engano." },
+  { eyebrow: "Arquivos", title: "Documento fechado, acesso por hora.", desc: "Buckets privados e URLs assinadas que expiram em 60 minutos. Link vazado não vira porta aberta." },
+  { eyebrow: "Histórico", title: "Toda alteração tem autor e data.", desc: "Quem criou, quem alterou, quando e com qual evidência. A trilha chega pronta para a fiscalização." },
+  { eyebrow: "Papéis", title: "Quem registra, quem audita.", desc: "Editor ou leitor por módulo. O campo lança, a gestão confere e ninguém apaga histórico." },
 ];
 
 type ModuleItem = { name: string; desc: string; slug: string };
@@ -283,7 +265,7 @@ function MTRMockup() {
             <div className="h-full bg-gradient-to-r from-lp-emerald via-yellow-400 to-red-400" style={{ width: "92%" }} />
           </div>
           <div className="flex items-center justify-between text-[10px]">
-            <span className="flex items-center gap-1.5 text-yellow-300"><Bell className="h-3 w-3" /> Alerta de prazo enviado</span>
+            <span className="text-yellow-600">Alerta de prazo enviado</span>
             <span className="text-lp-muted font-lp-mono">CDF pendente</span>
           </div>
         </div>
@@ -309,7 +291,7 @@ function PortalMockup() {
             <div key={d.n} className="flex items-center justify-between px-3 py-2.5 rounded-md border border-lp-border bg-lp-bg/40 text-[11px]">
               <span className="text-lp-ink">{d.n}</span>
               {d.ok ? (
-                <span className="flex items-center gap-1.5 text-lp-emerald text-[10px] font-medium"><Check className="h-3 w-3" /> Recebido</span>
+                <span className="text-lp-emerald text-[10px] font-medium">Recebido</span>
               ) : (
                 <span className="text-[10px] px-2 py-0.5 rounded-full border border-lp-border text-lp-muted">Enviar</span>
               )}
@@ -390,7 +372,7 @@ export default function LandingPage() {
               <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mb-6">
                 <Link to="/cadastro" className="group px-6 py-3 bg-lp-emerald text-lp-bg font-medium rounded-lg hover:bg-lp-emerald-glow transition-all inline-flex items-center gap-2 lp-glow">
                   Começar grátis
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
                 </Link>
                 <a href="#produto" className="px-6 py-3 border border-lp-border text-lp-ink font-medium rounded-lg hover:bg-lp-surface transition-colors inline-flex items-center gap-2">
                   Ver o produto
@@ -454,18 +436,17 @@ export default function LandingPage() {
                 Em uma autuação, o que vale é evidência com data. É exatamente isso que o Evita produz todos os dias, sem esforço extra do seu time.
               </p>
             </Reveal>
-            <div className="grid md:grid-cols-3 gap-5">
+            <div className="grid md:grid-cols-3 gap-5 items-start">
               {painPoints.map((p, i) => (
-                <Reveal key={p.problem} delay={i * 0.08} variant="blur">
+                <Reveal key={p.problem} delay={i * 0.1} variant="blur" className={i === 1 ? "md:mt-10" : i === 2 ? "md:mt-20" : ""}>
                   <div
-                    className="lp-card lp-spot lp-ring-gradient rounded-2xl p-7 h-full"
+                    className={`group lp-card-bold lp-spot rounded-[1.6rem] h-full ${i === 0 ? "p-9 md:pb-12" : "p-7"}`}
                     onMouseMove={spotlight.onMouseMove}
                   >
-                    <div className="w-11 h-11 rounded-xl bg-lp-gold/10 border border-lp-gold/25 grid place-items-center mb-5">
-                      <p.icon className="h-5 w-5 text-lp-gold" />
-                    </div>
-                    <h3 className="font-lp-display text-lg font-semibold text-lp-ink mb-3 leading-snug">{p.problem}</h3>
-                    <p className="text-sm text-lp-muted leading-relaxed">{p.solution}</p>
+                    <span aria-hidden className="lp-numeral font-lp-display text-[5.5rem]">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="lp-eyebrow relative">{p.eyebrow}</span>
+                    <h3 className={`relative font-lp-display font-semibold text-lp-ink mt-5 mb-3 leading-[1.15] ${i === 0 ? "text-2xl md:text-3xl" : "text-xl"}`}>{p.problem}</h3>
+                    <p className="relative text-sm text-lp-muted leading-relaxed">{p.solution}</p>
                   </div>
                 </Reveal>
               ))}
@@ -481,18 +462,16 @@ export default function LandingPage() {
               <p className="text-lg text-lp-muted max-w-2xl mx-auto">Substitui dezenas de planilhas, controles paralelos e lembretes no celular. Ative só o que sua operação usa.</p>
             </Reveal>
 
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-6 gap-4 items-start">
               {/* Big card: Dashboard */}
-              <Reveal className="md:col-span-2">
-                <div className="lp-card rounded-2xl p-8 transition-all">
+              <Reveal className="md:col-span-6" variant="blur">
+                <div className="group lp-card-bold lp-spot rounded-[1.6rem] p-8 md:p-10" onMouseMove={spotlight.onMouseMove}>
                   <div className="grid md:grid-cols-2 gap-8 items-center">
-                    <div>
-                      <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-lp-emerald/10 text-lp-emerald text-xs font-medium mb-4">
-                        <TrendingUp className="h-3.5 w-3.5" /> Dashboard HSE
-                      </div>
-                      <h3 className="font-lp-display text-2xl font-semibold text-lp-ink mb-3">Uma única fonte de verdade.</h3>
-                      <p className="text-lp-muted mb-5">Conformidade por área, alertas de vencimento, KPIs de incidentes. Tudo em tempo real, sem exportar planilha.</p>
-                      <Link to="/funcionalidades" className="text-sm text-lp-emerald font-medium inline-flex items-center gap-1 hover:gap-2 transition-all">Explorar módulos <ArrowRight className="h-3.5 w-3.5" /></Link>
+                    <div className="relative">
+                      <span className="lp-eyebrow">Dashboard HSE</span>
+                      <h3 className="font-lp-display text-3xl md:text-4xl font-semibold text-lp-ink mt-5 mb-3 leading-[1.1]">Um painel, a verdade inteira.</h3>
+                      <p className="text-lp-muted mb-6">Conformidade por área, prazos que estão chegando e KPIs de incidentes na mesma tela — em tempo real, sem exportar planilha nenhuma.</p>
+                      <Link to="/funcionalidades" className="text-sm text-lp-emerald font-semibold inline-flex items-center gap-1.5 hover:gap-3 transition-all">Explorar módulos <span aria-hidden>→</span></Link>
                     </div>
                     <div><DashboardMockup /></div>
                   </div>
@@ -500,43 +479,37 @@ export default function LandingPage() {
               </Reveal>
 
               {/* Treinamentos */}
-              <Reveal delay={0.05}>
-                <div className="lp-card rounded-2xl p-8 h-full transition-all">
-                  <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-lp-emerald/10 text-lp-emerald text-xs font-medium mb-4">
-                    <GraduationCap className="h-3.5 w-3.5" /> Treinamentos
-                  </div>
-                  <h3 className="font-lp-display text-xl font-semibold text-lp-ink mb-2">Conformidade NR no automático.</h3>
-                  <p className="text-lp-muted text-sm mb-5">Matriz por cargo, certificados com validade, alertas antes do vencimento.</p>
+              <Reveal delay={0.08} variant="blur" className="md:col-span-3">
+                <div className="group lp-card-bold lp-spot rounded-[1.6rem] p-8 h-full" onMouseMove={spotlight.onMouseMove}>
+                  <span className="lp-eyebrow relative">Treinamentos</span>
+                  <h3 className="relative font-lp-display text-2xl font-semibold text-lp-ink mt-5 mb-2 leading-[1.15]">NR em conformidade sem lembrete manual.</h3>
+                  <p className="relative text-lp-muted text-sm mb-6">Matriz por cargo, certificado com validade e aviso antes de alguém ficar impedido de trabalhar.</p>
                   <TrainingsMockup />
                 </div>
               </Reveal>
 
               {/* MTR */}
-              <Reveal delay={0.1}>
-                <div className="lp-card rounded-2xl p-8 h-full transition-all">
-                  <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-lp-emerald/10 text-lp-emerald text-xs font-medium mb-4">
-                    <Truck className="h-3.5 w-3.5" /> Resíduos & MTR
-                  </div>
-                  <h3 className="font-lp-display text-xl font-semibold text-lp-ink mb-2">Prazo de CDF nunca mais perdido.</h3>
-                  <p className="text-lp-muted text-sm mb-5">90 dias monitorados, alertas em 83 dias, gráficos de geração mensal.</p>
+              <Reveal delay={0.14} variant="blur" className="md:col-span-3 md:mt-8">
+                <div className="group lp-card-bold lp-spot rounded-[1.6rem] p-8 h-full" onMouseMove={spotlight.onMouseMove}>
+                  <span className="lp-eyebrow relative">Resíduos & MTR</span>
+                  <h3 className="relative font-lp-display text-2xl font-semibold text-lp-ink mt-5 mb-2 leading-[1.15]">CDF no prazo, sempre.</h3>
+                  <p className="relative text-lp-muted text-sm mb-6">Os 90 dias correm na tela: alerta em 83, protocolo anexado e gráfico de geração mensal pronto.</p>
                   <MTRMockup />
                 </div>
               </Reveal>
 
               {/* Portal */}
-              <Reveal delay={0.15} className="md:col-span-2">
-                <div className="lp-card rounded-2xl p-8 transition-all">
+              <Reveal delay={0.2} variant="blur" className="md:col-span-6 md:mt-8">
+                <div className="group lp-card-bold lp-spot rounded-[1.6rem] p-8 md:p-10" onMouseMove={spotlight.onMouseMove}>
                   <div className="grid md:grid-cols-2 gap-8 items-center">
-                    <div>
-                      <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-lp-emerald/10 text-lp-emerald text-xs font-medium mb-4">
-                        <Users className="h-3.5 w-3.5" /> Portal de Fornecedores
-                      </div>
-                      <h3 className="font-lp-display text-2xl font-semibold text-lp-ink mb-3">Acabe com o WhatsApp de documento.</h3>
-                      <p className="text-lp-muted mb-5">Cada fornecedor recebe um link único. Envia documentos organizados por categoria, sem precisar criar conta.</p>
-                      <ul className="space-y-2 text-sm text-lp-muted">
-                        <li className="flex items-center gap-2"><Check className="h-4 w-4 text-lp-emerald" /> Sem cadastro do fornecedor</li>
-                        <li className="flex items-center gap-2"><Check className="h-4 w-4 text-lp-emerald" /> Validação automática de documentos</li>
-                        <li className="flex items-center gap-2"><Check className="h-4 w-4 text-lp-emerald" /> Histórico completo e rastreável</li>
+                    <div className="relative">
+                      <span className="lp-eyebrow">Portal de Fornecedores</span>
+                      <h3 className="font-lp-display text-3xl md:text-4xl font-semibold text-lp-ink mt-5 mb-3 leading-[1.1]">O fim do documento por WhatsApp.</h3>
+                      <p className="text-lp-muted mb-5">Cada fornecedor recebe um link único e envia tudo organizado por categoria — sem criar conta, sem cobrança no grupo.</p>
+                      <ul className="space-y-2.5 text-sm text-lp-muted">
+                        <li className="lp-tick">Sem cadastro do fornecedor</li>
+                        <li className="lp-tick">Validação automática de documentos</li>
+                        <li className="lp-tick">Histórico completo e rastreável</li>
                       </ul>
                     </div>
                     <div><PortalMockup /></div>
@@ -573,7 +546,7 @@ export default function LandingPage() {
                   <Link
                     key={m.slug}
                     to={`/funcionalidades/${m.slug}`}
-                    className="group block p-4 rounded-lg border border-lp-border bg-lp-surface/40 hover:bg-lp-surface hover:border-lp-emerald/40 transition-all animate-fade-in"
+                    className="group block p-5 rounded-xl border border-lp-border bg-lp-surface/50 hover:bg-lp-surface hover:border-lp-emerald/45 hover:-translate-y-0.5 hover:shadow-[0_20px_40px_-28px_hsl(var(--lp-emerald)/0.45)] transition-all animate-fade-in"
                     style={{ animationDelay: `${i * 50}ms` }}
                   >
                     <div className="flex items-start justify-between gap-3">
@@ -581,12 +554,12 @@ export default function LandingPage() {
                         <p className="font-lp-display font-semibold text-lp-ink mb-1">{m.name}</p>
                         <p className="text-sm text-lp-muted">{m.desc}</p>
                       </div>
-                      <ArrowRight className="h-4 w-4 text-lp-muted shrink-0 mt-1 transition-all group-hover:text-lp-emerald group-hover:translate-x-0.5" />
+                      <span aria-hidden className="text-lp-muted shrink-0 mt-0.5 transition-all group-hover:text-lp-emerald group-hover:translate-x-1">→</span>
                     </div>
                   </Link>
                 ))}
               </div>
-              <div className="lg:col-span-3">{moduleMockup[activeGroup]}</div>
+              <div key={activeGroup} className="lg:col-span-3 animate-fade-in">{moduleMockup[activeGroup]}</div>
             </div>
           </div>
         </section>
@@ -599,8 +572,8 @@ export default function LandingPage() {
             </Reveal>
             <div className="grid md:grid-cols-3 gap-5">
               {testimonials.map((t, i) => (
-                <Reveal key={t.name} delay={i * 0.05}>
-                  <div className="lp-card rounded-xl p-6 h-full flex flex-col">
+                <Reveal key={t.name} delay={i * 0.08} variant="blur">
+                  <div className={`lp-card-bold rounded-[1.4rem] p-7 h-full flex flex-col ${i === 1 ? "lp-askew-alt" : "lp-askew"}`}>
                     <p className="text-lp-ink text-base leading-relaxed mb-5 flex-1">"{t.text}"</p>
                     <div className="flex items-center gap-3 pt-4 border-t border-lp-border">
                       <div className="h-9 w-9 rounded-full bg-lp-emerald/20 grid place-items-center text-lp-emerald text-xs font-bold">{t.initials}</div>
@@ -633,20 +606,19 @@ export default function LandingPage() {
             </Reveal>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
               {trustPillars.map((p, i) => (
-                <Reveal key={p.title} delay={i * 0.06} variant="scale">
-                  <div className="lp-card lp-spot rounded-2xl p-6 h-full" onMouseMove={spotlight.onMouseMove}>
-                    <div className="w-11 h-11 rounded-xl bg-lp-emerald/10 border border-lp-emerald/25 grid place-items-center mb-4">
-                      <p.icon className="h-5 w-5 text-lp-emerald-glow" />
-                    </div>
-                    <h3 className="font-lp-display text-base font-semibold text-lp-ink mb-2">{p.title}</h3>
-                    <p className="text-sm text-lp-muted leading-relaxed">{p.desc}</p>
+                <Reveal key={p.title} delay={i * 0.08} variant="scale" className={i % 2 === 1 ? "lg:mt-8" : ""}>
+                  <div className="group lp-card-bold lp-spot lp-ring-gradient rounded-[1.4rem] p-7 h-full" onMouseMove={spotlight.onMouseMove}>
+                    <span aria-hidden className="lp-numeral font-lp-display text-[4.5rem]">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="lp-eyebrow relative">{p.eyebrow}</span>
+                    <h3 className="relative font-lp-display text-lg font-semibold text-lp-ink mt-4 mb-2 leading-snug">{p.title}</h3>
+                    <p className="relative text-sm text-lp-muted leading-relaxed">{p.desc}</p>
                   </div>
                 </Reveal>
               ))}
             </div>
             <Reveal className="mt-10 text-center">
-              <Link to="/seguranca" className="text-sm text-lp-emerald-glow font-medium inline-flex items-center gap-1.5 hover:gap-2.5 transition-all">
-                Ver como protegemos sua operação <ArrowRight className="h-3.5 w-3.5" />
+              <Link to="/seguranca" className="text-sm text-lp-emerald font-semibold inline-flex items-center gap-1.5 hover:gap-3 transition-all">
+                Ver como protegemos sua operação <span aria-hidden>→</span>
               </Link>
             </Reveal>
           </div>
@@ -679,13 +651,13 @@ export default function LandingPage() {
                 const featured = plan.featured;
                 return (
                   <Reveal key={plan.key} delay={i * 0.05}>
-                    <div className={`relative rounded-2xl p-7 h-full flex flex-col transition-all ${featured ? "bg-lp-surface border border-lp-emerald/40 lp-glow" : "lp-card"}`}>
+                    <div className={`relative rounded-[1.4rem] p-7 h-full flex flex-col ${featured ? "bg-lp-surface border border-lp-emerald/45 lp-glow md:-mt-4 md:scale-[1.03]" : "lp-card-bold"}`}>
                       {featured && (
-                        <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-lp-emerald text-lp-bg text-[10px] font-bold uppercase tracking-wider">
+                        <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-gradient-to-r from-lp-emerald to-lp-gold text-lp-bg text-[10px] font-bold uppercase tracking-wider">
                           {plan.badge}
                         </span>
                       )}
-                      <p className="text-sm font-medium text-lp-emerald mb-1">{plan.label}</p>
+                      <p className="lp-eyebrow mb-2">{plan.label}</p>
                       <p className="text-xs text-lp-muted mb-5">{plan.subtitle}</p>
                       <div className="mb-6">
                         {billingAnnual ? (
@@ -707,9 +679,7 @@ export default function LandingPage() {
                       </div>
                       <ul className="space-y-2.5 mb-6 flex-1">
                         {plan.features.map((f) => (
-                          <li key={f} className="flex items-start gap-2 text-sm text-lp-muted">
-                            <Check className="h-4 w-4 mt-0.5 text-lp-emerald shrink-0" /> {f}
-                          </li>
+                          <li key={f} className="lp-tick text-sm text-lp-muted">{f}</li>
                         ))}
                       </ul>
                       <Link
@@ -725,9 +695,7 @@ export default function LandingPage() {
             </div>
 
             <Reveal className="mt-8 text-center">
-              <p className="text-sm text-lp-muted inline-flex items-center gap-2">
-                <Lock className="h-4 w-4 text-lp-emerald" /> 14 dias grátis em todos os planos · sem cartão
-              </p>
+              <p className="text-sm text-lp-muted">14 dias grátis em todos os planos · sem cartão</p>
             </Reveal>
           </div>
         </section>
@@ -742,10 +710,10 @@ export default function LandingPage() {
               {faqs.slice(0, 4).map((faq, i) => {
                 const open = openFaq === i;
                 return (
-                  <div key={i} className="rounded-lg border border-lp-border bg-lp-surface/40 overflow-hidden">
+                    <div key={i} className={`rounded-xl border overflow-hidden transition-colors ${open ? "border-lp-emerald/40 bg-lp-surface/70" : "border-lp-border bg-lp-surface/40"}`}>
                     <button className="w-full flex items-center justify-between p-5 text-left gap-4" onClick={() => setOpenFaq(open ? null : i)} aria-expanded={open}>
                       <span className="text-lp-ink font-medium">{faq.q}</span>
-                      <Plus className={`h-4 w-4 text-lp-muted shrink-0 transition-transform ${open ? "rotate-45 text-lp-emerald" : ""}`} />
+                      <span aria-hidden className={`font-lp-display text-xl leading-none shrink-0 transition-transform duration-300 ${open ? "rotate-45 text-lp-emerald" : "text-lp-muted"}`}>+</span>
                     </button>
                     <div className={`grid transition-all duration-300 ${open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
                       <div className="overflow-hidden">
@@ -757,8 +725,8 @@ export default function LandingPage() {
               })}
             </div>
             <Reveal className="mt-8 text-center">
-              <Link to="/faq" className="text-sm text-lp-emerald font-medium inline-flex items-center gap-1 hover:gap-2 transition-all">
-                Ver todas as perguntas <ArrowRight className="h-3.5 w-3.5" />
+              <Link to="/faq" className="text-sm text-lp-emerald font-semibold inline-flex items-center gap-1.5 hover:gap-3 transition-all">
+                Ver todas as perguntas <span aria-hidden>→</span>
               </Link>
             </Reveal>
           </div>
@@ -772,16 +740,14 @@ export default function LandingPage() {
           <div aria-hidden className="absolute inset-0 lp-mesh-bg animate-lp-mesh opacity-60 pointer-events-none" />
           <div className="relative max-w-3xl mx-auto text-center">
             <Reveal variant="blur">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-lp-gold/30 bg-lp-gold/10 text-xs font-medium text-lp-gold mb-6">
-                <Sparkles className="h-3.5 w-3.5" /> Configuração em minutos
-              </div>
+              <p className="lp-eyebrow !flex justify-center mb-6">Configuração em minutos</p>
               <h2 className="font-lp-display text-4xl md:text-6xl font-semibold tracking-tight text-lp-ink mb-5 leading-[1.05]">
                 O próximo vencimento já está a caminho.
               </h2>
               <p className="text-lg text-lp-muted mb-8">14 dias grátis. Sem cartão. Sem implantação longa — cadastre e comece a monitorar hoje.</p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Link to="/cadastro" className="group px-6 py-3 bg-lp-emerald text-lp-bg font-medium rounded-lg hover:bg-lp-emerald-glow transition-all inline-flex items-center justify-center gap-2 lp-glow">
-                  Criar conta grátis <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  Criar conta grátis <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
                 </Link>
                 <Link to="/login" className="px-6 py-3 border border-lp-border text-lp-ink font-medium rounded-lg hover:bg-lp-surface transition-colors">
                   Já tenho conta

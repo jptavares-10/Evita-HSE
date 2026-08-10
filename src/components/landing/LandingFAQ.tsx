@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Plus } from "lucide-react";
 import { Reveal } from "@/components/landing/Reveal";
 
 interface FAQ {
@@ -50,7 +49,7 @@ export function LandingFAQ({ faqs, jsonLdId = "module-faq-jsonld" }: LandingFAQP
                   aria-expanded={open}
                 >
                   <span className="text-lp-ink font-medium">{faq.q}</span>
-                  <Plus className={`h-4 w-4 text-lp-muted shrink-0 transition-transform ${open ? "rotate-45 text-lp-emerald" : ""}`} />
+                  <span aria-hidden className={`font-lp-display text-xl leading-none shrink-0 transition-transform duration-300 ${open ? "rotate-45 text-lp-emerald" : "text-lp-muted"}`}>+</span>
                 </button>
                 <div className={`grid transition-all duration-300 ${open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
                   <div className="overflow-hidden">

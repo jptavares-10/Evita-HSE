@@ -462,18 +462,16 @@ export default function LandingPage() {
               <p className="text-lg text-lp-muted max-w-2xl mx-auto">Substitui dezenas de planilhas, controles paralelos e lembretes no celular. Ative só o que sua operação usa.</p>
             </Reveal>
 
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-6 gap-4 items-start">
               {/* Big card: Dashboard */}
-              <Reveal className="md:col-span-2">
-                <div className="lp-card rounded-2xl p-8 transition-all">
+              <Reveal className="md:col-span-6" variant="blur">
+                <div className="group lp-card-bold lp-spot rounded-[1.6rem] p-8 md:p-10" onMouseMove={spotlight.onMouseMove}>
                   <div className="grid md:grid-cols-2 gap-8 items-center">
-                    <div>
-                      <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-lp-emerald/10 text-lp-emerald text-xs font-medium mb-4">
-                        <TrendingUp className="h-3.5 w-3.5" /> Dashboard HSE
-                      </div>
-                      <h3 className="font-lp-display text-2xl font-semibold text-lp-ink mb-3">Uma única fonte de verdade.</h3>
-                      <p className="text-lp-muted mb-5">Conformidade por área, alertas de vencimento, KPIs de incidentes. Tudo em tempo real, sem exportar planilha.</p>
-                      <Link to="/funcionalidades" className="text-sm text-lp-emerald font-medium inline-flex items-center gap-1 hover:gap-2 transition-all">Explorar módulos <ArrowRight className="h-3.5 w-3.5" /></Link>
+                    <div className="relative">
+                      <span className="lp-eyebrow">Dashboard HSE</span>
+                      <h3 className="font-lp-display text-3xl md:text-4xl font-semibold text-lp-ink mt-5 mb-3 leading-[1.1]">Um painel, a verdade inteira.</h3>
+                      <p className="text-lp-muted mb-6">Conformidade por área, prazos que estão chegando e KPIs de incidentes na mesma tela — em tempo real, sem exportar planilha nenhuma.</p>
+                      <Link to="/funcionalidades" className="text-sm text-lp-emerald font-semibold inline-flex items-center gap-1.5 hover:gap-3 transition-all">Explorar módulos <span aria-hidden>→</span></Link>
                     </div>
                     <div><DashboardMockup /></div>
                   </div>
@@ -481,43 +479,37 @@ export default function LandingPage() {
               </Reveal>
 
               {/* Treinamentos */}
-              <Reveal delay={0.05}>
-                <div className="lp-card rounded-2xl p-8 h-full transition-all">
-                  <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-lp-emerald/10 text-lp-emerald text-xs font-medium mb-4">
-                    <GraduationCap className="h-3.5 w-3.5" /> Treinamentos
-                  </div>
-                  <h3 className="font-lp-display text-xl font-semibold text-lp-ink mb-2">Conformidade NR no automático.</h3>
-                  <p className="text-lp-muted text-sm mb-5">Matriz por cargo, certificados com validade, alertas antes do vencimento.</p>
+              <Reveal delay={0.08} variant="blur" className="md:col-span-3">
+                <div className="group lp-card-bold lp-spot rounded-[1.6rem] p-8 h-full" onMouseMove={spotlight.onMouseMove}>
+                  <span className="lp-eyebrow relative">Treinamentos</span>
+                  <h3 className="relative font-lp-display text-2xl font-semibold text-lp-ink mt-5 mb-2 leading-[1.15]">NR em conformidade sem lembrete manual.</h3>
+                  <p className="relative text-lp-muted text-sm mb-6">Matriz por cargo, certificado com validade e aviso antes de alguém ficar impedido de trabalhar.</p>
                   <TrainingsMockup />
                 </div>
               </Reveal>
 
               {/* MTR */}
-              <Reveal delay={0.1}>
-                <div className="lp-card rounded-2xl p-8 h-full transition-all">
-                  <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-lp-emerald/10 text-lp-emerald text-xs font-medium mb-4">
-                    <Truck className="h-3.5 w-3.5" /> Resíduos & MTR
-                  </div>
-                  <h3 className="font-lp-display text-xl font-semibold text-lp-ink mb-2">Prazo de CDF nunca mais perdido.</h3>
-                  <p className="text-lp-muted text-sm mb-5">90 dias monitorados, alertas em 83 dias, gráficos de geração mensal.</p>
+              <Reveal delay={0.14} variant="blur" className="md:col-span-3 md:mt-8">
+                <div className="group lp-card-bold lp-spot rounded-[1.6rem] p-8 h-full" onMouseMove={spotlight.onMouseMove}>
+                  <span className="lp-eyebrow relative">Resíduos & MTR</span>
+                  <h3 className="relative font-lp-display text-2xl font-semibold text-lp-ink mt-5 mb-2 leading-[1.15]">CDF no prazo, sempre.</h3>
+                  <p className="relative text-lp-muted text-sm mb-6">Os 90 dias correm na tela: alerta em 83, protocolo anexado e gráfico de geração mensal pronto.</p>
                   <MTRMockup />
                 </div>
               </Reveal>
 
               {/* Portal */}
-              <Reveal delay={0.15} className="md:col-span-2">
-                <div className="lp-card rounded-2xl p-8 transition-all">
+              <Reveal delay={0.2} variant="blur" className="md:col-span-6 md:mt-8">
+                <div className="group lp-card-bold lp-spot rounded-[1.6rem] p-8 md:p-10" onMouseMove={spotlight.onMouseMove}>
                   <div className="grid md:grid-cols-2 gap-8 items-center">
-                    <div>
-                      <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-lp-emerald/10 text-lp-emerald text-xs font-medium mb-4">
-                        <Users className="h-3.5 w-3.5" /> Portal de Fornecedores
-                      </div>
-                      <h3 className="font-lp-display text-2xl font-semibold text-lp-ink mb-3">Acabe com o WhatsApp de documento.</h3>
-                      <p className="text-lp-muted mb-5">Cada fornecedor recebe um link único. Envia documentos organizados por categoria, sem precisar criar conta.</p>
-                      <ul className="space-y-2 text-sm text-lp-muted">
-                        <li className="flex items-center gap-2"><Check className="h-4 w-4 text-lp-emerald" /> Sem cadastro do fornecedor</li>
-                        <li className="flex items-center gap-2"><Check className="h-4 w-4 text-lp-emerald" /> Validação automática de documentos</li>
-                        <li className="flex items-center gap-2"><Check className="h-4 w-4 text-lp-emerald" /> Histórico completo e rastreável</li>
+                    <div className="relative">
+                      <span className="lp-eyebrow">Portal de Fornecedores</span>
+                      <h3 className="font-lp-display text-3xl md:text-4xl font-semibold text-lp-ink mt-5 mb-3 leading-[1.1]">O fim do documento por WhatsApp.</h3>
+                      <p className="text-lp-muted mb-5">Cada fornecedor recebe um link único e envia tudo organizado por categoria — sem criar conta, sem cobrança no grupo.</p>
+                      <ul className="space-y-2.5 text-sm text-lp-muted">
+                        <li className="lp-tick">Sem cadastro do fornecedor</li>
+                        <li className="lp-tick">Validação automática de documentos</li>
+                        <li className="lp-tick">Histórico completo e rastreável</li>
                       </ul>
                     </div>
                     <div><PortalMockup /></div>

@@ -372,7 +372,7 @@ export default function LandingPage() {
               <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mb-6">
                 <Link to="/cadastro" className="group px-6 py-3 bg-lp-emerald text-lp-bg font-medium rounded-lg hover:bg-lp-emerald-glow transition-all inline-flex items-center gap-2 lp-glow">
                   Começar grátis
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
                 </Link>
                 <a href="#produto" className="px-6 py-3 border border-lp-border text-lp-ink font-medium rounded-lg hover:bg-lp-surface transition-colors inline-flex items-center gap-2">
                   Ver o produto
@@ -436,18 +436,17 @@ export default function LandingPage() {
                 Em uma autuação, o que vale é evidência com data. É exatamente isso que o Evita produz todos os dias, sem esforço extra do seu time.
               </p>
             </Reveal>
-            <div className="grid md:grid-cols-3 gap-5">
+            <div className="grid md:grid-cols-3 gap-5 items-start">
               {painPoints.map((p, i) => (
-                <Reveal key={p.problem} delay={i * 0.08} variant="blur">
+                <Reveal key={p.problem} delay={i * 0.1} variant="blur" className={i === 1 ? "md:mt-10" : i === 2 ? "md:mt-20" : ""}>
                   <div
-                    className="lp-card lp-spot lp-ring-gradient rounded-2xl p-7 h-full"
+                    className={`group lp-card-bold lp-spot rounded-[1.6rem] h-full ${i === 0 ? "p-9 md:pb-12" : "p-7"}`}
                     onMouseMove={spotlight.onMouseMove}
                   >
-                    <div className="w-11 h-11 rounded-xl bg-lp-gold/10 border border-lp-gold/25 grid place-items-center mb-5">
-                      <p.icon className="h-5 w-5 text-lp-gold" />
-                    </div>
-                    <h3 className="font-lp-display text-lg font-semibold text-lp-ink mb-3 leading-snug">{p.problem}</h3>
-                    <p className="text-sm text-lp-muted leading-relaxed">{p.solution}</p>
+                    <span aria-hidden className="lp-numeral font-lp-display text-[5.5rem]">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="lp-eyebrow relative">{p.eyebrow}</span>
+                    <h3 className={`relative font-lp-display font-semibold text-lp-ink mt-5 mb-3 leading-[1.15] ${i === 0 ? "text-2xl md:text-3xl" : "text-xl"}`}>{p.problem}</h3>
+                    <p className="relative text-sm text-lp-muted leading-relaxed">{p.solution}</p>
                   </div>
                 </Reveal>
               ))}

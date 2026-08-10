@@ -64,31 +64,21 @@ export default function BlogPost() {
           to="/blog"
           className="inline-flex items-center gap-1.5 text-sm text-lp-muted hover:text-lp-ink transition-colors mb-8"
         >
-          <ArrowLeft className="w-4 h-4" /> Voltar para o blog
+          <span aria-hidden>←</span> Voltar para o blog
         </Link>
 
         {post.category && (
-          <span className="inline-block mb-4 px-2.5 py-1 rounded-full border border-lp-emerald/30 bg-lp-emerald/10 text-[11px] font-medium text-lp-emerald-glow">
-            {post.category}
-          </span>
+          <span className="lp-eyebrow mb-4">{post.category}</span>
         )}
-        <h1 className="text-3xl lg:text-5xl font-semibold tracking-tight text-lp-ink leading-tight">
+        <h1 className="font-lp-display text-3xl lg:text-5xl font-semibold tracking-tight text-lp-ink leading-tight">
           {post.title}
         </h1>
         <p className="mt-5 text-lg text-lp-muted leading-relaxed">{post.description}</p>
 
         <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-lp-muted border-b border-lp-border pb-6">
-          <span className="inline-flex items-center gap-1.5">
-            <User className="w-4 h-4" /> {post.author}
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <Calendar className="w-4 h-4" /> {formatPostDate(post.date)}
-          </span>
-          {post.readingMinutes && (
-            <span className="inline-flex items-center gap-1.5">
-              <Clock className="w-4 h-4" /> {post.readingMinutes} min de leitura
-            </span>
-          )}
+          <span>{post.author}</span>
+          <span>{formatPostDate(post.date)}</span>
+          {post.readingMinutes && <span>{post.readingMinutes} min de leitura</span>}
         </div>
 
         {post.cover && (

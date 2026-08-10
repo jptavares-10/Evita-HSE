@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Plus, Search } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { LandingLayout } from "@/components/landing/LandingLayout";
 import { Input } from "@/components/ui/input";
@@ -101,24 +100,20 @@ export default function FAQ() {
         <div aria-hidden className="absolute inset-0 lp-mesh-bg pointer-events-none" />
         <div aria-hidden className="absolute inset-0 lp-grid-bg pointer-events-none opacity-40" />
         <div className="relative z-10 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 rounded-full border border-lp-emerald/30 bg-lp-emerald/10 px-3 py-1.5 text-xs font-medium text-lp-emerald mb-6">
-            <span className="h-1.5 w-1.5 rounded-full bg-lp-emerald" />
-            FAQ
-          </div>
+          <span className="lp-eyebrow mb-6">Perguntas frequentes</span>
           <h1 className="font-lp-display text-4xl md:text-5xl font-semibold tracking-tight leading-[1.05] text-lp-ink mb-4">
-            Perguntas frequentes.
+            Respostas diretas, sem letra miúda.
           </h1>
           <p className="text-lg text-lp-muted max-w-xl mb-8">
-            Tudo que você precisa saber sobre o Evita HSE e gestão de SST e meio ambiente.
+            Planos, segurança, módulos e o dia a dia da gestão de SST e meio ambiente — explicados sem rodeio.
           </p>
 
           <div className="relative mb-6">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-lp-muted" />
             <Input
               placeholder="Buscar pergunta..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 bg-lp-surface border-lp-border text-lp-ink placeholder:text-lp-muted focus-visible:ring-lp-emerald/40"
+              className="bg-lp-surface border-lp-border text-lp-ink placeholder:text-lp-muted focus-visible:ring-lp-emerald/40"
             />
           </div>
         </div>
@@ -158,20 +153,20 @@ export default function FAQ() {
 
           {filteredCategories.map((cat) => (
             <div key={cat.label} className="mb-10">
-              <h2 className="font-lp-display font-semibold text-xl text-lp-ink mb-4">{cat.label}</h2>
+              <span className="lp-eyebrow mb-4">{cat.label}</span>
               <div className="space-y-2">
                 {cat.faqs.map((faq) => {
                   const key = faq.q;
                   const isOpen = openFaq === key;
                   return (
-                    <div key={key} className="rounded-lg border border-lp-border bg-lp-surface/40 overflow-hidden">
+                    <div key={key} className={`rounded-xl border overflow-hidden transition-colors ${isOpen ? "border-lp-emerald/40 bg-lp-surface/70" : "border-lp-border bg-lp-surface/40"}`}>
                       <button
                         className="w-full flex items-center justify-between px-5 py-4 text-left gap-4"
                         onClick={() => setOpenFaq(isOpen ? null : key)}
                         aria-expanded={isOpen}
                       >
                         <span className="text-lp-ink font-medium text-[0.95rem]">{faq.q}</span>
-                        <Plus className={`h-4 w-4 text-lp-muted shrink-0 transition-transform ${isOpen ? "rotate-45 text-lp-emerald" : ""}`} />
+                        <span aria-hidden className={`font-lp-display text-xl leading-none shrink-0 transition-transform duration-300 ${isOpen ? "rotate-45 text-lp-emerald" : "text-lp-muted"}`}>+</span>
                       </button>
                       <div className={`grid transition-all duration-300 ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
                         <div className="overflow-hidden">

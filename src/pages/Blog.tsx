@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Calendar, Clock } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { BlogLayout } from "@/components/blog/BlogLayout";
 import { getAllPosts, formatPostDate } from "@/lib/blog";
@@ -20,8 +19,9 @@ export default function Blog() {
         <div aria-hidden className="absolute inset-0 lp-mesh-bg pointer-events-none" />
         <div aria-hidden className="absolute inset-0 lp-grid-bg pointer-events-none opacity-50" />
         <div className="relative max-w-6xl mx-auto px-6 lg:px-8 py-16 lg:py-20">
-          <h1 className="text-4xl lg:text-5xl font-semibold tracking-tight text-lp-ink max-w-3xl">
-            Conteúdo prático para quem vive a Segurança do Trabalho
+          <span className="lp-eyebrow mb-6">Blog Evita HSE</span>
+          <h1 className="font-lp-display text-4xl lg:text-5xl font-semibold tracking-tight text-lp-ink max-w-3xl leading-[1.1]">
+            Quem responde à fiscalização precisa ler isso antes.
           </h1>
           <p className="mt-4 text-lg text-lp-muted max-w-2xl leading-relaxed">
             NRs comentadas, guias passo a passo e respostas para as dúvidas mais comuns de técnicos,
@@ -54,26 +54,20 @@ export default function Blog() {
                 )}
                 <div className="flex flex-col justify-center">
                   {featured.category && (
-                    <span className="self-start mb-4 px-2.5 py-1 rounded-full border border-lp-emerald/30 bg-lp-emerald/10 text-[11px] font-medium text-lp-emerald-glow">
-                      {featured.category}
-                    </span>
+                    <span className="lp-eyebrow mb-4">{featured.category}</span>
                   )}
                   <h2 className="text-3xl lg:text-4xl font-semibold text-lp-ink leading-tight group-hover:text-lp-emerald-glow transition-colors">
                     {featured.title}
                   </h2>
                   <p className="mt-4 text-lp-muted leading-relaxed">{featured.description}</p>
                   <div className="mt-6 flex items-center gap-5 text-sm text-lp-muted">
-                    <span className="inline-flex items-center gap-1.5">
-                      <Calendar className="w-4 h-4" /> {formatPostDate(featured.date)}
-                    </span>
+                    <span>{formatPostDate(featured.date)}</span>
                     {featured.readingMinutes && (
-                      <span className="inline-flex items-center gap-1.5">
-                        <Clock className="w-4 h-4" /> {featured.readingMinutes} min de leitura
-                      </span>
+                      <span>{featured.readingMinutes} min de leitura</span>
                     )}
                   </div>
-                  <span className="mt-6 inline-flex items-center gap-1.5 text-lp-emerald-glow font-medium">
-                    Ler artigo <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  <span className="mt-6 inline-flex items-center gap-1.5 text-lp-emerald font-semibold">
+                    Ler artigo <span aria-hidden className="group-hover:translate-x-1 transition-transform">→</span>
                   </span>
                 </div>
               </Link>
@@ -86,7 +80,7 @@ export default function Blog() {
                   <Link
                     key={post.slug}
                     to={`/blog/${post.slug}`}
-                    className="lp-card lp-spot group flex flex-col rounded-2xl transition-all overflow-hidden"
+                    className="lp-card-bold group flex flex-col rounded-[1.5rem] overflow-hidden"
                   >
                     {post.cover && (
                       <div className="aspect-[16/10] overflow-hidden bg-lp-surface">
@@ -102,11 +96,9 @@ export default function Blog() {
                     )}
                     <div className="p-6 flex flex-col flex-1">
                       {post.category && (
-                        <span className="self-start mb-3 px-2.5 py-0.5 rounded-full border border-lp-emerald/25 bg-lp-emerald/10 text-[11px] font-medium text-lp-emerald-glow">
-                          {post.category}
-                        </span>
+                        <span className="lp-eyebrow mb-3">{post.category}</span>
                       )}
-                      <h3 className="relative text-xl font-semibold text-lp-ink leading-snug group-hover:text-lp-emerald-glow transition-colors">
+                      <h3 className="relative font-lp-display text-xl font-semibold text-lp-ink leading-snug group-hover:text-lp-emerald transition-colors">
                         {post.title}
                       </h3>
                       <p className="mt-3 text-sm text-lp-muted line-clamp-3">{post.description}</p>

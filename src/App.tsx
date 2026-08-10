@@ -36,6 +36,7 @@ import FornecedorDocumentos from "./pages/FornecedorDocumentos";
 import PortalFornecedor from "./pages/PortalFornecedor";
 import Incidentes from "./pages/Incidentes";
 import Licencas from "./pages/Licencas";
+import LicencasCondicionantes from "./pages/LicencasCondicionantes";
 import Documentos from "./pages/Documentos";
 import Epi from "./pages/Epi";
 import EpiVisaoGeral from "./pages/EpiVisaoGeral";
@@ -139,6 +140,7 @@ const App = () => (
               <Route path="/incidentes" element={<ModuleGuard module="ic_nc"><Incidentes /></ModuleGuard>} />
               <Route path="/incidentes/licoes-aprendidas" element={<ModuleGuard module="ic_nc"><Incidentes /></ModuleGuard>} />
               <Route path="/licencas" element={<ModuleGuard module="environmental_licenses"><Licencas /></ModuleGuard>} />
+              <Route path="/licencas/condicionantes" element={<ModuleGuard module="environmental_licenses"><LicencasCondicionantes /></ModuleGuard>} />
               <Route path="/documentos" element={<ModuleGuard module="document_library"><Documentos /></ModuleGuard>} />
               <Route path="/revisoes" element={<Revisoes />} />
               <Route path="/aso" element={<ModuleGuard module="aso"><Aso /></ModuleGuard>} />

@@ -498,7 +498,7 @@ export function AppSidebar() {
           {(groups.meio_ambiente ?? true) && (
             <div className={cn("space-y-0.5", !collapsed && "relative ml-4 pl-2 border-l border-border")}>
               <SidebarItem to="/mtr" icon={Recycle} label="Gestão de MTR" badge={mtrBadge} active={path.startsWith("/mtr")} collapsed={collapsed} locked={isLocked("/mtr")} onLockedClick={() => handleLockedClick("/mtr")} />
-              <SidebarItem to="/licencas" icon={ScrollText} label="Licenças Ambientais" badge={licenseBadge} active={path === "/licencas"} collapsed={collapsed} locked={isLocked("/licencas")} onLockedClick={() => handleLockedClick("/licencas")} />
+              <SidebarItem to="/licencas" icon={ScrollText} label="Licenças Ambientais" badge={licenseBadge} active={path.startsWith("/licencas")} collapsed={collapsed} locked={isLocked("/licencas")} onLockedClick={() => handleLockedClick("/licencas")} />
               <SidebarItem to="/fornecedores" icon={Truck} label="Fornecedores" active={path.startsWith("/fornecedores")} collapsed={collapsed} locked={isLocked("/fornecedores")} onLockedClick={() => handleLockedClick("/fornecedores")} />
             </div>
           )}

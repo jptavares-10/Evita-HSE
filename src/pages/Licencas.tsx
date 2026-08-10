@@ -9,6 +9,7 @@ import { LicenseDetailDrawer } from "@/components/licencas/LicenseDetailDrawer";
 import { RegisterRenewalModal } from "@/components/licencas/RegisterRenewalModal";
 import { DeleteLicenseDialog } from "@/components/licencas/DeleteLicenseDialog";
 import { ManageLicenseTypesModal } from "@/components/licencas/ManageLicenseTypesModal";
+import { LicensesTabs } from "@/components/licencas/LicensesTabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -114,6 +115,8 @@ export default function Licencas() {
         </div>
         {!canEdit && <ViewerBadge />}
       </div>
+
+      <LicensesTabs />
 
       <LicenseKpiCards
         total={enriched.length}

@@ -190,8 +190,8 @@ function DashboardMockup() {
               { l: "Vencidos", v: "3", c: "text-red-400" },
               { l: "Colaboradores", v: "184", c: "text-lp-ink" },
             ].map((k) => (
-              <div key={k.l} className="rounded-lg border border-lp-border bg-lp-bg/50 p-2.5">
-                <p className="text-[9px] uppercase tracking-wider text-lp-muted mb-1">{k.l}</p>
+              <div key={k.l} className="min-w-0 rounded-lg border border-lp-border bg-lp-bg/50 p-2.5">
+                <p className="text-[8px] leading-tight uppercase tracking-wide text-lp-muted mb-1 truncate">{k.l}</p>
                 <p className={`text-lg font-semibold tabular-nums ${k.c}`}>{k.v}</p>
               </div>
             ))}

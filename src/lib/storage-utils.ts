@@ -19,6 +19,7 @@ const PRIVATE_BUCKETS = [
   "review-attachments",
   "calendar-attachments",
   "epi-signatures",
+  "license-conditionants",
 ] as const;
 
 export type PrivateBucket = (typeof PRIVATE_BUCKETS)[number];

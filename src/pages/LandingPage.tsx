@@ -358,7 +358,7 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="lp-dark lp-grain min-h-screen bg-lp-bg text-lp-ink font-lp-sans antialiased selection:bg-lp-emerald/30 selection:text-lp-ink">
+    <div className="lp-grain min-h-screen bg-lp-bg text-lp-ink font-lp-sans antialiased selection:bg-lp-emerald/30 selection:text-lp-ink">
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-lp-emerald focus:text-lp-bg focus:px-4 focus:py-2 rounded">Pular para o conteúdo</a>
 
       {/* ── NAVBAR (compartilhada com /funcionalidades, /blog e /faq) ─ */}

@@ -215,6 +215,7 @@
   position: absolute;
   inset: -25%;
   pointer-events: none;
+  opacity: 0.4;
   background:
     conic-gradient(from 120deg at 30% 30%, hsl(var(--lp-emerald) / 0.28), transparent 40%),
     conic-gradient(from 300deg at 75% 60%, hsl(var(--lp-gold) / 0.22), transparent 45%),
@@ -227,6 +228,7 @@
   50% { transform: translate3d(4%, 3%, 0) rotate(8deg) scale(1.15); }
   100% { transform: translate3d(-2%, 4%, 0) rotate(-6deg) scale(1.08); }
 }
+.lp-dark .lp-aurora { opacity: 1; }
 
 /* Grão / textura de filme */
 .lp-grain::after {
@@ -234,10 +236,11 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0.5;
-  mix-blend-mode: overlay;
+  opacity: 0.18;
+  mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
 }
+.lp-dark .lp-grain::after { opacity: 0.5; mix-blend-mode: overlay; }
 
 /* Spotlight seguindo o mouse (usa --mx/--my do hook useSpotlight) */
 .lp-spot {

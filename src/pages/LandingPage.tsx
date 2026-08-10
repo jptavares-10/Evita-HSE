@@ -222,8 +222,8 @@ function DashboardMockup() {
             </div>
             <div className="flex items-end gap-2 h-20">
               {[55, 70, 62, 80, 88, 94].map((h, i) => (
-                <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                  <div className="w-full rounded-t bg-gradient-to-t from-lp-emerald-deep to-lp-emerald" style={{ height: `${h}%` }} />
+                <div key={i} className="flex-1 h-full flex flex-col justify-end items-center gap-1">
+                  <div className="w-full rounded-t bg-gradient-to-t from-lp-emerald-deep to-lp-emerald-glow" style={{ height: `${h}%` }} />
                   <span className="text-[8px] text-lp-muted">{["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"][i]}</span>
                 </div>
               ))}

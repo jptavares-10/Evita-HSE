@@ -16,9 +16,10 @@ export default function Blog() {
   return (
     <BlogLayout>
       {/* Hero */}
-      <section className="border-b border-lp-border bg-gradient-to-b from-lp-surface/40 to-transparent">
-        <div className="max-w-6xl mx-auto px-6 lg:px-8 py-16 lg:py-20">
-          <p className="text-xs uppercase tracking-[0.2em] text-lp-emerald font-medium mb-3">Blog</p>
+      <section className="relative border-b border-lp-border overflow-hidden">
+        <div aria-hidden className="absolute inset-0 lp-mesh-bg pointer-events-none" />
+        <div aria-hidden className="absolute inset-0 lp-grid-bg pointer-events-none opacity-50" />
+        <div className="relative max-w-6xl mx-auto px-6 lg:px-8 py-16 lg:py-20">
           <h1 className="text-4xl lg:text-5xl font-semibold tracking-tight text-lp-ink max-w-3xl">
             Conteúdo prático para quem vive a Segurança do Trabalho
           </h1>
@@ -53,11 +54,11 @@ export default function Blog() {
                 )}
                 <div className="flex flex-col justify-center">
                   {featured.category && (
-                    <p className="text-xs uppercase tracking-[0.2em] text-lp-emerald font-medium mb-3">
+                    <span className="self-start mb-4 px-2.5 py-1 rounded-full border border-lp-emerald/30 bg-lp-emerald/10 text-[11px] font-medium text-lp-emerald-glow">
                       {featured.category}
-                    </p>
+                    </span>
                   )}
-                  <h2 className="text-3xl lg:text-4xl font-semibold text-lp-ink leading-tight group-hover:text-lp-emerald-deep transition-colors">
+                  <h2 className="text-3xl lg:text-4xl font-semibold text-lp-ink leading-tight group-hover:text-lp-emerald-glow transition-colors">
                     {featured.title}
                   </h2>
                   <p className="mt-4 text-lp-muted leading-relaxed">{featured.description}</p>
@@ -71,7 +72,7 @@ export default function Blog() {
                       </span>
                     )}
                   </div>
-                  <span className="mt-6 inline-flex items-center gap-1.5 text-lp-emerald-deep font-medium">
+                  <span className="mt-6 inline-flex items-center gap-1.5 text-lp-emerald-glow font-medium">
                     Ler artigo <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </span>
                 </div>
@@ -85,7 +86,7 @@ export default function Blog() {
                   <Link
                     key={post.slug}
                     to={`/blog/${post.slug}`}
-                    className="group flex flex-col rounded-2xl border border-lp-border bg-lp-bg hover:border-lp-emerald/40 hover:shadow-md transition-all overflow-hidden"
+                    className="lp-card lp-spot group flex flex-col rounded-2xl transition-all overflow-hidden"
                   >
                     {post.cover && (
                       <div className="aspect-[16/10] overflow-hidden bg-lp-surface">
@@ -101,11 +102,11 @@ export default function Blog() {
                     )}
                     <div className="p-6 flex flex-col flex-1">
                       {post.category && (
-                        <p className="text-xs uppercase tracking-[0.18em] text-lp-emerald font-medium mb-2">
+                        <span className="self-start mb-3 px-2.5 py-0.5 rounded-full border border-lp-emerald/25 bg-lp-emerald/10 text-[11px] font-medium text-lp-emerald-glow">
                           {post.category}
-                        </p>
+                        </span>
                       )}
-                      <h3 className="text-xl font-semibold text-lp-ink leading-snug group-hover:text-lp-emerald-deep transition-colors">
+                      <h3 className="relative text-xl font-semibold text-lp-ink leading-snug group-hover:text-lp-emerald-glow transition-colors">
                         {post.title}
                       </h3>
                       <p className="mt-3 text-sm text-lp-muted line-clamp-3">{post.description}</p>

@@ -8,7 +8,7 @@ interface BlogLayoutProps {
 
 export function BlogLayout({ children }: BlogLayoutProps) {
   return (
-    <div className="min-h-screen bg-lp-bg text-lp-ink font-lp-sans antialiased">
+    <div className="lp-dark min-h-screen bg-lp-bg text-lp-ink font-lp-sans antialiased">
       <SiteHeader />
       <main className="pt-16">{children}</main>
 

@@ -12,7 +12,6 @@ export function HowItWorks({ steps }: { steps: Step[] }) {
     <section className="py-24 px-6 lg:px-8 border-t border-lp-border bg-lp-cream/40">
       <div className="max-w-6xl mx-auto">
         <Reveal className="text-center mb-14">
-          <p className="text-xs uppercase tracking-[0.2em] text-lp-emerald font-medium mb-3">Como funciona</p>
           <h2 className="font-lp-display text-4xl md:text-5xl font-semibold tracking-tight text-lp-ink">Simples de usar.</h2>
         </Reveal>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">

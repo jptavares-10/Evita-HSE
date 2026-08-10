@@ -117,6 +117,18 @@ export default {
           "0%, 100%": { opacity: "0.4" },
           "50%": { opacity: "1" },
         },
+        "lp-float-slow": {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
+        "lp-scan": {
+          "0%": { transform: "translateY(-100%)" },
+          "100%": { transform: "translateY(400%)" },
+        },
+        "lp-ring": {
+          "0%": { transform: "scale(0.85)", opacity: "0.6" },
+          "100%": { transform: "scale(1.6)", opacity: "0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -124,6 +136,9 @@ export default {
         "lp-marquee": "lp-marquee 40s linear infinite",
         "lp-mesh": "lp-mesh 18s ease-in-out infinite",
         "lp-pulse-dot": "lp-pulse-dot 2s ease-in-out infinite",
+        "lp-float-slow": "lp-float-slow 7s ease-in-out infinite",
+        "lp-scan": "lp-scan 4s linear infinite",
+        "lp-ring": "lp-ring 2.4s ease-out infinite",
       },
     },
   },

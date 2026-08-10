@@ -3,21 +3,26 @@ import {
   ArrowRight,
   Check,
   Plus,
-  Shield,
   GraduationCap,
   Truck,
   FileText,
   Bell,
   TrendingUp,
   Users,
-  Zap,
   Lock,
-  ChevronRight,
+  AlertTriangle,
+  ShieldCheck,
+  Fingerprint,
+  Clock,
+  ServerCog,
+  Sparkles,
 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { EvitaLogo, EvitaWordmark } from "@/components/landing/EvitaBrand";
 import { SiteHeader } from "@/components/landing/SiteHeader";
+import { Reveal } from "@/components/landing/Reveal";
+import { useParallax, useSpotlight, useCountUp } from "@/hooks/useMotion";
 
 /* ── DATA ─────────────────────────────────────── */
 
@@ -35,9 +40,34 @@ const trustSegments = [
 ];
 
 const heroStats = [
-  { value: "10+", label: "módulos integrados" },
-  { value: "100%", label: "alertas automáticos" },
-  { value: "14 dias", label: "trial sem cartão" },
+  { value: 11, suffix: "+", label: "módulos integrados" },
+  { value: 100, suffix: "%", label: "prazos monitorados" },
+  { value: 14, suffix: " dias", label: "trial sem cartão" },
+];
+
+const painPoints = [
+  {
+    icon: AlertTriangle,
+    problem: "Você descobre o vencimento quando o fiscal chega.",
+    solution: "O Evita avisa semanas antes — treinamento, ASO, licença, CA de EPI, CDF de MTR. Tudo com data e responsável.",
+  },
+  {
+    icon: FileText,
+    problem: "A evidência existe, mas está perdida no WhatsApp.",
+    solution: "Cada certificado, laudo e protocolo fica anexado ao registro certo, com histórico imutável e download em segundos.",
+  },
+  {
+    icon: Clock,
+    problem: "Auditoria vira três dias montando planilha.",
+    solution: "Filtre, exporte e apresente conformidade por área, cargo ou unidade sem depender de ninguém do time.",
+  },
+];
+
+const trustPillars = [
+  { icon: Fingerprint, title: "Isolamento por empresa", desc: "Row Level Security no banco: nenhum dado atravessa a fronteira da sua operação." },
+  { icon: Lock, title: "Documentos privados", desc: "Arquivos em buckets fechados, acessados apenas por URLs assinadas com validade de 1 hora." },
+  { icon: ShieldCheck, title: "Trilha de auditoria", desc: "Quem criou, quem alterou, quando e com qual evidência. Pronto para fiscalização." },
+  { icon: ServerCog, title: "Permissão por módulo", desc: "Editor ou leitor em cada área. O campo registra, a gestão audita, ninguém apaga histórico." },
 ];
 
 type ModuleItem = { name: string; desc: string; slug: string };
@@ -110,34 +140,15 @@ const faqs = [
   { q: "Funciona para qualquer segmento?", a: "Sim. Construção, indústria, facilities, mineração, saúde, logística e mais." },
 ];
 
-/* ── HOOKS ─────────────────────────────────── */
+/* ── STAT ─────────────────────────────────── */
 
-function useReveal() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.unobserve(el); } },
-      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-  return {
-    ref,
-    className: visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
-    style: { transition: "opacity 0.7s ease, transform 0.7s ease" },
-  };
-}
-
-function Reveal({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
-  const r = useReveal();
+function StatValue({ value, suffix }: { value: number; suffix: string }) {
+  const { ref, value: current } = useCountUp(value);
   return (
-    <div ref={r.ref} className={`${r.className} ${className}`} style={{ ...r.style, transitionDelay: `${delay}s` }}>
-      {children}
-    </div>
+    <span ref={ref} className="tabular-nums">
+      {Math.round(current)}
+      {suffix}
+    </span>
   );
 }
 
@@ -145,7 +156,7 @@ function Reveal({ children, className = "", delay = 0 }: { children: React.React
 
 function BrowserFrame({ children, label = "evita.hse/dashboard" }: { children: React.ReactNode; label?: string }) {
   return (
-    <div className="rounded-xl overflow-hidden border border-lp-border bg-lp-surface shadow-[0_30px_80px_-20px_hsl(var(--lp-ink)/0.15)]">
+    <div className="rounded-xl overflow-hidden border border-lp-border bg-lp-surface shadow-[0_40px_90px_-30px_hsl(0_0%_0%/0.75)]">
       <div className="flex items-center gap-2 px-4 py-3 border-b border-lp-border bg-lp-bg/60">
         <span className="h-2.5 w-2.5 rounded-full bg-red-500/60" />
         <span className="h-2.5 w-2.5 rounded-full bg-yellow-500/60" />
@@ -211,8 +222,8 @@ function DashboardMockup() {
             </div>
             <div className="flex items-end gap-2 h-20">
               {[55, 70, 62, 80, 88, 94].map((h, i) => (
-                <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                  <div className="w-full rounded-t bg-gradient-to-t from-lp-emerald-deep to-lp-emerald" style={{ height: `${h}%` }} />
+                <div key={i} className="flex-1 h-full flex flex-col justify-end items-center gap-1">
+                  <div className="w-full rounded-t bg-gradient-to-t from-lp-emerald-deep to-lp-emerald-glow" style={{ height: `${h}%` }} />
                   <span className="text-[8px] text-lp-muted">{["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"][i]}</span>
                 </div>
               ))}
@@ -319,6 +330,8 @@ export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [activeGroup, setActiveGroup] = useState<typeof groupTabs[number]>("Segurança");
   const [billingAnnual, setBillingAnnual] = useState(false);
+  const heroParallax = useParallax<HTMLDivElement>(60);
+  const spotlight = useSpotlight<HTMLDivElement>();
 
   usePageTitle("Evita HSE — Gestão de SST e Meio Ambiente", {
     description: "Plataforma de gestão de SST: treinamentos NR, EPIs, inspeções, MTR, licenças e ASO. Alertas de vencimento automáticos. Teste 14 dias grátis.",
@@ -345,7 +358,7 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-lp-bg text-lp-ink font-lp-sans antialiased selection:bg-lp-emerald/30 selection:text-lp-ink">
+    <div className="lp-dark lp-grain min-h-screen bg-lp-bg text-lp-ink font-lp-sans antialiased selection:bg-lp-emerald/30 selection:text-lp-ink">
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-lp-emerald focus:text-lp-bg focus:px-4 focus:py-2 rounded">Pular para o conteúdo</a>
 
       {/* ── NAVBAR (compartilhada com /funcionalidades, /blog e /faq) ─ */}
@@ -354,25 +367,23 @@ export default function LandingPage() {
       <main id="main">
         {/* ── HERO ──────────────────── */}
         <section className="relative pt-32 pb-16 px-6 lg:px-8 overflow-hidden">
+          <div aria-hidden className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="lp-aurora" />
+          </div>
           <div aria-hidden className="absolute inset-0 lp-mesh-bg animate-lp-mesh pointer-events-none" />
           <div aria-hidden className="absolute inset-0 lp-grid-bg pointer-events-none opacity-40" />
+          <div aria-hidden className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-lp-bg to-transparent pointer-events-none" />
           <div className="relative max-w-6xl mx-auto text-center">
-            <Reveal>
-              <a href="#modulos" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-lp-border bg-lp-surface/60 backdrop-blur text-xs text-lp-muted hover:border-lp-emerald/40 transition-colors mb-8">
-                <span className="h-1.5 w-1.5 rounded-full bg-lp-emerald animate-lp-pulse-dot" />
-                Novo: módulo de inspeções V2
-                <ChevronRight className="h-3 w-3" />
-              </a>
-            </Reveal>
-            <Reveal delay={0.05}>
-              <h1 className="font-lp-display text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight leading-[1.05] text-lp-ink mb-6">
-                A plataforma HSE que{" "}
-                <span className="bg-gradient-to-r from-lp-emerald via-lp-emerald-glow to-lp-emerald bg-clip-text text-transparent">elimina suas planilhas</span>.
+            <Reveal variant="blur">
+              <h1 className="font-lp-display text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight leading-[1.02] text-lp-ink mb-6">
+                Nenhum prazo de HSE{" "}
+                <span className="bg-gradient-to-r from-lp-emerald via-lp-emerald-glow to-lp-gold bg-clip-text text-transparent">vence sem você saber</span>.
               </h1>
             </Reveal>
             <Reveal delay={0.1}>
               <p className="text-lg md:text-xl text-lp-muted max-w-2xl mx-auto mb-8 leading-relaxed">
-                Treinamentos, EPIs, inspeções, MTR, licenças e ASO em um único software. Alertas automáticos antes de cada vencimento — feito para a indústria brasileira.
+                Treinamentos NR, EPIs, inspeções, ASO, MTR e licenças ambientais em uma única plataforma — com alerta antecipado,
+                evidência anexada e trilha de auditoria pronta para o fiscal.
               </p>
             </Reveal>
             <Reveal delay={0.15}>
@@ -389,10 +400,10 @@ export default function LandingPage() {
             </Reveal>
 
             {/* Hero mockup */}
-            <Reveal delay={0.25} className="mt-16">
-              <div className="relative max-w-5xl mx-auto">
-                <div aria-hidden className="absolute -inset-x-20 -inset-y-10 bg-gradient-to-b from-lp-emerald/10 via-transparent to-transparent blur-3xl" />
-                <div className="relative">
+            <Reveal delay={0.25} variant="scale" className="mt-16">
+              <div ref={heroParallax.ref} className="relative max-w-5xl mx-auto" style={{ transform: `translateY(${heroParallax.offset * -0.4}px)` }}>
+                <div aria-hidden className="absolute -inset-x-20 -inset-y-10 bg-gradient-to-b from-lp-emerald/20 via-transparent to-transparent blur-3xl" />
+                <div className="relative lp-tilt lp-sheen rounded-xl">
                   <DashboardMockup />
                 </div>
               </div>
@@ -403,7 +414,9 @@ export default function LandingPage() {
               <div className="mt-16 grid grid-cols-3 gap-6 max-w-2xl mx-auto">
                 {heroStats.map((s) => (
                   <div key={s.label} className="text-center">
-                    <p className="font-lp-display text-3xl md:text-4xl font-semibold text-lp-ink tabular-nums">{s.value}</p>
+                    <p className="font-lp-display text-3xl md:text-4xl font-semibold text-lp-ink">
+                      <StatValue value={s.value} suffix={s.suffix} />
+                    </p>
                     <p className="text-xs text-lp-muted mt-1">{s.label}</p>
                   </div>
                 ))}
@@ -414,7 +427,7 @@ export default function LandingPage() {
 
         {/* ── TRUST STRIP ──────────────────── */}
         <section className="py-12 border-y border-lp-border overflow-hidden">
-          <p className="text-center text-[10px] uppercase tracking-[0.3em] text-lp-muted mb-6">Usado por equipes HSE em</p>
+          <p className="text-center text-sm text-lp-muted mb-6">Equipes HSE que operam com o Evita</p>
           <div className="flex overflow-hidden">
             <div className="flex shrink-0 animate-lp-marquee gap-12 px-6">
               {[...trustSegments, ...trustSegments].map((s, i) => (
@@ -429,13 +442,43 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* ── DOR → SOLUÇÃO ──────────────────── */}
+        <section className="relative py-24 px-6 lg:px-8 overflow-hidden">
+          <div aria-hidden className="absolute inset-0 lp-mesh-bg opacity-50 pointer-events-none" />
+          <div className="relative max-w-6xl mx-auto">
+            <Reveal className="text-center mb-14">
+              <h2 className="font-lp-display text-4xl md:text-5xl font-semibold tracking-tight text-lp-ink mb-4">
+                Planilha não avisa. Planilha não assina. Planilha não te defende.
+              </h2>
+              <p className="text-lg text-lp-muted max-w-2xl mx-auto">
+                Em uma autuação, o que vale é evidência com data. É exatamente isso que o Evita produz todos os dias, sem esforço extra do seu time.
+              </p>
+            </Reveal>
+            <div className="grid md:grid-cols-3 gap-5">
+              {painPoints.map((p, i) => (
+                <Reveal key={p.problem} delay={i * 0.08} variant="blur">
+                  <div
+                    className="lp-card lp-spot lp-ring-gradient rounded-2xl p-7 h-full"
+                    onMouseMove={spotlight.onMouseMove}
+                  >
+                    <div className="w-11 h-11 rounded-xl bg-lp-gold/10 border border-lp-gold/25 grid place-items-center mb-5">
+                      <p.icon className="h-5 w-5 text-lp-gold" />
+                    </div>
+                    <h3 className="font-lp-display text-lg font-semibold text-lp-ink mb-3 leading-snug">{p.problem}</h3>
+                    <p className="text-sm text-lp-muted leading-relaxed">{p.solution}</p>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* ── BENTO MÓDULOS PRINCIPAIS ──────────────────── */}
         <section id="produto" className="py-24 px-6 lg:px-8">
           <div className="max-w-6xl mx-auto">
             <Reveal className="text-center mb-14">
-              <p className="text-xs uppercase tracking-[0.2em] text-lp-emerald font-medium mb-3">Produto</p>
               <h2 className="font-lp-display text-4xl md:text-5xl font-semibold tracking-tight text-lp-ink mb-4">Tudo que sua operação HSE precisa.</h2>
-              <p className="text-lg text-lp-muted max-w-2xl mx-auto">Quatro módulos que substituem dezenas de planilhas. Ative só o que precisa.</p>
+              <p className="text-lg text-lp-muted max-w-2xl mx-auto">Substitui dezenas de planilhas, controles paralelos e lembretes no celular. Ative só o que sua operação usa.</p>
             </Reveal>
 
             <div className="grid md:grid-cols-2 gap-4">
@@ -508,7 +551,6 @@ export default function LandingPage() {
         <section id="modulos" className="py-24 px-6 lg:px-8 border-t border-lp-border">
           <div className="max-w-6xl mx-auto">
             <Reveal className="text-center mb-12">
-              <p className="text-xs uppercase tracking-[0.2em] text-lp-emerald font-medium mb-3">Módulos integrados</p>
               <h2 className="font-lp-display text-4xl md:text-5xl font-semibold tracking-tight text-lp-ink mb-4">Feito para sua operação.</h2>
               <p className="text-lg text-lp-muted max-w-2xl mx-auto">Segurança, Saúde e Meio Ambiente cobertos em profundidade — sem precisar de software extra.</p>
             </Reveal>
@@ -553,7 +595,6 @@ export default function LandingPage() {
         <section className="py-24 px-6 lg:px-8 border-t border-lp-border">
           <div className="max-w-6xl mx-auto">
             <Reveal className="text-center mb-14">
-              <p className="text-xs uppercase tracking-[0.2em] text-lp-emerald font-medium mb-3">Quem usa</p>
               <h2 className="font-lp-display text-4xl md:text-5xl font-semibold tracking-tight text-lp-ink">Profissionais HSE no campo.</h2>
             </Reveal>
             <div className="grid md:grid-cols-3 gap-5">
@@ -572,7 +613,42 @@ export default function LandingPage() {
                 </Reveal>
               ))}
             </div>
-            <p className="text-center text-[10px] uppercase tracking-[0.3em] text-lp-muted mt-10">* Baseado em perfis reais de profissionais HSE.</p>
+            <p className="text-center text-xs text-lp-muted mt-10">* Baseado em perfis reais de profissionais HSE.</p>
+          </div>
+        </section>
+
+        {/* ── SEGURANÇA ──────────────────── */}
+        <section className="relative py-24 px-6 lg:px-8 border-t border-lp-border overflow-hidden">
+          <div aria-hidden className="absolute inset-0 overflow-hidden pointer-events-none opacity-60">
+            <div className="lp-aurora" />
+          </div>
+          <div className="relative max-w-6xl mx-auto">
+            <Reveal className="text-center mb-14">
+              <h2 className="font-lp-display text-4xl md:text-5xl font-semibold tracking-tight text-lp-ink mb-4">
+                Seus dados de HSE são sensíveis. Tratamos como tal.
+              </h2>
+              <p className="text-lg text-lp-muted max-w-2xl mx-auto">
+                Segurança não é uma página de marketing aqui — é a arquitetura do produto.
+              </p>
+            </Reveal>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {trustPillars.map((p, i) => (
+                <Reveal key={p.title} delay={i * 0.06} variant="scale">
+                  <div className="lp-card lp-spot rounded-2xl p-6 h-full" onMouseMove={spotlight.onMouseMove}>
+                    <div className="w-11 h-11 rounded-xl bg-lp-emerald/10 border border-lp-emerald/25 grid place-items-center mb-4">
+                      <p.icon className="h-5 w-5 text-lp-emerald-glow" />
+                    </div>
+                    <h3 className="font-lp-display text-base font-semibold text-lp-ink mb-2">{p.title}</h3>
+                    <p className="text-sm text-lp-muted leading-relaxed">{p.desc}</p>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+            <Reveal className="mt-10 text-center">
+              <Link to="/seguranca" className="text-sm text-lp-emerald-glow font-medium inline-flex items-center gap-1.5 hover:gap-2.5 transition-all">
+                Ver como protegemos sua operação <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </Reveal>
           </div>
         </section>
 
@@ -580,9 +656,8 @@ export default function LandingPage() {
         <section id="precos" className="py-24 px-6 lg:px-8 border-t border-lp-border">
           <div className="max-w-6xl mx-auto">
             <Reveal className="text-center mb-10">
-              <p className="text-xs uppercase tracking-[0.2em] text-lp-emerald font-medium mb-3">Preços</p>
               <h2 className="font-lp-display text-4xl md:text-5xl font-semibold tracking-tight text-lp-ink mb-4">Transparente, sem pegadinhas.</h2>
-              <p className="text-lg text-lp-muted">Comece grátis. Faça upgrade quando precisar. Cancele quando quiser.</p>
+              <p className="text-lg text-lp-muted">Custa menos que uma autuação. Comece grátis, faça upgrade quando precisar, cancele quando quiser.</p>
             </Reveal>
 
             <div className="flex items-center justify-center gap-3 mb-10">
@@ -661,7 +736,6 @@ export default function LandingPage() {
         <section id="faq" className="py-24 px-6 lg:px-8 border-t border-lp-border">
           <div className="max-w-3xl mx-auto">
             <Reveal className="text-center mb-12">
-              <p className="text-xs uppercase tracking-[0.2em] text-lp-emerald font-medium mb-3">FAQ</p>
               <h2 className="font-lp-display text-4xl md:text-5xl font-semibold tracking-tight text-lp-ink">Perguntas frequentes.</h2>
             </Reveal>
             <div className="space-y-2">
@@ -691,14 +765,20 @@ export default function LandingPage() {
         </section>
 
         {/* ── CTA FINAL ──────────────────── */}
-        <section className="relative py-24 px-6 lg:px-8 border-t border-lp-border overflow-hidden">
+        <section className="relative py-28 px-6 lg:px-8 border-t border-lp-border overflow-hidden">
+          <div aria-hidden className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="lp-aurora" />
+          </div>
           <div aria-hidden className="absolute inset-0 lp-mesh-bg animate-lp-mesh opacity-60 pointer-events-none" />
           <div className="relative max-w-3xl mx-auto text-center">
-            <Reveal>
-              <h2 className="font-lp-display text-4xl md:text-5xl font-semibold tracking-tight text-lp-ink mb-5">
-                Comece sua operação HSE hoje.
+            <Reveal variant="blur">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-lp-gold/30 bg-lp-gold/10 text-xs font-medium text-lp-gold mb-6">
+                <Sparkles className="h-3.5 w-3.5" /> Configuração em minutos
+              </div>
+              <h2 className="font-lp-display text-4xl md:text-6xl font-semibold tracking-tight text-lp-ink mb-5 leading-[1.05]">
+                O próximo vencimento já está a caminho.
               </h2>
-              <p className="text-lg text-lp-muted mb-8">14 dias grátis. Sem cartão. Sem configuração complexa.</p>
+              <p className="text-lg text-lp-muted mb-8">14 dias grátis. Sem cartão. Sem implantação longa — cadastre e comece a monitorar hoje.</p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Link to="/cadastro" className="group px-6 py-3 bg-lp-emerald text-lp-bg font-medium rounded-lg hover:bg-lp-emerald-glow transition-all inline-flex items-center justify-center gap-2 lp-glow">
                   Criar conta grátis <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />

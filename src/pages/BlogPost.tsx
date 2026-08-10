@@ -2,7 +2,6 @@ import { Link, useParams, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { ArrowLeft, Calendar, Clock, User } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { BlogLayout } from "@/components/blog/BlogLayout";
 import { BlogCTA } from "@/components/blog/BlogCTA";

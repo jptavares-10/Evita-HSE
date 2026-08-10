@@ -105,8 +105,8 @@ export default function Seguranca() {
       <section className="relative px-6 lg:px-8 pt-24 pb-16 overflow-hidden">
         <div aria-hidden className="absolute inset-0 lp-mesh-bg pointer-events-none" />
         <div className="relative max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-lp-border bg-lp-surface/70 text-xs uppercase tracking-wider text-lp-muted mb-6">
-            <Lock className="h-3.5 w-3.5 text-lp-emerald" />
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-lp-emerald/30 bg-lp-emerald/10 text-xs font-medium text-lp-emerald-glow mb-6">
+            <Lock className="h-3.5 w-3.5" />
             Segurança & Privacidade
           </div>
           <h1 className="font-lp-display text-4xl md:text-5xl tracking-tight text-lp-ink">

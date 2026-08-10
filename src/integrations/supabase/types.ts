@@ -347,6 +347,195 @@ export type Database = {
         }
         Relationships: []
       }
+      conditionant_compliances: {
+        Row: {
+          company_id: string
+          conditionant_id: string
+          created_at: string
+          fulfilled_at: string
+          id: string
+          notes: string | null
+          protocol_body: string | null
+          protocol_channel: string | null
+          protocol_date: string | null
+          protocol_number: string | null
+          reference_due_date: string | null
+          registered_by: string | null
+        }
+        Insert: {
+          company_id: string
+          conditionant_id: string
+          created_at?: string
+          fulfilled_at?: string
+          id?: string
+          notes?: string | null
+          protocol_body?: string | null
+          protocol_channel?: string | null
+          protocol_date?: string | null
+          protocol_number?: string | null
+          reference_due_date?: string | null
+          registered_by?: string | null
+        }
+        Update: {
+          company_id?: string
+          conditionant_id?: string
+          created_at?: string
+          fulfilled_at?: string
+          id?: string
+          notes?: string | null
+          protocol_body?: string | null
+          protocol_channel?: string | null
+          protocol_date?: string | null
+          protocol_number?: string | null
+          reference_due_date?: string | null
+          registered_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conditionant_compliances_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conditionant_compliances_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conditionant_compliances_conditionant_id_fkey"
+            columns: ["conditionant_id"]
+            isOneToOne: false
+            referencedRelation: "license_conditionants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conditionant_compliances_registered_by_fkey"
+            columns: ["registered_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conditionant_document_links: {
+        Row: {
+          company_id: string
+          compliance_id: string
+          created_at: string
+          document_id: string
+          id: string
+        }
+        Insert: {
+          company_id: string
+          compliance_id: string
+          created_at?: string
+          document_id: string
+          id?: string
+        }
+        Update: {
+          company_id?: string
+          compliance_id?: string
+          created_at?: string
+          document_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conditionant_document_links_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conditionant_document_links_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conditionant_document_links_compliance_id_fkey"
+            columns: ["compliance_id"]
+            isOneToOne: false
+            referencedRelation: "conditionant_compliances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conditionant_document_links_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conditionant_evidence_files: {
+        Row: {
+          company_id: string
+          compliance_id: string
+          created_at: string
+          file_name: string
+          file_type: string | null
+          file_url: string
+          id: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          company_id: string
+          compliance_id: string
+          created_at?: string
+          file_name: string
+          file_type?: string | null
+          file_url: string
+          id?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          company_id?: string
+          compliance_id?: string
+          created_at?: string
+          file_name?: string
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conditionant_evidence_files_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conditionant_evidence_files_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conditionant_evidence_files_compliance_id_fkey"
+            columns: ["compliance_id"]
+            isOneToOne: false
+            referencedRelation: "conditionant_compliances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conditionant_evidence_files_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       corrective_actions: {
         Row: {
           cause_id: string | null
@@ -2197,6 +2386,102 @@ export type Database = {
             columns: ["sector_id"]
             isOneToOne: false
             referencedRelation: "sectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      license_conditionants: {
+        Row: {
+          alert_days_before: number
+          company_id: string
+          created_at: string
+          created_by: string | null
+          criticality: string
+          days_before_license_expiry: number | null
+          deadline_type: string
+          description: string
+          due_date: string | null
+          id: string
+          item_code: string | null
+          license_id: string
+          notes: string | null
+          recurrence: string | null
+          responsible_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          alert_days_before?: number
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          criticality?: string
+          days_before_license_expiry?: number | null
+          deadline_type?: string
+          description: string
+          due_date?: string | null
+          id?: string
+          item_code?: string | null
+          license_id: string
+          notes?: string | null
+          recurrence?: string | null
+          responsible_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          alert_days_before?: number
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          criticality?: string
+          days_before_license_expiry?: number | null
+          deadline_type?: string
+          description?: string
+          due_date?: string | null
+          id?: string
+          item_code?: string | null
+          license_id?: string
+          notes?: string | null
+          recurrence?: string | null
+          responsible_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "license_conditionants_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "license_conditionants_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "license_conditionants_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "license_conditionants_license_id_fkey"
+            columns: ["license_id"]
+            isOneToOne: false
+            referencedRelation: "environmental_licenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "license_conditionants_responsible_id_fkey"
+            columns: ["responsible_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

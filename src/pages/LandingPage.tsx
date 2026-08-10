@@ -651,13 +651,13 @@ export default function LandingPage() {
                 const featured = plan.featured;
                 return (
                   <Reveal key={plan.key} delay={i * 0.05}>
-                    <div className={`relative rounded-2xl p-7 h-full flex flex-col transition-all ${featured ? "bg-lp-surface border border-lp-emerald/40 lp-glow" : "lp-card"}`}>
+                    <div className={`relative rounded-[1.4rem] p-7 h-full flex flex-col ${featured ? "bg-lp-surface border border-lp-emerald/45 lp-glow md:-mt-4 md:scale-[1.03]" : "lp-card-bold"}`}>
                       {featured && (
-                        <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-lp-emerald text-lp-bg text-[10px] font-bold uppercase tracking-wider">
+                        <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-gradient-to-r from-lp-emerald to-lp-gold text-lp-bg text-[10px] font-bold uppercase tracking-wider">
                           {plan.badge}
                         </span>
                       )}
-                      <p className="text-sm font-medium text-lp-emerald mb-1">{plan.label}</p>
+                      <p className="lp-eyebrow mb-2">{plan.label}</p>
                       <p className="text-xs text-lp-muted mb-5">{plan.subtitle}</p>
                       <div className="mb-6">
                         {billingAnnual ? (
@@ -679,9 +679,7 @@ export default function LandingPage() {
                       </div>
                       <ul className="space-y-2.5 mb-6 flex-1">
                         {plan.features.map((f) => (
-                          <li key={f} className="flex items-start gap-2 text-sm text-lp-muted">
-                            <Check className="h-4 w-4 mt-0.5 text-lp-emerald shrink-0" /> {f}
-                          </li>
+                          <li key={f} className="lp-tick text-sm text-lp-muted">{f}</li>
                         ))}
                       </ul>
                       <Link
@@ -697,9 +695,7 @@ export default function LandingPage() {
             </div>
 
             <Reveal className="mt-8 text-center">
-              <p className="text-sm text-lp-muted inline-flex items-center gap-2">
-                <Lock className="h-4 w-4 text-lp-emerald" /> 14 dias grátis em todos os planos · sem cartão
-              </p>
+              <p className="text-sm text-lp-muted">14 dias grátis em todos os planos · sem cartão</p>
             </Reveal>
           </div>
         </section>
@@ -714,10 +710,10 @@ export default function LandingPage() {
               {faqs.slice(0, 4).map((faq, i) => {
                 const open = openFaq === i;
                 return (
-                  <div key={i} className="rounded-lg border border-lp-border bg-lp-surface/40 overflow-hidden">
+                    <div key={i} className={`rounded-xl border overflow-hidden transition-colors ${open ? "border-lp-emerald/40 bg-lp-surface/70" : "border-lp-border bg-lp-surface/40"}`}>
                     <button className="w-full flex items-center justify-between p-5 text-left gap-4" onClick={() => setOpenFaq(open ? null : i)} aria-expanded={open}>
                       <span className="text-lp-ink font-medium">{faq.q}</span>
-                      <Plus className={`h-4 w-4 text-lp-muted shrink-0 transition-transform ${open ? "rotate-45 text-lp-emerald" : ""}`} />
+                      <span aria-hidden className={`font-lp-display text-xl leading-none shrink-0 transition-transform duration-300 ${open ? "rotate-45 text-lp-emerald" : "text-lp-muted"}`}>+</span>
                     </button>
                     <div className={`grid transition-all duration-300 ${open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
                       <div className="overflow-hidden">
@@ -729,8 +725,8 @@ export default function LandingPage() {
               })}
             </div>
             <Reveal className="mt-8 text-center">
-              <Link to="/faq" className="text-sm text-lp-emerald font-medium inline-flex items-center gap-1 hover:gap-2 transition-all">
-                Ver todas as perguntas <ArrowRight className="h-3.5 w-3.5" />
+              <Link to="/faq" className="text-sm text-lp-emerald font-semibold inline-flex items-center gap-1.5 hover:gap-3 transition-all">
+                Ver todas as perguntas <span aria-hidden>→</span>
               </Link>
             </Reveal>
           </div>
@@ -744,16 +740,14 @@ export default function LandingPage() {
           <div aria-hidden className="absolute inset-0 lp-mesh-bg animate-lp-mesh opacity-60 pointer-events-none" />
           <div className="relative max-w-3xl mx-auto text-center">
             <Reveal variant="blur">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-lp-gold/30 bg-lp-gold/10 text-xs font-medium text-lp-gold mb-6">
-                <Sparkles className="h-3.5 w-3.5" /> Configuração em minutos
-              </div>
+              <p className="lp-eyebrow justify-center mb-6">Configuração em minutos</p>
               <h2 className="font-lp-display text-4xl md:text-6xl font-semibold tracking-tight text-lp-ink mb-5 leading-[1.05]">
                 O próximo vencimento já está a caminho.
               </h2>
               <p className="text-lg text-lp-muted mb-8">14 dias grátis. Sem cartão. Sem implantação longa — cadastre e comece a monitorar hoje.</p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Link to="/cadastro" className="group px-6 py-3 bg-lp-emerald text-lp-bg font-medium rounded-lg hover:bg-lp-emerald-glow transition-all inline-flex items-center justify-center gap-2 lp-glow">
-                  Criar conta grátis <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  Criar conta grátis <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
                 </Link>
                 <Link to="/login" className="px-6 py-3 border border-lp-border text-lp-ink font-medium rounded-lg hover:bg-lp-surface transition-colors">
                   Já tenho conta

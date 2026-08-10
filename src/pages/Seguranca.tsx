@@ -1,24 +1,11 @@
 import { Link } from "react-router-dom";
-import {
-  ShieldCheck,
-  Lock,
-  KeyRound,
-  Database,
-  FileLock2,
-  UserCheck,
-  Mail,
-  Server,
-  AlertTriangle,
-  Cookie,
-  Scale,
-} from "lucide-react";
 import { LandingLayout } from "@/components/landing/LandingLayout";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 const sections = [
   {
-    icon: UserCheck,
-    title: "Autenticação e acesso",
+    eyebrow: "Acesso",
+    title: "Só entra quem foi convidado.",
     body: [
       "Login com e-mail e senha gerenciado pelo Supabase Auth. Tokens de sessão JWT armazenados em sessionStorage e renovados automaticamente.",
       "Convites para novos usuários são enviados por link com token de uso único e validade limitada.",
@@ -26,8 +13,8 @@ const sections = [
     ],
   },
   {
-    icon: ShieldCheck,
-    title: "Controle de acesso (RBAC) e multi-tenancy",
+    eyebrow: "Isolamento",
+    title: "Cada empresa em sua própria fronteira.",
     body: [
       "Toda informação é isolada por empresa (company_id) por meio de Row-Level Security no banco de dados.",
       "Permissões granulares por módulo (Editor / Visualizador) podem ser definidas pelo administrador.",
@@ -35,8 +22,8 @@ const sections = [
     ],
   },
   {
-    icon: Database,
-    title: "Armazenamento de dados",
+    eyebrow: "Dados",
+    title: "Criptografado em repouso e em trânsito.",
     body: [
       "Banco de dados PostgreSQL gerenciado pelo Supabase, hospedado em infraestrutura com criptografia em repouso.",
       "Tráfego entre o seu navegador e a aplicação trafega sob HTTPS (TLS).",
@@ -44,8 +31,8 @@ const sections = [
     ],
   },
   {
-    icon: FileLock2,
-    title: "Anexos e uploads",
+    eyebrow: "Arquivos",
+    title: "Documento fechado, acesso por hora.",
     body: [
       "Limite global de 20 MB por arquivo.",
       "Buckets privados isolam os arquivos por pasta de empresa; somente membros autenticados da empresa têm acesso.",
@@ -53,8 +40,8 @@ const sections = [
     ],
   },
   {
-    icon: KeyRound,
-    title: "Portal do Fornecedor",
+    eyebrow: "Portal",
+    title: "Token do fornecedor revogável a qualquer momento.",
     body: [
       "O acesso anônimo do portal usa um token único por fornecedor, revogável a qualquer momento pelo administrador.",
       "As funções expostas ao portal validam o token, o status do fornecedor e o plano da empresa antes de aceitar uploads.",
@@ -62,8 +49,8 @@ const sections = [
     ],
   },
   {
-    icon: Server,
-    title: "Pagamentos",
+    eyebrow: "Pagamentos",
+    title: "Nenhum dado de cartão passa por nós.",
     body: [
       "Pagamentos processados pela Stripe (cartão de crédito e PIX). A Evita HSE não armazena dados de cartão.",
       "Webhooks da Stripe validados por assinatura no servidor.",
@@ -71,8 +58,8 @@ const sections = [
     ],
   },
   {
-    icon: Cookie,
-    title: "Cookies e privacidade",
+    eyebrow: "Privacidade",
+    title: "Sem rastreamento publicitário.",
     body: [
       "Usamos armazenamento local do navegador para manter a sessão de login. Não usamos cookies de publicidade.",
       "Não vendemos dados pessoais a terceiros.",
@@ -80,16 +67,16 @@ const sections = [
     ],
   },
   {
-    icon: AlertTriangle,
-    title: "Resposta a incidentes",
+    eyebrow: "Resposta",
+    title: "Incidente comunicado, não escondido.",
     body: [
       "Suspeitas de incidente de segurança devem ser comunicadas imediatamente para contato@evitahse.com.br.",
       "Após confirmação, notificamos clientes impactados o quanto antes, com escopo, causa raiz e ações corretivas.",
     ],
   },
   {
-    icon: Scale,
-    title: "Conformidade",
+    eyebrow: "Conformidade",
+    title: "Aderência à LGPD, sem promessa vazia.",
     body: [
       "Operamos buscando aderência à LGPD (Lei Geral de Proteção de Dados).",
       "Esta página descreve controles atualmente habilitados no produto; ela é mantida pela equipe da Evita HSE e não constitui certificação independente.",
@@ -105,12 +92,9 @@ export default function Seguranca() {
       <section className="relative px-6 lg:px-8 pt-24 pb-16 overflow-hidden">
         <div aria-hidden className="absolute inset-0 lp-mesh-bg pointer-events-none" />
         <div className="relative max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-lp-emerald/30 bg-lp-emerald/10 text-xs font-medium text-lp-emerald-glow mb-6">
-            <Lock className="h-3.5 w-3.5" />
-            Segurança & Privacidade
-          </div>
-          <h1 className="font-lp-display text-4xl md:text-5xl tracking-tight text-lp-ink">
-            Como protegemos seus dados de HSE
+          <p className="lp-eyebrow !flex justify-center mb-6">Segurança & Privacidade</p>
+          <h1 className="font-lp-display text-4xl md:text-5xl font-semibold tracking-tight text-lp-ink leading-[1.1]">
+            Seus dados de HSE são sensíveis. Tratamos como tal.
           </h1>
           <p className="mt-5 text-lp-muted text-lg max-w-2xl mx-auto">
             Esta página é mantida pela equipe da Evita HSE para responder às dúvidas mais comuns de segurança,
@@ -120,32 +104,24 @@ export default function Seguranca() {
       </section>
 
       <section className="px-6 lg:px-8 pb-20">
-        <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-5">
-          {sections.map(({ icon: Icon, title, body }) => (
-            <article key={title} className="lp-card rounded-2xl p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="h-10 w-10 rounded-xl bg-lp-emerald/10 text-lp-emerald flex items-center justify-center">
-                  <Icon className="h-5 w-5" />
-                </div>
-                <h2 className="font-lp-display text-lg text-lp-ink">{title}</h2>
-              </div>
-              <ul className="space-y-2 text-sm text-lp-muted leading-relaxed">
+        <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-5 items-start">
+          {sections.map(({ eyebrow, title, body }, idx) => (
+            <article key={title} className={`group lp-card-bold rounded-[1.5rem] p-7 ${idx % 2 === 1 ? "md:mt-8" : ""}`}>
+              <span aria-hidden className="lp-numeral font-lp-display text-[4.5rem]">{String(idx + 1).padStart(2, "0")}</span>
+              <span className="lp-eyebrow relative">{eyebrow}</span>
+              <h2 className="relative font-lp-display text-xl font-semibold text-lp-ink mt-4 mb-4 leading-snug">{title}</h2>
+              <ul className="relative space-y-2.5 text-sm text-lp-muted leading-relaxed">
                 {body.map((line, i) => (
-                  <li key={i} className="flex gap-2">
-                    <span className="text-lp-emerald mt-2 h-1 w-1 rounded-full bg-current shrink-0" />
-                    <span>{line}</span>
-                  </li>
+                  <li key={i} className="lp-tick">{line}</li>
                 ))}
               </ul>
             </article>
           ))}
         </div>
 
-        <div className="max-w-3xl mx-auto mt-12 lp-card rounded-2xl p-8 text-center">
-          <div className="inline-flex h-12 w-12 rounded-xl bg-lp-emerald/10 text-lp-emerald items-center justify-center mb-4">
-            <Mail className="h-5 w-5" />
-          </div>
-          <h2 className="font-lp-display text-xl text-lp-ink mb-2">Fale com a gente sobre segurança</h2>
+        <div className="max-w-3xl mx-auto mt-16 lp-card-bold rounded-[1.5rem] p-9 text-center">
+          <p className="lp-eyebrow !flex justify-center mb-5">Contato direto</p>
+          <h2 className="font-lp-display text-2xl font-semibold text-lp-ink mb-2">Encontrou algo? Queremos saber antes de todos.</h2>
           <p className="text-sm text-lp-muted mb-5">
             Dúvidas, solicitações relacionadas à LGPD ou relatos de vulnerabilidade podem ser enviados para o e-mail abaixo.
           </p>

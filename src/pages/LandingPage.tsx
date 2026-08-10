@@ -1,22 +1,4 @@
 import { Link } from "react-router-dom";
-import {
-  ArrowRight,
-  Check,
-  Plus,
-  GraduationCap,
-  Truck,
-  FileText,
-  Bell,
-  TrendingUp,
-  Users,
-  Lock,
-  AlertTriangle,
-  ShieldCheck,
-  Fingerprint,
-  Clock,
-  ServerCog,
-  Sparkles,
-} from "lucide-react";
 import { useState, useEffect } from "react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { EvitaLogo, EvitaWordmark } from "@/components/landing/EvitaBrand";
@@ -47,27 +29,27 @@ const heroStats = [
 
 const painPoints = [
   {
-    icon: AlertTriangle,
-    problem: "Você descobre o vencimento quando o fiscal chega.",
-    solution: "O Evita avisa semanas antes — treinamento, ASO, licença, CA de EPI, CDF de MTR. Tudo com data e responsável.",
+    eyebrow: "Prazos",
+    problem: "O fiscal não avisa. O Evita avisa.",
+    solution: "Treinamento NR, ASO, licença, CA de EPI e CDF de MTR entram na mesma régua de prazo — com semanas de antecedência, data certa e responsável nomeado.",
   },
   {
-    icon: FileText,
-    problem: "A evidência existe, mas está perdida no WhatsApp.",
-    solution: "Cada certificado, laudo e protocolo fica anexado ao registro certo, com histórico imutável e download em segundos.",
+    eyebrow: "Evidência",
+    problem: "Sua evidência não mora no WhatsApp.",
+    solution: "Certificado, laudo e protocolo ficam anexados ao registro certo, com histórico imutável e download em segundos — inclusive de dois anos atrás.",
   },
   {
-    icon: Clock,
-    problem: "Auditoria vira três dias montando planilha.",
-    solution: "Filtre, exporte e apresente conformidade por área, cargo ou unidade sem depender de ninguém do time.",
+    eyebrow: "Auditoria",
+    problem: "Auditoria em minutos, não em três dias.",
+    solution: "Filtre por área, cargo ou unidade, exporte e apresente conformidade na hora — sem depender de ninguém do time para montar planilha.",
   },
 ];
 
 const trustPillars = [
-  { icon: Fingerprint, title: "Isolamento por empresa", desc: "Row Level Security no banco: nenhum dado atravessa a fronteira da sua operação." },
-  { icon: Lock, title: "Documentos privados", desc: "Arquivos em buckets fechados, acessados apenas por URLs assinadas com validade de 1 hora." },
-  { icon: ShieldCheck, title: "Trilha de auditoria", desc: "Quem criou, quem alterou, quando e com qual evidência. Pronto para fiscalização." },
-  { icon: ServerCog, title: "Permissão por módulo", desc: "Editor ou leitor em cada área. O campo registra, a gestão audita, ninguém apaga histórico." },
+  { eyebrow: "Isolamento", title: "Cada empresa em sua própria fronteira.", desc: "Row Level Security no banco: nenhum dado atravessa a fronteira da sua operação, nem por engano." },
+  { eyebrow: "Arquivos", title: "Documento fechado, acesso por hora.", desc: "Buckets privados e URLs assinadas que expiram em 60 minutos. Link vazado não vira porta aberta." },
+  { eyebrow: "Histórico", title: "Toda alteração tem autor e data.", desc: "Quem criou, quem alterou, quando e com qual evidência. A trilha chega pronta para a fiscalização." },
+  { eyebrow: "Papéis", title: "Quem registra, quem audita.", desc: "Editor ou leitor por módulo. O campo lança, a gestão confere e ninguém apaga histórico." },
 ];
 
 type ModuleItem = { name: string; desc: string; slug: string };

@@ -23,12 +23,13 @@ interface Props {
   onNew: () => void;
   onExport: () => void;
   isDisabled: boolean;
+  canEdit: boolean;
 }
 
 export function ConditionantFilters({
   search, onSearchChange, licenseFilter, onLicenseChange, statusFilter, onStatusChange,
   criticalityFilter, onCriticalityChange, responsibleFilter, onResponsibleChange,
-  deadlineFilter, onDeadlineChange, licenses, members, onNew, onExport, isDisabled,
+  deadlineFilter, onDeadlineChange, licenses, members, onNew, onExport, isDisabled, canEdit,
 }: Props) {
   return (
     <div className="flex flex-wrap gap-3 items-end">
@@ -87,7 +88,7 @@ export function ConditionantFilters({
         <Download className="h-4 w-4" /> Exportar
       </Button>
 
-      <PermissionButton onClick={onNew} disabled={isDisabled} className="gap-1.5">
+      <PermissionButton canEdit={canEdit} onClick={onNew} disabled={isDisabled} className="gap-1.5">
         <Plus className="h-4 w-4" /> Nova condicionante
       </PermissionButton>
     </div>

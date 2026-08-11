@@ -253,6 +253,24 @@ export default function Cadastro() {
           </div>
         </div>
 
+        {!authCreated && (
+          <div className="flex items-start gap-3 rounded-lg border border-lp-border bg-lp-surface/60 p-3">
+            <Checkbox
+              id="acceptTerms"
+              checked={acceptedTerms}
+              onCheckedChange={(v) => setAcceptedTerms(v === true)}
+              className="mt-0.5 border-lp-border data-[state=checked]:bg-lp-emerald data-[state=checked]:border-lp-emerald"
+            />
+            <Label htmlFor="acceptTerms" className="text-xs leading-relaxed text-lp-muted font-normal cursor-pointer">
+              Li e aceito os{" "}
+              <Link to="/termos" target="_blank" className="text-lp-emerald hover:underline underline-offset-2">Termos de Uso</Link>{" "}
+              e a{" "}
+              <Link to="/privacidade" target="_blank" className="text-lp-emerald hover:underline underline-offset-2">Política de Privacidade</Link>{" "}
+              do Evita HSE. *
+            </Label>
+          </div>
+        )}
+
         {error && (
           <div className="space-y-2">
             <p className="text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">{error}</p>

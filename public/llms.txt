@@ -21,3 +21,18 @@
 - [Licenças Ambientais](/funcionalidades/licencas): Controle de LO, LI e autorizações.
 - [Documentos](/funcionalidades/documentos): Biblioteca de documentos SST.
 - [Fornecedores](/funcionalidades/fornecedores): Portal e documentos de fornecedores.
+- [Calendário](/funcionalidades/calendario): Agenda unificada de prazos e eventos de HSE.
+
+## Planos
+
+- Trial: 14 dias grátis, todos os módulos, 2 usuários.
+- Starter (R$ 129/mês): Serviços Periódicos, Treinamentos, ASO, IC & NC (registro) e Documentos. 5 usuários.
+- Professional (R$ 349/mês): tudo do Starter + EPI com assinatura digital, Inspeções de campo, MTR, Licenças Ambientais, Calendário, investigação por 5 Porquês e permissões por módulo. 15 usuários.
+- Enterprise (R$ 749/mês): tudo do Professional + Ishikawa e Bow-Tie, condicionantes de licença com evidências, portal de fornecedores, ciclo de revisão de documentos e integração de agentes (MCP)/API. Usuários ilimitados.
+
+## Legal
+
+- [Termos de Uso](/termos)
+- [Política de Privacidade (LGPD)](/privacidade)
+- [Segurança da Informação](/seguranca-da-informacao)
+- [Subprocessadores](/subprocessadores)

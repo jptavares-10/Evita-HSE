@@ -21,7 +21,7 @@ const faqCategories = [
       { q: "O que acontece com meus dados se eu não renovar?", a: "Seus dados ficam preservados por 90 dias após o vencimento do plano. Durante esse período, você pode visualizar tudo mas não criar ou editar novos registros. Após 90 dias sem renovação, os dados podem ser removidos." },
       { q: "Posso fazer upgrade ou downgrade a qualquer momento?", a: "Sim. Upgrade tem efeito imediato — você ganha acesso aos novos módulos na hora. Downgrade entra em vigor no próximo ciclo de cobrança. Módulos que você usava mas não estão no novo plano ficam em modo visualização." },
       { q: "Qual a diferença entre plano mensal e anual?", a: "O plano anual equivale a 10 meses pelo preço de 12 — você economiza 2 meses. O valor é cobrado uma vez por ano. Ambos têm os mesmos recursos e limites." },
-      { q: "Existe software para controle de EPI gratuito?", a: "O Evita HSE oferece 14 dias de teste grátis com acesso completo, incluindo gestão de EPIs com catálogo, controle de estoque, entregas e alertas de CA. Após o trial, planos a partir de R$ 97/mês." },
+      { q: "Existe software para controle de EPI gratuito?", a: "O Evita HSE oferece 14 dias de teste grátis com acesso completo, incluindo gestão de EPIs com catálogo, controle de estoque, entregas e alertas de CA. Após o trial, planos a partir de R$ 129/mês." },
     ],
   },
   {

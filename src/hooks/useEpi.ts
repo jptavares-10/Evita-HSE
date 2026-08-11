@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { storageUpload } from "@/lib/storage-utils";
 
 // ─── EPI Types (Catálogo) ───
 
@@ -219,7 +220,7 @@ export function useSaveDelivery() {
       if (v.attachment_file) {
         const ext = v.attachment_file.name.split(".").pop() || "jpg";
         const path = `${company.id}/${delivery.id}/comprovante.${ext}`;
-        const { error: upErr } = await supabase.storage.from("epi-files").upload(path, v.attachment_file, { upsert: true });
+        const { error: upErr } = await storageUpload("epi-files", path, v.attachment_file, { upsert: true });
         if (!upErr) {
           await supabase.from("epi_deliveries").update({
             attachment_url: path,
@@ -233,15 +234,11 @@ export function useSaveDelivery() {
         const { dataUrlToBlob } = await import("@/lib/epi-signature");
         const pngBlob = dataUrlToBlob(v.signature_png);
         const pngPath = `${company.id}/${delivery.id}/signature.png`;
-        const { error: sigErr } = await supabase.storage
-          .from("epi-signatures")
-          .upload(pngPath, pngBlob, { upsert: true, contentType: "image/png" });
+        const { error: sigErr } = await storageUpload("epi-signatures", pngPath, pngBlob, { upsert: true, contentType: "image/png" });
         let pdfPath: string | null = null;
         if (v.signature_pdf_blob) {
           pdfPath = `${company.id}/${delivery.id}/entrega.pdf`;
-          await supabase.storage
-            .from("epi-signatures")
-            .upload(pdfPath, v.signature_pdf_blob, { upsert: true, contentType: "application/pdf" });
+          await storageUpload("epi-signatures", pdfPath, v.signature_pdf_blob, { upsert: true, contentType: "application/pdf" });
         }
         if (!sigErr) {
           await supabase.from("epi_deliveries").update({

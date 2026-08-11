@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { storageUpload } from "@/lib/storage-utils";
 
 /* ── Queries ── */
 
@@ -217,7 +218,7 @@ export function useSubmitReviewResponse() {
         const ext = values.file.name.split(".").pop();
         const ts = Date.now();
         const path = `${company.id}/${values.cycleId}/${values.assignmentId}/${ts}.${ext}`;
-        const { error: upErr } = await supabase.storage.from("review-attachments").upload(path, values.file, { upsert: true });
+        const { error: upErr } = await storageUpload("review-attachments", path, values.file, { upsert: true });
         if (upErr) throw upErr;
         attachmentUrl = path;
         attachmentName = values.file.name;

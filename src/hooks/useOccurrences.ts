@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { storageUpload } from "@/lib/storage-utils";
 
 export function useOccurrences() {
   const { company } = useAuth();
@@ -158,7 +159,7 @@ export function useSaveOccurrence() {
         for (const file of values.attachmentFiles) {
           const ext = file.name.split(".").pop()?.toLowerCase() ?? "bin";
           const path = `${company.id}/${occurrenceId}/${crypto.randomUUID()}.${ext}`;
-          const { error: upErr } = await supabase.storage.from("occurrence-files").upload(path, file);
+          const { error: upErr } = await storageUpload("occurrence-files", path, file);
           if (upErr) throw upErr;
           const fileType = ["jpg", "jpeg", "png", "gif", "webp"].includes(ext) ? "image" : "document";
           await supabase.from("occurrence_attachments").insert({
@@ -312,7 +313,7 @@ export function useUpdateActionStatus() {
         if (values.evidenceFile) {
           const ext = values.evidenceFile.name.split(".").pop() ?? "bin";
           const path = `${company.id}/${values.occurrenceId}/actions/${values.actionId}.${ext}`;
-          const { error: upErr } = await supabase.storage.from("occurrence-files").upload(path, values.evidenceFile, { upsert: true });
+          const { error: upErr } = await storageUpload("occurrence-files", path, values.evidenceFile, { upsert: true });
           if (upErr) throw upErr;
           updatePayload.evidence_url = path;
           updatePayload.evidence_name = values.evidenceFile.name;

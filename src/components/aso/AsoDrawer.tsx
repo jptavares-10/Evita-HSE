@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSaveAsoRecord, useAsoExamTypes } from "@/hooks/useAso";
 import { useEmployees } from "@/hooks/useTrainings";
 import { useToast } from "@/hooks/use-toast";
+import { storageUpload } from "@/lib/storage-utils";
 
 interface Props {
   open: boolean;
@@ -80,7 +81,7 @@ export function AsoDrawer({ open, onOpenChange, editRecord, preselectedEmployeeI
 
       if (file) {
         const path = `${company.id}/${crypto.randomUUID()}/${file.name}`;
-        const { error: upErr } = await supabase.storage.from("aso-files").upload(path, file);
+        const { error: upErr } = await storageUpload("aso-files", path, file);
         if (upErr) throw upErr;
         fileUrl = path;
         fileName = file.name;

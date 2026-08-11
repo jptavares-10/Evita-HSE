@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { storageUpload } from "@/lib/storage-utils";
 
 export function useLicenseTypes() {
   const { company } = useAuth();
@@ -114,7 +115,7 @@ export function useSaveLicense() {
         const ext = values.file.name.split(".").pop();
         const ts = Date.now();
         const path = `${company.id}/${licenseId}/${ts}/license.${ext}`;
-        const { error: upErr } = await supabase.storage.from("environmental-licenses").upload(path, values.file, { upsert: true });
+        const { error: upErr } = await storageUpload("environmental-licenses", path, values.file, { upsert: true });
         if (upErr) throw upErr;
         await supabase.from("environmental_licenses").update({ file_url: path, file_name: values.file.name }).eq("id", licenseId);
 
@@ -168,7 +169,7 @@ export function useRegisterRenewal() {
       const ext = values.file.name.split(".").pop();
       const ts = Date.now();
       const path = `${company.id}/${values.licenseId}/${ts}/license.${ext}`;
-      const { error: upErr } = await supabase.storage.from("environmental-licenses").upload(path, values.file, { upsert: true });
+      const { error: upErr } = await storageUpload("environmental-licenses", path, values.file, { upsert: true });
       if (upErr) throw upErr;
 
       // Insert renewal

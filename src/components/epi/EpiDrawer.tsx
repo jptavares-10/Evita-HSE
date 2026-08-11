@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Upload, X } from "lucide-react";
 import { useSaveEpiType } from "@/hooks/useEpi";
+import { storageUpload } from "@/lib/storage-utils";
 
 interface Props {
   open: boolean;
@@ -62,7 +63,7 @@ export function EpiDrawer({ open, onOpenChange, editData }: Props) {
     if (file.size > 20 * 1024 * 1024) return;
     setUploading(true);
     const path = `${company.id}/${crypto.randomUUID()}/${file.name}`;
-    const { error } = await supabase.storage.from("epi-certificates").upload(path, file);
+    const { error } = await storageUpload("epi-certificates", path, file);
     if (!error) {
       setCaFileUrl(path);
       setCaFileName(file.name);

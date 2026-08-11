@@ -22,6 +22,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { PRESET_COLORS } from "@/lib/services";
 import { useToast } from "@/hooks/use-toast";
 import { ServiceDocumentsSection } from "./ServiceDocuments";
+import { storageUpload } from "@/lib/storage-utils";
 
 interface Service {
   id: string;
@@ -121,7 +122,7 @@ export function ServiceDrawer({ open, onOpenChange, editingService }: Props) {
       for (const pf of pendingFiles) {
         const ext = pf.file.name.split(".").pop();
         const path = `${company.id}/${serviceId}/${crypto.randomUUID()}.${ext}`;
-        const { error: uploadErr } = await supabase.storage.from("service-attachments").upload(path, pf.file);
+        const { error: uploadErr } = await storageUpload("service-attachments", path, pf.file);
         if (!uploadErr) {
           await supabase.from("service_attachments").insert({
             service_id: serviceId,

@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { useEffect, useRef } from "react";
 import { getFrequencyDays } from "@/lib/inspections";
+import { storageUpload } from "@/lib/storage-utils";
 
 // ── Models ──
 
@@ -242,7 +243,7 @@ export function useAddEntry() {
       const entryId = crypto.randomUUID();
       const ext = values.file.name.split(".").pop();
       const path = `${company.id}/${values.execution_id}/entries/${entryId}/file.${ext}`;
-      const { error: upErr } = await supabase.storage.from("inspection-files").upload(path, values.file, { upsert: true });
+      const { error: upErr } = await storageUpload("inspection-files", path, values.file, { upsert: true });
       if (upErr) throw upErr;
 
       const { error } = await supabase.from("inspection_entries").insert({
@@ -351,7 +352,7 @@ export function useCompleteAction() {
       if (!company || !profile) throw new Error("Sem empresa");
       const ext = values.file.name.split(".").pop();
       const path = `${company.id}/${values.execution_id}/actions/${values.actionId}/evidence.${ext}`;
-      const { error: upErr } = await supabase.storage.from("inspection-files").upload(path, values.file, { upsert: true });
+      const { error: upErr } = await storageUpload("inspection-files", path, values.file, { upsert: true });
       if (upErr) throw upErr;
 
       const { error } = await supabase

@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Upload, X } from "lucide-react";
+import { storageUpload } from "@/lib/storage-utils";
 
 interface Props {
   deliveryId: string | null;
@@ -44,7 +45,7 @@ export function AddAttachmentModal({ deliveryId, onClose }: Props) {
       const ext = file.name.split(".").pop() || "jpg";
       const path = `${company.id}/${deliveryId}/comprovante.${ext}`;
 
-      const { error: upErr } = await supabase.storage.from("epi-files").upload(path, file, { upsert: true });
+      const { error: upErr } = await storageUpload("epi-files", path, file, { upsert: true });
       if (upErr) throw upErr;
 
       const { error: dbErr } = await supabase

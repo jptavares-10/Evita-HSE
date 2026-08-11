@@ -152,11 +152,15 @@ export default function Servicos() {
       ) : services.length === 0 ? (
         <ModuleOnboarding
           title="Serviços Periódicos"
-          description="Configure seus serviços periódicos para acompanhar vencimentos e manter a conformidade."
+          description="Tudo que precisa ser refeito de tempo em tempo: recarga de extintor, dedetização, limpeza de caixa d'água, calibração e laudos."
           icon={ClipboardList}
+          note="A fiscalização não pergunta se o serviço foi feito — pergunta quando foi feito e com qual comprovante. Cada serviço aqui guarda a data da última realização, a próxima data calculada e o arquivo da evidência."
           steps={[
-            { title: "Criar categorias de serviço", description: "Organize seus serviços por tipo (ex: Manutenção, Calibração)", icon: Tags, actionLabel: "Criar categoria", action: () => setCategoriesModalOpen(true), completed: categories.some((c: any) => !c.is_default) },
-            { title: "Cadastrar primeiro serviço", description: "Registre um serviço periódico com frequência e alertas", icon: Plus, actionLabel: "Criar serviço", action: openNew, completed: false },
+            { title: "1. Criar suas categorias de serviço", description: "Agrupe por natureza: Segurança, Predial, Ambiental, Equipamentos.", hint: "As categorias viram filtros e cores na lista. Comece com 3 ou 4 — dá para criar mais depois.", icon: Tags, actionLabel: "Criar categoria", action: () => setCategoriesModalOpen(true), completed: categories.some((c: any) => !c.is_default) },
+            { title: "2. Cadastrar o primeiro serviço", description: "Nome, categoria, responsável e local onde o serviço é executado.", hint: "Comece pelo serviço que mais te preocupa hoje. Um serviço bem cadastrado vale mais que dez incompletos.", icon: Plus, actionLabel: "Criar serviço", action: openNew, completed: false },
+            { title: "3. Definir a frequência e o alerta", description: "Escolha o intervalo (de 7 a 365 dias) e quantos dias antes você quer ser avisado.", hint: "O sistema calcula a próxima data sozinho a partir da última realização — você não precisa recalcular nada.", icon: RotateCw, actionLabel: "Configurar no serviço", action: openNew, completed: false },
+            { title: "4. Registrar a última realização", description: "Informe a data em que o serviço foi feito pela última vez e anexe a nota, laudo ou certificado.", hint: "Sem a última realização o sistema não sabe se você está em dia. É este registro que gera o histórico auditável.", icon: CheckCircle2, actionLabel: "Criar serviço", action: openNew, completed: false },
+            { title: "5. Acompanhar pelos indicadores", description: "Os cartões no topo separam em dia, vencendo e vencidos — clique em cada um para filtrar a lista.", optional: true, icon: Eye, actionLabel: "Criar serviço", action: openNew, completed: false },
           ] as OnboardingStep[]}
         />
       ) : filtered.length === 0 ? (

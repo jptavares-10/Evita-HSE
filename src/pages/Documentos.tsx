@@ -127,11 +127,15 @@ export default function Documentos() {
       ) : documents.length === 0 ? (
         <ModuleOnboarding
           title="Biblioteca de Documentos"
-          description="Organize seus documentos técnicos, controle revisões e vínculos."
+          description="A revisão vigente de cada documento de SST em um só lugar — com histórico de versões e ciclo de revisão controlado."
           icon={FileTextIcon}
+          note="Documento sem controle de versão é risco: alguém trabalha com uma revisão antiga e a evidência perde valor. Aqui cada revisão nova arquiva a anterior e mantém data, número e responsável técnico."
           steps={[
-            { title: "Criar tipos de documento", description: "Defina categorias como Procedimento, Instrução, Manual", icon: Tags, actionLabel: "Criar tipos", action: () => setTypesModalOpen(true), completed: types.some((t: any) => !t.is_default) },
-            { title: "Cadastrar primeiro documento", description: "Registre título, revisão e arquivo do documento", icon: Plus, actionLabel: "Cadastrar", action: openNew, completed: false },
+            { title: "1. Definir os tipos de documento", description: "PGR, PCMSO, LTCAT, IT, APR, política, laudo — os quatro obrigatórios já vêm criados.", hint: "Crie um tipo próprio somente quando ele mudar a forma de organizar. Menos tipos, busca mais simples.", icon: Tags, actionLabel: "Criar tipos", action: () => setTypesModalOpen(true), completed: types.some((t: any) => !t.is_default) },
+            { title: "2. Cadastrar o primeiro documento", description: "Código, título, tipo, área e o arquivo da revisão atual.", hint: "Use o código interno que sua equipe já conhece — é por ele que as pessoas vão procurar.", icon: Plus, actionLabel: "Cadastrar", action: openNew, completed: false },
+            { title: "3. Indicar o responsável técnico", description: "Escolha um usuário do sistema como responsável pelo documento.", hint: "O responsável precisa ser alguém com acesso ao Evita — convide a pessoa em Usuários se ela ainda não aparecer na lista.", icon: UserCheck, actionLabel: "Cadastrar", action: openNew, completed: false },
+            { title: "4. Ativar o ciclo de revisão", description: "Informe de quantos em quantos dias o documento deve ser revisado.", hint: "Com o ciclo ativo o sistema calcula a próxima revisão e destaca o documento quando o prazo chega.", icon: RefreshCw, actionLabel: "Cadastrar", action: openNew, completed: false },
+            { title: "5. Registrar uma nova revisão quando mudar", description: "Suba o arquivo atualizado; a versão anterior fica no histórico marcada como obsoleta.", optional: true, icon: History, actionLabel: "Cadastrar", action: openNew, completed: false },
           ] as OnboardingStep[]}
         />
       ) : filtered.length === 0 ? (

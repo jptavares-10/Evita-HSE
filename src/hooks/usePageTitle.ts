@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
-const BASE_TITLE = "Evita HSE — Gestão de SST e Meio Ambiente";
-const BASE_DESCRIPTION = "Plataforma de gestão de SST: treinamentos NR, EPIs, inspeções, MTR, licenças e ASO. Alertas de vencimento automáticos. Teste 14 dias grátis.";
+const BASE_TITLE = "Evita HSE — Software de Gestão de SST, Saúde e Meio Ambiente";
+const BASE_DESCRIPTION = "Software de SST, Saúde e Meio Ambiente. Controle EPIs, treinamentos NR, inspeções, MTR, licenças e ASO com alertas automáticos. Teste 14 dias grátis.";
 const BASE_URL = "https://evita-hse-br.lovable.app";
 const OG_IMAGE = "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f0e68888-85c8-45e8-bf0c-f8a7622ec777/id-preview-b4231701--13a6f3b0-7d66-463d-aaf0-2c8c73ab3512.lovable.app-1774239475213.png";
 

@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Plus, Search, Eye, Pencil, XCircle, Trash2, AlertTriangle, FileWarning, BookOpen, ShieldAlert, Search as SearchIcon, ListChecks, Lightbulb } from "lucide-react";
+import { Plus, Search, Eye, Pencil, XCircle, Trash2, AlertTriangle, FileWarning, BookOpen, ShieldAlert, Users, Search as SearchIcon, ListChecks, Lightbulb } from "lucide-react";
 import LicoesAprendidas from "@/pages/LicoesAprendidas";
 import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
 import { getTypeInfo, getSeverityInfo, getStatusInfo, formatDateTimeBR, OCCURRENCE_TYPES, SEVERITY_LEVELS, STATUS_OPTIONS } from "@/lib/occurrences";

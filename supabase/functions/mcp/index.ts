@@ -27,6 +27,17 @@ function textResult(data) {
 function errorResult(message) {
   return { content: [{ type: "text", text: message }], isError: true };
 }
+async function planGate(ctx) {
+  if (!ctx.isAuthenticated()) return errorResult("Not authenticated");
+  const { data, error } = await supabaseForUser(ctx).rpc("get_company_access_status");
+  const obj = data;
+  if (error || !obj || obj.error) return errorResult("Could not verify the company plan.");
+  if (obj.status === "expired") return errorResult("The company plan is expired. Renew it to use the API.");
+  if (obj.plan !== "enterprise" && obj.status !== "trial") {
+    return errorResult("Agent/API (MCP) access is available on the Enterprise plan only.");
+  }
+  return null;
+}
 
 // src/lib/mcp/tools/list-periodic-services.ts
 var list_periodic_services_default = defineTool({
@@ -39,7 +50,8 @@ var list_periodic_services_default = defineTool({
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ status, limit }, ctx) => {
-    if (!ctx.isAuthenticated()) return errorResult("Not authenticated");
+    const denied = await planGate(ctx);
+    if (denied) return denied;
     const supabase = supabaseForUser(ctx);
     let query = supabase.from("periodic_services").select("id,name,category_id,next_due_date,status,is_active").order("next_due_date", { ascending: true }).limit(limit);
     if (status && status !== "all") query = query.eq("status", status);
@@ -62,7 +74,8 @@ var list_occurrences_default = defineTool2({
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ type, limit }, ctx) => {
-    if (!ctx.isAuthenticated()) return errorResult("Not authenticated");
+    const denied = await planGate(ctx);
+    if (denied) return denied;
     const supabase = supabaseForUser(ctx);
     let query = supabase.from("occurrences").select("id,description,type,severity,status,occurred_at,lost_days,location").order("occurred_at", { ascending: false }).limit(limit);
     if (type) query = query.eq("type", type);
@@ -82,7 +95,8 @@ var list_environmental_licenses_default = defineTool3({
   inputSchema: { limit: z3.number().int().min(1).max(200).default(50) },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ limit }, ctx) => {
-    if (!ctx.isAuthenticated()) return errorResult("Not authenticated");
+    const denied = await planGate(ctx);
+    if (denied) return denied;
     const { data, error } = await supabaseForUser(ctx).from("environmental_licenses").select("id,license_number,issuing_body,issued_at,expires_at,status").order("expires_at", { ascending: true }).limit(limit);
     if (error) return errorResult(error.message);
     return textResult(data);
@@ -102,7 +116,8 @@ var list_suppliers_default = defineTool4({
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ search, limit }, ctx) => {
-    if (!ctx.isAuthenticated()) return errorResult("Not authenticated");
+    const denied = await planGate(ctx);
+    if (denied) return denied;
     let q = supabaseForUser(ctx).from("suppliers_safe").select("*").order("name", { ascending: true }).limit(limit);
     if (search) q = q.ilike("name", `%${search}%`);
     const { data, error } = await q;
@@ -121,7 +136,8 @@ var list_epi_deliveries_default = defineTool5({
   inputSchema: { limit: z5.number().int().min(1).max(200).default(50) },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ limit }, ctx) => {
-    if (!ctx.isAuthenticated()) return errorResult("Not authenticated");
+    const denied = await planGate(ctx);
+    if (denied) return denied;
     const { data, error } = await supabaseForUser(ctx).from("epi_deliveries").select("id,delivered_at,quantity,reason,employees(name),epi_types(name,unit)").order("delivered_at", { ascending: false }).limit(limit);
     if (error) return errorResult(error.message);
     return textResult(data);
@@ -137,7 +153,8 @@ var get_dashboard_summary_default = defineTool6({
   inputSchema: {},
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async (_input, ctx) => {
-    if (!ctx.isAuthenticated()) return errorResult("Not authenticated");
+    const denied = await planGate(ctx);
+    if (denied) return denied;
     const sb = supabaseForUser(ctx);
     const [occ, srv, lic, sup] = await Promise.all([
       sb.from("occurrences").select("id", { count: "exact", head: true }).neq("status", "closed"),

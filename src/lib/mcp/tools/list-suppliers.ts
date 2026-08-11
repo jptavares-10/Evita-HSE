@@ -1,6 +1,6 @@
 import { defineTool } from "@lovable.dev/mcp-js";
 import { z } from "zod";
-import { supabaseForUser, textResult, errorResult } from "../supabase";
+import { supabaseForUser, textResult, errorResult, planGate } from "../supabase";
 
 export default defineTool({
   name: "list_suppliers",
@@ -12,7 +12,8 @@ export default defineTool({
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ search, limit }, ctx) => {
-    if (!ctx.isAuthenticated()) return errorResult("Not authenticated");
+    const denied = await planGate(ctx);
+    if (denied) return denied;
     let q = supabaseForUser(ctx)
       .from("suppliers_safe")
       .select("*")

@@ -285,7 +285,7 @@ export default function Cadastro() {
         {!authCreated && (
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !acceptedTerms}
             className="w-full py-2.5 rounded-lg bg-lp-emerald text-lp-bg font-medium hover:bg-lp-emerald-glow transition-all lp-glow disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading ? "Criando conta..." : "Criar conta grátis"}

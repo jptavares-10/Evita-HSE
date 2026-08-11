@@ -20,6 +20,30 @@ export function errorResult(message: string) {
   return { content: [{ type: "text" as const, text: message }], isError: true };
 }
 
+/** Base URL used to build deep links back into the app. */
+export const APP_URL = "https://evita-hse-br.lovable.app";
+
+export function deepLink(path: string) {
+  return `${APP_URL}${path}`;
+}
+
+/**
+ * Write gate: the caller must have editor permission on the module,
+ * validated server-side by the same RPC the app uses.
+ */
+export async function editorGate(ctx: ToolContext, module: string) {
+  const { data, error } = await supabaseForUser(ctx).rpc("has_module_editor_permission", {
+    p_module: module,
+  });
+  if (error) return errorResult(`Could not verify permissions: ${error.message}`);
+  if (data !== true) {
+    return errorResult(
+      `You don't have editor permission on the "${module}" module, so this record was not created.`,
+    );
+  }
+  return null;
+}
+
 /**
  * MCP/API access is an Enterprise-plan feature (trial included).
  * Returns an error result when the caller's company is not entitled, else null.

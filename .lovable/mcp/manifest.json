@@ -12,14 +12,14 @@
   "mcp": {
     "server": {
       "name": "evita-hse-mcp",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "title": "Evita HSE"
     },
     "tools": [
       {
         "name": "get_dashboard_summary",
         "title": "HSE dashboard summary",
-        "description": "Summary counts of open incidents, expiring services, expiring licenses, and active suppliers for the signed-in user's company.",
+        "description": "Summary counts for the signed-in user's company: open incidents, services and licenses needing attention, overdue CDFs, open corrective actions, deadlines in the next 30 days and total suppliers.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -33,9 +33,110 @@
         "outputSchema": null
       },
       {
+        "name": "get_upcoming_deadlines",
+        "title": "Upcoming HSE deadlines",
+        "description": "All upcoming due dates across every module (periodic services, environmental licenses, license renewals, MTR/CDF, inspections, document reviews) for the signed-in user's company.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "days": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 365,
+              "default": 30,
+              "description": "Look-ahead window in days."
+            },
+            "include_overdue": {
+              "type": "boolean",
+              "default": true,
+              "description": "Include items already past due."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 100
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_hse_indicators",
+        "title": "HSE indicators (TF / TG)",
+        "description": "Safety indicators for a period: frequency rate (TF) and severity rate (TG) per one million man-hours, plus incident counts by type and severity and total lost days.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "Period start date (YYYY-MM-DD)."
+            },
+            "to": {
+              "type": "string",
+              "description": "Period end date (YYYY-MM-DD)."
+            },
+            "man_hours": {
+              "type": "number",
+              "description": "Man-hours worked in the period. If omitted, TF/TG are returned as null."
+            }
+          },
+          "required": [
+            "from",
+            "to"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "search_records",
+        "title": "Search HSE records",
+        "description": "Cross-module free-text search over periodic services, incidents, environmental licenses, documents, suppliers and employees. Returns the record type, a label and a deep link into the app.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "Free text to search for."
+            },
+            "limit_per_module": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20,
+              "default": 5
+            }
+          },
+          "required": [
+            "query"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
         "name": "list_periodic_services",
         "title": "List periodic services",
-        "description": "List HSE periodic services for the signed-in user's company (name, category, next due date, status).",
+        "description": "List HSE periodic services for the signed-in user's company (name, category, last done, next due date and compliance status).",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -69,7 +170,7 @@
       {
         "name": "list_occurrences",
         "title": "List incidents (IC & NC)",
-        "description": "List safety incidents and non-conformities for the signed-in user's company.",
+        "description": "List incidents, near misses, non-conformities and safety observations for the signed-in user's company.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -80,7 +181,51 @@
           "properties": {
             "type": {
               "type": "string",
-              "description": "Filter by occurrence type (e.g. 'incident', 'non_conformity')."
+              "enum": [
+                "incident",
+                "near_miss",
+                "non_conformity",
+                "safety_observation"
+              ],
+              "description": "Filter by occurrence type."
+            },
+            "open_only": {
+              "type": "boolean",
+              "default": false,
+              "description": "Only occurrences that are not closed."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_corrective_actions",
+        "title": "List corrective actions",
+        "description": "List corrective actions from incident investigations (5W2H) and from inspections, with description, responsible, due date and status.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "open_only": {
+              "type": "boolean",
+              "default": true,
+              "description": "Only actions that are not completed."
+            },
+            "source": {
+              "type": "string",
+              "description": "'occurrence' or 'inspection' to restrict the origin."
             },
             "limit": {
               "type": "integer",
@@ -97,7 +242,208 @@
       {
         "name": "list_environmental_licenses",
         "title": "List environmental licenses",
-        "description": "List environmental licenses (expiring, valid, expired) for the signed-in user's company.",
+        "description": "List environmental licenses (valid, expiring, expired or permanent) for the signed-in user's company.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_conditionants",
+        "title": "List license conditionants",
+        "description": "List environmental-license conditionants with deadline type, due date, criticality, status and latest compliance evidence.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "description": "Filter by conditionant status."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_mtrs",
+        "title": "List MTRs (waste manifests)",
+        "description": "List waste transport manifests (MTR) with number, transporter, issue date, CDF status and CDF deadline for the signed-in user's company.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "pending_cdf_only": {
+              "type": "boolean",
+              "default": false,
+              "description": "Only MTRs whose CDF has not been received yet."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_inspections",
+        "title": "List inspection executions",
+        "description": "List inspection executions with model, asset, due date, status and signature data for the signed-in user's company.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "description": "Filter by execution status."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_documents",
+        "title": "List library documents",
+        "description": "List documents in the HSE document library with code, title, type, current revision, status and next revision date.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "search": {
+              "type": "string",
+              "description": "Substring match on code or title."
+            },
+            "status": {
+              "type": "string",
+              "description": "Filter by document status."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_training_compliance",
+        "title": "Training compliance",
+        "description": "Mandatory-training compliance per employee: which required courses are ok, expiring, expired or missing, based on the training matrix for each job position.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "only_problems": {
+              "type": "boolean",
+              "default": false,
+              "description": "Return only expiring, expired or missing items."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 200,
+              "description": "Max rows of employee x training."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_aso_records",
+        "title": "List ASO (occupational health) records",
+        "description": "List occupational health certificates (ASO) with employee, exam type, exam date, expiry and result for the signed-in user's company.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "expiring_within_days": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 365,
+              "description": "Only ASOs expiring within this many days (includes already expired)."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_epi_deliveries",
+        "title": "List EPI deliveries",
+        "description": "List recent PPE (EPI) deliveries with employee, item and quantity.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -147,9 +493,9 @@
         "outputSchema": null
       },
       {
-        "name": "list_epi_deliveries",
-        "title": "List EPI deliveries",
-        "description": "List recent PPE (EPI) deliveries with employee, item and quantity.",
+        "name": "list_calendar_events",
+        "title": "List calendar events",
+        "description": "List HSE calendar entries created by the company (events, campaigns, audits, meetings, internal trainings) with area, date and status.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -158,6 +504,14 @@
         "inputSchema": {
           "type": "object",
           "properties": {
+            "from": {
+              "type": "string",
+              "description": "Start date (YYYY-MM-DD). Defaults to today."
+            },
+            "to": {
+              "type": "string",
+              "description": "End date (YYYY-MM-DD)."
+            },
             "limit": {
               "type": "integer",
               "minimum": 1,
@@ -165,6 +519,247 @@
               "default": 50
             }
           },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_occurrence",
+        "title": "Register incident / non-conformity",
+        "description": "Register a new occurrence (incident, near miss, non-conformity or safety observation). The type cannot be changed afterwards. Requires editor permission on the IC & NC module.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "incident",
+                "near_miss",
+                "non_conformity",
+                "safety_observation"
+              ],
+              "description": "Occurrence type — immutable after creation."
+            },
+            "severity": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high",
+                "critical"
+              ],
+              "description": "Severity level."
+            },
+            "description": {
+              "type": "string",
+              "description": "What happened."
+            },
+            "occurred_at": {
+              "type": "string",
+              "description": "Date it happened (YYYY-MM-DD)."
+            },
+            "location": {
+              "type": "string",
+              "description": "Where it happened."
+            },
+            "with_leave": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether it caused time off work."
+            },
+            "lost_days": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Lost days, when there was time off work."
+            }
+          },
+          "required": [
+            "type",
+            "severity",
+            "description",
+            "occurred_at"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_calendar_event",
+        "title": "Create calendar event",
+        "description": "Create an HSE calendar entry (event, campaign, audit, meeting or internal training). Requires editor permission on the calendar module.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "description": "Event title."
+            },
+            "area": {
+              "type": "string",
+              "enum": [
+                "meio_ambiente",
+                "seguranca",
+                "saude",
+                "geral"
+              ],
+              "description": "HSE area."
+            },
+            "category": {
+              "type": "string",
+              "enum": [
+                "evento",
+                "campanha",
+                "auditoria",
+                "reuniao",
+                "treinamento_interno",
+                "outro"
+              ],
+              "description": "Event category."
+            },
+            "starts_at": {
+              "type": "string",
+              "description": "Start date/time (YYYY-MM-DD or ISO timestamp)."
+            },
+            "ends_at": {
+              "type": "string",
+              "description": "End date/time (YYYY-MM-DD or ISO timestamp)."
+            },
+            "all_day": {
+              "type": "boolean",
+              "default": true
+            },
+            "location": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "area",
+            "category",
+            "starts_at"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_corrective_action",
+        "title": "Create corrective action (5W2H)",
+        "description": "Create a 5W2H corrective action linked to an existing occurrence. Requires editor permission on the IC & NC module.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "occurrence_id": {
+              "type": "string",
+              "description": "ID of the occurrence this action belongs to."
+            },
+            "description": {
+              "type": "string",
+              "description": "What will be done (What)."
+            },
+            "why": {
+              "type": "string",
+              "description": "Why it will be done."
+            },
+            "where_location": {
+              "type": "string",
+              "description": "Where it will be done."
+            },
+            "how_method": {
+              "type": "string",
+              "description": "How it will be done."
+            },
+            "due_date": {
+              "type": "string",
+              "description": "Deadline (YYYY-MM-DD)."
+            },
+            "control_hierarchy": {
+              "type": "string",
+              "enum": [
+                "elimination",
+                "substitution",
+                "engineering",
+                "administrative",
+                "ppe"
+              ],
+              "description": "Hierarchy of controls level."
+            }
+          },
+          "required": [
+            "occurrence_id",
+            "description"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "register_service_completion",
+        "title": "Register periodic service completion",
+        "description": "Record that a periodic service was performed and recalculate its next due date from the service frequency. Requires editor permission on the periodic services module.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "service_id": {
+              "type": "string",
+              "description": "ID of the periodic service."
+            },
+            "done_at": {
+              "type": "string",
+              "description": "Date it was performed (YYYY-MM-DD)."
+            },
+            "supplier": {
+              "type": "string",
+              "description": "Supplier/provider that performed it."
+            },
+            "notes": {
+              "type": "string"
+            },
+            "realization_type": {
+              "type": "string",
+              "enum": [
+                "scheduled",
+                "corrective"
+              ],
+              "default": "scheduled",
+              "description": "'scheduled' when done as planned, 'corrective' when triggered by a failure."
+            },
+            "failure_description": {
+              "type": "string",
+              "description": "Failure description for corrective completions."
+            }
+          },
+          "required": [
+            "service_id",
+            "done_at"
+          ],
           "additionalProperties": false,
           "$schema": "http://json-schema.org/draft-07/schema#"
         },

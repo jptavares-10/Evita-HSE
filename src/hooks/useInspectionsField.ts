@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import imageCompression from "browser-image-compression";
+import { storageUpload } from "@/lib/storage-utils";
 
 // ── Assets ──
 
@@ -250,7 +251,7 @@ export function useSaveAnswer() {
           const compressed = await compressImage(raw);
           const ext = (compressed.name.split(".").pop() || "jpg").toLowerCase();
           const path = `${company.id}/${v.execution_id}/answers/${v.item_id}/${crypto.randomUUID()}.${ext}`;
-          const { error } = await supabase.storage.from("inspection-files").upload(path, compressed, { upsert: false, contentType: compressed.type });
+          const { error } = await storageUpload("inspection-files", path, compressed, { upsert: false, contentType: compressed.type });
           if (error) throw error;
           uploadedPaths.push(path);
         }
@@ -356,7 +357,7 @@ export function useSignExecution() {
       const res = await fetch(v.signature_png);
       const blob = await res.blob();
       const path = `${company.id}/${v.execution_id}/signature.png`;
-      const { error: upErr } = await supabase.storage.from("inspection-files").upload(path, blob, { upsert: true, contentType: "image/png" });
+      const { error: upErr } = await storageUpload("inspection-files", path, blob, { upsert: true, contentType: "image/png" });
       if (upErr) throw upErr;
 
       const status = v.has_open_actions ? "completed_with_issues" : "completed";

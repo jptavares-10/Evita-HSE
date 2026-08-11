@@ -66,6 +66,16 @@ const MODULE_INFO: Record<string, { label: string; description: string; plans: s
     description: "Catálogo de EPIs, controle de estoque, entregas e certificados de aprovação.",
     plans: ["Professional", "Enterprise"],
   },
+  license_conditionants: {
+    label: "Condicionantes de Licença",
+    description: "Acompanhamento de condicionantes com prazos, evidências e protocolos junto ao órgão ambiental.",
+    plans: ["Enterprise"],
+  },
+  document_review: {
+    label: "Ciclo de Revisão de Documentos",
+    description: "Fluxo de revisão e aprovação de documentos com pareceres, prazos e histórico.",
+    plans: ["Enterprise"],
+  },
 };
 
 interface UpgradeModalProps {

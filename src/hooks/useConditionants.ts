@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { computeEffectiveStatus, resolveDueDate, nextRecurringDueDate, type EffectiveStatus } from "@/lib/conditionants";
+import { storageUpload } from "@/lib/storage-utils";
 
 export interface ConditionantRow {
   id: string;
@@ -204,7 +205,7 @@ export function useRegisterCompliance() {
       for (const file of values.files) {
         const ext = file.name.split(".").pop();
         const path = `${company.id}/${c.id}/${compliance.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-        const { error: upErr } = await supabase.storage.from("license-conditionants").upload(path, file);
+        const { error: upErr } = await storageUpload("license-conditionants", path, file);
         if (upErr) throw upErr;
         const { error: fileErr } = await (supabase.from as any)("conditionant_evidence_files").insert({
           compliance_id: compliance.id,

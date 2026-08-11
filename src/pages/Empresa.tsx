@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Label } from "@/components/ui/label";
@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { exportCompanyData, downloadJson } from "@/lib/company-data-export";
 import { RETENTION } from "@/content/legal";
+import { fetchStorageUsage, formatBytes, type StorageUsage } from "@/lib/storage-utils";
+import { Progress } from "@/components/ui/progress";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +30,15 @@ export default function Empresa() {
   const [deleting, setDeleting] = useState(false);
   const deletionRequestedAt = (company as any)?.deletion_requested_at as string | null | undefined;
   const termsAcceptedAt = (company as any)?.terms_accepted_at as string | null | undefined;
+  const [usage, setUsage] = useState<StorageUsage | null>(null);
+
+  useEffect(() => {
+    fetchStorageUsage().then(setUsage);
+  }, [company?.id]);
+
+  const usagePct = usage && usage.limitBytes > 0
+    ? Math.min(100, (usage.usedBytes / usage.limitBytes) * 100)
+    : 0;
 
   const handleExport = async () => {
     setExporting(true);
@@ -102,6 +113,20 @@ export default function Empresa() {
             contato com o suporte.
           </span>
         </div>
+      </div>
+
+      <div className="lp-card rounded-xl p-6 space-y-3">
+        <div className="flex items-baseline justify-between">
+          <h2 className="text-base font-semibold">Armazenamento</h2>
+          <span className="text-sm text-muted-foreground">
+            {usage ? `${formatBytes(usage.usedBytes)} de ${usage.storageGb} GB` : "Calculando…"}
+          </span>
+        </div>
+        <Progress value={usagePct} className="h-2" />
+        <p className="text-xs text-muted-foreground">
+          Limite incluído no seu plano. Ao atingir o limite, novos uploads são bloqueados até liberar espaço ou
+          fazer upgrade. Cada arquivo pode ter no máximo 20 MB.
+        </p>
       </div>
 
       <div className="lp-card rounded-xl p-6 space-y-5">

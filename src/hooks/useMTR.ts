@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { calculateCdfDeadline, calculateAlertDate, formatDateBR } from "@/lib/mtr";
 import { format } from "date-fns";
+import { storageUpload } from "@/lib/storage-utils";
 
 export function useWasteCategories() {
   const { company } = useAuth();
@@ -101,7 +102,7 @@ export function useSaveMtr() {
       if (values.mtr_file) {
         const ext = values.mtr_file.name.split(".").pop();
         const path = `${company.id}/${mtrId}/mtr/mtr_file.${ext}`;
-        const { error: upErr } = await supabase.storage.from("mtr-files").upload(path, values.mtr_file, { upsert: true });
+        const { error: upErr } = await storageUpload("mtr-files", path, values.mtr_file, { upsert: true });
         if (upErr) throw upErr;
         mtr_file_url = path;
         mtr_file_name = values.mtr_file.name;
@@ -154,7 +155,7 @@ export function useRegisterCdf() {
       // Upload CDF file
       const ext = values.cdf_file.name.split(".").pop();
       const path = `${company.id}/${values.mtrId}/cdf/cdf_file.${ext}`;
-      const { error: upErr } = await supabase.storage.from("mtr-files").upload(path, values.cdf_file, { upsert: true });
+      const { error: upErr } = await storageUpload("mtr-files", path, values.cdf_file, { upsert: true });
       if (upErr) throw upErr;
       // Update MTR
       const { error: mtrErr } = await supabase.from("mtrs").update({

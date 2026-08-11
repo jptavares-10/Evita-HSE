@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { storageUpload } from "@/lib/storage-utils";
 
 // ── Categories ──
 
@@ -305,7 +306,7 @@ export function useUploadSupplierDocument() {
     }) => {
       const folderPath = values.folder_id || "root";
       const filePath = `${company!.id}/${values.supplier_id}/${folderPath}/${Date.now()}_${values.file.name}`;
-      const { error: upErr } = await supabase.storage.from("supplier-documents").upload(filePath, values.file);
+      const { error: upErr } = await storageUpload("supplier-documents", filePath, values.file);
       if (upErr) throw upErr;
       const ext = values.file.name.split(".").pop()?.toLowerCase() || "";
       const { error } = await supabase.from("supplier_documents").insert({

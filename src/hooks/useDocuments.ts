@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { storageUpload } from "@/lib/storage-utils";
 
 export function useDocumentTypes() {
   const { company } = useAuth();
@@ -158,7 +159,7 @@ export function useSaveDocument() {
         const ext = values.file.name.split(".").pop();
         const ts = Date.now();
         const path = `${company.id}/${docId}/${ts}/doc.${ext}`;
-        const { error: upErr } = await supabase.storage.from("documents-library").upload(path, values.file, { upsert: true });
+        const { error: upErr } = await storageUpload("documents-library", path, values.file, { upsert: true });
         if (upErr) throw upErr;
 
         await supabase.from("documents").update({
@@ -211,7 +212,7 @@ export function useNewRevision() {
       const ext = values.file.name.split(".").pop();
       const ts = Date.now();
       const path = `${company.id}/${values.documentId}/${ts}/doc.${ext}`;
-      const { error: upErr } = await supabase.storage.from("documents-library").upload(path, values.file, { upsert: true });
+      const { error: upErr } = await storageUpload("documents-library", path, values.file, { upsert: true });
       if (upErr) throw upErr;
 
       const { error: insErr } = await supabase.from("document_revisions").insert({

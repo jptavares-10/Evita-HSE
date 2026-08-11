@@ -14,6 +14,7 @@ import { useRegisterCertificate } from "@/hooks/useTrainings";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { calculateExpiresAt, formatDateBR } from "@/lib/trainings";
+import { storageUpload } from "@/lib/storage-utils";
 
 interface Props {
   open: boolean;
@@ -68,7 +69,7 @@ export function RegisterCertificateModal({ open, onOpenChange, employeeId, train
       if (file) {
         const ext = file.name.split(".").pop();
         const path = `${company.id}/${employeeId}/${trainingId}/${Date.now()}.${ext}`;
-        const { error: upErr } = await supabase.storage.from("training-certificates").upload(path, file);
+        const { error: upErr } = await storageUpload("training-certificates", path, file);
         if (upErr) throw upErr;
         certUrl = path;
         certName = file.name;

@@ -13,6 +13,7 @@ import { StartReviewCycleDrawer } from "@/components/documentos/StartReviewCycle
 import { Pencil, FileText, Clock, ExternalLink, Link2, CalendarClock, GitPullRequestArrow } from "lucide-react";
 import { getSignedUrl } from "@/lib/storage-utils";
 import { usePermission } from "@/hooks/usePermission";
+import { usePlan } from "@/hooks/usePlan";
 
 interface Props {
   open: boolean;
@@ -25,6 +26,8 @@ interface Props {
 
 export function DocumentDetailDrawer({ open, onOpenChange, document: doc, onEdit, onNewRevision, isExpired }: Props) {
   const { canEdit } = usePermission("document_library");
+  const { hasModule } = usePlan();
+  const canReview = hasModule("document_review");
   const { data: revisions = [] } = useDocumentRevisions(doc?.id ?? null);
   const { data: serviceLinks = [] } = useDocumentServiceLinks(doc?.id ?? null);
   const { data: cycles = [] } = useDocumentReviewCycles(doc?.id ?? null);
@@ -186,7 +189,7 @@ export function DocumentDetailDrawer({ open, onOpenChange, document: doc, onEdit
                       </Button>
                     )}
                   </div>
-                  {!hasActiveCycle && (
+                  {!hasActiveCycle && canReview && (
                     <Button variant="outline" onClick={() => setStartCycleOpen(true)} disabled={isExpired} className="w-full">
                       <GitPullRequestArrow className="h-4 w-4 mr-2" />Iniciar ciclo de revisão
                     </Button>

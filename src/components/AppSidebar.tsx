@@ -49,6 +49,8 @@ const ROUTE_MODULE_MAP: Record<string, string> = {
   "/mtr": "mtr",
   "/licencas": "environmental_licenses",
   "/fornecedores": "suppliers",
+  "/licencas/condicionantes": "license_conditionants",
+  "/revisoes": "document_review",
 };
 
 function getGroupState(): Record<string, boolean> {
@@ -402,7 +404,7 @@ export function AppSidebar() {
           {/* Dashboard */}
           <SidebarItem to="/dashboard" icon={LayoutDashboard} label="Dashboard" active={path === "/dashboard"} collapsed={collapsed} />
           <SidebarItem to="/calendario" icon={CalendarDays} label="Calendário" active={path === "/calendario"} collapsed={collapsed} />
-          <SidebarItem to="/revisoes" icon={Inbox} label="Revisões" badge={reviewBadge} active={path === "/revisoes"} collapsed={collapsed} />
+          <SidebarItem to="/revisoes" icon={Inbox} label="Revisões" badge={reviewBadge} active={path === "/revisoes"} collapsed={collapsed} locked={isLocked("/revisoes")} onLockedClick={() => handleLockedClick("/revisoes")} />
 
           <div className="h-1" />
           <div className="border-t border-border my-1" />

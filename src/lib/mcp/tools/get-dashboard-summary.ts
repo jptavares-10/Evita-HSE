@@ -1,5 +1,5 @@
 import { defineTool } from "@lovable.dev/mcp-js";
-import { supabaseForUser, textResult, errorResult } from "../supabase";
+import { supabaseForUser, textResult, errorResult, planGate } from "../supabase";
 
 export default defineTool({
   name: "get_dashboard_summary",
@@ -8,7 +8,8 @@ export default defineTool({
   inputSchema: {},
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async (_input, ctx) => {
-    if (!ctx.isAuthenticated()) return errorResult("Not authenticated");
+    const denied = await planGate(ctx);
+    if (denied) return denied;
     const sb = supabaseForUser(ctx);
     const [occ, srv, lic, sup] = await Promise.all([
       sb.from("occurrences").select("id", { count: "exact", head: true }).neq("status", "closed"),

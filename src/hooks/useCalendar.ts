@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { extractStoragePath } from "@/lib/storage-utils";
+import { extractStoragePath, storageUpload } from "@/lib/storage-utils";
 
 export interface CalendarEvent {
   id: string;
@@ -179,9 +179,10 @@ export function useUploadCalendarAttachment() {
       const ext = file.name.split(".").pop() || "bin";
       const safeName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
       const path = `${company.id}/${eventId}/${safeName}`;
-      const { error: upErr } = await supabase.storage
-        .from("calendar-attachments")
-        .upload(path, file, { contentType: file.type, upsert: false });
+      const { error: upErr } = await storageUpload("calendar-attachments", path, file, {
+        contentType: file.type,
+        upsert: false,
+      });
       if (upErr) throw upErr;
       const { error: insErr } = await (supabase.from as any)("calendar_event_attachments").insert({
         event_id: eventId,

@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { FileUploadArea, type PendingFile } from "./FileUploadArea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { storageUpload } from "@/lib/storage-utils";
 
 interface Service {
   id: string;
@@ -73,7 +74,7 @@ export function RegisterCompletionModal({ open, onOpenChange, service }: Props) 
     for (const pf of pendingFiles) {
       const ext = pf.file.name.split(".").pop();
       const path = `${service.company_id}/${service.id}/${result.historyId}/${crypto.randomUUID()}.${ext}`;
-      const { error: uploadErr } = await supabase.storage.from("service-attachments").upload(path, pf.file);
+      const { error: uploadErr } = await storageUpload("service-attachments", path, pf.file);
       if (!uploadErr) {
         await supabase.from("service_attachments").insert({
           service_id: service.id,

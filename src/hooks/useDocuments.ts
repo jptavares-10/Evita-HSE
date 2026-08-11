@@ -104,6 +104,7 @@ export function useSaveDocument() {
       document_type_id: string;
       description: string | null;
       responsible: string | null;
+      responsible_user_id?: string | null;
       area: string | null;
       status: string;
       revision_number: string;
@@ -125,6 +126,7 @@ export function useSaveDocument() {
         document_type_id: values.document_type_id,
         description: values.description || null,
         responsible: values.responsible || null,
+        responsible_user_id: values.responsible_user_id || null,
         area: values.area || null,
         status: values.status,
         updated_at: new Date().toISOString(),

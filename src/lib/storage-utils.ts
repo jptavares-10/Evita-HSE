@@ -2,9 +2,10 @@ import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Private buckets that require signed URLs.
- * Public buckets (avatars, company-logos) should NOT use this.
  */
 const PRIVATE_BUCKETS = [
+  "avatars",
+  "company-logos",
   "occurrence-files",
   "mtr-files",
   "training-certificates",

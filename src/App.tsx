@@ -51,7 +51,6 @@ import InspecoesModelos from "./pages/InspecoesModelos";
 import InspecoesAtivos from "./pages/InspecoesAtivos";
 import InspecaoDetalhe from "./pages/InspecaoDetalhe";
 import InspecaoCampo from "./pages/InspecaoCampo";
-import InspecaoQr from "./pages/InspecaoQr";
 import Revisoes from "./pages/Revisoes";
 import Calendario from "./pages/Calendario";
 
@@ -151,7 +150,6 @@ const App = () => (
               </Route>
               <Route path="/inspecoes/:id" element={<ModuleGuard module="inspections"><InspecaoDetalhe /></ModuleGuard>} />
               <Route path="/inspecoes/:id/campo" element={<ModuleGuard module="inspections"><InspecaoCampo /></ModuleGuard>} />
-              <Route path="/i/:token" element={<ModuleGuard module="inspections"><InspecaoQr /></ModuleGuard>} />
               <Route path="/epi" element={<ModuleGuard module="epi"><Epi /></ModuleGuard>}>
                 <Route index element={<EpiVisaoGeral />} />
                 <Route path="catalogo" element={<EpiCatalogo />} />

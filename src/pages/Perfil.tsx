@@ -4,7 +4,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { SignedAvatarImage } from "@/components/ui/signed-avatar-image";
 import { useToast } from "@/hooks/use-toast";
 import { Trash2 } from "lucide-react";
 
@@ -55,8 +56,7 @@ export default function Perfil() {
       return;
     }
 
-    const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
-    await supabase.from("profiles").update({ avatar_url: publicUrl }).eq("id", profile.id);
+    await supabase.from("profiles").update({ avatar_url: path }).eq("id", profile.id);
     toast({ title: "Foto atualizada!" });
     await refreshProfile();
     setUploading(false);
@@ -99,7 +99,7 @@ export default function Perfil() {
       <div className="lp-card rounded-xl p-6 space-y-6">
         <div className="flex items-center gap-4">
           <Avatar className="h-16 w-16">
-            <AvatarImage src={profile?.avatar_url ?? undefined} />
+            <SignedAvatarImage path={profile?.avatar_url} alt="" />
             <AvatarFallback className="text-lg">{initials}</AvatarFallback>
           </Avatar>
           <div className="flex flex-col gap-1">

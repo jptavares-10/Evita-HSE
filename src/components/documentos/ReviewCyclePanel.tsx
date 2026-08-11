@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { SignedAvatarImage } from "@/components/ui/signed-avatar-image";
 import { Textarea } from "@/components/ui/textarea";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -150,7 +151,7 @@ function CycleContent({ cycle, readOnly = false, isAuthor = false }: { cycle: an
             <div key={a.id} className="bg-muted/50 rounded-md p-3 space-y-2">
               <div className="flex items-center gap-2">
                 <Avatar className="h-7 w-7">
-                  <AvatarImage src={a.profiles?.avatar_url || undefined} />
+                  <SignedAvatarImage path={a.profiles?.avatar_url} alt="" />
                   <AvatarFallback className="text-[10px]">{initials}</AvatarFallback>
                 </Avatar>
                 <span className="text-sm font-medium flex-1">{a.profiles?.full_name}</span>

@@ -19,7 +19,7 @@ import { useSuppliers } from "@/hooks/useSuppliers";
 import { getServiceStatus } from "@/lib/services";
 import { getCdfDisplayStatus } from "@/lib/mtr";
 import { computeEmployeeCompliance } from "@/lib/trainings";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { UpgradeModal } from "@/components/UpgradeModal";
 import {
@@ -29,6 +29,8 @@ import {
   Lock, Inbox, CalendarDays, QrCode
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSignedUrl } from "@/hooks/useSignedUrl";
+import { SignedAvatarImage } from "@/components/ui/signed-avatar-image";
 import { EvitaLogo, EvitaWordmark } from "@/components/landing/EvitaBrand";
 
 const GROUP_STORAGE_KEY = "evita-sidebar-groups";
@@ -338,6 +340,8 @@ export function AppSidebar() {
     navigate("/login");
   };
 
+  const companyLogoUrl = useSignedUrl("company-logos", company?.logo_url);
+
   const initials = profile?.full_name
     ? profile.full_name.split(" ").map((n: string) => n[0]).join("").substring(0, 2).toUpperCase()
     : "?";
@@ -353,8 +357,8 @@ export function AppSidebar() {
         {/* ── Header: Logo + Collapse toggle ── */}
         <div className="flex items-center border-b border-border px-3 py-4">
           <Link to="/dashboard" className="flex items-center gap-2 flex-1 min-w-0 group" aria-label="Evita HSE — Dashboard">
-            {company?.logo_url ? (
-              <img src={company.logo_url} alt={`Logo${company?.name ? " da " + company.name : ""}`} className="h-8 w-8 rounded object-contain flex-shrink-0" />
+            {companyLogoUrl ? (
+              <img src={companyLogoUrl} alt={`Logo${company?.name ? " da " + company.name : ""}`} className="h-8 w-8 rounded object-contain flex-shrink-0" />
             ) : (
               <EvitaLogo className="h-8 w-8 flex-shrink-0 transition-transform group-hover:rotate-[-4deg]" />
             )}
@@ -534,7 +538,7 @@ export function AppSidebar() {
                 <TooltipTrigger asChild>
                   <Link to="/perfil">
                     <Avatar className="h-9 w-9">
-                      <AvatarImage src={profile?.avatar_url || undefined} />
+                      <SignedAvatarImage path={profile?.avatar_url} alt="" />
                       <AvatarFallback className="text-xs bg-primary text-primary-foreground">{initials}</AvatarFallback>
                     </Avatar>
                   </Link>
@@ -548,7 +552,7 @@ export function AppSidebar() {
               <>
                 <Link to="/perfil">
                   <Avatar className="h-9 w-9">
-                    <AvatarImage src={profile?.avatar_url || undefined} />
+                    <SignedAvatarImage path={profile?.avatar_url} alt="" />
                     <AvatarFallback className="text-xs bg-primary text-primary-foreground">{initials}</AvatarFallback>
                   </Avatar>
                 </Link>

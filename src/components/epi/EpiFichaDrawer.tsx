@@ -12,7 +12,7 @@ import { Plus, Download, X, FileImage, FileDown } from "lucide-react";
 import { DeliveryDrawer } from "@/components/epi/DeliveryDrawer";
 import { AddAttachmentModal } from "@/components/epi/AddAttachmentModal";
 import { buildEmployeeEpiFichaPdf, fetchAsDataUrl, type FichaDelivery } from "@/lib/epi-ficha-pdf";
-import { getSignedUrls } from "@/lib/storage-utils";
+import { getSignedUrl, getSignedUrls } from "@/lib/storage-utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -90,7 +90,8 @@ export function EpiFichaDrawer({ employeeId, onClose }: Props) {
 
       let logoDataUrl: string | null = null;
       if (company.logo_url) {
-        logoDataUrl = await fetchAsDataUrl(company.logo_url);
+        const signedLogo = await getSignedUrl("company-logos", company.logo_url);
+        if (signedLogo) logoDataUrl = await fetchAsDataUrl(signedLogo);
       }
 
       const fichaDeliveries: FichaDelivery[] = [...deliveries]

@@ -27,6 +27,10 @@ function textResult(data) {
 function errorResult(message) {
   return { content: [{ type: "text", text: message }], isError: true };
 }
+var APP_URL = "https://evita-hse-br.lovable.app";
+function deepLink(path) {
+  return `${APP_URL}${path}`;
+}
 async function planGate(ctx) {
   if (!ctx.isAuthenticated()) return errorResult("Not authenticated");
   const { data, error } = await supabaseForUser(ctx).rpc("get_company_access_status");
@@ -40,10 +44,19 @@ async function planGate(ctx) {
 }
 
 // src/lib/mcp/tools/list-periodic-services.ts
+function statusOf(nextDueAt, alertDaysBefore) {
+  if (!nextDueAt) return "unknown";
+  const today = /* @__PURE__ */ new Date();
+  today.setHours(0, 0, 0, 0);
+  const diff = Math.floor(((/* @__PURE__ */ new Date(nextDueAt + "T00:00:00")).getTime() - today.getTime()) / 864e5);
+  if (diff < 0) return "expired";
+  if (diff <= (alertDaysBefore ?? 30)) return "warning";
+  return "ok";
+}
 var list_periodic_services_default = defineTool({
   name: "list_periodic_services",
   title: "List periodic services",
-  description: "List HSE periodic services for the signed-in user's company (name, category, next due date, status).",
+  description: "List HSE periodic services for the signed-in user's company (name, category, last done, next due date and compliance status).",
   inputSchema: {
     status: z.enum(["ok", "warning", "expired", "all"]).optional().describe("Filter by compliance status."),
     limit: z.number().int().min(1).max(200).default(50)
@@ -52,12 +65,15 @@ var list_periodic_services_default = defineTool({
   handler: async ({ status, limit }, ctx) => {
     const denied = await planGate(ctx);
     if (denied) return denied;
-    const supabase = supabaseForUser(ctx);
-    let query = supabase.from("periodic_services").select("id,name,category_id,next_due_date,status,is_active").order("next_due_date", { ascending: true }).limit(limit);
-    if (status && status !== "all") query = query.eq("status", status);
-    const { data, error } = await query;
+    const { data, error } = await supabaseForUser(ctx).from("periodic_services").select("id,name,last_done_at,next_due_at,alert_days_before,supplier,status,service_categories(name)").eq("status", "active").order("next_due_at", { ascending: true }).limit(200);
     if (error) return errorResult(error.message);
-    return textResult(data);
+    let rows = (data ?? []).map((r) => ({
+      ...r,
+      compliance_status: statusOf(r.next_due_at, r.alert_days_before),
+      url: deepLink("/servicos")
+    }));
+    if (status && status !== "all") rows = rows.filter((r) => r.compliance_status === status);
+    return textResult(rows.slice(0, limit));
   }
 });
 
@@ -67,21 +83,24 @@ import { z as z2 } from "npm:zod@^3.25.76";
 var list_occurrences_default = defineTool2({
   name: "list_occurrences",
   title: "List incidents (IC & NC)",
-  description: "List safety incidents and non-conformities for the signed-in user's company.",
+  description: "List incidents, near misses, non-conformities and safety observations for the signed-in user's company.",
   inputSchema: {
-    type: z2.string().optional().describe("Filter by occurrence type (e.g. 'incident', 'non_conformity')."),
+    type: z2.enum(["incident", "near_miss", "non_conformity", "safety_observation"]).optional().describe("Filter by occurrence type."),
+    open_only: z2.boolean().default(false).describe("Only occurrences that are not closed."),
     limit: z2.number().int().min(1).max(200).default(50)
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async ({ type, limit }, ctx) => {
+  handler: async ({ type, open_only, limit }, ctx) => {
     const denied = await planGate(ctx);
     if (denied) return denied;
-    const supabase = supabaseForUser(ctx);
-    let query = supabase.from("occurrences").select("id,description,type,severity,status,occurred_at,lost_days,location").order("occurred_at", { ascending: false }).limit(limit);
+    let query = supabaseForUser(ctx).from("occurrences").select(
+      "id,description,type,severity,status,occurred_at,lost_days,with_leave,location,cat_required,cat_number,investigation_method"
+    ).order("occurred_at", { ascending: false }).limit(limit);
     if (type) query = query.eq("type", type);
+    if (open_only) query = query.neq("status", "closed");
     const { data, error } = await query;
     if (error) return errorResult(error.message);
-    return textResult(data);
+    return textResult((data ?? []).map((r) => ({ ...r, url: deepLink("/incidentes") })));
   }
 });
 
@@ -91,15 +110,15 @@ import { z as z3 } from "npm:zod@^3.25.76";
 var list_environmental_licenses_default = defineTool3({
   name: "list_environmental_licenses",
   title: "List environmental licenses",
-  description: "List environmental licenses (expiring, valid, expired) for the signed-in user's company.",
+  description: "List environmental licenses (valid, expiring, expired or permanent) for the signed-in user's company.",
   inputSchema: { limit: z3.number().int().min(1).max(200).default(50) },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ limit }, ctx) => {
     const denied = await planGate(ctx);
     if (denied) return denied;
-    const { data, error } = await supabaseForUser(ctx).from("environmental_licenses").select("id,license_number,issuing_body,issued_at,expires_at,status").order("expires_at", { ascending: true }).limit(limit);
+    const { data, error } = await supabaseForUser(ctx).from("environmental_licenses").select("id,license_number,title,issuing_body,sphere,issued_at,expires_at,has_expiry,status,alert_days_before").order("expires_at", { ascending: true, nullsFirst: false }).limit(limit);
     if (error) return errorResult(error.message);
-    return textResult(data);
+    return textResult((data ?? []).map((r) => ({ ...r, url: deepLink("/licencas") })));
   }
 });
 
@@ -149,23 +168,34 @@ import { defineTool as defineTool6 } from "npm:@lovable.dev/mcp-js@0.20.0";
 var get_dashboard_summary_default = defineTool6({
   name: "get_dashboard_summary",
   title: "HSE dashboard summary",
-  description: "Summary counts of open incidents, expiring services, expiring licenses, and active suppliers for the signed-in user's company.",
+  description: "Summary counts for the signed-in user's company: open incidents, services and licenses needing attention, overdue CDFs, open corrective actions, deadlines in the next 30 days and total suppliers.",
   inputSchema: {},
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async (_input, ctx) => {
     const denied = await planGate(ctx);
     if (denied) return denied;
     const sb = supabaseForUser(ctx);
-    const [occ, srv, lic, sup] = await Promise.all([
+    const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+    const in30 = new Date(Date.now() + 30 * 864e5).toISOString().slice(0, 10);
+    const soon = new Date(Date.now() + 30 * 864e5).toISOString().slice(0, 10);
+    const [occ, srv, lic, sup, cdf, act, due] = await Promise.all([
       sb.from("occurrences").select("id", { count: "exact", head: true }).neq("status", "closed"),
-      sb.from("periodic_services").select("id", { count: "exact", head: true }).in("status", ["warning", "expired"]).eq("is_active", true),
-      sb.from("environmental_licenses").select("id", { count: "exact", head: true }).neq("status", "vigente"),
-      sb.from("suppliers_safe").select("id", { count: "exact", head: true })
+      sb.from("periodic_services").select("id", { count: "exact", head: true }).eq("status", "active").lte("next_due_at", soon),
+      sb.from("environmental_licenses").select("id", { count: "exact", head: true }).eq("has_expiry", true).lte("expires_at", in30),
+      sb.from("suppliers_safe").select("id", { count: "exact", head: true }),
+      sb.from("mtrs").select("id", { count: "exact", head: true }).neq("cdf_status", "received").lt("cdf_deadline_at", today),
+      sb.from("corrective_actions").select("id", { count: "exact", head: true }).neq("status", "completed"),
+      sb.from("calendar_due_items").select("source_id", { count: "exact", head: true }).lte("due_date", in30)
     ]);
+    const err = [occ, srv, lic, sup, cdf, act, due].find((r) => r.error)?.error;
+    if (err) return errorResult(err.message);
     return textResult({
       open_incidents: occ.count ?? 0,
       services_needing_attention: srv.count ?? 0,
-      licenses_needing_attention: lic.count ?? 0,
+      licenses_expiring_30d: lic.count ?? 0,
+      overdue_cdf: cdf.count ?? 0,
+      open_corrective_actions: act.count ?? 0,
+      deadlines_next_30d: due.count ?? 0,
       suppliers_total: sup.count ?? 0
     });
   }

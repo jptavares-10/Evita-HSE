@@ -19,7 +19,7 @@
       {
         "name": "get_dashboard_summary",
         "title": "HSE dashboard summary",
-        "description": "Summary counts of open incidents, expiring services, expiring licenses, and active suppliers for the signed-in user's company.",
+        "description": "Summary counts for the signed-in user's company: open incidents, services and licenses needing attention, overdue CDFs, open corrective actions, deadlines in the next 30 days and total suppliers.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -35,7 +35,7 @@
       {
         "name": "list_periodic_services",
         "title": "List periodic services",
-        "description": "List HSE periodic services for the signed-in user's company (name, category, next due date, status).",
+        "description": "List HSE periodic services for the signed-in user's company (name, category, last done, next due date and compliance status).",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -69,7 +69,7 @@
       {
         "name": "list_occurrences",
         "title": "List incidents (IC & NC)",
-        "description": "List safety incidents and non-conformities for the signed-in user's company.",
+        "description": "List incidents, near misses, non-conformities and safety observations for the signed-in user's company.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -80,7 +80,18 @@
           "properties": {
             "type": {
               "type": "string",
-              "description": "Filter by occurrence type (e.g. 'incident', 'non_conformity')."
+              "enum": [
+                "incident",
+                "near_miss",
+                "non_conformity",
+                "safety_observation"
+              ],
+              "description": "Filter by occurrence type."
+            },
+            "open_only": {
+              "type": "boolean",
+              "default": false,
+              "description": "Only occurrences that are not closed."
             },
             "limit": {
               "type": "integer",
@@ -97,7 +108,7 @@
       {
         "name": "list_environmental_licenses",
         "title": "List environmental licenses",
-        "description": "List environmental licenses (expiring, valid, expired) for the signed-in user's company.",
+        "description": "List environmental licenses (valid, expiring, expired or permanent) for the signed-in user's company.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,

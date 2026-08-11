@@ -150,7 +150,7 @@ function CycleContent({ cycle, readOnly = false, isAuthor = false }: { cycle: an
             <div key={a.id} className="bg-muted/50 rounded-md p-3 space-y-2">
               <div className="flex items-center gap-2">
                 <Avatar className="h-7 w-7">
-                  <AvatarImage src={a.profiles?.avatar_url || undefined} />
+                  <SignedAvatarImage path={a.profiles?.avatar_url} alt="" />
                   <AvatarFallback className="text-[10px]">{initials}</AvatarFallback>
                 </Avatar>
                 <span className="text-sm font-medium flex-1">{a.profiles?.full_name}</span>

@@ -29,6 +29,7 @@ import {
   Lock, Inbox, CalendarDays, QrCode
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SignedAvatarImage } from "@/components/ui/signed-avatar-image";
 import { EvitaLogo, EvitaWordmark } from "@/components/landing/EvitaBrand";
 
 const GROUP_STORAGE_KEY = "evita-sidebar-groups";
@@ -534,7 +535,7 @@ export function AppSidebar() {
                 <TooltipTrigger asChild>
                   <Link to="/perfil">
                     <Avatar className="h-9 w-9">
-                      <AvatarImage src={profile?.avatar_url || undefined} />
+                      <SignedAvatarImage path={profile?.avatar_url} alt="" />
                       <AvatarFallback className="text-xs bg-primary text-primary-foreground">{initials}</AvatarFallback>
                     </Avatar>
                   </Link>
@@ -548,7 +549,7 @@ export function AppSidebar() {
               <>
                 <Link to="/perfil">
                   <Avatar className="h-9 w-9">
-                    <AvatarImage src={profile?.avatar_url || undefined} />
+                    <SignedAvatarImage path={profile?.avatar_url} alt="" />
                     <AvatarFallback className="text-xs bg-primary text-primary-foreground">{initials}</AvatarFallback>
                   </Avatar>
                 </Link>

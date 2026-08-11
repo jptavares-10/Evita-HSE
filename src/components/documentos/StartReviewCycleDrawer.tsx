@@ -147,7 +147,7 @@ export function StartReviewCycleDrawer({ open, onOpenChange, document: doc }: Pr
                       onCheckedChange={() => toggleReviewer(p.id)}
                     />
                     <Avatar className="h-7 w-7">
-                      <AvatarImage src={p.avatar_url || undefined} />
+                      <SignedAvatarImage path={p.avatar_url} alt="" />
                       <AvatarFallback className="text-[10px]">{initials(p.full_name)}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">

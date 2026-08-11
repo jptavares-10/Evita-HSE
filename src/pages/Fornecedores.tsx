@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Plus, FolderOpen, Copy, Pencil, Trash2, Phone, Users, FileText, AlertTriangle, UserPlus, Globe } from "lucide-react";
+import { Plus, FolderOpen, Copy, Pencil, Trash2, Phone, Users, FileText, AlertTriangle, UserPlus, Globe, Tags, Link2 } from "lucide-react";
 import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
 import { SupplierDrawer } from "@/components/fornecedores/SupplierDrawer";
 import { ManageSupplierCategoriesModal } from "@/components/fornecedores/ManageSupplierCategoriesModal";
@@ -124,11 +124,15 @@ export default function Fornecedores() {
       ) : suppliers.length === 0 ? (
         <ModuleOnboarding
           title="Fornecedores"
-          description="Gerencie seus fornecedores, documentos e portal de autoatendimento."
+          description="Documento de terceiro cobrado e recebido sem grupo de WhatsApp e sem e-mail perdido."
           icon={Users}
+          note="Contratante responde solidariamente pela documentação do prestador de serviço. Aqui cada fornecedor recebe um link exclusivo para enviar ASO, treinamento, ART e certidões — sem criar conta e sem acessar seus dados."
           steps={[
-            { title: "Cadastrar primeiro fornecedor", description: "Registre nome, contato e categoria do fornecedor", icon: UserPlus, actionLabel: "Cadastrar", action: handleNew, completed: false },
-            { title: "Ativar portal do fornecedor", description: "Após cadastrar, ative o portal para que o fornecedor envie documentos", icon: Globe, actionLabel: "Cadastrar primeiro", action: handleNew, completed: false },
+            { title: "1. Organizar as categorias de fornecedor", description: "Separe por natureza do serviço: obra civil, manutenção, transporte de resíduo, consultoria.", hint: "A categoria facilita cobrar o mesmo pacote de documentos de fornecedores parecidos.", icon: Tags, actionLabel: "Cadastrar fornecedor", action: handleNew, completed: false },
+            { title: "2. Cadastrar o primeiro fornecedor", description: "Razão social, CNPJ, categoria e o contato responsável pelo envio dos documentos.", hint: "Comece pelos fornecedores que entram na sua área — são eles que geram risco direto.", icon: UserPlus, actionLabel: "Cadastrar", action: handleNew, completed: false },
+            { title: "3. Criar as pastas de documentos", description: "Estruture o que você exige: documentos da empresa, dos funcionários, dos equipamentos.", hint: "Pasta clara evita o clássico envio de tudo junto em um arquivo só.", icon: FolderOpen, actionLabel: "Cadastrar fornecedor", action: handleNew, completed: false },
+            { title: "4. Ativar o portal e enviar o link", description: "Ligue o portal no cadastro do fornecedor e copie o link exclusivo dele.", hint: "O link é único e dá acesso apenas às pastas daquele fornecedor — ele nunca vê dados de outro.", icon: Globe, actionLabel: "Cadastrar", action: handleNew, completed: false },
+            { title: "5. Conferir o que foi enviado", description: "Os documentos aparecem na ficha do fornecedor com data de envio e contagem por pasta.", optional: true, icon: Link2, actionLabel: "Cadastrar", action: handleNew, completed: false },
           ] as OnboardingStep[]}
         />
       ) : filtered.length === 0 ? (

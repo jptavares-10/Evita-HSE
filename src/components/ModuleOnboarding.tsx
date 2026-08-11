@@ -1,4 +1,4 @@
-import { LucideIcon, Check, ArrowRight, Rocket } from "lucide-react";
+import { LucideIcon, Check, ArrowRight, Rocket, Info, Lightbulb } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -6,6 +6,10 @@ import { Progress } from "@/components/ui/progress";
 export interface OnboardingStep {
   title: string;
   description: string;
+  /** Por que este passo importa (mostrado apenas no passo atual). */
+  hint?: string;
+  /** Passo opcional — pode ser feito depois. */
+  optional?: boolean;
   action: () => void;
   actionLabel: string;
   completed: boolean;
@@ -16,18 +20,21 @@ interface ModuleOnboardingProps {
   title: string;
   description: string;
   icon: LucideIcon;
+  /** Contexto legal/normativo ou explicação geral do módulo. */
+  note?: string;
   steps: OnboardingStep[];
 }
 
-export function ModuleOnboarding({ title, description, icon: Icon, steps }: ModuleOnboardingProps) {
-  const completedCount = steps.filter((s) => s.completed).length;
-  const progress = steps.length > 0 ? Math.round((completedCount / steps.length) * 100) : 0;
+export function ModuleOnboarding({ title, description, icon: Icon, note, steps }: ModuleOnboardingProps) {
+  const required = steps.filter((s) => !s.optional);
+  const completedCount = required.filter((s) => s.completed).length;
+  const progress = required.length > 0 ? Math.round((completedCount / required.length) * 100) : 0;
 
   // Find first incomplete step
   const firstIncompleteIdx = steps.findIndex((s) => !s.completed);
 
   return (
-    <Card className="max-w-2xl mx-auto border-dashed">
+    <Card className="max-w-3xl mx-auto border-dashed">
       <CardHeader className="text-center pb-2 pt-8">
         <div className="mx-auto h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
           <Icon className="h-7 w-7 text-primary" />
@@ -36,10 +43,17 @@ export function ModuleOnboarding({ title, description, icon: Icon, steps }: Modu
         <p className="text-sm text-muted-foreground mt-1">{description}</p>
       </CardHeader>
       <CardContent className="space-y-5 pb-8">
+        {note && (
+          <div className="flex gap-2.5 rounded-lg bg-muted/50 p-3 text-left">
+            <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+            <p className="text-xs text-muted-foreground leading-relaxed">{note}</p>
+          </div>
+        )}
+
         {/* Progress */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>{completedCount} de {steps.length} passos concluídos</span>
+            <span>{completedCount} de {required.length} passos essenciais concluídos</span>
             <span>{progress}%</span>
           </div>
           <Progress value={progress} className="h-2" />
@@ -76,10 +90,23 @@ export function ModuleOnboarding({ title, description, icon: Icon, steps }: Modu
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium ${step.completed ? "line-through text-muted-foreground" : ""}`}>
-                    {step.title}
-                  </p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className={`text-sm font-medium ${step.completed ? "line-through text-muted-foreground" : ""}`}>
+                      {step.title}
+                    </p>
+                    {step.optional && (
+                      <span className="text-[10px] uppercase tracking-wide text-muted-foreground border rounded px-1.5 py-0.5">
+                        Opcional
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-muted-foreground">{step.description}</p>
+                  {isCurrent && step.hint && (
+                    <p className="text-xs text-primary/90 mt-1.5 flex items-start gap-1.5">
+                      <Lightbulb className="h-3.5 w-3.5 shrink-0 mt-px" />
+                      <span>{step.hint}</span>
+                    </p>
+                  )}
                 </div>
 
                 {/* Action */}
@@ -99,7 +126,7 @@ export function ModuleOnboarding({ title, description, icon: Icon, steps }: Modu
           })}
         </div>
 
-        {completedCount === steps.length && steps.length > 0 && (
+        {completedCount === required.length && required.length > 0 && (
           <div className="text-center pt-2">
             <div className="inline-flex items-center gap-2 text-sm text-primary font-medium">
               <Rocket className="h-4 w-4" />

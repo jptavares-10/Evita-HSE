@@ -26,7 +26,7 @@ import {
   LayoutDashboard, ClipboardList, ShieldAlert, GraduationCap, Recycle, Truck,
   Building2, Users, CreditCard, LogOut, ChevronDown, ChevronLeft, ChevronRight,
   Shield, HeartPulse, Leaf, Eye, BookOpen, Grid3X3, Briefcase, ScrollText, FileText, HardHat, Stethoscope, ClipboardCheck,
-  Lock, Inbox, CalendarDays, QrCode
+  Lock, Inbox, CalendarDays, Boxes
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSignedUrl } from "@/hooks/useSignedUrl";
@@ -423,7 +423,7 @@ export function AppSidebar() {
                   {inspecoesExpanded && (
                     <div className="space-y-0.5 ml-2 pl-2 border-l border-border">
                       <SidebarItem to="/inspecoes" icon={Eye} label="Execuções" active={path === "/inspecoes"} sub />
-                      <SidebarItem to="/inspecoes/ativos" icon={QrCode} label="Ativos & QR" active={path === "/inspecoes/ativos"} sub />
+                      <SidebarItem to="/inspecoes/ativos" icon={Boxes} label="Ativos" active={path === "/inspecoes/ativos"} sub />
                       <SidebarItem to="/inspecoes/modelos" icon={BookOpen} label="Modelos" active={path === "/inspecoes/modelos"} sub />
                     </div>
                   )}
@@ -545,7 +545,7 @@ export function AppSidebar() {
                 </TooltipTrigger>
                 <TooltipContent side="right">
                   <p className="font-medium">{profile?.full_name || "Usuário"}</p>
-                  <p className="text-xs text-muted-foreground">{profile?.email}</p>
+                  <p className="text-xs text-muted-foreground">{profile?.role === "admin" ? "Administrador" : "Membro"}</p>
                 </TooltipContent>
               </Tooltip>
             ) : (
@@ -558,7 +558,7 @@ export function AppSidebar() {
                 </Link>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{profile?.full_name || "Usuário"}</p>
-                  <p className="text-[10px] text-muted-foreground truncate">{profile?.email}</p>
+                  <p className="text-[10px] text-muted-foreground truncate">{profile?.role === "admin" ? "Administrador" : "Membro"}</p>
                 </div>
                 <button
                   onClick={handleLogout}

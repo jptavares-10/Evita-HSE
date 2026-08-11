@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { format, parseISO, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useDocumentTypes, useSaveDocument } from "@/hooks/useDocuments";
+import { useCompanyMembers } from "@/hooks/useCompanyMembers";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
@@ -38,6 +39,7 @@ export function DocumentDrawer({ open, onOpenChange, editingDocument }: Props) {
   const { company } = useAuth();
   const { toast } = useToast();
   const { data: types = [] } = useDocumentTypes();
+  const { data: members = [] } = useCompanyMembers();
   const saveDocument = useSaveDocument();
   const queryClient = useQueryClient();
   const isEdit = !!editingDocument;
@@ -47,6 +49,7 @@ export function DocumentDrawer({ open, onOpenChange, editingDocument }: Props) {
   const [typeId, setTypeId] = useState("");
   const [description, setDescription] = useState("");
   const [responsible, setResponsible] = useState("");
+  const [responsibleUserId, setResponsibleUserId] = useState("");
   const [area, setArea] = useState("");
   const [status, setStatus] = useState("active");
   const [revNumber, setRevNumber] = useState("Rev. 01");
@@ -69,6 +72,7 @@ export function DocumentDrawer({ open, onOpenChange, editingDocument }: Props) {
         setTypeId(editingDocument.document_type_id || "");
         setDescription(editingDocument.description || "");
         setResponsible(editingDocument.responsible || "");
+        setResponsibleUserId(editingDocument.responsible_user_id || "");
         setArea(editingDocument.area || "");
         setStatus(editingDocument.status);
         setHasRevisionCycle(editingDocument.has_revision_cycle || false);
@@ -88,7 +92,7 @@ export function DocumentDrawer({ open, onOpenChange, editingDocument }: Props) {
         }
       } else {
         setCode(""); setTitle(""); setTypeId(""); setDescription("");
-        setResponsible(""); setArea(""); setStatus("active");
+        setResponsible(""); setResponsibleUserId(""); setArea(""); setStatus("active");
         setRevNumber("Rev. 01"); setRevDate(new Date()); setRevNotes("");
         setHasRevisionCycle(false); setFrequencyPreset("365"); setCustomDays("");
       }
@@ -124,6 +128,7 @@ export function DocumentDrawer({ open, onOpenChange, editingDocument }: Props) {
       document_type_id: typeId,
       description: description || null,
       responsible: responsible || null,
+      responsible_user_id: responsibleUserId || null,
       area: area || null,
       status,
       revision_number: revNumber,
@@ -191,7 +196,36 @@ export function DocumentDrawer({ open, onOpenChange, editingDocument }: Props) {
               </div>
               <div className="space-y-2">
                 <Label>Responsável técnico</Label>
-                <Input value={responsible} onChange={(e) => setResponsible(e.target.value)} />
+                <Select
+                  value={responsibleUserId || "__none__"}
+                  onValueChange={(v) => {
+                    if (v === "__none__") {
+                      setResponsibleUserId("");
+                      setResponsible("");
+                      return;
+                    }
+                    setResponsibleUserId(v);
+                    setResponsible(members.find((m) => m.id === v)?.full_name || "");
+                  }}
+                >
+                  <SelectTrigger><SelectValue placeholder="Selecione um usuário" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">Sem responsável definido</SelectItem>
+                    {members.map((m) => (
+                      <SelectItem key={m.id} value={m.id}>
+                        {m.full_name || "Usuário sem nome"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {!responsibleUserId && responsible && (
+                  <p className="text-xs text-muted-foreground">
+                    Registro antigo: <span className="font-medium">{responsible}</span> — selecione um usuário do sistema para atualizar.
+                  </p>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  O responsável técnico deve ser um usuário do sistema. Convide a pessoa em Usuários se ela ainda não aparecer aqui.
+                </p>
               </div>
               <div className="space-y-2">
                 <Label>Área / setor</Label>

@@ -14,7 +14,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Plus, Search, Pencil, Trash2, Clock, FileText, ClipboardCheck, Users } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Clock, FileText, ClipboardCheck, Users, ListChecks, Boxes, PlayCircle } from "lucide-react";
 import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
 import { useNavigate } from "react-router-dom";
 import { TableSkeleton } from "@/components/TableSkeleton";
@@ -99,11 +99,15 @@ export default function InspecoesModelos() {
       ) : models.length === 0 ? (
         <ModuleOnboarding
           title="Inspeções de Segurança"
-          description="Configure modelos de inspeção e acompanhe execuções periódicas."
+          description="A inspeção sai do papel e vira prova: checklist com foto, responsável e ação corretiva rastreada até fechar."
           icon={ClipboardCheck}
+          note="Inspeção só tem valor quando é periódica, tem responsável e gera ação sobre o que foi encontrado. O sistema cria as execuções na periodicidade que você definir e não deixa a não conformidade morrer no relatório."
           steps={[
-            { title: "Cadastrar colaboradores", description: "Necessário para definir responsáveis pelas inspeções", icon: Users, actionLabel: "Ir para colaboradores", action: () => navigate("/treinamentos/colaboradores"), completed: employees.length > 0 },
-            { title: "Criar primeiro modelo de inspeção", description: "Defina nome, periodicidade e responsável", icon: Plus, actionLabel: "Criar modelo", action: () => { setEditing(null); setDrawerOpen(true); }, completed: false },
+            { title: "1. Cadastrar os colaboradores", description: "Toda inspeção e toda ação corretiva precisam de um responsável nomeado.", hint: "Ação sem responsável não é acompanhada — o campo é obrigatório de propósito.", icon: Users, actionLabel: "Ir para colaboradores", action: () => navigate("/treinamentos/colaboradores"), completed: employees.length > 0 },
+            { title: "2. Cadastrar os ativos inspecionáveis", description: "Extintores, máquinas, painéis, andaimes e saídas de emergência com etiqueta e local.", optional: true, hint: "Cadastre ativos quando a inspeção é item por item. Para inspeção de área, você pode pular este passo.", icon: Boxes, actionLabel: "Ir para ativos", action: () => navigate("/inspecoes/ativos"), completed: false },
+            { title: "3. Criar o primeiro modelo de inspeção", description: "Nome, setor, periodicidade e responsável padrão pela execução.", hint: "A periodicidade é o que faz o sistema gerar as próximas inspeções sozinho.", icon: Plus, actionLabel: "Criar modelo", action: () => { setEditing(null); setDrawerOpen(true); }, completed: false },
+            { title: "4. Montar o checklist do modelo", description: "Cadastre as perguntas com tipo de resposta e marque as que exigem foto.", hint: "Marque foto obrigatória nos itens críticos: é a evidência que sustenta o resultado da inspeção.", icon: ListChecks, actionLabel: "Criar modelo", action: () => { setEditing(null); setDrawerOpen(true); }, completed: false },
+            { title: "5. Executar e tratar as não conformidades", description: "Realize a inspeção, assine no fechamento e abra ação corretiva para cada item reprovado.", optional: true, icon: PlayCircle, actionLabel: "Ver execuções", action: () => navigate("/inspecoes/execucoes"), completed: false },
           ] as OnboardingStep[]}
         />
       ) : filtered.length === 0 ? (

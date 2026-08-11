@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useEmployees, useTrainings, useTrainingMatrix, useAllRecords, useJobPositions, useSectors } from "@/hooks/useTrainings";
 import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
-import { GraduationCap, Building2, Briefcase, UserPlus, BookOpen } from "lucide-react";
+import { GraduationCap, Building2, Briefcase, UserPlus, BookOpen, Grid3x3, Award } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { computeEmployeeCompliance, getRecordStatus, formatDateBR } from "@/lib/trainings";
 import { TrainingKpiCards } from "@/components/treinamentos/TrainingKpiCards";
@@ -302,13 +302,16 @@ export default function TreinamentosVisaoGeral() {
     return (
       <ModuleOnboarding
         title="Gestão de Treinamentos"
-        description="Configure setores, cargos e colaboradores para controlar treinamentos obrigatórios."
+        description="A matriz cobra por você: treinamento obrigatório por cargo, certificado com validade e conformidade NR por pessoa."
         icon={GraduationCap}
+        note="As Normas Regulamentadoras exigem capacitação por função e reciclagem periódica (NR-10, NR-11, NR-33, NR-35 e outras). A ordem abaixo importa: setor define cargo, cargo define quais treinamentos são obrigatórios, e a matriz aponta sozinha quem está pendente."
         steps={[
-          { title: "Criar setores", description: "Organize sua empresa por áreas (ex: Produção, Administrativo)", icon: Building2, actionLabel: "Ir para cargos", action: () => navigate("/treinamentos/cargos"), completed: dbSectors.length > 0 },
-          { title: "Criar cargos", description: "Defina os cargos vinculados a cada setor", icon: Briefcase, actionLabel: "Ir para cargos", action: () => navigate("/treinamentos/cargos"), completed: positions.length > 0 },
-          { title: "Cadastrar colaboradores", description: "Registre os colaboradores ativos da empresa", icon: UserPlus, actionLabel: "Ir para colaboradores", action: () => navigate("/treinamentos/colaboradores"), completed: employees.length > 0 },
-          { title: "Cadastrar primeiro treinamento", description: "Crie um treinamento com validade e alerta", icon: BookOpen, actionLabel: "Ir para catálogo", action: () => navigate("/treinamentos/catalogo"), completed: trainings.length > 0 },
+          { title: "1. Criar os setores", description: "Organize a empresa por área: Produção, Manutenção, Administrativo, Logística.", hint: "O setor do colaborador é herdado do cargo dele — por isso ele vem primeiro.", icon: Building2, actionLabel: "Ir para cargos", action: () => navigate("/treinamentos/cargos"), completed: dbSectors.length > 0 },
+          { title: "2. Criar os cargos", description: "Cada cargo vinculado ao seu setor: eletricista, operador de empilhadeira, auxiliar.", hint: "Cargo é a chave da obrigatoriedade. Cargos genéricos demais tornam a matriz imprecisa.", icon: Briefcase, actionLabel: "Ir para cargos", action: () => navigate("/treinamentos/cargos"), completed: positions.length > 0 },
+          { title: "3. Cadastrar os colaboradores", description: "Registre os colaboradores ativos e vincule cada um ao seu cargo.", hint: "Tem a lista em planilha? Use a importação em Colaboradores para subir todos de uma vez.", icon: UserPlus, actionLabel: "Ir para colaboradores", action: () => navigate("/treinamentos/colaboradores"), completed: employees.length > 0 },
+          { title: "4. Montar o catálogo de treinamentos", description: "Cadastre cada treinamento com carga horária, validade e norma de referência.", hint: "Treinamento sem reciclagem existe: marque como permanente e ele deixa de cobrar vencimento.", icon: BookOpen, actionLabel: "Ir para catálogo", action: () => navigate("/treinamentos/catalogo"), completed: trainings.length > 0 },
+          { title: "5. Definir a matriz por cargo", description: "Marque quais treinamentos são obrigatórios para cada cargo.", hint: "É a matriz que transforma a lista em cobrança automática: todo colaborador do cargo passa a ser exigido.", icon: Grid3x3, actionLabel: "Ir para matriz", action: () => navigate("/treinamentos/matriz"), completed: false },
+          { title: "6. Registrar os certificados já realizados", description: "Lance data de realização e anexe o certificado de cada treinamento concluído.", optional: true, icon: Award, actionLabel: "Ir para colaboradores", action: () => navigate("/treinamentos/colaboradores"), completed: false },
         ] as OnboardingStep[]}
       />
     );

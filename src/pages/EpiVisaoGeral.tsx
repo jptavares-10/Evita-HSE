@@ -4,7 +4,7 @@ import { computeCaStatus, getCaStatusBadge, computeStockStatus, formatDateBR } f
 import { EpiKpiCards } from "@/components/epi/EpiKpiCards";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle, Package, HardHat, Plus, PackagePlus, Truck } from "lucide-react";
+import { AlertTriangle, Package, HardHat, Plus, PackagePlus, Truck, PenLine, FileSignature } from "lucide-react";
 import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
 import { useNavigate } from "react-router-dom";
 
@@ -50,12 +50,15 @@ export default function EpiVisaoGeral() {
     return (
       <ModuleOnboarding
         title="Equipamentos de Proteção Individual"
-        description="Controle EPIs, CAs, estoque e entregas para seus colaboradores."
+        description="Entrega assinada, CA sempre válido e ficha NR-6 pronta para a fiscalização."
         icon={HardHat}
+        note="A NR-6 obriga o empregador a fornecer o EPI gratuitamente, exigir o uso e comprovar a entrega. O comprovante assinado é a defesa da empresa quando o EPI não é usado — aqui a assinatura é coletada no tablet e entra na ficha do colaborador."
         steps={[
-          { title: "Cadastrar primeiro EPI no catálogo", description: "Registre nome, CA e estoque mínimo", icon: Plus, actionLabel: "Ir para catálogo", action: () => navigate("/epi/catalogo"), completed: false },
-          { title: "Registrar estoque inicial", description: "Adicione entradas de estoque para os EPIs cadastrados", icon: PackagePlus, actionLabel: "Ir para estoque", action: () => navigate("/epi/estoque"), completed: false },
-          { title: "Registrar primeira entrega", description: "Documente a entrega de EPIs aos colaboradores", icon: Truck, actionLabel: "Ir para entregas", action: () => navigate("/epi/entregas"), completed: false },
+          { title: "1. Cadastrar os EPIs no catálogo", description: "Nome, tipo, número do CA, validade do CA e estoque mínimo.", hint: "O CA vencido invalida o EPI para efeito legal. O sistema avisa antes de o certificado expirar.", icon: Plus, actionLabel: "Ir para catálogo", action: () => navigate("/epi/catalogo"), completed: false },
+          { title: "2. Lançar o estoque inicial", description: "Registre a entrada das quantidades que você tem hoje em almoxarifado.", hint: "Sem estoque lançado, a entrega não desconta saldo e o alerta de estoque mínimo não funciona.", icon: PackagePlus, actionLabel: "Ir para estoque", action: () => navigate("/epi/estoque"), completed: false },
+          { title: "3. Registrar a primeira entrega", description: "Selecione o colaborador, o EPI, a quantidade e o motivo (primeira entrega, troca, perda).", hint: "O motivo da troca revela padrão: EPI que quebra sempre no mesmo posto costuma ser EPI errado.", icon: Truck, actionLabel: "Ir para entregas", action: () => navigate("/epi/entregas"), completed: false },
+          { title: "4. Coletar a assinatura do colaborador", description: "Abra o modo quiosque no tablet e colha a assinatura no ato da entrega.", hint: "A assinatura fica gravada com data, hora e trilha de auditoria — é o que sustenta a comprovação.", icon: PenLine, actionLabel: "Ir para entregas", action: () => navigate("/epi/entregas"), completed: false },
+          { title: "5. Emitir a ficha de EPI do colaborador", description: "Gere o PDF consolidado com todas as entregas e assinaturas da pessoa.", optional: true, icon: FileSignature, actionLabel: "Ir para entregas", action: () => navigate("/epi/entregas"), completed: false },
         ] as OnboardingStep[]}
       />
     );

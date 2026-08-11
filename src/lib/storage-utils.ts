@@ -25,6 +25,55 @@ const PRIVATE_BUCKETS = [
 
 export type PrivateBucket = (typeof PRIVATE_BUCKETS)[number];
 
+/** ── Storage quota (per plan) ── */
+
+export interface StorageUsage {
+  usedBytes: number;
+  limitBytes: number;
+  storageGb: number;
+}
+
+export async function fetchStorageUsage(): Promise<StorageUsage | null> {
+  const { data, error } = await supabase.rpc("get_company_storage_usage");
+  const obj = data as any;
+  if (error || !obj || obj.error) return null;
+  return {
+    usedBytes: Number(obj.used_bytes ?? 0),
+    limitBytes: Number(obj.limit_bytes ?? 0),
+    storageGb: Number(obj.storage_gb ?? 0),
+  };
+}
+
+export function formatBytes(bytes: number): string {
+  if (!bytes) return "0 MB";
+  const gb = bytes / (1024 * 1024 * 1024);
+  if (gb >= 1) return `${gb.toFixed(2)} GB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+/**
+ * Upload wrapper that enforces the company's plan storage quota before sending
+ * the file. Returns the same shape as supabase.storage.upload().
+ */
+export async function storageUpload(
+  bucket: string,
+  path: string,
+  body: File | Blob,
+  options?: { upsert?: boolean; contentType?: string },
+): Promise<{ data: any; error: { message: string } | null }> {
+  const size = (body as any)?.size ?? 0;
+  const usage = await fetchStorageUsage();
+  if (usage && usage.limitBytes > 0 && usage.usedBytes + size > usage.limitBytes) {
+    return {
+      data: null,
+      error: {
+        message: `Limite de armazenamento do plano atingido (${formatBytes(usage.usedBytes)} de ${usage.storageGb} GB). Faça upgrade do plano ou remova arquivos antigos.`,
+      },
+    };
+  }
+  return supabase.storage.from(bucket).upload(path, body, options as any);
+}
+
 /**
  * Extract the storage path from either a full Supabase public URL or a raw path.
  * Handles both old data (full URLs) and new data (just the path).

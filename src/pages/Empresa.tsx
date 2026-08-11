@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Label } from "@/components/ui/label";
@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { exportCompanyData, downloadJson } from "@/lib/company-data-export";
 import { RETENTION } from "@/content/legal";
+import { fetchStorageUsage, formatBytes, type StorageUsage } from "@/lib/storage-utils";
+import { Progress } from "@/components/ui/progress";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +30,15 @@ export default function Empresa() {
   const [deleting, setDeleting] = useState(false);
   const deletionRequestedAt = (company as any)?.deletion_requested_at as string | null | undefined;
   const termsAcceptedAt = (company as any)?.terms_accepted_at as string | null | undefined;
+  const [usage, setUsage] = useState<StorageUsage | null>(null);
+
+  useEffect(() => {
+    fetchStorageUsage().then(setUsage);
+  }, [company?.id]);
+
+  const usagePct = usage && usage.limitBytes > 0
+    ? Math.min(100, (usage.usedBytes / usage.limitBytes) * 100)
+    : 0;
 
   const handleExport = async () => {
     setExporting(true);

@@ -30,6 +30,16 @@ var APP_URL = "https://evita-hse-br.lovable.app";
 function deepLink(path) {
   return `${APP_URL}${path}`;
 }
+var confirmField = (what) => `Set to true ONLY after the user has explicitly approved the draft. With false (default) nothing is saved \u2014 a draft preview of the ${what} is returned for review.`;
+function draftResult(kind, draft, hint) {
+  return textResult({
+    persisted: false,
+    status: "draft_pending_confirmation",
+    kind,
+    draft,
+    next_step: hint
+  });
+}
 async function editorGate(ctx, module) {
   const { data, error } = await supabaseForUser(ctx).rpc("has_module_editor_permission", {
     p_module: module
@@ -595,7 +605,7 @@ import { z as z17 } from "npm:zod@^3.25.76";
 var create_occurrence_default = defineTool18({
   name: "create_occurrence",
   title: "Register incident / non-conformity",
-  description: "Register a new occurrence (incident, near miss, non-conformity or safety observation). The type cannot be changed afterwards. Requires editor permission on the IC & NC module.",
+  description: "Draft and then register an occurrence (incident, near miss, non-conformity or safety observation). Called without `confirm` it saves nothing and returns a draft for the user to review; call it again with confirm=true only after the user explicitly approves. The type cannot be changed afterwards. Requires editor permission on the IC & NC module.",
   inputSchema: {
     type: z17.enum(["incident", "near_miss", "non_conformity", "safety_observation"]).describe("Occurrence type \u2014 immutable after creation."),
     severity: z17.enum(["low", "medium", "high", "critical"]).describe("Severity level."),
@@ -603,18 +613,14 @@ var create_occurrence_default = defineTool18({
     occurred_at: z17.string().describe("Date it happened (YYYY-MM-DD)."),
     location: z17.string().optional().describe("Where it happened."),
     with_leave: z17.boolean().default(false).describe("Whether it caused time off work."),
-    lost_days: z17.number().int().min(0).optional().describe("Lost days, when there was time off work.")
+    lost_days: z17.number().int().min(0).optional().describe("Lost days, when there was time off work."),
+    confirm: z17.boolean().default(false).describe(confirmField("occurrence"))
   },
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
   handler: async (input, ctx) => {
     const denied = await planGate(ctx) ?? await editorGate(ctx, "ic_nc");
     if (denied) return denied;
-    const sb = supabaseForUser(ctx);
-    const { data: companyId, error: cErr } = await sb.rpc("get_user_company_id");
-    if (cErr || !companyId) return errorResult("Could not resolve the user's company.");
-    const { data, error } = await sb.from("occurrences").insert({
-      company_id: companyId,
-      registered_by: ctx.getUserId(),
+    const payload = {
       type: input.type,
       severity: input.severity,
       description: input.description,
@@ -623,9 +629,20 @@ var create_occurrence_default = defineTool18({
       with_leave: input.with_leave,
       lost_days: input.with_leave ? input.lost_days ?? 0 : 0,
       status: "open"
-    }).select("id,type,severity,occurred_at,status").single();
+    };
+    if (!input.confirm) {
+      return draftResult(
+        "occurrence",
+        payload,
+        "Nothing was saved. Show this draft to the user, confirm the type (it cannot be changed later), and only after an explicit approval call create_occurrence again with the same fields plus confirm=true."
+      );
+    }
+    const sb = supabaseForUser(ctx);
+    const { data: companyId, error: cErr } = await sb.rpc("get_user_company_id");
+    if (cErr || !companyId) return errorResult("Could not resolve the user's company.");
+    const { data, error } = await sb.from("occurrences").insert({ ...payload, company_id: companyId, registered_by: ctx.getUserId() }).select("id,type,severity,occurred_at,status").single();
     if (error) return errorResult(error.message);
-    return textResult({ created: data, url: deepLink("/incidentes") });
+    return textResult({ persisted: true, created: data, url: deepLink("/incidentes") });
   }
 });
 
@@ -635,7 +652,7 @@ import { z as z18 } from "npm:zod@^3.25.76";
 var create_calendar_event_default = defineTool19({
   name: "create_calendar_event",
   title: "Create calendar event",
-  description: "Create an HSE calendar entry (event, campaign, audit, meeting or internal training). Requires editor permission on the calendar module.",
+  description: "Draft and then create an HSE calendar entry (event, campaign, audit, meeting or internal training). Called without `confirm` it saves nothing and returns a draft for the user to review; call it again with confirm=true only after the user explicitly approves. Requires editor permission on the calendar module.",
   inputSchema: {
     title: z18.string().describe("Event title."),
     area: z18.enum(["meio_ambiente", "seguranca", "saude", "geral"]).describe("HSE area."),
@@ -644,19 +661,15 @@ var create_calendar_event_default = defineTool19({
     ends_at: z18.string().optional().describe("End date/time (YYYY-MM-DD or ISO timestamp)."),
     all_day: z18.boolean().default(true),
     location: z18.string().optional(),
-    description: z18.string().optional()
+    description: z18.string().optional(),
+    confirm: z18.boolean().default(false).describe(confirmField("calendar event"))
   },
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
   handler: async (input, ctx) => {
     const denied = await planGate(ctx) ?? await editorGate(ctx, "calendar");
     if (denied) return denied;
-    const sb = supabaseForUser(ctx);
-    const { data: companyId, error: cErr } = await sb.rpc("get_user_company_id");
-    if (cErr || !companyId) return errorResult("Could not resolve the user's company.");
     const norm = (v) => v.length === 10 ? `${v}T12:00:00Z` : v;
-    const { data, error } = await sb.from("calendar_events").insert({
-      company_id: companyId,
-      created_by: ctx.getUserId(),
+    const payload = {
       title: input.title,
       description: input.description ?? null,
       area: input.area,
@@ -666,9 +679,20 @@ var create_calendar_event_default = defineTool19({
       all_day: input.all_day,
       location: input.location ?? null,
       status: "planejado"
-    }).select("id,title,area,category,starts_at,status").single();
+    };
+    if (!input.confirm) {
+      return draftResult(
+        "calendar_event",
+        payload,
+        "Nothing was saved. Show this draft to the user (check date, area and category) and only after an explicit approval call create_calendar_event again with the same fields plus confirm=true."
+      );
+    }
+    const sb = supabaseForUser(ctx);
+    const { data: companyId, error: cErr } = await sb.rpc("get_user_company_id");
+    if (cErr || !companyId) return errorResult("Could not resolve the user's company.");
+    const { data, error } = await sb.from("calendar_events").insert({ ...payload, company_id: companyId, created_by: ctx.getUserId() }).select("id,title,area,category,starts_at,status").single();
     if (error) return errorResult(error.message);
-    return textResult({ created: data, url: deepLink("/calendario") });
+    return textResult({ persisted: true, created: data, url: deepLink("/calendario") });
   }
 });
 

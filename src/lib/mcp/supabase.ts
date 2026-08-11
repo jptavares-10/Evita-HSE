@@ -28,6 +28,26 @@ export function deepLink(path: string) {
 }
 
 /**
+ * Two-phase write confirmation.
+ *
+ * Write tools accept `confirm` (default false). Without it nothing is
+ * persisted: the tool returns a draft preview that the assistant must show to
+ * the user and get an explicit "yes" for, then re-call with `confirm: true`.
+ */
+export const confirmField = (what: string) =>
+  `Set to true ONLY after the user has explicitly approved the draft. With false (default) nothing is saved — a draft preview of the ${what} is returned for review.`;
+
+export function draftResult(kind: string, draft: Record<string, unknown>, hint: string) {
+  return textResult({
+    persisted: false,
+    status: "draft_pending_confirmation",
+    kind,
+    draft,
+    next_step: hint,
+  });
+}
+
+/**
  * Write gate: the caller must have editor permission on the module,
  * validated server-side by the same RPC the app uses.
  */

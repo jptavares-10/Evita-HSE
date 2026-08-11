@@ -115,6 +115,20 @@ export default function Empresa() {
         </div>
       </div>
 
+      <div className="lp-card rounded-xl p-6 space-y-3">
+        <div className="flex items-baseline justify-between">
+          <h2 className="text-base font-semibold">Armazenamento</h2>
+          <span className="text-sm text-muted-foreground">
+            {usage ? `${formatBytes(usage.usedBytes)} de ${usage.storageGb} GB` : "Calculando…"}
+          </span>
+        </div>
+        <Progress value={usagePct} className="h-2" />
+        <p className="text-xs text-muted-foreground">
+          Limite incluído no seu plano. Ao atingir o limite, novos uploads são bloqueados até liberar espaço ou
+          fazer upgrade. Cada arquivo pode ter no máximo 20 MB.
+        </p>
+      </div>
+
       <div className="lp-card rounded-xl p-6 space-y-5">
         <div>
           <h2 className="text-base font-semibold">Privacidade e dados (LGPD)</h2>

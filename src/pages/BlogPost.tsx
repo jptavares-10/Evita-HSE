@@ -6,6 +6,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { BlogLayout } from "@/components/blog/BlogLayout";
 import { BlogCTA } from "@/components/blog/BlogCTA";
 import { getPostBySlug, formatPostDate } from "@/lib/blog";
+import logoAsset from "@/assets/evita-logo.png.asset.json";
 
 const BASE_URL = "https://evita-hse-br.lovable.app";
 
@@ -39,7 +40,7 @@ export default function BlogPost() {
       publisher: {
         "@type": "Organization",
         name: "Evita HSE",
-        logo: { "@type": "ImageObject", url: `${BASE_URL}/favicon.ico` },
+        logo: { "@type": "ImageObject", url: `${BASE_URL}${logoAsset.url}` },
       },
       mainEntityOfPage: { "@type": "WebPage", "@id": `${BASE_URL}/blog/${post.slug}` },
     };

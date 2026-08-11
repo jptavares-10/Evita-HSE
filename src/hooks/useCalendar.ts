@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { extractStoragePath } from "@/lib/storage-utils";
+import { extractStoragePath, storageUpload } from "@/lib/storage-utils";
 
 export interface CalendarEvent {
   id: string;

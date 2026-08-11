@@ -527,7 +527,7 @@
       {
         "name": "create_occurrence",
         "title": "Register incident / non-conformity",
-        "description": "Register a new occurrence (incident, near miss, non-conformity or safety observation). The type cannot be changed afterwards. Requires editor permission on the IC & NC module.",
+        "description": "Draft and then register an occurrence (incident, near miss, non-conformity or safety observation). Called without `confirm` it saves nothing and returns a draft for the user to review; call it again with confirm=true only after the user explicitly approves. The type cannot be changed afterwards. Requires editor permission on the IC & NC module.",
         "annotations": {
           "readOnlyHint": false,
           "destructiveHint": false,
@@ -577,6 +577,11 @@
               "type": "integer",
               "minimum": 0,
               "description": "Lost days, when there was time off work."
+            },
+            "confirm": {
+              "type": "boolean",
+              "default": false,
+              "description": "Set to true ONLY after the user has explicitly approved the draft. With false (default) nothing is saved — a draft preview of the occurrence is returned for review."
             }
           },
           "required": [
@@ -593,7 +598,7 @@
       {
         "name": "create_calendar_event",
         "title": "Create calendar event",
-        "description": "Create an HSE calendar entry (event, campaign, audit, meeting or internal training). Requires editor permission on the calendar module.",
+        "description": "Draft and then create an HSE calendar entry (event, campaign, audit, meeting or internal training). Called without `confirm` it saves nothing and returns a draft for the user to review; call it again with confirm=true only after the user explicitly approves. Requires editor permission on the calendar module.",
         "annotations": {
           "readOnlyHint": false,
           "destructiveHint": false,
@@ -645,6 +650,11 @@
             },
             "description": {
               "type": "string"
+            },
+            "confirm": {
+              "type": "boolean",
+              "default": false,
+              "description": "Set to true ONLY after the user has explicitly approved the draft. With false (default) nothing is saved — a draft preview of the calendar event is returned for review."
             }
           },
           "required": [

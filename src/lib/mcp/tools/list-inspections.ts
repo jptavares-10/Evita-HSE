@@ -18,7 +18,7 @@ export default defineTool({
     let q = supabaseForUser(ctx)
       .from("inspection_executions")
       .select(
-        "id,reference,due_date,status,completed_at,signed_at,signer_name,inspection_models(name,related_nr),inspection_assets(name,code)",
+        "id,reference,due_date,status,completed_at,signed_at,signer_name,inspection_models(name,related_nr),inspection_assets(name,tag_code)",
       )
       .order("due_date", { ascending: false })
       .limit(limit);

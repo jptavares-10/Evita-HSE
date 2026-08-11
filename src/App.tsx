@@ -68,8 +68,13 @@ import AsoPage from "./pages/funcionalidades/AsoPage";
 import MtrPage from "./pages/funcionalidades/MtrPage";
 import LicencasPage from "./pages/funcionalidades/LicencasPage";
 import FornecedoresPage from "./pages/funcionalidades/FornecedoresPage";
+import CalendarioPage from "./pages/funcionalidades/CalendarioPage";
 import Seguranca from "./pages/Seguranca";
 import OAuthConsent from "./pages/OAuthConsent";
+import Termos from "./pages/legal/Termos";
+import Privacidade from "./pages/legal/Privacidade";
+import SegurancaDaInformacao from "./pages/legal/SegurancaDaInformacao";
+import Subprocessadores from "./pages/legal/Subprocessadores";
 
 const queryClient = new QueryClient();
 
@@ -109,6 +114,11 @@ const App = () => (
             <Route path="/funcionalidades/mtr" element={<LandingRoute><MtrPage /></LandingRoute>} />
             <Route path="/funcionalidades/licencas" element={<LandingRoute><LicencasPage /></LandingRoute>} />
             <Route path="/funcionalidades/fornecedores" element={<LandingRoute><FornecedoresPage /></LandingRoute>} />
+            <Route path="/funcionalidades/calendario" element={<LandingRoute><CalendarioPage /></LandingRoute>} />
+            <Route path="/termos" element={<LandingRoute><Termos /></LandingRoute>} />
+            <Route path="/privacidade" element={<LandingRoute><Privacidade /></LandingRoute>} />
+            <Route path="/seguranca-da-informacao" element={<LandingRoute><SegurancaDaInformacao /></LandingRoute>} />
+            <Route path="/subprocessadores" element={<LandingRoute><Subprocessadores /></LandingRoute>} />
             <Route path="/portal/fornecedor/:token" element={<PortalFornecedor />} />
             <Route path="/completar-cadastro" element={<CompletarCadastro />} />
 

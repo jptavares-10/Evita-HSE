@@ -15,7 +15,7 @@ export function LandingLayout({ children }: { children: React.ReactNode }) {
 
       {/* FOOTER */}
       <footer className="border-t border-lp-border bg-lp-bg py-16 px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-5 gap-10 mb-12">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-6 gap-10 mb-12">
           <div className="md:col-span-2">
             <Link to="/" className="inline-flex items-center gap-2.5 mb-4" aria-label="Evita HSE">
               <EvitaLogo className="h-9 w-9" />
@@ -49,6 +49,7 @@ export function LandingLayout({ children }: { children: React.ReactNode }) {
               <li><Link to="/funcionalidades/incidentes" className="hover:text-lp-ink transition-colors">IC & NC</Link></li>
               <li><Link to="/funcionalidades/documentos" className="hover:text-lp-ink transition-colors">Documentos</Link></li>
               <li><Link to="/funcionalidades/fornecedores" className="hover:text-lp-ink transition-colors">Fornecedores</Link></li>
+              <li><Link to="/funcionalidades/calendario" className="hover:text-lp-ink transition-colors">Calendário</Link></li>
             </ul>
           </div>
           <div>
@@ -56,6 +57,15 @@ export function LandingLayout({ children }: { children: React.ReactNode }) {
             <ul className="space-y-2 text-sm text-lp-muted">
               <li><Link to="/cadastro" className="hover:text-lp-ink transition-colors">Criar conta</Link></li>
               <li><Link to="/login" className="hover:text-lp-ink transition-colors">Entrar</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h5 className="text-xs uppercase tracking-wider text-lp-ink font-semibold mb-4">Legal</h5>
+            <ul className="space-y-2 text-sm text-lp-muted">
+              <li><Link to="/termos" className="hover:text-lp-ink transition-colors">Termos de Uso</Link></li>
+              <li><Link to="/privacidade" className="hover:text-lp-ink transition-colors">Privacidade (LGPD)</Link></li>
+              <li><Link to="/seguranca-da-informacao" className="hover:text-lp-ink transition-colors">Segurança da Informação</Link></li>
+              <li><Link to="/subprocessadores" className="hover:text-lp-ink transition-colors">Subprocessadores</Link></li>
             </ul>
           </div>
         </div>

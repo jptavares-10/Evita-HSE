@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { AuthShell } from "@/components/landing/AuthShell";
+import { Checkbox } from "@/components/ui/checkbox";
+import { LEGAL_VERSION } from "@/content/legal";
 
 const SEGMENTS = [
   "Construção Civil",
@@ -45,6 +47,7 @@ export default function Cadastro() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   // Track if auth was created but RPC failed — allow retry without new signUp
   const [authCreated, setAuthCreated] = useState(false);
   const navigate = useNavigate();
@@ -76,6 +79,7 @@ export default function Cadastro() {
     setLoading(true);
     try {
       await callRpc();
+      await supabase.rpc("accept_terms", { p_version: LEGAL_VERSION });
       toast({
         title: "Bem-vindo ao Evita HSE!",
         description: "Seu trial de 14 dias começou.",
@@ -104,6 +108,11 @@ export default function Cadastro() {
 
     if (password !== confirmPassword) {
       setError("As senhas não coincidem.");
+      return;
+    }
+
+    if (!acceptedTerms) {
+      setError("É necessário aceitar os Termos de Uso e a Política de Privacidade.");
       return;
     }
 
@@ -137,6 +146,9 @@ export default function Cadastro() {
 
       // 3. Call RPC to create company + profile atomically
       const rpcResult = await callRpc();
+
+      // 3.1 Register terms acceptance (date + version)
+      await supabase.rpc("accept_terms", { p_version: LEGAL_VERSION });
 
       // 4. Verify profile was created before redirecting
       const { data: profileCheck } = await supabase
@@ -241,6 +253,24 @@ export default function Cadastro() {
           </div>
         </div>
 
+        {!authCreated && (
+          <div className="flex items-start gap-3 rounded-lg border border-lp-border bg-lp-surface/60 p-3">
+            <Checkbox
+              id="acceptTerms"
+              checked={acceptedTerms}
+              onCheckedChange={(v) => setAcceptedTerms(v === true)}
+              className="mt-0.5 border-lp-border data-[state=checked]:bg-lp-emerald data-[state=checked]:border-lp-emerald"
+            />
+            <Label htmlFor="acceptTerms" className="text-xs leading-relaxed text-lp-muted font-normal cursor-pointer">
+              Li e aceito os{" "}
+              <Link to="/termos" target="_blank" className="text-lp-emerald hover:underline underline-offset-2">Termos de Uso</Link>{" "}
+              e a{" "}
+              <Link to="/privacidade" target="_blank" className="text-lp-emerald hover:underline underline-offset-2">Política de Privacidade</Link>{" "}
+              do Evita HSE. *
+            </Label>
+          </div>
+        )}
+
         {error && (
           <div className="space-y-2">
             <p className="text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">{error}</p>
@@ -255,7 +285,7 @@ export default function Cadastro() {
         {!authCreated && (
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !acceptedTerms}
             className="w-full py-2.5 rounded-lg bg-lp-emerald text-lp-bg font-medium hover:bg-lp-emerald-glow transition-all lp-glow disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading ? "Criando conta..." : "Criar conta grátis"}

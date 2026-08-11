@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useEmployees, useTrainings, useTrainingMatrix, useAllRecords, useJobPositions, useSectors } from "@/hooks/useTrainings";
 import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
-import { GraduationCap, Building2, Briefcase, UserPlus, BookOpen } from "lucide-react";
+import { GraduationCap, Building2, Briefcase, UserPlus, BookOpen, Grid3x3, Award } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { computeEmployeeCompliance, getRecordStatus, formatDateBR } from "@/lib/trainings";
 import { TrainingKpiCards } from "@/components/treinamentos/TrainingKpiCards";

@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Plus, FolderOpen, Copy, Pencil, Trash2, Phone, Users, FileText, AlertTriangle, UserPlus, Globe } from "lucide-react";
+import { Plus, FolderOpen, Copy, Pencil, Trash2, Phone, Users, FileText, AlertTriangle, UserPlus, Globe, Tags, Link2 } from "lucide-react";
 import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
 import { SupplierDrawer } from "@/components/fornecedores/SupplierDrawer";
 import { ManageSupplierCategoriesModal } from "@/components/fornecedores/ManageSupplierCategoriesModal";

@@ -14,7 +14,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Plus, Search, Pencil, Trash2, Clock, FileText, ClipboardCheck, Users } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Clock, FileText, ClipboardCheck, Users, ListChecks, Boxes, PlayCircle } from "lucide-react";
 import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
 import { useNavigate } from "react-router-dom";
 import { TableSkeleton } from "@/components/TableSkeleton";

@@ -36,11 +36,19 @@ const groups = [
       { slug: "fornecedores", eyebrow: "Fornecedores", name: "Documento de terceiro sem grupo de WhatsApp.", desc: "Link único por fornecedor, pastas por categoria e envio seguro por token — sem criar conta." },
     ],
   },
+  {
+    label: "Gestão",
+    headline: "O mês inteiro de HSE em uma agenda só.",
+    sub: "Prazo que nasce em qualquer módulo aparece aqui, junto com campanhas, auditorias e reuniões.",
+    modules: [
+      { slug: "calendario", eyebrow: "Calendário", name: "O prazo entra na agenda sozinho.", desc: "Vencimentos de serviços, inspeções, licenças, MTR e revisões agregados automaticamente, mais eventos próprios com anexo e responsável." },
+    ],
+  },
 ];
 
 export default function Funcionalidades() {
   usePageTitle("Funcionalidades — Módulos do Evita HSE", {
-    description: "Conheça os 10 módulos do Evita HSE: serviços, inspeções, EPIs, treinamentos, ASO, MTR, licenças, documentos, incidentes e fornecedores.",
+    description: "Conheça os 11 módulos do Evita HSE: serviços, inspeções, EPIs, treinamentos, ASO, MTR, licenças, documentos, incidentes, fornecedores e calendário unificado.",
   });
 
   return (

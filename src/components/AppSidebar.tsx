@@ -49,6 +49,8 @@ const ROUTE_MODULE_MAP: Record<string, string> = {
   "/mtr": "mtr",
   "/licencas": "environmental_licenses",
   "/fornecedores": "suppliers",
+  "/licencas/condicionantes": "license_conditionants",
+  "/revisoes": "document_review",
 };
 
 function getGroupState(): Record<string, boolean> {

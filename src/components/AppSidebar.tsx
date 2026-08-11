@@ -355,18 +355,43 @@ export function AppSidebar() {
         )}
       >
         {/* ── Header: Logo + Collapse toggle ── */}
-        <div className="flex items-center border-b border-border px-3 py-4">
-          <Link to="/dashboard" className="flex items-center gap-2 flex-1 min-w-0 group" aria-label="Evita HSE — Dashboard">
+        <div
+          className={cn(
+            "border-b border-border",
+            collapsed ? "flex flex-col items-center gap-2 px-2 pt-4 pb-3" : "flex items-center px-3 py-4",
+          )}
+        >
+          <Link
+            to="/dashboard"
+            className={cn("group min-w-0", collapsed ? "flex items-center justify-center" : "flex items-center gap-2 flex-1")}
+            aria-label="Evita HSE — Dashboard"
+          >
             {companyLogoUrl ? (
-              <img src={companyLogoUrl} alt={`Logo${company?.name ? " da " + company.name : ""}`} className="h-8 w-8 rounded object-contain flex-shrink-0" />
+              <img
+                src={companyLogoUrl}
+                alt={`Logo${company?.name ? " da " + company.name : ""}`}
+                className={cn(
+                  "rounded object-contain flex-shrink-0 transition-all duration-300",
+                  collapsed ? "h-9 w-9" : "h-8 w-8",
+                )}
+              />
             ) : (
-              <EvitaLogo className="h-8 w-8 flex-shrink-0 transition-transform group-hover:rotate-[-4deg]" />
+              <EvitaLogo
+                className={cn(
+                  "flex-shrink-0 transition-all duration-300 group-hover:rotate-[-4deg]",
+                  collapsed ? "h-9 w-9" : "h-8 w-8",
+                )}
+              />
             )}
             {!collapsed && <span className="truncate"><EvitaWordmark size="md" /></span>}
           </Link>
           <button
             onClick={() => setCollapsed((c) => !c)}
-            className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded hover:bg-accent flex-shrink-0"
+            aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
+            className={cn(
+              "text-muted-foreground hover:text-foreground hover:bg-accent transition-colors flex items-center justify-center flex-shrink-0",
+              collapsed ? "h-6 w-8 rounded-md border border-border/60" : "h-7 w-7 rounded p-1",
+            )}
           >
             {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </button>

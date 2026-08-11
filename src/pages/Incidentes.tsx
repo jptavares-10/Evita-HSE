@@ -139,10 +139,15 @@ export default function Incidentes() {
       ) : occurrences.length === 0 ? (
         <ModuleOnboarding
           title="IC & NC — Incidentes e Não Conformidades"
-          description="Registre ocorrências e acompanhe ações corretivas para melhorar a segurança."
+          description="Do registro do fato à causa raiz, ao plano de ação e à lição aprendida — sem achismo."
           icon={AlertTriangle}
+          note="Acidente com afastamento exige CAT em até um dia útil e, em caso de óbito, comunicação imediata. Registrar quase-acidente é o que evita o acidente seguinte: o sistema calcula Taxa de Frequência e Taxa de Gravidade a partir do que você lança aqui."
           steps={[
-            { title: "Registrar primeira ocorrência", description: "Documente incidentes, quase-acidentes ou não conformidades", icon: FileWarning, actionLabel: "Registrar", action: () => { setEditingOcc(null); setDrawerOpen(true); }, completed: false },
+            { title: "1. Registrar a primeira ocorrência", description: "Escolha o tipo (incidente, quase-acidente ou não conformidade), data, local e o que aconteceu.", hint: "O tipo não pode ser alterado depois do registro — ele define a trilha de investigação e os indicadores.", icon: FileWarning, actionLabel: "Registrar", action: () => { setEditingOcc(null); setDrawerOpen(true); }, completed: false },
+            { title: "2. Vincular envolvidos, testemunhas e evidências", description: "Informe os colaboradores envolvidos, dias de afastamento e anexe fotos do local.", hint: "Dias de afastamento e severidade crítica acionam automaticamente o alerta de CAT obrigatória.", icon: Users, actionLabel: "Registrar", action: () => { setEditingOcc(null); setDrawerOpen(true); }, completed: false },
+            { title: "3. Investigar a causa raiz", description: "Use 5 Porquês e, nos planos superiores, Ishikawa e Bow-Tie para chegar à causa real.", hint: "Pare de investigar quando a causa apontar para uma falha de sistema ou processo — não para uma pessoa.", icon: SearchIcon, actionLabel: "Registrar", action: () => { setEditingOcc(null); setDrawerOpen(true); }, completed: false },
+            { title: "4. Montar o plano de ação 5W2H", description: "Cada ação com responsável, prazo e hierarquia de controle definida.", hint: "Prefira eliminação e engenharia a treinamento e EPI: controle mais alto na hierarquia resolve de verdade.", icon: ListChecks, actionLabel: "Registrar", action: () => { setEditingOcc(null); setDrawerOpen(true); }, completed: false },
+            { title: "5. Verificar a eficácia e publicar a lição", description: "Confirme que a ação funcionou e publique o aprendizado na aba Lições Aprendidas.", optional: true, icon: Lightbulb, actionLabel: "Registrar", action: () => { setEditingOcc(null); setDrawerOpen(true); }, completed: false },
           ] as OnboardingStep[]}
         />
       ) : filtered.length === 0 ? (

@@ -13,7 +13,7 @@ import { TableSkeleton } from "@/components/TableSkeleton";
 import { usePermission } from "@/hooks/usePermission";
 import { PermissionButton } from "@/components/PermissionButton";
 import { ViewerBadge } from "@/components/ViewerBadge";
-import { ASSET_TYPES, buildAssetLabelsPdf, downloadBlob, getInspectionQrUrl, qrDataUrl } from "@/lib/inspection-qr";
+import { ASSET_TYPES, buildAssetLabelsPdf, downloadBlob, getInspectionQrUrl, qrDataUrl } from "@/lib/inspection-assets";
 import { useToast } from "@/hooks/use-toast";
 
 export default function InspecoesAtivos() {

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useChecklistItems, useSaveChecklistItem, useDeleteChecklistItem } from "@/hooks/useInspectionsField";
-import { RESPONSE_TYPES } from "@/lib/inspection-qr";
+import { RESPONSE_TYPES } from "@/lib/inspection-assets";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, Camera, Check, X, MinusCircle, AlertTriangle, MapPin, Loader2, FileSignature } from "lucide-react";
-import { RESPONSE_TYPES } from "@/lib/inspection-qr";
+import { RESPONSE_TYPES } from "@/lib/inspection-assets";
 import { SignExecutionModal } from "@/components/inspecoes/SignExecutionModal";
 import { usePageTitle } from "@/hooks/usePageTitle";
 

@@ -15,7 +15,7 @@ export function BlogLayout({ children }: BlogLayoutProps) {
       {/* Footer */}
       <footer className="border-t border-lp-border bg-lp-bg py-12 px-6 lg:px-8 mt-24">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-lp-muted">
-          <p>© {new Date().getFullYear()} Evita HSE — Gestão de SST e Meio Ambiente</p>
+          <p>© {new Date().getFullYear()} Evita HSE — Software de Gestão de SST, Saúde e Meio Ambiente</p>
           <nav className="flex items-center gap-6">
             <Link to="/" className="hover:text-lp-ink transition-colors">Início</Link>
             <Link to="/blog" className="hover:text-lp-ink transition-colors">Blog</Link>

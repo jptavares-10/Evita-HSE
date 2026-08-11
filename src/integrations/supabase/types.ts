@@ -288,6 +288,8 @@ export type Database = {
         Row: {
           cnpj: string | null
           created_at: string
+          deletion_requested_at: string | null
+          deletion_requested_by: string | null
           id: string
           logo_url: string | null
           max_users: number
@@ -302,12 +304,16 @@ export type Database = {
           stripe_price_id: string | null
           stripe_subscription_id: string | null
           subscription_cancel_at: string | null
+          terms_accepted_at: string | null
+          terms_version: string | null
           trial_ends_at: string | null
           trial_started_at: string | null
         }
         Insert: {
           cnpj?: string | null
           created_at?: string
+          deletion_requested_at?: string | null
+          deletion_requested_by?: string | null
           id?: string
           logo_url?: string | null
           max_users?: number
@@ -322,12 +328,16 @@ export type Database = {
           stripe_price_id?: string | null
           stripe_subscription_id?: string | null
           subscription_cancel_at?: string | null
+          terms_accepted_at?: string | null
+          terms_version?: string | null
           trial_ends_at?: string | null
           trial_started_at?: string | null
         }
         Update: {
           cnpj?: string | null
           created_at?: string
+          deletion_requested_at?: string | null
+          deletion_requested_by?: string | null
           id?: string
           logo_url?: string | null
           max_users?: number
@@ -342,10 +352,20 @@ export type Database = {
           stripe_price_id?: string | null
           stripe_subscription_id?: string | null
           subscription_cancel_at?: string | null
+          terms_accepted_at?: string | null
+          terms_version?: string | null
           trial_ends_at?: string | null
           trial_started_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "companies_deletion_requested_by_fkey"
+            columns: ["deletion_requested_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       conditionant_compliances: {
         Row: {
@@ -1111,6 +1131,7 @@ export type Database = {
           id: string
           next_revision_at: string | null
           responsible: string | null
+          responsible_user_id: string | null
           revision_frequency_days: number | null
           status: string
           title: string
@@ -1132,6 +1153,7 @@ export type Database = {
           id?: string
           next_revision_at?: string | null
           responsible?: string | null
+          responsible_user_id?: string | null
           revision_frequency_days?: number | null
           status?: string
           title: string
@@ -1153,6 +1175,7 @@ export type Database = {
           id?: string
           next_revision_at?: string | null
           responsible?: string | null
+          responsible_user_id?: string | null
           revision_frequency_days?: number | null
           status?: string
           title?: string
@@ -1185,6 +1208,13 @@ export type Database = {
             columns: ["document_type_id"]
             isOneToOne: false
             referencedRelation: "document_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_responsible_user_id_fkey"
+            columns: ["responsible_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -4288,6 +4318,7 @@ export type Database = {
         Args: { p_full_name?: string; p_token: string }
         Returns: Json
       }
+      accept_terms: { Args: { p_version: string }; Returns: Json }
       activate_plan_from_stripe: {
         Args: {
           p_billing: string
@@ -4299,6 +4330,7 @@ export type Database = {
         }
         Returns: Json
       }
+      cancel_account_deletion: { Args: never; Returns: Json }
       cancel_plan_from_stripe: {
         Args: { p_stripe_subscription_id: string }
         Returns: Json
@@ -4335,6 +4367,7 @@ export type Database = {
         Args: { p_billing: string; p_stripe_subscription_id: string }
         Returns: Json
       }
+      request_account_deletion: { Args: { p_reason?: string }; Returns: Json }
       seed_default_aso_exam_types: {
         Args: { p_company_id: string }
         Returns: undefined

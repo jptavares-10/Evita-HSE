@@ -4350,6 +4350,7 @@ export type Database = {
         Returns: Json
       }
       get_company_access_status: { Args: never; Returns: Json }
+      get_company_storage_usage: { Args: never; Returns: Json }
       get_pending_invitation_for_current_user: { Args: never; Returns: Json }
       get_supplier_portal_data: { Args: { p_token: string }; Returns: Json }
       get_user_company_id: { Args: never; Returns: string }

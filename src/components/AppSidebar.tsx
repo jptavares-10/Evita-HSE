@@ -19,7 +19,7 @@ import { useSuppliers } from "@/hooks/useSuppliers";
 import { getServiceStatus } from "@/lib/services";
 import { getCdfDisplayStatus } from "@/lib/mtr";
 import { computeEmployeeCompliance } from "@/lib/trainings";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { UpgradeModal } from "@/components/UpgradeModal";
 import {

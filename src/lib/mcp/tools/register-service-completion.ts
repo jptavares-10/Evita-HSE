@@ -33,7 +33,6 @@ export default defineTool({
     failure_description: z.string().optional().describe("Failure description for corrective completions."),
   },
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
-  needsApproval: true,
   handler: async (input, ctx) => {
     const denied = (await planGate(ctx)) ?? (await editorGate(ctx, "periodic_services"));
     if (denied) return denied;

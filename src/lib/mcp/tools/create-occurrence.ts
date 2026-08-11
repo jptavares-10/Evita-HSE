@@ -19,7 +19,6 @@ export default defineTool({
     lost_days: z.number().int().min(0).optional().describe("Lost days, when there was time off work."),
   },
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
-  needsApproval: true,
   handler: async (input, ctx) => {
     const denied = (await planGate(ctx)) ?? (await editorGate(ctx, "ic_nc"));
     if (denied) return denied;

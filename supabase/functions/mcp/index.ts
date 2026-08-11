@@ -606,7 +606,6 @@ var create_occurrence_default = defineTool18({
     lost_days: z17.number().int().min(0).optional().describe("Lost days, when there was time off work.")
   },
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
-  needsApproval: true,
   handler: async (input, ctx) => {
     const denied = await planGate(ctx) ?? await editorGate(ctx, "ic_nc");
     if (denied) return denied;
@@ -648,7 +647,6 @@ var create_calendar_event_default = defineTool19({
     description: z18.string().optional()
   },
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
-  needsApproval: true,
   handler: async (input, ctx) => {
     const denied = await planGate(ctx) ?? await editorGate(ctx, "calendar");
     if (denied) return denied;
@@ -691,7 +689,6 @@ var create_corrective_action_default = defineTool20({
     control_hierarchy: z19.enum(["elimination", "substitution", "engineering", "administrative", "ppe"]).optional().describe("Hierarchy of controls level.")
   },
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
-  needsApproval: true,
   handler: async (input, ctx) => {
     const denied = await planGate(ctx) ?? await editorGate(ctx, "ic_nc");
     if (denied) return denied;
@@ -745,7 +742,6 @@ var register_service_completion_default = defineTool21({
     failure_description: z20.string().optional().describe("Failure description for corrective completions.")
   },
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
-  needsApproval: true,
   handler: async (input, ctx) => {
     const denied = await planGate(ctx) ?? await editorGate(ctx, "periodic_services");
     if (denied) return denied;

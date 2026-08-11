@@ -20,7 +20,6 @@ export default defineTool({
     description: z.string().optional(),
   },
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
-  needsApproval: true,
   handler: async (input, ctx) => {
     const denied = (await planGate(ctx)) ?? (await editorGate(ctx, "calendar"));
     if (denied) return denied;

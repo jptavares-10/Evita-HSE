@@ -20,7 +20,6 @@ export default defineTool({
       .describe("Hierarchy of controls level."),
   },
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
-  needsApproval: true,
   handler: async (input, ctx) => {
     const denied = (await planGate(ctx)) ?? (await editorGate(ctx, "ic_nc"));
     if (denied) return denied;

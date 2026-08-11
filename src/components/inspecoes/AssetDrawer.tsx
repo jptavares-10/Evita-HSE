@@ -69,7 +69,7 @@ export function AssetDrawer({ open, onOpenChange, editing, sectors }: Props) {
           <div className="space-y-2">
             <Label>Código da etiqueta *</Label>
             <Input placeholder="Ex: EXT-042" value={tagCode} onChange={(e) => setTagCode(e.target.value.toUpperCase())} />
-            <p className="text-xs text-muted-foreground">Código curto que vai no QR e no adesivo. Deve ser único.</p>
+            <p className="text-xs text-muted-foreground">Código curto de identificação do ativo. Deve ser único.</p>
           </div>
           <div className="space-y-2">
             <Label>Nome / descrição *</Label>

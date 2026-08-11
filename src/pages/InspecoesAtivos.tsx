@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
 import { useInspectionAssets, useDeleteAsset } from "@/hooks/useInspectionsField";
 import { useSectors } from "@/hooks/useTrainings";
 import { Badge } from "@/components/ui/badge";
@@ -56,7 +55,7 @@ export default function InspecoesAtivos() {
       </div>
 
       {isLoading ? (
-        <TableSkeleton columns={6} />
+        <TableSkeleton columns={5} />
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 space-y-3">
           <Boxes className="h-12 w-12 mx-auto text-muted-foreground/30" />

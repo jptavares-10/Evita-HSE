@@ -144,11 +144,15 @@ export default function Licencas() {
       ) : enriched.length === 0 ? (
         <ModuleOnboarding
           title="Licenças Ambientais"
-          description="Gerencie suas licenças, vencimentos e renovações em um só lugar."
+          description="Licença, prazo de renovação e condicionantes com evidência anexada, na mesma trilha."
           icon={FileText}
+          note="O órgão ambiental cobra duas coisas: a licença vigente e o cumprimento das condicionantes dentro do prazo. Perder o prazo de renovação pode significar operar sem licença — aqui o vencimento e cada condicionante ficam vigiados."
           steps={[
-            { title: "Criar tipos de licença", description: "Defina categorias como LO, LI, LP, etc.", icon: Tags, actionLabel: "Criar tipos", action: () => setTypesModalOpen(true), completed: types.length > 0 },
-            { title: "Cadastrar primeira licença", description: "Registre número, órgão emissor e vencimento", icon: Plus, actionLabel: "Cadastrar", action: openNew, completed: false },
+            { title: "1. Criar os tipos de licença", description: "LP, LI, LO, outorga de água, autorização de supressão — conforme o que sua unidade possui.", hint: "O tipo define como a licença aparece nos filtros e nos indicadores de vencimento.", icon: Tags, actionLabel: "Criar tipos", action: () => setTypesModalOpen(true), completed: types.length > 0 },
+            { title: "2. Cadastrar a primeira licença", description: "Número, órgão emissor, data de emissão e data de validade.", hint: "Licença sem validade definida pode ser marcada como permanente — ela sai da contagem de vencimento.", icon: Plus, actionLabel: "Cadastrar", action: openNew, completed: false },
+            { title: "3. Anexar o documento da licença", description: "Suba o PDF emitido pelo órgão ambiental para consulta rápida da equipe.", hint: "Com o arquivo no sistema ninguém precisa procurar a via física quando o fiscal chega.", icon: Paperclip, actionLabel: "Cadastrar", action: openNew, completed: false },
+            { title: "4. Lançar as condicionantes", description: "Na aba Condicionantes, cadastre cada exigência com prazo único, recorrente, contínuo ou vinculado.", hint: "É onde a maioria das empresas falha. Cada condicionante recebe evidência, protocolo e medição de conformidade.", icon: ShieldCheck, actionLabel: "Cadastrar licença", action: openNew, completed: false },
+            { title: "5. Programar a renovação", description: "Defina com quantos dias de antecedência o pedido de renovação deve ser protocolado.", optional: true, icon: CalendarClock, actionLabel: "Cadastrar", action: openNew, completed: false },
           ] as OnboardingStep[]}
         />
       ) : filtered.length === 0 ? (

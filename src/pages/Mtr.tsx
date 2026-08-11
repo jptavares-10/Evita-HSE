@@ -107,12 +107,16 @@ export default function Mtr() {
         <TableSkeleton columns={7} />
       ) : mtrs.length === 0 ? (
         <ModuleOnboarding
-          title="Gestão de MTR"
-          description="Configure o controle de Manifestos de Transporte de Resíduos e CDFs."
+          title="Resíduos e MTR"
+          description="Cada manifesto emitido com o CDF cobrado antes de o prazo virar autuação."
           icon={Recycle}
+          note="O gerador tem 90 dias para receber o Certificado de Destinação Final do destinador. Passado o prazo sem CDF, a responsabilidade pelo resíduo continua sendo sua. O sistema conta esses 90 dias e alerta no 83º dia."
           steps={[
-            { title: "Cadastrar categorias de resíduo", description: "Defina os tipos de resíduos que sua empresa gera", icon: Tags, actionLabel: "Criar categorias", action: () => setCatModalOpen(true), completed: false },
-            { title: "Registrar primeiro MTR", description: "Cadastre um manifesto com prazo e transportadora", icon: Plus, actionLabel: "Criar MTR", action: handleNewMtr, completed: false },
+            { title: "1. Cadastrar as categorias de resíduo", description: "Classe I (perigoso), Classe II, orgânico, sucata, óleo — do jeito que sua operação fala.", hint: "As categorias alimentam o gráfico de geração mensal. Categoria bem definida hoje é indicador confiável depois.", icon: Tags, actionLabel: "Criar categorias", action: () => setCatModalOpen(true), completed: false },
+            { title: "2. Registrar o primeiro MTR", description: "Número do manifesto, data de emissão, transportador e destinador.", hint: "O número do MTR é único no sistema — isso evita o mesmo manifesto lançado duas vezes por pessoas diferentes.", icon: Plus, actionLabel: "Criar MTR", action: handleNewMtr, completed: false },
+            { title: "3. Lançar os itens e as quantidades", description: "Informe cada resíduo do manifesto com a quantidade em toneladas (até 3 decimais).", hint: "É esse detalhamento que gera o relatório de geração por categoria exigido em auditoria ambiental.", icon: Truck, actionLabel: "Criar MTR", action: handleNewMtr, completed: false },
+            { title: "4. Registrar o CDF quando chegar", description: "Ao receber o certificado, lance a data e anexe o arquivo no manifesto correspondente.", hint: "Enquanto o CDF não é registrado, o MTR fica em aberto e entra na contagem dos 90 dias.", icon: FileCheck, actionLabel: "Criar MTR", action: handleNewMtr, completed: false },
+            { title: "5. Acompanhar prazos e a análise mensal", description: "Os cartões mostram aguardando CDF, próximos do prazo e vencidos; a aba Análise traz a geração por categoria.", optional: true, icon: CalendarClock, actionLabel: "Criar MTR", action: handleNewMtr, completed: false },
           ] as OnboardingStep[]}
         />
       ) : filteredMtrs.length === 0 ? (

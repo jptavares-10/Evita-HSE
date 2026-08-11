@@ -106,12 +106,15 @@ export default function Aso() {
     return (
       <ModuleOnboarding
         title="Exames Ocupacionais (ASO)"
-        description="Controle ASOs e vencimentos de exames dos seus colaboradores."
+        description="Quem está apto, para qual função e até quando — respondido em uma tela, com o ASO anexado."
         icon={Stethoscope}
+        note="O PCMSO exige ASO admissional, periódico, de retorno ao trabalho, de mudança de risco e demissional. Trabalhar com exame vencido expõe a empresa em fiscalização e em ação trabalhista — aqui o vencimento é calculado e avisado antes de acontecer."
         steps={[
-          { title: "Cadastrar colaboradores", description: "Necessário para vincular exames ocupacionais", icon: Users, actionLabel: "Ir para colaboradores", action: () => navigate("/treinamentos/colaboradores"), completed: false },
-          { title: "Configurar tipos de exame", description: "Defina admissional, periódico, demissional, etc.", icon: Tags, actionLabel: "Configurar", action: () => setTypesOpen(true), completed: examTypes.some((t: any) => !t.is_default) },
-          { title: "Registrar primeiro ASO", description: "Vincule um exame a um colaborador com data e vencimento", icon: Plus, actionLabel: "Registrar", action: () => { setEditRecord(null); setSelectedEmployee(null); setDrawerOpen(true); }, completed: false },
+          { title: "1. Cadastrar os colaboradores", description: "O ASO é sempre vinculado a uma pessoa: sem colaborador, não há exame.", hint: "Já tem a lista em planilha? Use a importação em Colaboradores para subir todos de uma vez.", icon: Users, actionLabel: "Ir para colaboradores", action: () => navigate("/treinamentos/colaboradores"), completed: activeEmployees.length > 0 },
+          { title: "2. Revisar os tipos de exame", description: "Admissional, periódico, retorno ao trabalho, mudança de risco e demissional já vêm criados.", hint: "Ajuste a validade em meses de cada tipo conforme o seu PCMSO — é ela que define o vencimento automático.", icon: Tags, actionLabel: "Configurar", action: () => setTypesOpen(true), completed: examTypes.some((t: any) => !t.is_default) },
+          { title: "3. Registrar o primeiro ASO", description: "Escolha o colaborador, o tipo de exame, a data de realização e o médico examinador.", hint: "O vencimento é calculado a partir da data do exame e da validade do tipo — você não precisa digitar a data futura.", icon: Plus, actionLabel: "Registrar", action: () => { setEditRecord(null); setSelectedEmployee(null); setDrawerOpen(true); }, completed: false },
+          { title: "4. Anexar o documento do ASO", description: "Suba o PDF ou a foto do atestado assinado pelo médico do trabalho.", hint: "O anexo é o que vale como prova. Sem ele o registro serve de controle interno, mas não de evidência.", icon: Paperclip, actionLabel: "Registrar", action: () => { setEditRecord(null); setSelectedEmployee(null); setDrawerOpen(true); }, completed: false },
+          { title: "5. Acompanhar os vencimentos", description: "Os indicadores no topo mostram aptos, a vencer e vencidos; o histórico por colaborador fica na ficha dele.", optional: true, icon: CalendarClock, actionLabel: "Registrar", action: () => { setEditRecord(null); setSelectedEmployee(null); setDrawerOpen(true); }, completed: false },
         ] as OnboardingStep[]}
       />
     );

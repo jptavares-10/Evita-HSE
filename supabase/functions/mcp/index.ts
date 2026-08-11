@@ -5,9 +5,8 @@
 // src/lib/mcp/index.ts
 import { auth, defineMcp } from "npm:@lovable.dev/mcp-js@0.20.0";
 
-// src/lib/mcp/tools/list-periodic-services.ts
+// src/lib/mcp/tools/get-dashboard-summary.ts
 import { defineTool } from "npm:@lovable.dev/mcp-js@0.20.0";
-import { z } from "npm:zod@^3.25.76";
 
 // src/lib/mcp/supabase.ts
 import { createClient } from "npm:@supabase/supabase-js@^2.99.3";
@@ -31,6 +30,18 @@ var APP_URL = "https://evita-hse-br.lovable.app";
 function deepLink(path) {
   return `${APP_URL}${path}`;
 }
+async function editorGate(ctx, module) {
+  const { data, error } = await supabaseForUser(ctx).rpc("has_module_editor_permission", {
+    p_module: module
+  });
+  if (error) return errorResult(`Could not verify permissions: ${error.message}`);
+  if (data !== true) {
+    return errorResult(
+      `You don't have editor permission on the "${module}" module, so this record was not created.`
+    );
+  }
+  return null;
+}
 async function planGate(ctx) {
   if (!ctx.isAuthenticated()) return errorResult("Not authenticated");
   const { data, error } = await supabaseForUser(ctx).rpc("get_company_access_status");
@@ -43,129 +54,8 @@ async function planGate(ctx) {
   return null;
 }
 
-// src/lib/mcp/tools/list-periodic-services.ts
-function statusOf(nextDueAt, alertDaysBefore) {
-  if (!nextDueAt) return "unknown";
-  const today = /* @__PURE__ */ new Date();
-  today.setHours(0, 0, 0, 0);
-  const diff = Math.floor(((/* @__PURE__ */ new Date(nextDueAt + "T00:00:00")).getTime() - today.getTime()) / 864e5);
-  if (diff < 0) return "expired";
-  if (diff <= (alertDaysBefore ?? 30)) return "warning";
-  return "ok";
-}
-var list_periodic_services_default = defineTool({
-  name: "list_periodic_services",
-  title: "List periodic services",
-  description: "List HSE periodic services for the signed-in user's company (name, category, last done, next due date and compliance status).",
-  inputSchema: {
-    status: z.enum(["ok", "warning", "expired", "all"]).optional().describe("Filter by compliance status."),
-    limit: z.number().int().min(1).max(200).default(50)
-  },
-  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async ({ status, limit }, ctx) => {
-    const denied = await planGate(ctx);
-    if (denied) return denied;
-    const { data, error } = await supabaseForUser(ctx).from("periodic_services").select("id,name,last_done_at,next_due_at,alert_days_before,supplier,status,service_categories(name)").eq("status", "active").order("next_due_at", { ascending: true }).limit(200);
-    if (error) return errorResult(error.message);
-    let rows = (data ?? []).map((r) => ({
-      ...r,
-      compliance_status: statusOf(r.next_due_at, r.alert_days_before),
-      url: deepLink("/servicos")
-    }));
-    if (status && status !== "all") rows = rows.filter((r) => r.compliance_status === status);
-    return textResult(rows.slice(0, limit));
-  }
-});
-
-// src/lib/mcp/tools/list-occurrences.ts
-import { defineTool as defineTool2 } from "npm:@lovable.dev/mcp-js@0.20.0";
-import { z as z2 } from "npm:zod@^3.25.76";
-var list_occurrences_default = defineTool2({
-  name: "list_occurrences",
-  title: "List incidents (IC & NC)",
-  description: "List incidents, near misses, non-conformities and safety observations for the signed-in user's company.",
-  inputSchema: {
-    type: z2.enum(["incident", "near_miss", "non_conformity", "safety_observation"]).optional().describe("Filter by occurrence type."),
-    open_only: z2.boolean().default(false).describe("Only occurrences that are not closed."),
-    limit: z2.number().int().min(1).max(200).default(50)
-  },
-  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async ({ type, open_only, limit }, ctx) => {
-    const denied = await planGate(ctx);
-    if (denied) return denied;
-    let query = supabaseForUser(ctx).from("occurrences").select(
-      "id,description,type,severity,status,occurred_at,lost_days,with_leave,location,cat_required,cat_number,investigation_method"
-    ).order("occurred_at", { ascending: false }).limit(limit);
-    if (type) query = query.eq("type", type);
-    if (open_only) query = query.neq("status", "closed");
-    const { data, error } = await query;
-    if (error) return errorResult(error.message);
-    return textResult((data ?? []).map((r) => ({ ...r, url: deepLink("/incidentes") })));
-  }
-});
-
-// src/lib/mcp/tools/list-environmental-licenses.ts
-import { defineTool as defineTool3 } from "npm:@lovable.dev/mcp-js@0.20.0";
-import { z as z3 } from "npm:zod@^3.25.76";
-var list_environmental_licenses_default = defineTool3({
-  name: "list_environmental_licenses",
-  title: "List environmental licenses",
-  description: "List environmental licenses (valid, expiring, expired or permanent) for the signed-in user's company.",
-  inputSchema: { limit: z3.number().int().min(1).max(200).default(50) },
-  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async ({ limit }, ctx) => {
-    const denied = await planGate(ctx);
-    if (denied) return denied;
-    const { data, error } = await supabaseForUser(ctx).from("environmental_licenses").select("id,license_number,title,issuing_body,sphere,issued_at,expires_at,has_expiry,status,alert_days_before").order("expires_at", { ascending: true, nullsFirst: false }).limit(limit);
-    if (error) return errorResult(error.message);
-    return textResult((data ?? []).map((r) => ({ ...r, url: deepLink("/licencas") })));
-  }
-});
-
-// src/lib/mcp/tools/list-suppliers.ts
-import { defineTool as defineTool4 } from "npm:@lovable.dev/mcp-js@0.20.0";
-import { z as z4 } from "npm:zod@^3.25.76";
-var list_suppliers_default = defineTool4({
-  name: "list_suppliers",
-  title: "List suppliers",
-  description: "List suppliers registered by the signed-in user's company.",
-  inputSchema: {
-    search: z4.string().optional().describe("Substring match on supplier name."),
-    limit: z4.number().int().min(1).max(200).default(50)
-  },
-  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async ({ search, limit }, ctx) => {
-    const denied = await planGate(ctx);
-    if (denied) return denied;
-    let q = supabaseForUser(ctx).from("suppliers_safe").select("*").order("name", { ascending: true }).limit(limit);
-    if (search) q = q.ilike("name", `%${search}%`);
-    const { data, error } = await q;
-    if (error) return errorResult(error.message);
-    return textResult(data);
-  }
-});
-
-// src/lib/mcp/tools/list-epi-deliveries.ts
-import { defineTool as defineTool5 } from "npm:@lovable.dev/mcp-js@0.20.0";
-import { z as z5 } from "npm:zod@^3.25.76";
-var list_epi_deliveries_default = defineTool5({
-  name: "list_epi_deliveries",
-  title: "List EPI deliveries",
-  description: "List recent PPE (EPI) deliveries with employee, item and quantity.",
-  inputSchema: { limit: z5.number().int().min(1).max(200).default(50) },
-  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async ({ limit }, ctx) => {
-    const denied = await planGate(ctx);
-    if (denied) return denied;
-    const { data, error } = await supabaseForUser(ctx).from("epi_deliveries").select("id,delivered_at,quantity,reason,employees(name),epi_types(name,unit)").order("delivered_at", { ascending: false }).limit(limit);
-    if (error) return errorResult(error.message);
-    return textResult(data);
-  }
-});
-
 // src/lib/mcp/tools/get-dashboard-summary.ts
-import { defineTool as defineTool6 } from "npm:@lovable.dev/mcp-js@0.20.0";
-var get_dashboard_summary_default = defineTool6({
+var get_dashboard_summary_default = defineTool({
   name: "get_dashboard_summary",
   title: "HSE dashboard summary",
   description: "Summary counts for the signed-in user's company: open incidents, services and licenses needing attention, overdue CDFs, open corrective actions, deadlines in the next 30 days and total suppliers.",
@@ -201,24 +91,731 @@ var get_dashboard_summary_default = defineTool6({
   }
 });
 
+// src/lib/mcp/tools/get-upcoming-deadlines.ts
+import { defineTool as defineTool2 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z } from "npm:zod@^3.25.76";
+var get_upcoming_deadlines_default = defineTool2({
+  name: "get_upcoming_deadlines",
+  title: "Upcoming HSE deadlines",
+  description: "All upcoming due dates across every module (periodic services, environmental licenses, license renewals, MTR/CDF, inspections, document reviews) for the signed-in user's company.",
+  inputSchema: {
+    days: z.number().int().min(1).max(365).default(30).describe("Look-ahead window in days."),
+    include_overdue: z.boolean().default(true).describe("Include items already past due."),
+    limit: z.number().int().min(1).max(200).default(100)
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ days, include_overdue, limit }, ctx) => {
+    const denied = await planGate(ctx);
+    if (denied) return denied;
+    const today = /* @__PURE__ */ new Date();
+    const iso = (d) => d.toISOString().slice(0, 10);
+    const until = new Date(today.getTime() + days * 864e5);
+    let q = supabaseForUser(ctx).from("calendar_due_items").select("source_module,source_id,title,subtitle,due_date,deep_link").lte("due_date", iso(until)).order("due_date", { ascending: true }).limit(limit);
+    if (!include_overdue) q = q.gte("due_date", iso(today));
+    const { data, error } = await q;
+    if (error) return errorResult(error.message);
+    const todayStr = iso(today);
+    return textResult(
+      (data ?? []).map((r) => ({
+        ...r,
+        overdue: r.due_date < todayStr,
+        url: r.deep_link ? deepLink(r.deep_link) : null
+      }))
+    );
+  }
+});
+
+// src/lib/mcp/tools/get-hse-indicators.ts
+import { defineTool as defineTool3 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z2 } from "npm:zod@^3.25.76";
+var get_hse_indicators_default = defineTool3({
+  name: "get_hse_indicators",
+  title: "HSE indicators (TF / TG)",
+  description: "Safety indicators for a period: frequency rate (TF) and severity rate (TG) per one million man-hours, plus incident counts by type and severity and total lost days.",
+  inputSchema: {
+    from: z2.string().describe("Period start date (YYYY-MM-DD)."),
+    to: z2.string().describe("Period end date (YYYY-MM-DD)."),
+    man_hours: z2.number().optional().describe("Man-hours worked in the period. If omitted, TF/TG are returned as null.")
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ from, to, man_hours }, ctx) => {
+    const denied = await planGate(ctx);
+    if (denied) return denied;
+    const { data, error } = await supabaseForUser(ctx).from("occurrences").select("id,type,severity,with_leave,lost_days,occurred_at,status").gte("occurred_at", from).lte("occurred_at", to);
+    if (error) return errorResult(error.message);
+    const rows = data ?? [];
+    const byType = {};
+    const bySeverity = {};
+    let lostDays = 0;
+    let withLeave = 0;
+    for (const r of rows) {
+      byType[r.type ?? "unknown"] = (byType[r.type ?? "unknown"] ?? 0) + 1;
+      bySeverity[r.severity ?? "unknown"] = (bySeverity[r.severity ?? "unknown"] ?? 0) + 1;
+      lostDays += r.lost_days ?? 0;
+      if (r.with_leave) withLeave += 1;
+    }
+    const round = (n) => Math.round(n * 100) / 100;
+    return textResult({
+      period: { from, to },
+      man_hours: man_hours ?? null,
+      total_occurrences: rows.length,
+      lost_time_incidents: withLeave,
+      total_lost_days: lostDays,
+      by_type: byType,
+      by_severity: bySeverity,
+      open_occurrences: rows.filter((r) => r.status !== "closed").length,
+      frequency_rate_tf: man_hours ? round(withLeave * 1e6 / man_hours) : null,
+      severity_rate_tg: man_hours ? round(lostDays * 1e6 / man_hours) : null,
+      formula: "TF = (acidentes com afastamento x 1.000.000) / HHT; TG = (dias perdidos x 1.000.000) / HHT"
+    });
+  }
+});
+
+// src/lib/mcp/tools/search-records.ts
+import { defineTool as defineTool4 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z3 } from "npm:zod@^3.25.76";
+var search_records_default = defineTool4({
+  name: "search_records",
+  title: "Search HSE records",
+  description: "Cross-module free-text search over periodic services, incidents, environmental licenses, documents, suppliers and employees. Returns the record type, a label and a deep link into the app.",
+  inputSchema: {
+    query: z3.string().describe("Free text to search for."),
+    limit_per_module: z3.number().int().min(1).max(20).default(5)
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ query, limit_per_module }, ctx) => {
+    const denied = await planGate(ctx);
+    if (denied) return denied;
+    const sb = supabaseForUser(ctx);
+    const like = `%${query}%`;
+    const n = limit_per_module;
+    const [srv, occ, lic, doc, sup, emp] = await Promise.all([
+      sb.from("periodic_services").select("id,name,next_due_at").ilike("name", like).limit(n),
+      sb.from("occurrences").select("id,description,type,occurred_at").ilike("description", like).limit(n),
+      sb.from("environmental_licenses").select("id,license_number,title,expires_at").or(`license_number.ilike.${like},title.ilike.${like}`).limit(n),
+      sb.from("documents").select("id,code,title").or(`code.ilike.${like},title.ilike.${like}`).limit(n),
+      sb.from("suppliers_safe").select("id,name").ilike("name", like).limit(n),
+      sb.from("employees").select("id,name").ilike("name", like).limit(n)
+    ]);
+    const firstError = [srv, occ, lic, doc, sup, emp].find((r) => r.error)?.error;
+    if (firstError) return errorResult(firstError.message);
+    return textResult([
+      ...(srv.data ?? []).map((r) => ({ type: "periodic_service", label: r.name, detail: `Vence em ${r.next_due_at}`, url: deepLink("/servicos") })),
+      ...(occ.data ?? []).map((r) => ({ type: "occurrence", label: r.description?.slice(0, 120), detail: `${r.type} \u2014 ${r.occurred_at}`, url: deepLink("/incidentes") })),
+      ...(lic.data ?? []).map((r) => ({ type: "environmental_license", label: r.title ?? r.license_number, detail: `Validade ${r.expires_at ?? "permanente"}`, url: deepLink("/licencas") })),
+      ...(doc.data ?? []).map((r) => ({ type: "document", label: `${r.code} \u2014 ${r.title}`, url: deepLink("/documentos") })),
+      ...(sup.data ?? []).map((r) => ({ type: "supplier", label: r.name, url: deepLink("/fornecedores") })),
+      ...(emp.data ?? []).map((r) => ({ type: "employee", label: r.name, url: deepLink("/treinamentos/colaboradores") }))
+    ]);
+  }
+});
+
+// src/lib/mcp/tools/list-periodic-services.ts
+import { defineTool as defineTool5 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z4 } from "npm:zod@^3.25.76";
+function statusOf(nextDueAt, alertDaysBefore) {
+  if (!nextDueAt) return "unknown";
+  const today = /* @__PURE__ */ new Date();
+  today.setHours(0, 0, 0, 0);
+  const diff = Math.floor(((/* @__PURE__ */ new Date(nextDueAt + "T00:00:00")).getTime() - today.getTime()) / 864e5);
+  if (diff < 0) return "expired";
+  if (diff <= (alertDaysBefore ?? 30)) return "warning";
+  return "ok";
+}
+var list_periodic_services_default = defineTool5({
+  name: "list_periodic_services",
+  title: "List periodic services",
+  description: "List HSE periodic services for the signed-in user's company (name, category, last done, next due date and compliance status).",
+  inputSchema: {
+    status: z4.enum(["ok", "warning", "expired", "all"]).optional().describe("Filter by compliance status."),
+    limit: z4.number().int().min(1).max(200).default(50)
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ status, limit }, ctx) => {
+    const denied = await planGate(ctx);
+    if (denied) return denied;
+    const { data, error } = await supabaseForUser(ctx).from("periodic_services").select("id,name,last_done_at,next_due_at,alert_days_before,supplier,status,service_categories(name)").eq("status", "active").order("next_due_at", { ascending: true }).limit(200);
+    if (error) return errorResult(error.message);
+    let rows = (data ?? []).map((r) => ({
+      ...r,
+      compliance_status: statusOf(r.next_due_at, r.alert_days_before),
+      url: deepLink("/servicos")
+    }));
+    if (status && status !== "all") rows = rows.filter((r) => r.compliance_status === status);
+    return textResult(rows.slice(0, limit));
+  }
+});
+
+// src/lib/mcp/tools/list-occurrences.ts
+import { defineTool as defineTool6 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z5 } from "npm:zod@^3.25.76";
+var list_occurrences_default = defineTool6({
+  name: "list_occurrences",
+  title: "List incidents (IC & NC)",
+  description: "List incidents, near misses, non-conformities and safety observations for the signed-in user's company.",
+  inputSchema: {
+    type: z5.enum(["incident", "near_miss", "non_conformity", "safety_observation"]).optional().describe("Filter by occurrence type."),
+    open_only: z5.boolean().default(false).describe("Only occurrences that are not closed."),
+    limit: z5.number().int().min(1).max(200).default(50)
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ type, open_only, limit }, ctx) => {
+    const denied = await planGate(ctx);
+    if (denied) return denied;
+    let query = supabaseForUser(ctx).from("occurrences").select(
+      "id,description,type,severity,status,occurred_at,lost_days,with_leave,location,cat_required,cat_number,investigation_method"
+    ).order("occurred_at", { ascending: false }).limit(limit);
+    if (type) query = query.eq("type", type);
+    if (open_only) query = query.neq("status", "closed");
+    const { data, error } = await query;
+    if (error) return errorResult(error.message);
+    return textResult((data ?? []).map((r) => ({ ...r, url: deepLink("/incidentes") })));
+  }
+});
+
+// src/lib/mcp/tools/list-environmental-licenses.ts
+import { defineTool as defineTool7 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z6 } from "npm:zod@^3.25.76";
+var list_environmental_licenses_default = defineTool7({
+  name: "list_environmental_licenses",
+  title: "List environmental licenses",
+  description: "List environmental licenses (valid, expiring, expired or permanent) for the signed-in user's company.",
+  inputSchema: { limit: z6.number().int().min(1).max(200).default(50) },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ limit }, ctx) => {
+    const denied = await planGate(ctx);
+    if (denied) return denied;
+    const { data, error } = await supabaseForUser(ctx).from("environmental_licenses").select("id,license_number,title,issuing_body,sphere,issued_at,expires_at,has_expiry,status,alert_days_before").order("expires_at", { ascending: true, nullsFirst: false }).limit(limit);
+    if (error) return errorResult(error.message);
+    return textResult((data ?? []).map((r) => ({ ...r, url: deepLink("/licencas") })));
+  }
+});
+
+// src/lib/mcp/tools/list-conditionants.ts
+import { defineTool as defineTool8 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z7 } from "npm:zod@^3.25.76";
+var list_conditionants_default = defineTool8({
+  name: "list_conditionants",
+  title: "List license conditionants",
+  description: "List environmental-license conditionants with deadline type, due date, criticality, status and latest compliance evidence.",
+  inputSchema: {
+    status: z7.string().optional().describe("Filter by conditionant status."),
+    limit: z7.number().int().min(1).max(200).default(50)
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ status, limit }, ctx) => {
+    const denied = await planGate(ctx);
+    if (denied) return denied;
+    let q = supabaseForUser(ctx).from("license_conditionants").select(
+      "id,item_code,description,criticality,deadline_type,due_date,recurrence,status,environmental_licenses(license_number,title),conditionant_compliances(fulfilled_at,protocol_number)"
+    ).order("due_date", { ascending: true }).limit(limit);
+    if (status) q = q.eq("status", status);
+    const { data, error } = await q;
+    if (error) return errorResult(error.message);
+    return textResult((data ?? []).map((r) => ({ ...r, url: deepLink("/licencas/condicionantes") })));
+  }
+});
+
+// src/lib/mcp/tools/list-suppliers.ts
+import { defineTool as defineTool9 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z8 } from "npm:zod@^3.25.76";
+var list_suppliers_default = defineTool9({
+  name: "list_suppliers",
+  title: "List suppliers",
+  description: "List suppliers registered by the signed-in user's company.",
+  inputSchema: {
+    search: z8.string().optional().describe("Substring match on supplier name."),
+    limit: z8.number().int().min(1).max(200).default(50)
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ search, limit }, ctx) => {
+    const denied = await planGate(ctx);
+    if (denied) return denied;
+    let q = supabaseForUser(ctx).from("suppliers_safe").select("*").order("name", { ascending: true }).limit(limit);
+    if (search) q = q.ilike("name", `%${search}%`);
+    const { data, error } = await q;
+    if (error) return errorResult(error.message);
+    return textResult(data);
+  }
+});
+
+// src/lib/mcp/tools/list-epi-deliveries.ts
+import { defineTool as defineTool10 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z9 } from "npm:zod@^3.25.76";
+var list_epi_deliveries_default = defineTool10({
+  name: "list_epi_deliveries",
+  title: "List EPI deliveries",
+  description: "List recent PPE (EPI) deliveries with employee, item and quantity.",
+  inputSchema: { limit: z9.number().int().min(1).max(200).default(50) },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ limit }, ctx) => {
+    const denied = await planGate(ctx);
+    if (denied) return denied;
+    const { data, error } = await supabaseForUser(ctx).from("epi_deliveries").select("id,delivered_at,quantity,reason,employees(name),epi_types(name,unit)").order("delivered_at", { ascending: false }).limit(limit);
+    if (error) return errorResult(error.message);
+    return textResult(data);
+  }
+});
+
+// src/lib/mcp/tools/list-training-compliance.ts
+import { defineTool as defineTool11 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z10 } from "npm:zod@^3.25.76";
+var list_training_compliance_default = defineTool11({
+  name: "list_training_compliance",
+  title: "Training compliance",
+  description: "Mandatory-training compliance per employee: which required courses are ok, expiring, expired or missing, based on the training matrix for each job position.",
+  inputSchema: {
+    only_problems: z10.boolean().default(false).describe("Return only expiring, expired or missing items."),
+    limit: z10.number().int().min(1).max(500).default(200).describe("Max rows of employee x training.")
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ only_problems, limit }, ctx) => {
+    const denied = await planGate(ctx);
+    if (denied) return denied;
+    const sb = supabaseForUser(ctx);
+    const [emp, mat, trn, rec] = await Promise.all([
+      sb.from("employees").select("id,name,job_position_id,status"),
+      sb.from("training_matrix").select("job_position_id,training_id"),
+      sb.from("trainings").select("id,name,has_expiry,alert_days_before"),
+      sb.from("employee_training_records").select("employee_id,training_id,done_at,expires_at")
+    ]);
+    const err = emp.error || mat.error || trn.error || rec.error;
+    if (err) return errorResult(err.message);
+    const trainings = new Map((trn.data ?? []).map((t) => [t.id, t]));
+    const today = /* @__PURE__ */ new Date();
+    today.setHours(0, 0, 0, 0);
+    const rows = [];
+    for (const e of emp.data ?? []) {
+      if (e.status && e.status !== "active") continue;
+      const required = (mat.data ?? []).filter((m) => m.job_position_id === e.job_position_id);
+      for (const r of required) {
+        const t = trainings.get(r.training_id);
+        if (!t) continue;
+        const records = (rec.data ?? []).filter((x) => x.employee_id === e.id && x.training_id === r.training_id).sort((a, b) => a.done_at < b.done_at ? 1 : -1);
+        const latest = records[0];
+        let status = "missing";
+        if (latest) {
+          if (!t.has_expiry || !latest.expires_at) status = "ok";
+          else {
+            const exp = /* @__PURE__ */ new Date(latest.expires_at + "T00:00:00");
+            const diff = Math.floor((exp.getTime() - today.getTime()) / 864e5);
+            status = diff < 0 ? "expired" : diff <= (t.alert_days_before ?? 30) ? "warning" : "ok";
+          }
+        }
+        if (only_problems && status === "ok") continue;
+        rows.push({
+          employee: e.name,
+          training: t.name,
+          status,
+          done_at: latest?.done_at ?? null,
+          expires_at: latest?.expires_at ?? null,
+          url: deepLink("/treinamentos/colaboradores")
+        });
+        if (rows.length >= limit) return textResult(rows);
+      }
+    }
+    return textResult(rows);
+  }
+});
+
+// src/lib/mcp/tools/list-aso-records.ts
+import { defineTool as defineTool12 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z11 } from "npm:zod@^3.25.76";
+var list_aso_records_default = defineTool12({
+  name: "list_aso_records",
+  title: "List ASO (occupational health) records",
+  description: "List occupational health certificates (ASO) with employee, exam type, exam date, expiry and result for the signed-in user's company.",
+  inputSchema: {
+    expiring_within_days: z11.number().int().min(1).max(365).optional().describe("Only ASOs expiring within this many days (includes already expired)."),
+    limit: z11.number().int().min(1).max(200).default(50)
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ expiring_within_days, limit }, ctx) => {
+    const denied = await planGate(ctx);
+    if (denied) return denied;
+    let q = supabaseForUser(ctx).from("aso_records").select("id,exam_date,expires_at,result,doctor_name,employees(name),aso_exam_types(name)").order("expires_at", { ascending: true }).limit(limit);
+    if (expiring_within_days) {
+      const until = new Date(Date.now() + expiring_within_days * 864e5).toISOString().slice(0, 10);
+      q = q.lte("expires_at", until);
+    }
+    const { data, error } = await q;
+    if (error) return errorResult(error.message);
+    return textResult((data ?? []).map((r) => ({ ...r, url: deepLink("/aso") })));
+  }
+});
+
+// src/lib/mcp/tools/list-mtrs.ts
+import { defineTool as defineTool13 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z12 } from "npm:zod@^3.25.76";
+var list_mtrs_default = defineTool13({
+  name: "list_mtrs",
+  title: "List MTRs (waste manifests)",
+  description: "List waste transport manifests (MTR) with number, transporter, issue date, CDF status and CDF deadline for the signed-in user's company.",
+  inputSchema: {
+    pending_cdf_only: z12.boolean().default(false).describe("Only MTRs whose CDF has not been received yet."),
+    limit: z12.number().int().min(1).max(200).default(50)
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ pending_cdf_only, limit }, ctx) => {
+    const denied = await planGate(ctx);
+    if (denied) return denied;
+    let q = supabaseForUser(ctx).from("mtrs").select(
+      "id,mtr_number,transporter,issued_at,cdf_deadline_at,cdf_status,cdf_number,cdf_received_at,mtr_waste_items(quantity_tons,waste_categories(name))"
+    ).order("issued_at", { ascending: false }).limit(limit);
+    if (pending_cdf_only) q = q.neq("cdf_status", "received");
+    const { data, error } = await q;
+    if (error) return errorResult(error.message);
+    const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+    return textResult(
+      (data ?? []).map((r) => ({
+        ...r,
+        cdf_overdue: r.cdf_status !== "received" && r.cdf_deadline_at < today,
+        url: deepLink("/mtr")
+      }))
+    );
+  }
+});
+
+// src/lib/mcp/tools/list-calendar-events.ts
+import { defineTool as defineTool14 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z13 } from "npm:zod@^3.25.76";
+var list_calendar_events_default = defineTool14({
+  name: "list_calendar_events",
+  title: "List calendar events",
+  description: "List HSE calendar entries created by the company (events, campaigns, audits, meetings, internal trainings) with area, date and status.",
+  inputSchema: {
+    from: z13.string().optional().describe("Start date (YYYY-MM-DD). Defaults to today."),
+    to: z13.string().optional().describe("End date (YYYY-MM-DD)."),
+    limit: z13.number().int().min(1).max(200).default(50)
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ from, to, limit }, ctx) => {
+    const denied = await planGate(ctx);
+    if (denied) return denied;
+    const start = from ?? (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+    let q = supabaseForUser(ctx).from("calendar_events").select("id,title,description,area,category,status,starts_at,ends_at,all_day,location").gte("starts_at", `${start}T00:00:00Z`).order("starts_at", { ascending: true }).limit(limit);
+    if (to) q = q.lte("starts_at", `${to}T23:59:59Z`);
+    const { data, error } = await q;
+    if (error) return errorResult(error.message);
+    return textResult((data ?? []).map((r) => ({ ...r, url: deepLink("/calendario") })));
+  }
+});
+
+// src/lib/mcp/tools/list-corrective-actions.ts
+import { defineTool as defineTool15 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z14 } from "npm:zod@^3.25.76";
+var list_corrective_actions_default = defineTool15({
+  name: "list_corrective_actions",
+  title: "List corrective actions",
+  description: "List corrective actions from incident investigations (5W2H) and from inspections, with description, responsible, due date and status.",
+  inputSchema: {
+    open_only: z14.boolean().default(true).describe("Only actions that are not completed."),
+    source: z14.string().optional().describe("'occurrence' or 'inspection' to restrict the origin."),
+    limit: z14.number().int().min(1).max(200).default(50)
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ open_only, source, limit }, ctx) => {
+    const denied = await planGate(ctx);
+    if (denied) return denied;
+    const sb = supabaseForUser(ctx);
+    const out = [];
+    if (source !== "inspection") {
+      let q = sb.from("corrective_actions").select("id,description,status,due_date,why,how_method,occurrence_id,completed_at").order("due_date", { ascending: true }).limit(limit);
+      if (open_only) q = q.neq("status", "completed");
+      const { data, error } = await q;
+      if (error) return errorResult(error.message);
+      out.push(...(data ?? []).map((r) => ({ ...r, source: "occurrence", url: deepLink("/incidentes") })));
+    }
+    if (source !== "occurrence") {
+      let q = sb.from("inspection_corrective_actions").select("id,description,status,due_date,priority,responsible_name,execution_id,completed_at").order("due_date", { ascending: true }).limit(limit);
+      if (open_only) q = q.neq("status", "completed");
+      const { data, error } = await q;
+      if (error) return errorResult(error.message);
+      out.push(...(data ?? []).map((r) => ({ ...r, source: "inspection", url: deepLink("/inspecoes/execucoes") })));
+    }
+    return textResult(out.slice(0, limit));
+  }
+});
+
+// src/lib/mcp/tools/list-inspections.ts
+import { defineTool as defineTool16 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z15 } from "npm:zod@^3.25.76";
+var list_inspections_default = defineTool16({
+  name: "list_inspections",
+  title: "List inspection executions",
+  description: "List inspection executions with model, asset, due date, status and signature data for the signed-in user's company.",
+  inputSchema: {
+    status: z15.string().optional().describe("Filter by execution status."),
+    limit: z15.number().int().min(1).max(200).default(50)
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ status, limit }, ctx) => {
+    const denied = await planGate(ctx);
+    if (denied) return denied;
+    let q = supabaseForUser(ctx).from("inspection_executions").select(
+      "id,reference,due_date,status,completed_at,signed_at,signer_name,inspection_models(name,related_nr),inspection_assets(name,tag_code)"
+    ).order("due_date", { ascending: false }).limit(limit);
+    if (status) q = q.eq("status", status);
+    const { data, error } = await q;
+    if (error) return errorResult(error.message);
+    return textResult((data ?? []).map((r) => ({ ...r, url: deepLink(`/inspecoes/execucoes/${r.id}`) })));
+  }
+});
+
+// src/lib/mcp/tools/list-documents.ts
+import { defineTool as defineTool17 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z16 } from "npm:zod@^3.25.76";
+var list_documents_default = defineTool17({
+  name: "list_documents",
+  title: "List library documents",
+  description: "List documents in the HSE document library with code, title, type, current revision, status and next revision date.",
+  inputSchema: {
+    search: z16.string().optional().describe("Substring match on code or title."),
+    status: z16.string().optional().describe("Filter by document status."),
+    limit: z16.number().int().min(1).max(200).default(50)
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ search, status, limit }, ctx) => {
+    const denied = await planGate(ctx);
+    if (denied) return denied;
+    let q = supabaseForUser(ctx).from("documents").select(
+      "id,code,title,area,responsible,status,current_revision,current_revision_date,next_revision_at,document_types(name)"
+    ).order("code", { ascending: true }).limit(limit);
+    if (status) q = q.eq("status", status);
+    if (search) q = q.or(`code.ilike.%${search}%,title.ilike.%${search}%`);
+    const { data, error } = await q;
+    if (error) return errorResult(error.message);
+    return textResult((data ?? []).map((r) => ({ ...r, url: deepLink("/documentos") })));
+  }
+});
+
+// src/lib/mcp/tools/create-occurrence.ts
+import { defineTool as defineTool18 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z17 } from "npm:zod@^3.25.76";
+var create_occurrence_default = defineTool18({
+  name: "create_occurrence",
+  title: "Register incident / non-conformity",
+  description: "Register a new occurrence (incident, near miss, non-conformity or safety observation). The type cannot be changed afterwards. Requires editor permission on the IC & NC module.",
+  inputSchema: {
+    type: z17.enum(["incident", "near_miss", "non_conformity", "safety_observation"]).describe("Occurrence type \u2014 immutable after creation."),
+    severity: z17.enum(["low", "medium", "high", "critical"]).describe("Severity level."),
+    description: z17.string().describe("What happened."),
+    occurred_at: z17.string().describe("Date it happened (YYYY-MM-DD)."),
+    location: z17.string().optional().describe("Where it happened."),
+    with_leave: z17.boolean().default(false).describe("Whether it caused time off work."),
+    lost_days: z17.number().int().min(0).optional().describe("Lost days, when there was time off work.")
+  },
+  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+  needsApproval: true,
+  handler: async (input, ctx) => {
+    const denied = await planGate(ctx) ?? await editorGate(ctx, "ic_nc");
+    if (denied) return denied;
+    const sb = supabaseForUser(ctx);
+    const { data: companyId, error: cErr } = await sb.rpc("get_user_company_id");
+    if (cErr || !companyId) return errorResult("Could not resolve the user's company.");
+    const { data, error } = await sb.from("occurrences").insert({
+      company_id: companyId,
+      registered_by: ctx.getUserId(),
+      type: input.type,
+      severity: input.severity,
+      description: input.description,
+      occurred_at: input.occurred_at,
+      location: input.location ?? null,
+      with_leave: input.with_leave,
+      lost_days: input.with_leave ? input.lost_days ?? 0 : 0,
+      status: "open"
+    }).select("id,type,severity,occurred_at,status").single();
+    if (error) return errorResult(error.message);
+    return textResult({ created: data, url: deepLink("/incidentes") });
+  }
+});
+
+// src/lib/mcp/tools/create-calendar-event.ts
+import { defineTool as defineTool19 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z18 } from "npm:zod@^3.25.76";
+var create_calendar_event_default = defineTool19({
+  name: "create_calendar_event",
+  title: "Create calendar event",
+  description: "Create an HSE calendar entry (event, campaign, audit, meeting or internal training). Requires editor permission on the calendar module.",
+  inputSchema: {
+    title: z18.string().describe("Event title."),
+    area: z18.enum(["meio_ambiente", "seguranca", "saude", "geral"]).describe("HSE area."),
+    category: z18.enum(["evento", "campanha", "auditoria", "reuniao", "treinamento_interno", "outro"]).describe("Event category."),
+    starts_at: z18.string().describe("Start date/time (YYYY-MM-DD or ISO timestamp)."),
+    ends_at: z18.string().optional().describe("End date/time (YYYY-MM-DD or ISO timestamp)."),
+    all_day: z18.boolean().default(true),
+    location: z18.string().optional(),
+    description: z18.string().optional()
+  },
+  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+  needsApproval: true,
+  handler: async (input, ctx) => {
+    const denied = await planGate(ctx) ?? await editorGate(ctx, "calendar");
+    if (denied) return denied;
+    const sb = supabaseForUser(ctx);
+    const { data: companyId, error: cErr } = await sb.rpc("get_user_company_id");
+    if (cErr || !companyId) return errorResult("Could not resolve the user's company.");
+    const norm = (v) => v.length === 10 ? `${v}T12:00:00Z` : v;
+    const { data, error } = await sb.from("calendar_events").insert({
+      company_id: companyId,
+      created_by: ctx.getUserId(),
+      title: input.title,
+      description: input.description ?? null,
+      area: input.area,
+      category: input.category,
+      starts_at: norm(input.starts_at),
+      ends_at: input.ends_at ? norm(input.ends_at) : null,
+      all_day: input.all_day,
+      location: input.location ?? null,
+      status: "planejado"
+    }).select("id,title,area,category,starts_at,status").single();
+    if (error) return errorResult(error.message);
+    return textResult({ created: data, url: deepLink("/calendario") });
+  }
+});
+
+// src/lib/mcp/tools/create-corrective-action.ts
+import { defineTool as defineTool20 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z19 } from "npm:zod@^3.25.76";
+var create_corrective_action_default = defineTool20({
+  name: "create_corrective_action",
+  title: "Create corrective action (5W2H)",
+  description: "Create a 5W2H corrective action linked to an existing occurrence. Requires editor permission on the IC & NC module.",
+  inputSchema: {
+    occurrence_id: z19.string().describe("ID of the occurrence this action belongs to."),
+    description: z19.string().describe("What will be done (What)."),
+    why: z19.string().optional().describe("Why it will be done."),
+    where_location: z19.string().optional().describe("Where it will be done."),
+    how_method: z19.string().optional().describe("How it will be done."),
+    due_date: z19.string().optional().describe("Deadline (YYYY-MM-DD)."),
+    control_hierarchy: z19.enum(["elimination", "substitution", "engineering", "administrative", "ppe"]).optional().describe("Hierarchy of controls level.")
+  },
+  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+  needsApproval: true,
+  handler: async (input, ctx) => {
+    const denied = await planGate(ctx) ?? await editorGate(ctx, "ic_nc");
+    if (denied) return denied;
+    const sb = supabaseForUser(ctx);
+    const { data: companyId, error: cErr } = await sb.rpc("get_user_company_id");
+    if (cErr || !companyId) return errorResult("Could not resolve the user's company.");
+    const { data: occ } = await sb.from("occurrences").select("id").eq("id", input.occurrence_id).maybeSingle();
+    if (!occ) return errorResult("Occurrence not found in your company.");
+    const { data, error } = await sb.from("corrective_actions").insert({
+      company_id: companyId,
+      occurrence_id: input.occurrence_id,
+      created_by: ctx.getUserId(),
+      description: input.description,
+      why: input.why ?? null,
+      where_location: input.where_location ?? null,
+      how_method: input.how_method ?? null,
+      due_date: input.due_date ?? null,
+      control_hierarchy: input.control_hierarchy ?? null,
+      status: "pending"
+    }).select("id,description,due_date,status").single();
+    if (error) return errorResult(error.message);
+    return textResult({ created: data, url: deepLink("/incidentes") });
+  }
+});
+
+// src/lib/mcp/tools/register-service-completion.ts
+import { defineTool as defineTool21 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z20 } from "npm:zod@^3.25.76";
+var PRESET_DAYS = {
+  weekly: 7,
+  monthly: 30,
+  quarterly: 90,
+  semiannual: 180,
+  annual: 365
+};
+function frequencyDays(type, preset, custom) {
+  if (type === "custom" && custom) return custom;
+  if (type === "fixed" && preset && PRESET_DAYS[preset]) return PRESET_DAYS[preset];
+  return 30;
+}
+var register_service_completion_default = defineTool21({
+  name: "register_service_completion",
+  title: "Register periodic service completion",
+  description: "Record that a periodic service was performed and recalculate its next due date from the service frequency. Requires editor permission on the periodic services module.",
+  inputSchema: {
+    service_id: z20.string().describe("ID of the periodic service."),
+    done_at: z20.string().describe("Date it was performed (YYYY-MM-DD)."),
+    supplier: z20.string().optional().describe("Supplier/provider that performed it."),
+    notes: z20.string().optional(),
+    realization_type: z20.enum(["scheduled", "corrective"]).default("scheduled").describe("'scheduled' when done as planned, 'corrective' when triggered by a failure."),
+    failure_description: z20.string().optional().describe("Failure description for corrective completions.")
+  },
+  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+  needsApproval: true,
+  handler: async (input, ctx) => {
+    const denied = await planGate(ctx) ?? await editorGate(ctx, "periodic_services");
+    if (denied) return denied;
+    const sb = supabaseForUser(ctx);
+    const { data: svc, error: sErr } = await sb.from("periodic_services").select("id,company_id,name,frequency_type,frequency_preset,frequency_days,supplier").eq("id", input.service_id).maybeSingle();
+    if (sErr) return errorResult(sErr.message);
+    if (!svc) return errorResult("Periodic service not found in your company.");
+    const days = frequencyDays(svc.frequency_type, svc.frequency_preset, svc.frequency_days);
+    const next = new Date((/* @__PURE__ */ new Date(`${input.done_at}T00:00:00Z`)).getTime() + days * 864e5).toISOString().slice(0, 10);
+    const { data: hist, error: hErr } = await sb.from("service_history").insert({
+      service_id: svc.id,
+      company_id: svc.company_id,
+      done_at: input.done_at,
+      supplier: input.supplier ?? svc.supplier ?? null,
+      notes: input.notes ?? null,
+      registered_by: ctx.getUserId(),
+      realization_type: input.realization_type,
+      failure_description: input.realization_type === "corrective" ? input.failure_description ?? null : null
+    }).select("id").single();
+    if (hErr) return errorResult(hErr.message);
+    const { error: uErr } = await sb.from("periodic_services").update({
+      last_done_at: input.done_at,
+      next_due_at: next,
+      updated_at: (/* @__PURE__ */ new Date()).toISOString(),
+      ...input.supplier ? { supplier: input.supplier } : {}
+    }).eq("id", svc.id);
+    if (uErr) return errorResult(uErr.message);
+    return textResult({
+      service: svc.name,
+      history_id: hist.id,
+      done_at: input.done_at,
+      next_due_at: next,
+      url: deepLink("/servicos")
+    });
+  }
+});
+
 // src/lib/mcp/index.ts
 var projectRef = "jspyzzrmonxvgicqakzv";
 var mcp_default = defineMcp({
   name: "evita-hse-mcp",
   title: "Evita HSE",
-  version: "0.1.0",
-  instructions: "Read-only access to the signed-in user's HSE data in Evita: periodic services, incidents (IC & NC), environmental licenses, suppliers, EPI deliveries, and a dashboard summary. All results are scoped to the user's company via Supabase RLS.",
+  version: "0.2.0",
+  instructions: "Access to the signed-in user's HSE data in Evita: periodic services, incidents (IC & NC), environmental licenses and conditionants, suppliers, EPI deliveries, trainings, ASO, MTR, inspections, documents, calendar and consolidated deadlines. Use `get_upcoming_deadlines` for anything about due dates, `get_hse_indicators` for TF/TG safety rates and `search_records` to locate a record and get a deep link. Write tools (create_occurrence, create_calendar_event, create_corrective_action, register_service_completion) require editor permission on the module and always confirm with the user first. All results are scoped to the user's company via Supabase RLS.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated"
   }),
   tools: [
     get_dashboard_summary_default,
+    get_upcoming_deadlines_default,
+    get_hse_indicators_default,
+    search_records_default,
     list_periodic_services_default,
     list_occurrences_default,
+    list_corrective_actions_default,
     list_environmental_licenses_default,
+    list_conditionants_default,
+    list_mtrs_default,
+    list_inspections_default,
+    list_documents_default,
+    list_training_compliance_default,
+    list_aso_records_default,
+    list_epi_deliveries_default,
     list_suppliers_default,
-    list_epi_deliveries_default
+    list_calendar_events_default,
+    create_occurrence_default,
+    create_calendar_event_default,
+    create_corrective_action_default,
+    register_service_completion_default
   ]
 });
 

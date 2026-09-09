@@ -556,6 +556,68 @@ export type Database = {
           },
         ]
       }
+      corrective_action_attachments: {
+        Row: {
+          action_id: string
+          company_id: string
+          file_name: string
+          file_type: string
+          file_url: string
+          id: string
+          uploaded_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          action_id: string
+          company_id: string
+          file_name: string
+          file_type?: string
+          file_url: string
+          id?: string
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          action_id?: string
+          company_id?: string
+          file_name?: string
+          file_type?: string
+          file_url?: string
+          id?: string
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "corrective_action_attachments_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "corrective_actions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "corrective_action_attachments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "corrective_action_attachments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "corrective_action_attachments_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       corrective_actions: {
         Row: {
           cause_id: string | null
@@ -570,15 +632,19 @@ export type Database = {
           description: string
           due_date: string | null
           effectiveness_check_date: string | null
+          effectiveness_notes: string | null
           effectiveness_result: string | null
           evidence_name: string | null
           evidence_url: string | null
           how_method: string | null
           id: string
           occurrence_id: string
+          priority: string
           responsible_employee_id: string | null
           responsible_profile_id: string | null
+          started_at: string | null
           status: string
+          verified_by: string | null
           where_location: string | null
           why: string | null
         }
@@ -595,15 +661,19 @@ export type Database = {
           description: string
           due_date?: string | null
           effectiveness_check_date?: string | null
+          effectiveness_notes?: string | null
           effectiveness_result?: string | null
           evidence_name?: string | null
           evidence_url?: string | null
           how_method?: string | null
           id?: string
           occurrence_id: string
+          priority?: string
           responsible_employee_id?: string | null
           responsible_profile_id?: string | null
+          started_at?: string | null
           status?: string
+          verified_by?: string | null
           where_location?: string | null
           why?: string | null
         }
@@ -620,15 +690,19 @@ export type Database = {
           description?: string
           due_date?: string | null
           effectiveness_check_date?: string | null
+          effectiveness_notes?: string | null
           effectiveness_result?: string | null
           evidence_name?: string | null
           evidence_url?: string | null
           how_method?: string | null
           id?: string
           occurrence_id?: string
+          priority?: string
           responsible_employee_id?: string | null
           responsible_profile_id?: string | null
+          started_at?: string | null
           status?: string
+          verified_by?: string | null
           where_location?: string | null
           why?: string | null
         }
@@ -685,6 +759,13 @@ export type Database = {
           {
             foreignKeyName: "corrective_actions_responsible_profile_id_fkey"
             columns: ["responsible_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "corrective_actions_verified_by_fkey"
+            columns: ["verified_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]

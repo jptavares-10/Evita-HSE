@@ -3,12 +3,13 @@ import { useEmployees, useJobPositions, useTrainingMatrix, useAllRecords, useTra
 import { computeEmployeeCompliance } from "@/lib/trainings";
 import { useAuth } from "@/contexts/AuthContext";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Plus, Search, Upload, Download, Users } from "lucide-react";
+import { Plus, Upload, Download, Users } from "lucide-react";
+import { SectionHeader } from "@/components/ui/page-header";
+import { FilterBar } from "@/components/ui/filter-bar";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { STATUS_META } from "@/lib/status";
 import { EmployeeDrawer } from "@/components/treinamentos/EmployeeDrawer";
 import { EmployeeDetailDrawer } from "@/components/treinamentos/EmployeeDetailDrawer";
 import { ImportEmployeesModal } from "@/components/treinamentos/ImportEmployeesModal";

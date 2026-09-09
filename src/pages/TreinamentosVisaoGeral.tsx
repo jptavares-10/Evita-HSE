@@ -5,6 +5,7 @@ import { GraduationCap, Building2, Briefcase, UserPlus, BookOpen, Grid3x3, Award
 import { useNavigate } from "react-router-dom";
 import { computeEmployeeCompliance, getRecordStatus, formatDateBR } from "@/lib/trainings";
 import { TrainingKpiCards } from "@/components/treinamentos/TrainingKpiCards";
+import { SectionHeader } from "@/components/ui/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -319,23 +320,35 @@ export default function TreinamentosVisaoGeral() {
 
   return (
     <div className="space-y-6">
+      <SectionHeader
+        title="Visão geral"
+        description="Conformidade de treinamentos por treinamento e por cargo."
+        actions={
+          <>
+            <Button variant="outline" size="sm" onClick={handleExport}>
+              <Download className="h-4 w-4 mr-1" />Exportar pendências
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setShowImportModal(true)}>
+              <Upload className="h-4 w-4 mr-1" />Importar atualização
+            </Button>
+          </>
+        }
+      />
+
       <TrainingKpiCards
         totalActive={stats.totalActive}
         employeesOk={stats.employeesOk}
         employeesPending={stats.employeesPending}
         warningCount={stats.warningCount}
         conformity={stats.conformity}
+        hrefFor={(key) =>
+          key === "ok"
+            ? "/treinamentos/colaboradores?situacao=ok"
+            : key === "warning" || key === "expired"
+              ? "/treinamentos/colaboradores?situacao=pending"
+              : undefined
+        }
       />
-
-      {/* Action buttons */}
-      <div className="flex flex-wrap items-center gap-2 justify-end">
-        <Button variant="outline" size="sm" onClick={handleExport}>
-          <Download className="h-4 w-4 mr-1" />Exportar pendências
-        </Button>
-        <Button variant="outline" size="sm" onClick={() => setShowImportModal(true)}>
-          <Upload className="h-4 w-4 mr-1" />Importar atualização
-        </Button>
-      </div>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3 items-center bg-muted/50 rounded-lg p-3">

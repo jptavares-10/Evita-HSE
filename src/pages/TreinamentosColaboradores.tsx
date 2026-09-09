@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useEmployees, useJobPositions, useTrainingMatrix, useAllRecords, useTrainings } from "@/hooks/useTrainings";
 import { computeEmployeeCompliance } from "@/lib/trainings";
 import { useAuth } from "@/contexts/AuthContext";
@@ -31,10 +32,12 @@ export default function TreinamentosColaboradores() {
   const { data: allRecords = [] } = useAllRecords();
   const { data: trainings = [] } = useTrainings();
 
+  const [searchParams] = useSearchParams();
+  const initialConformity = searchParams.get("situacao") === "ok" ? "ok" : searchParams.get("situacao") === "pending" ? "pending" : "all";
   const [search, setSearch] = useState("");
   const [filterPosition, setFilterPosition] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [filterConformity, setFilterConformity] = useState("all");
+  const [filterConformity, setFilterConformity] = useState(initialConformity);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editEmployee, setEditEmployee] = useState<any>(null);
   const [detailEmployee, setDetailEmployee] = useState<any>(null);

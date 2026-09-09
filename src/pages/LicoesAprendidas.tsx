@@ -6,6 +6,8 @@ import { BookOpen, Search, MapPin, Calendar, Tag } from "lucide-react";
 import { useLessonsLearned } from "@/hooks/useInvestigation";
 import { getTypeInfo, getSeverityInfo, formatDateBR } from "@/lib/occurrences";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { FilterBar } from "@/components/ui/filter-bar";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default function LicoesAprendidas() {
   usePageTitle("Lições Aprendidas", { description: "Biblioteca de aprendizados de HSE.", noindex: true });

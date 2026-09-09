@@ -35,17 +35,21 @@ export function TrainingKpiCards({
 
   return (
     <KpiGrid cols={5}>
-      {cards.map((c) => (
-        <Kpi
-          key={c.label}
-          label={c.label}
-          value={c.value}
-          icon={c.icon}
-          tone={c.tone}
-          active={c.key !== null && activeStatus === c.key}
-          onClick={onSelectStatus ? () => onSelectStatus(c.key) : undefined}
-        />
-      ))}
+      {cards.map((c) => {
+        const href = hrefFor?.(c.key);
+        return (
+          <Kpi
+            key={c.label}
+            label={c.label}
+            value={c.value}
+            icon={c.icon}
+            tone={c.tone}
+            href={href}
+            active={c.key !== null && activeStatus === c.key}
+            onClick={!href && onSelectStatus ? () => onSelectStatus(c.key) : undefined}
+          />
+        );
+      })}
     </KpiGrid>
   );
 }

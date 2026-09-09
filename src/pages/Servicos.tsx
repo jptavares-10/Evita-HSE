@@ -147,7 +147,7 @@ export default function Servicos() {
       <ServiceFilters
         search={search} onSearchChange={setSearch}
         categoryFilter={categoryFilter} onCategoryChange={setCategoryFilter}
-        statusFilter={statusFilter} onStatusChange={(v) => { setStatusFilter(v); setKpiFilter(null); }}
+        statusFilter={activeStatus ?? "all"} onStatusChange={(v) => { setStatusFilter(v); setKpiFilter(null); }}
         sortBy={sortBy} onSortChange={setSortBy}
         categories={categories as any}
         hasActiveFilters={!!search || categoryFilter !== "all" || !!activeStatus}

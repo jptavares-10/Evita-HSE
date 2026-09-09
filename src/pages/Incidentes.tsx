@@ -83,20 +83,20 @@ export default function Incidentes() {
 
   return (
     <div className="space-y-6 animate-fade-up">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">IC & NC — Incidentes e Não Conformidades</h1>
-          <p className="text-muted-foreground text-sm mt-1">Gerencie ocorrências e ações corretivas</p>
-        </div>
-        <div className="flex items-center gap-3">
-          {!canEdit && <ViewerBadge />}
-          {activeTab === "ocorrencias" && (
-            <PermissionButton canEdit={canEdit} onClick={() => { setEditingOcc(null); setDrawerOpen(true); }} disabled={isDisabled}>
-              <Plus className="h-4 w-4 mr-2" />Registrar ocorrência
-            </PermissionButton>
-          )}
-        </div>
-      </div>
+      <PageHeader
+        title="IC & NC — Incidentes e Não Conformidades"
+        description="Gerencie ocorrências e ações corretivas."
+        actions={
+          <>
+            {!canEdit && <ViewerBadge />}
+            {activeTab === "ocorrencias" && (
+              <PermissionButton canEdit={canEdit} onClick={() => { setEditingOcc(null); setDrawerOpen(true); }} disabled={isDisabled}>
+                <Plus className="h-4 w-4 mr-1" />Registrar ocorrência
+              </PermissionButton>
+            )}
+          </>
+        }
+      />
 
       <Tabs
         value={activeTab}

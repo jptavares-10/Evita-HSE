@@ -9,11 +9,15 @@ import { AsoDetailDrawer } from "@/components/aso/AsoDetailDrawer";
 import { ManageExamTypesModal } from "@/components/aso/ManageExamTypesModal";
 import { DeleteAsoDialog } from "@/components/aso/DeleteAsoDialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { PermissionButton } from "@/components/PermissionButton";
+import { PageHeader } from "@/components/ui/page-header";
+import { FilterBar } from "@/components/ui/filter-bar";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { STATUS_META } from "@/lib/status";
+import { useStatusFilter } from "@/hooks/useStatusFilter";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Settings, Pencil, Stethoscope, Users, Tags, CalendarClock, Paperclip } from "lucide-react";
+import { Plus, Settings, Pencil, Stethoscope, Users, Tags, CalendarClock, Paperclip } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
 import { useNavigate } from "react-router-dom";
@@ -36,7 +40,8 @@ export default function Aso() {
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
   const [typesOpen, setTypesOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
+  const statusFilter = useStatusFilter();
+  const filterStatus = statusFilter.status ?? "all";
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailEmployee, setDetailEmployee] = useState<any>(null);
   const [deleteRecord, setDeleteRecord] = useState<any>(null);
@@ -93,11 +98,11 @@ export default function Aso() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "ok": return <Badge variant="outline" className="bg-green-100 text-green-700 border-green-200">Em dia</Badge>;
-      case "no_expiry": return <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-200">Sem validade</Badge>;
-      case "warning": return <Badge variant="outline" className="bg-yellow-100 text-yellow-700 border-yellow-200">Vencendo</Badge>;
-      case "expired": return <Badge variant="outline" className="bg-red-100 text-red-700 border-red-200">Vencido</Badge>;
-      case "no_record": return <Badge variant="outline" className="bg-gray-100 text-gray-700 border-gray-200">Sem ASO</Badge>;
+      case "ok": return <StatusBadge status="ok" />;
+      case "no_expiry": return <StatusBadge status="ok" label="Sem validade" />;
+      case "warning": return <StatusBadge status="warning" label="Vencendo" />;
+      case "expired": return <StatusBadge status="expired" label="Vencido" />;
+      case "no_record": return <StatusBadge status="missing" label="Sem ASO" />;
       default: return null;
     }
   };
@@ -122,25 +127,25 @@ export default function Aso() {
 
   return (
     <div className="space-y-6 animate-fade-up">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Exames Ocupacionais (ASO)</h1>
-          <p className="text-muted-foreground mt-1">Controle de ASOs e vencimentos dos colaboradores.</p>
-        </div>
-        <div className="flex items-center gap-2">
-          {!canEdit && <ViewerBadge />}
-          {canEdit && (
-            <>
-              <Button variant="outline" size="sm" onClick={() => setTypesOpen(true)}>
-                <Settings className="h-4 w-4 mr-1" /> Tipos de Exame
-              </Button>
-              <Button size="sm" onClick={() => { setEditRecord(null); setSelectedEmployee(null); setDrawerOpen(true); }}>
-                <Plus className="h-4 w-4 mr-1" /> Novo ASO
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
+      <PageHeader
+        title="Exames Ocupacionais (ASO)"
+        description="Controle de ASOs e vencimentos dos colaboradores."
+        actions={
+          <>
+            {!canEdit && <ViewerBadge />}
+            <Button variant="outline" size="sm" onClick={() => setTypesOpen(true)} disabled={!canEdit}>
+              <Settings className="h-4 w-4 mr-1" /> Tipos de exame
+            </Button>
+            <PermissionButton
+              canEdit={canEdit}
+              size="sm"
+              onClick={() => { setEditRecord(null); setSelectedEmployee(null); setDrawerOpen(true); }}
+            >
+              <Plus className="h-4 w-4 mr-1" /> Novo ASO
+            </PermissionButton>
+          </>
+        }
+      />
 
       <AsoKpiCards
         totalEmployees={kpis.total}
@@ -148,24 +153,27 @@ export default function Aso() {
         expiringSoon={kpis.warning}
         expired={kpis.expired}
         conformity={kpis.conformity}
+        activeStatus={statusFilter.status}
+        onSelectStatus={statusFilter.toggle}
       />
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar colaborador..." className="pl-9" />
-        </div>
-        <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-[160px]"><SelectValue placeholder="Status" /></SelectTrigger>
+      <FilterBar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Buscar colaborador..."
+        hasActiveFilters={!!search || statusFilter.status !== null}
+        onClear={() => { setSearch(""); statusFilter.clear(); }}
+      >
+        <Select value={statusFilter.selectValue} onValueChange={statusFilter.onSelectChange}>
+          <SelectTrigger className="w-[180px]"><SelectValue placeholder="Situação" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
-            <SelectItem value="ok">Em dia</SelectItem>
-            <SelectItem value="warning">Vencendo</SelectItem>
-            <SelectItem value="expired">Vencido / Sem ASO</SelectItem>
+            <SelectItem value="all">Todas as situações</SelectItem>
+            <SelectItem value="ok">{STATUS_META.ok.label}</SelectItem>
+            <SelectItem value="warning">{STATUS_META.warning.label}</SelectItem>
+            <SelectItem value="expired">{STATUS_META.expired.label}</SelectItem>
           </SelectContent>
         </Select>
-      </div>
+      </FilterBar>
 
       {/* Employee-centric Table */}
       <div className="border rounded-lg overflow-hidden">

@@ -1,14 +1,16 @@
 import { useState, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useEmployees, useJobPositions, useTrainingMatrix, useAllRecords, useTrainings } from "@/hooks/useTrainings";
 import { computeEmployeeCompliance } from "@/lib/trainings";
 import { useAuth } from "@/contexts/AuthContext";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Plus, Search, Upload, Download, Users } from "lucide-react";
+import { Plus, Upload, Download, Users } from "lucide-react";
+import { SectionHeader } from "@/components/ui/page-header";
+import { FilterBar } from "@/components/ui/filter-bar";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { STATUS_META } from "@/lib/status";
 import { EmployeeDrawer } from "@/components/treinamentos/EmployeeDrawer";
 import { EmployeeDetailDrawer } from "@/components/treinamentos/EmployeeDetailDrawer";
 import { ImportEmployeesModal } from "@/components/treinamentos/ImportEmployeesModal";
@@ -30,10 +32,12 @@ export default function TreinamentosColaboradores() {
   const { data: allRecords = [] } = useAllRecords();
   const { data: trainings = [] } = useTrainings();
 
+  const [searchParams] = useSearchParams();
+  const initialConformity = searchParams.get("situacao") === "ok" ? "ok" : searchParams.get("situacao") === "pending" ? "pending" : "all";
   const [search, setSearch] = useState("");
   const [filterPosition, setFilterPosition] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [filterConformity, setFilterConformity] = useState("all");
+  const [filterConformity, setFilterConformity] = useState(initialConformity);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editEmployee, setEditEmployee] = useState<any>(null);
   const [detailEmployee, setDetailEmployee] = useState<any>(null);
@@ -75,25 +79,34 @@ export default function TreinamentosColaboradores() {
     );
   };
 
-  const ActionButton = ({ children, onClick, ...props }: any) => {
-    if (isDisabled) {
-      return (
-        <Tooltip>
-          <TooltipTrigger asChild><span><Button disabled {...props}>{children}</Button></span></TooltipTrigger>
-          <TooltipContent>{!canEdit ? "Você tem acesso somente leitura neste módulo." : "Seu plano expirou. Faça upgrade para continuar."}</TooltipContent>
-        </Tooltip>
-      );
-    }
-    return <Button onClick={onClick} {...props}>{children}</Button>;
-  };
+  const hasActiveFilters = !!search || filterPosition !== "all" || filterStatus !== "all" || filterConformity !== "all";
+  const clearFilters = () => { setSearch(""); setFilterPosition("all"); setFilterStatus("all"); setFilterConformity("all"); };
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Buscar por nome..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
-        </div>
+      <SectionHeader
+        title="Colaboradores"
+        description="Pessoas monitoradas pela matriz de treinamentos."
+        actions={
+          <>
+            <Button variant="outline" onClick={downloadTemplate}><Download className="h-4 w-4 mr-1" />Modelo XLSX</Button>
+            <PermissionButton canEdit={canEdit} disabled={isExpired} variant="outline" onClick={() => setImportOpen(true)}>
+              <Upload className="h-4 w-4 mr-1" />Importar
+            </PermissionButton>
+            <PermissionButton canEdit={canEdit} disabled={isExpired} onClick={() => { setEditEmployee(null); setDrawerOpen(true); }}>
+              <Plus className="h-4 w-4 mr-1" />Novo colaborador
+            </PermissionButton>
+          </>
+        }
+      />
+
+      <FilterBar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Buscar por nome..."
+        hasActiveFilters={hasActiveFilters}
+        onClear={clearFilters}
+      >
         <Select value={filterPosition} onValueChange={setFilterPosition}>
           <SelectTrigger className="w-[160px]"><SelectValue placeholder="Cargo" /></SelectTrigger>
           <SelectContent>
@@ -102,31 +115,30 @@ export default function TreinamentosColaboradores() {
           </SelectContent>
         </Select>
         <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-[130px]"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectTrigger className="w-[150px]"><SelectValue placeholder="Cadastro" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
+            <SelectItem value="all">Ativos e inativos</SelectItem>
             <SelectItem value="active">Ativos</SelectItem>
             <SelectItem value="inactive">Inativos</SelectItem>
           </SelectContent>
         </Select>
         <Select value={filterConformity} onValueChange={setFilterConformity}>
-          <SelectTrigger className="w-[160px]"><SelectValue placeholder="Conformidade" /></SelectTrigger>
+          <SelectTrigger className="w-[170px]"><SelectValue placeholder="Situação" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
-            <SelectItem value="ok">Em dia</SelectItem>
-            <SelectItem value="pending">Com pendências</SelectItem>
+            <SelectItem value="all">Todas as situações</SelectItem>
+            <SelectItem value="ok">{STATUS_META.ok.label}</SelectItem>
+            <SelectItem value="pending">{STATUS_META.expired.label}</SelectItem>
           </SelectContent>
         </Select>
-        <Button variant="outline" size="sm" onClick={downloadTemplate}><Download className="h-4 w-4 mr-1" />Modelo XLSX</Button>
-        <ActionButton variant="outline" size="sm" onClick={() => setImportOpen(true)}><Upload className="h-4 w-4 mr-1" />Importar</ActionButton>
-        <ActionButton onClick={() => { setEditEmployee(null); setDrawerOpen(true); }}><Plus className="h-4 w-4 mr-1" />Novo colaborador</ActionButton>
-      </div>
+      </FilterBar>
 
       {filtered.length === 0 ? (
         <div className="text-center py-12 space-y-3">
           <Users className="h-12 w-12 mx-auto text-muted-foreground/50" />
           <p className="text-muted-foreground">Nenhum colaborador encontrado</p>
-          <ActionButton onClick={() => { setEditEmployee(null); setDrawerOpen(true); }}>Cadastrar primeiro colaborador</ActionButton>
+          <PermissionButton canEdit={canEdit} disabled={isExpired} onClick={() => { setEditEmployee(null); setDrawerOpen(true); }}>
+            Cadastrar primeiro colaborador
+          </PermissionButton>
         </div>
       ) : (
         <>
@@ -137,8 +149,8 @@ export default function TreinamentosColaboradores() {
                   <TableHead>Nome</TableHead>
                   <TableHead>Cargo</TableHead>
                   <TableHead>Setor</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Conformidade</TableHead>
+                  <TableHead>Cadastro</TableHead>
+                  <TableHead>Situação</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -148,17 +160,17 @@ export default function TreinamentosColaboradores() {
                     <TableCell>{emp.job_positions?.name || "—"}</TableCell>
                     <TableCell>{emp.job_positions?.sectors?.name || emp.sector || "—"}</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={emp.status === "active" ? "bg-green-100 text-green-700 border-green-200" : "bg-gray-100 text-gray-700 border-gray-200"}>
-                        {emp.status === "active" ? "Ativo" : "Inativo"}
-                      </Badge>
+                      {emp.status === "active"
+                        ? <StatusBadge status="ok" label="Ativo" />
+                        : <StatusBadge status="inactive" />}
                     </TableCell>
                     <TableCell>
                       {emp.compliance.required === 0 ? (
-                        <span className="text-xs text-muted-foreground">Sem obrigações</span>
+                        <StatusBadge status="missing" label="Sem obrigações" />
                       ) : emp.compliance.isCompliant ? (
-                        <Badge variant="outline" className="bg-green-100 text-green-700 border-green-200">✅ Em dia</Badge>
+                        <StatusBadge status="ok" />
                       ) : (
-                        <Badge variant="outline" className="bg-red-100 text-red-700 border-red-200">⚠️ {emp.compliance.pending} pendência{emp.compliance.pending > 1 ? "s" : ""}</Badge>
+                        <StatusBadge status="expired" label={`${emp.compliance.pending} pendência${emp.compliance.pending > 1 ? "s" : ""}`} />
                       )}
                     </TableCell>
                   </TableRow>

@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Search, Settings2, Plus } from "lucide-react";
+import { FilterBar } from "@/components/ui/filter-bar";
+import { STATUS_META } from "@/lib/status";
 
 interface Props {
   search: string;
@@ -13,39 +13,38 @@ interface Props {
   categories: any[];
   categoryFilter: string[];
   onCategoryChange: (v: string[]) => void;
-  onManageCategories: () => void;
-  onNewMtr: () => void;
-  isExpired: boolean;
+  hasActiveFilters?: boolean;
+  onClear?: () => void;
 }
 
 export function MtrFilters({
   search, onSearchChange, statusFilter, onStatusChange,
-  transporterFilter, onTransporterChange,
-  onManageCategories, onNewMtr, isExpired,
+  transporterFilter, onTransporterChange, hasActiveFilters, onClear,
 }: Props) {
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <div className="relative flex-1 min-w-[200px]">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input placeholder="Buscar por número do MTR..." value={search} onChange={(e) => onSearchChange(e.target.value)} className="pl-9" />
-      </div>
+    <FilterBar
+      search={search}
+      onSearchChange={onSearchChange}
+      searchPlaceholder="Buscar por número do MTR..."
+      hasActiveFilters={hasActiveFilters}
+      onClear={onClear}
+    >
+      <Input
+        placeholder="Transportadora..."
+        value={transporterFilter}
+        onChange={(e) => onTransporterChange(e.target.value)}
+        className="w-[180px]"
+      />
       <Select value={statusFilter} onValueChange={onStatusChange}>
-        <SelectTrigger className="w-[160px]"><SelectValue placeholder="Status CDF" /></SelectTrigger>
+        <SelectTrigger className="w-[190px]"><SelectValue placeholder="Situação do CDF" /></SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Todos</SelectItem>
+          <SelectItem value="all">Todas as situações</SelectItem>
+          <SelectItem value="received">{STATUS_META.ok.label}</SelectItem>
           <SelectItem value="pending">Pendente</SelectItem>
-          <SelectItem value="warning">Em alerta</SelectItem>
-          <SelectItem value="received">Recebido</SelectItem>
-          <SelectItem value="overdue">Vencido</SelectItem>
+          <SelectItem value="warning">{STATUS_META.warning.label}</SelectItem>
+          <SelectItem value="overdue">{STATUS_META.expired.label}</SelectItem>
         </SelectContent>
       </Select>
-      <div className="relative min-w-[160px]">
-        <Input placeholder="Transportadora..." value={transporterFilter} onChange={(e) => onTransporterChange(e.target.value)} />
-      </div>
-      <Button variant="outline" size="sm" onClick={onManageCategories}><Settings2 className="h-4 w-4 mr-1" />Categorias</Button>
-      <Button size="sm" onClick={onNewMtr} disabled={isExpired}>
-        <Plus className="h-4 w-4 mr-1" />Novo MTR
-      </Button>
-    </div>
+    </FilterBar>
   );
 }

@@ -1,5 +1,6 @@
-import { Users, CheckCircle2, AlertTriangle, XCircle, TrendingUp } from "lucide-react";
-import { Kpi, KpiGrid, KpiTone } from "@/components/ui/kpi";
+import { Users } from "lucide-react";
+import { Kpi, KpiGrid } from "@/components/ui/kpi";
+import { STATUS_META } from "@/lib/status";
 
 interface Props {
   totalActive: number;
@@ -7,22 +8,48 @@ interface Props {
   employeesPending: number;
   warningCount: number;
   conformity: number;
+  /** Active status filter, shared with the "Situação" select. */
+  activeStatus?: string | null;
+  onSelectStatus?: (status: string | null) => void;
+  /** When provided, cards link instead of toggling a local filter. */
+  hrefFor?: (status: string | null) => string | undefined;
 }
 
-export function TrainingKpiCards({ totalActive, employeesOk, employeesPending, warningCount, conformity }: Props) {
-  const cards: { label: string; value: string | number; icon: any; tone: KpiTone }[] = [
-    { label: "Colaboradores ativos", value: totalActive, icon: Users, tone: "neutral" },
-    { label: "100% em dia", value: employeesOk, icon: CheckCircle2, tone: "success" },
-    { label: "Com pendências", value: employeesPending, icon: XCircle, tone: "danger" },
-    { label: "Vencendo em breve", value: warningCount, icon: AlertTriangle, tone: "warning" },
-    { label: "Conformidade geral", value: `${conformity}%`, icon: TrendingUp, tone: "primary" },
+export function TrainingKpiCards({
+  totalActive,
+  employeesOk,
+  employeesPending,
+  warningCount,
+  conformity,
+  activeStatus = null,
+  onSelectStatus,
+  hrefFor,
+}: Props) {
+  const cards = [
+    { key: null, label: "Colaboradores ativos", value: totalActive, icon: Users, tone: "neutral" as const },
+    { key: "ok", label: "Em dia", value: employeesOk, icon: STATUS_META.ok.icon, tone: STATUS_META.ok.tone },
+    { key: "warning", label: "Vencendo", value: warningCount, icon: STATUS_META.warning.icon, tone: STATUS_META.warning.tone },
+    { key: "expired", label: "Vencidos", value: employeesPending, icon: STATUS_META.expired.icon, tone: STATUS_META.expired.tone },
+    { key: null, label: STATUS_META.conformity.label, value: `${conformity}%`, icon: STATUS_META.conformity.icon, tone: STATUS_META.conformity.tone },
   ];
 
   return (
     <KpiGrid cols={5}>
-      {cards.map((c) => (
-        <Kpi key={c.label} label={c.label} value={c.value} icon={c.icon} tone={c.tone} />
-      ))}
+      {cards.map((c) => {
+        const href = hrefFor?.(c.key);
+        return (
+          <Kpi
+            key={c.label}
+            label={c.label}
+            value={c.value}
+            icon={c.icon}
+            tone={c.tone}
+            href={href}
+            active={c.key !== null && activeStatus === c.key}
+            onClick={!href && onSelectStatus ? () => onSelectStatus(c.key) : undefined}
+          />
+        );
+      })}
     </KpiGrid>
   );
 }

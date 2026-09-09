@@ -4,10 +4,9 @@ import { useDocuments } from "@/hooks/useDocuments";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatValidityLabel } from "@/lib/trainings";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Plus, Search, Pencil, Trash2, GraduationCap } from "lucide-react";
+import { Plus, Pencil, Trash2, GraduationCap } from "lucide-react";
+import { SectionHeader } from "@/components/ui/page-header";
+import { FilterBar } from "@/components/ui/filter-bar";
 import { TrainingDrawer } from "@/components/treinamentos/TrainingDrawer";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { usePermission } from "@/hooks/usePermission";
@@ -52,31 +51,34 @@ export default function TreinamentosCatalogo() {
 
   const pagination = useTablePagination(filtered);
 
-  const ActionButton = ({ children, onClick, ...props }: any) => {
-    if (isDisabled) {
-      return (
-        <Tooltip><TooltipTrigger asChild><span><Button disabled {...props}>{children}</Button></span></TooltipTrigger>
-        <TooltipContent>{!canEdit ? "Você tem acesso somente leitura neste módulo." : "Seu plano expirou."}</TooltipContent></Tooltip>
-      );
-    }
-    return <Button onClick={onClick} {...props}>{children}</Button>;
-  };
+  const openNew = () => { setEditTraining(null); setDrawerOpen(true); };
+  const deleteTarget = useMemo(() => trainings.find((t: any) => t.id === deleteId), [trainings, deleteId]);
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Buscar treinamento..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
-        </div>
-        <ActionButton onClick={() => { setEditTraining(null); setDrawerOpen(true); }}><Plus className="h-4 w-4 mr-1" />Novo treinamento</ActionButton>
-      </div>
+      <SectionHeader
+        title="Catálogo de treinamentos"
+        description="Cursos disponíveis para montar a matriz por cargo."
+        actions={
+          <PermissionButton canEdit={canEdit} disabled={isExpired} onClick={openNew}>
+            <Plus className="h-4 w-4 mr-1" />Novo treinamento
+          </PermissionButton>
+        }
+      />
+
+      <FilterBar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Buscar treinamento..."
+        hasActiveFilters={!!search}
+        onClear={() => setSearch("")}
+      />
 
       {filtered.length === 0 ? (
         <div className="text-center py-12 space-y-3">
           <GraduationCap className="h-12 w-12 mx-auto text-muted-foreground/50" />
           <p className="text-muted-foreground">Nenhum treinamento cadastrado</p>
-          <ActionButton onClick={() => { setEditTraining(null); setDrawerOpen(true); }}>Cadastrar primeiro treinamento</ActionButton>
+          <PermissionButton canEdit={canEdit} disabled={isExpired} onClick={openNew}>Cadastrar primeiro treinamento</PermissionButton>
         </div>
       ) : (
         <>
@@ -106,12 +108,12 @@ export default function TreinamentosCatalogo() {
                   <TableCell>{t.has_expiry === false ? "Sem vencimento" : formatValidityLabel(t.validity_months)}</TableCell>
                   <TableCell>{t.positionCount} cargo{t.positionCount !== 1 ? "s" : ""}</TableCell>
                   <TableCell className="text-right space-x-1">
-                    <ActionButton variant="ghost" size="icon" onClick={() => { setEditTraining(t); setDrawerOpen(true); }}>
+                    <PermissionButton canEdit={canEdit} disabled={isExpired} variant="ghost" size="icon" onClick={() => { setEditTraining(t); setDrawerOpen(true); }}>
                       <Pencil className="h-4 w-4" />
-                    </ActionButton>
-                    <ActionButton variant="ghost" size="icon" onClick={() => setDeleteId(t.id)}>
+                    </PermissionButton>
+                    <PermissionButton canEdit={canEdit} disabled={isExpired} variant="ghost" size="icon" onClick={() => setDeleteId(t.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
-                    </ActionButton>
+                    </PermissionButton>
                   </TableCell>
                 </TableRow>
                 );
@@ -135,7 +137,7 @@ export default function TreinamentosCatalogo() {
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir treinamento?</AlertDialogTitle>
+            <AlertDialogTitle>Excluir "{deleteTarget?.name}"?</AlertDialogTitle>
             <AlertDialogDescription>Esta ação não pode ser desfeita.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

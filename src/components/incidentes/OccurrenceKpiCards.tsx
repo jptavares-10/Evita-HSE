@@ -20,7 +20,7 @@ export function OccurrenceKpiCards({ occurrences, actions, activeStatus = null, 
 
   const cards = [
     { key: null, label: `Ocorrências em ${currentYear}`, value: yearOccurrences.length, icon: AlertTriangle, tone: "neutral" as const },
-    { key: "open", label: "Abertas", value: open, icon: FolderOpen, tone: open > 0 ? ("expired" as const) : ("neutral" as const) },
+    { key: "open", label: "Abertas", value: open, icon: FolderOpen, tone: open > 0 ? ("danger" as const) : ("neutral" as const) },
     { key: "in_progress", label: "Em andamento", value: inProgress, icon: Activity, tone: "primary" as const },
     { key: "closed", label: "Encerradas", value: closed, icon: CheckCircle2, tone: "success" as const },
     { key: null, label: "Ações em aberto", value: openActions, icon: ListChecks, tone: openActions > 0 ? ("warning" as const) : ("success" as const), href: "/incidentes/acoes" },

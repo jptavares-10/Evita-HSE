@@ -88,11 +88,18 @@ export default function EpiFicha() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Buscar por colaborador..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
-        </div>
+      <SectionHeader
+        title="Ficha do colaborador"
+        description="Histórico consolidado de EPIs entregues por pessoa."
+      />
+
+      <FilterBar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Buscar por colaborador..."
+        hasActiveFilters={!!search || sectorFilter !== "all" || positionFilter !== "all"}
+        onClear={() => { setSearch(""); setSectorFilter("all"); setPositionFilter("all"); }}
+      >
         <Select value={sectorFilter} onValueChange={setSectorFilter}>
           <SelectTrigger className="w-[180px]"><SelectValue placeholder="Setor" /></SelectTrigger>
           <SelectContent>
@@ -107,7 +114,7 @@ export default function EpiFicha() {
             {jobPositions.map((j: any) => <SelectItem key={j.id} value={j.id}>{j.name}</SelectItem>)}
           </SelectContent>
         </Select>
-      </div>
+      </FilterBar>
 
       {isLoading ? (
         <TableSkeleton columns={5} />

@@ -3,15 +3,16 @@ import { useEpiTypes, useEpiStock, useDeleteEpiType } from "@/hooks/useEpi";
 import { usePermission } from "@/hooks/usePermission";
 import { ViewerBadge } from "@/components/ViewerBadge";
 import { PermissionButton } from "@/components/PermissionButton";
-import { computeCaStatus, getCaStatusBadge, computeStockStatus, getStockStatusBadge, formatDateBR } from "@/lib/epi";
+import { computeCaStatus, computeStockStatus, formatDateBR, caStatusKey, caStatusLabel, stockStatusKey, stockStatusLabel } from "@/lib/epi";
 import { EpiDrawer } from "@/components/epi/EpiDrawer";
 import { DeleteEpiDialog } from "@/components/epi/DeleteEpiDialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { SectionHeader } from "@/components/ui/page-header";
+import { FilterBar } from "@/components/ui/filter-bar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Plus, Pencil, Trash2, Search, HardHat } from "lucide-react";
+import { Plus, Pencil, Trash2, HardHat } from "lucide-react";
 import { TableSkeleton } from "@/components/TableSkeleton";
 
 export default function EpiCatalogo() {

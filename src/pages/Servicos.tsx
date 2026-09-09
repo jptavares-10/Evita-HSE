@@ -116,20 +116,28 @@ export default function Servicos() {
 
   return (
     <div className="space-y-6 animate-fade-up">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Serviços Periódicos</h1>
-          <p className="text-muted-foreground text-sm mt-1">Gerencie seus serviços, vencimentos e histórico.</p>
-        </div>
-        {!canEdit && <ViewerBadge />}
-      </div>
+      <PageHeader
+        title="Serviços Periódicos"
+        description="Gerencie seus serviços, vencimentos e histórico."
+        actions={
+          <>
+            {!canEdit && <ViewerBadge />}
+            <Button variant="outline" size="sm" onClick={() => setCategoriesModalOpen(true)}>
+              <Settings2 className="h-4 w-4 mr-1" /> Categorias
+            </Button>
+            <PermissionButton canEdit={canEdit} disabled={isExpired} onClick={openNew}>
+              <Plus className="h-4 w-4 mr-1" /> Novo serviço
+            </PermissionButton>
+          </>
+        }
+      />
 
       <KpiCards
         total={activeServices.length}
         ok={counts.ok}
         warning={counts.warning}
         expired={counts.expired}
-        activeFilter={kpiFilter}
+        activeFilter={activeStatus}
         onFilterClick={handleKpiClick}
         inactiveCount={inactiveServices.length}
         showInactive={showInactive}
@@ -142,9 +150,8 @@ export default function Servicos() {
         statusFilter={statusFilter} onStatusChange={(v) => { setStatusFilter(v); setKpiFilter(null); }}
         sortBy={sortBy} onSortChange={setSortBy}
         categories={categories as any}
-        onManageCategories={() => setCategoriesModalOpen(true)}
-        onNewService={openNew}
-        isExpired={!!isDisabled}
+        hasActiveFilters={!!search || categoryFilter !== "all" || !!activeStatus}
+        onClear={() => { setSearch(""); setCategoryFilter("all"); setStatusFilter("all"); setKpiFilter(null); }}
       />
 
       {isLoading ? (

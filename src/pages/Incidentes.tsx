@@ -111,14 +111,20 @@ export default function Incidentes() {
         </TabsList>
 
         <TabsContent value="ocorrencias" className="space-y-6 mt-6">
-          <OccurrenceKpiCards occurrences={occurrences} actions={allActions} />
+          <OccurrenceKpiCards
+            occurrences={occurrences}
+            actions={allActions}
+            activeStatus={statusFilter === "all" ? null : statusFilter}
+            onSelectStatus={(s) => setStatusFilter(s ?? "all")}
+          />
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3 items-end">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar por descrição ou local..." className="pl-9" />
-        </div>
+      <FilterBar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Buscar por descrição ou local..."
+        hasActiveFilters={!!search || typeFilter !== "all" || severityFilter !== "all" || statusFilter !== "all" || !!dateFrom || !!dateTo}
+        onClear={() => { setSearch(""); setTypeFilter("all"); setSeverityFilter("all"); setStatusFilter("all"); setDateFrom(""); setDateTo(""); }}
+      >
         <Select value={typeFilter} onValueChange={setTypeFilter}>
           <SelectTrigger className="w-[180px]"><SelectValue placeholder="Tipo" /></SelectTrigger>
           <SelectContent>

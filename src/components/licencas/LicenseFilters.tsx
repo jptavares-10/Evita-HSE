@@ -1,8 +1,6 @@
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Search, Plus, Settings } from "lucide-react";
+import { FilterBar } from "@/components/ui/filter-bar";
+import { STATUS_META } from "@/lib/status";
 
 interface Props {
   search: string;
@@ -14,27 +12,23 @@ interface Props {
   statusFilter: string;
   onStatusChange: (v: string) => void;
   types: { id: string; name: string }[];
-  onManageTypes: () => void;
-  onNewLicense: () => void;
-  isExpired: boolean;
+  hasActiveFilters?: boolean;
+  onClear?: () => void;
 }
 
 export function LicenseFilters({
   search, onSearchChange, typeFilter, onTypeChange,
   sphereFilter, onSphereChange, statusFilter, onStatusChange,
-  types, onManageTypes, onNewLicense, isExpired,
+  types, hasActiveFilters, onClear,
 }: Props) {
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <div className="relative flex-1 min-w-[200px]">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Buscar por número, título ou órgão..."
-          value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-9"
-        />
-      </div>
+    <FilterBar
+      search={search}
+      onSearchChange={onSearchChange}
+      searchPlaceholder="Buscar por número, título ou órgão..."
+      hasActiveFilters={hasActiveFilters}
+      onClear={onClear}
+    >
       <Select value={typeFilter} onValueChange={onTypeChange}>
         <SelectTrigger className="w-[160px]"><SelectValue placeholder="Tipo" /></SelectTrigger>
         <SelectContent>
@@ -46,40 +40,25 @@ export function LicenseFilters({
         </SelectContent>
       </Select>
       <Select value={sphereFilter} onValueChange={onSphereChange}>
-        <SelectTrigger className="w-[140px]"><SelectValue placeholder="Esfera" /></SelectTrigger>
+        <SelectTrigger className="w-[150px]"><SelectValue placeholder="Esfera" /></SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Todas</SelectItem>
+          <SelectItem value="all">Todas as esferas</SelectItem>
           <SelectItem value="federal">Federal</SelectItem>
           <SelectItem value="estadual">Estadual</SelectItem>
           <SelectItem value="municipal">Municipal</SelectItem>
         </SelectContent>
       </Select>
       <Select value={statusFilter} onValueChange={onStatusChange}>
-        <SelectTrigger className="w-[150px]"><SelectValue placeholder="Status" /></SelectTrigger>
+        <SelectTrigger className="w-[180px]"><SelectValue placeholder="Situação" /></SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Todos</SelectItem>
-          <SelectItem value="active">Vigente</SelectItem>
-          <SelectItem value="expiring">Vencendo</SelectItem>
-          <SelectItem value="expired">Vencida</SelectItem>
+          <SelectItem value="all">Todas as situações</SelectItem>
+          <SelectItem value="active">{STATUS_META.ok.label}</SelectItem>
+          <SelectItem value="expiring">{STATUS_META.warning.label}</SelectItem>
+          <SelectItem value="expired">{STATUS_META.expired.label}</SelectItem>
           <SelectItem value="in_renewal">Em renovação</SelectItem>
           <SelectItem value="permanent">Permanente</SelectItem>
         </SelectContent>
       </Select>
-      <Button variant="outline" size="sm" onClick={onManageTypes}>
-        <Settings className="h-4 w-4 mr-1" />
-        Gerenciar tipos
-      </Button>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div>
-            <Button onClick={onNewLicense} disabled={isExpired}>
-              <Plus className="h-4 w-4 mr-1" />
-              Nova licença
-            </Button>
-          </div>
-        </TooltipTrigger>
-        {isExpired && <TooltipContent>Seu plano expirou. Faça upgrade para continuar.</TooltipContent>}
-      </Tooltip>
-    </div>
+    </FilterBar>
   );
 }

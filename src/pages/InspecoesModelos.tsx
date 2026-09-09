@@ -71,27 +71,34 @@ export default function InspecoesModelos() {
 
   return (
     <div className="space-y-6">
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3 items-end">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Buscar por nome ou NR..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
-        </div>
+      <SectionHeader
+        title="Modelos"
+        description="Checklists reutilizáveis de inspeção por NR."
+        actions={
+          <PermissionButton canEdit={canEdit} onClick={() => { setEditing(null); setDrawerOpen(true); }} disabled={isDisabled}>
+            <Plus className="h-4 w-4 mr-1" />Novo modelo
+          </PermissionButton>
+        }
+      />
+
+      <FilterBar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Buscar por nome ou NR..."
+        hasActiveFilters={!!search || statusFilter !== "all"}
+        onClear={() => { setSearch(""); setStatusFilter("all"); }}
+      >
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="Status" />
+          <SelectTrigger className="w-[170px]">
+            <SelectValue placeholder="Situação" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
+            <SelectItem value="all">Todas as situações</SelectItem>
             <SelectItem value="active">Ativo</SelectItem>
-            <SelectItem value="inactive">Inativo</SelectItem>
+            <SelectItem value="inactive">{STATUS_META.inactive.label}</SelectItem>
           </SelectContent>
         </Select>
-        <PermissionButton canEdit={canEdit} onClick={() => { setEditing(null); setDrawerOpen(true); }} disabled={isDisabled}>
-          <Plus className="h-4 w-4 mr-1.5" />
-          Novo modelo
-        </PermissionButton>
-      </div>
+      </FilterBar>
 
       {/* Table */}
       {isLoading ? (

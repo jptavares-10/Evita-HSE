@@ -13,7 +13,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Eye, FileCheck, Pencil, Trash2, Recycle, Plus, BarChart3, Tags, Truck, CalendarClock } from "lucide-react";
+import { Eye, FileCheck, Pencil, Trash2, Recycle, Plus, BarChart3, Tags, Truck, CalendarClock, Settings2 } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
+import { PermissionButton } from "@/components/PermissionButton";
 import { Link } from "react-router-dom";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { TableSkeleton } from "@/components/TableSkeleton";

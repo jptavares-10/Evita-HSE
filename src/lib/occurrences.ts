@@ -90,9 +90,6 @@ export const ACTION_PRIORITIES = [
 ] as const;
 
 export function getPriorityInfo(v: string | null | undefined) {
-  return ACTIONPRIORITIES_SAFE(v);
-}
-function ACTIONPRIORITIES_SAFE(v: string | null | undefined) {
   return ACTION_PRIORITIES.find((p) => p.value === v) ?? ACTION_PRIORITIES[1];
 }
 

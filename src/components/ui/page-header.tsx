@@ -24,3 +24,19 @@ export function PageHeader({ title, description, actions, className }: PageHeade
     </div>
   );
 }
+
+/**
+ * Header for a tab/sub-page inside a module (Treinamentos, EPI, Inspeções).
+ * Same rule: actions on the right, primary "create" action last.
+ */
+export function SectionHeader({ title, description, actions, className }: PageHeaderProps) {
+  return (
+    <div className={cn("flex flex-wrap items-center justify-between gap-3", className)}>
+      <div className="min-w-0">
+        <h2 className="text-base font-semibold text-foreground">{title}</h2>
+        {description && <p className="text-muted-foreground text-xs mt-0.5">{description}</p>}
+      </div>
+      {actions && <div className="flex flex-wrap items-center gap-2 shrink-0">{actions}</div>}
+    </div>
+  );
+}

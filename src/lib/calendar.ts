@@ -40,6 +40,8 @@ export const SOURCE_MODULE_META: Record<string, { label: string; color: string }
   mtr: { label: "MTR", color: "#8B5CF6" },
   inspection_execution: { label: "Inspeção", color: "#F97316" },
   document_review_cycle: { label: "Revisão de Documento", color: "#EAB308" },
+  corrective_action: { label: "Ação Corretiva", color: "#EF4444" },
+
 };
 
 export const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/webp", "application/pdf"];

@@ -3130,6 +3130,9 @@ export type Database = {
           cat_number: string | null
           cat_required: boolean
           cause_analysis: string | null
+          closed_at: string | null
+          closed_by: string | null
+          closure_notes: string | null
           company_id: string
           cost_estimated: number | null
           created_at: string
@@ -3156,6 +3159,9 @@ export type Database = {
           cat_number?: string | null
           cat_required?: boolean
           cause_analysis?: string | null
+          closed_at?: string | null
+          closed_by?: string | null
+          closure_notes?: string | null
           company_id: string
           cost_estimated?: number | null
           created_at?: string
@@ -3182,6 +3188,9 @@ export type Database = {
           cat_number?: string | null
           cat_required?: boolean
           cause_analysis?: string | null
+          closed_at?: string | null
+          closed_by?: string | null
+          closure_notes?: string | null
           company_id?: string
           cost_estimated?: number | null
           created_at?: string
@@ -3203,6 +3212,13 @@ export type Database = {
           with_leave?: boolean | null
         }
         Relationships: [
+          {
+            foreignKeyName: "occurrences_closed_by_fkey"
+            columns: ["closed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "occurrences_company_id_fkey"
             columns: ["company_id"]

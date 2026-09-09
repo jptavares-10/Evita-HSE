@@ -19,16 +19,18 @@ export default function EpiVisaoGeral() {
 
   const kpis = useMemo(() => {
     let lowStock = 0;
-    let caExpiring = 0;
+    let caWarning = 0;
+    let caExpired = 0;
     epiTypes.forEach((e: any) => {
       const currentStock = stock[e.id] ?? 0;
       const ss = computeStockStatus(currentStock, e.minimum_stock);
       if (ss === "low" || ss === "out") lowStock++;
       const cs = computeCaStatus(e.ca_expires_at, e.ca_alert_days_before);
-      if (cs === "warning" || cs === "expired") caExpiring++;
+      if (cs === "warning") caWarning++;
+      if (cs === "expired") caExpired++;
     });
     const deliveriesThisMonth = deliveries.filter((d: any) => d.delivered_at >= monthStart).length;
-    return { total: epiTypes.length, lowStock, caExpiring, deliveriesThisMonth };
+    return { total: epiTypes.length, lowStock, caWarning, caExpired, deliveriesThisMonth };
   }, [epiTypes, stock, deliveries, monthStart]);
 
   const alerts = useMemo(() => {

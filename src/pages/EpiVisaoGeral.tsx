@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useEpiTypes, useEpiStock, useEpiDeliveries } from "@/hooks/useEpi";
 import { computeCaStatus, getCaStatusBadge, computeStockStatus, formatDateBR } from "@/lib/epi";
 import { EpiKpiCards } from "@/components/epi/EpiKpiCards";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, Package, HardHat, Plus, PackagePlus, Truck, PenLine, FileSignature } from "lucide-react";
 import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
@@ -68,7 +68,13 @@ export default function EpiVisaoGeral() {
 
   return (
     <div className="space-y-6">
-      <EpiKpiCards totalEpis={kpis.total} lowStock={kpis.lowStock} caExpiring={kpis.caExpiring} deliveriesThisMonth={kpis.deliveriesThisMonth} />
+      <EpiKpiCards
+        totalEpis={kpis.total}
+        lowStock={kpis.lowStock}
+        caWarning={kpis.caWarning}
+        caExpired={kpis.caExpired}
+        deliveriesThisMonth={kpis.deliveriesThisMonth}
+      />
 
       {alerts.length > 0 && (
         <Card>
@@ -86,9 +92,9 @@ export default function EpiVisaoGeral() {
                   <p className="text-sm font-medium truncate">{a.label}</p>
                   <p className="text-xs text-muted-foreground">{a.detail}</p>
                 </div>
-                <Badge variant="outline" className={a.severity === "error" ? "bg-red-100 text-red-700 border-red-200" : "bg-yellow-100 text-yellow-700 border-yellow-200"}>
-                  {a.severity === "error" ? "Crítico" : "Atenção"}
-                </Badge>
+                {a.severity === "error"
+                  ? <StatusBadge status="expired" label="Crítico" />
+                  : <StatusBadge status="warning" label="Atenção" />}
               </div>
             ))}
           </CardContent>

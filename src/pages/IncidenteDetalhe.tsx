@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { AppLayout } from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
@@ -66,17 +65,15 @@ export default function IncidenteDetalhe() {
   const blockReason = occurrence ? closeBlockReason(occurrence, causes, actions) : null;
 
   if (isLoading) {
-    return <AppLayout><div className="p-6 text-sm text-muted-foreground">Carregando...</div></AppLayout>;
+    return <div className="p-6 text-sm text-muted-foreground">Carregando...</div>;
   }
 
   if (!occurrence) {
     return (
-      <AppLayout>
-        <div className="p-6 space-y-3">
-          <p className="text-sm text-muted-foreground">Ocorrência não encontrada.</p>
-          <Button variant="outline" onClick={() => navigate("/incidentes")}>Voltar</Button>
-        </div>
-      </AppLayout>
+      <div className="p-6 space-y-3">
+        <p className="text-sm text-muted-foreground">Ocorrência não encontrada.</p>
+        <Button variant="outline" onClick={() => navigate("/incidentes")}>Voltar</Button>
+      </div>
     );
   }
 
@@ -87,7 +84,7 @@ export default function IncidenteDetalhe() {
   const isClosed = occurrence.status === "closed";
 
   return (
-    <AppLayout>
+    <>
       <div className="space-y-6 p-6">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-2">
@@ -262,6 +259,6 @@ export default function IncidenteDetalhe() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </AppLayout>
+    </>
   );
 }

@@ -140,15 +140,15 @@ export default function Incidentes() {
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[150px]"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectTrigger className="w-[170px]"><SelectValue placeholder="Situação" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
+            <SelectItem value="all">Todas as situações</SelectItem>
             {STATUS_OPTIONS.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
           </SelectContent>
         </Select>
         <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="w-[140px]" placeholder="De" />
         <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-[140px]" placeholder="Até" />
-      </div>
+      </FilterBar>
 
       {/* Table */}
       {isLoading ? (

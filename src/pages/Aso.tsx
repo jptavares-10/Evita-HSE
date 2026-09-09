@@ -122,25 +122,25 @@ export default function Aso() {
 
   return (
     <div className="space-y-6 animate-fade-up">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Exames Ocupacionais (ASO)</h1>
-          <p className="text-muted-foreground mt-1">Controle de ASOs e vencimentos dos colaboradores.</p>
-        </div>
-        <div className="flex items-center gap-2">
-          {!canEdit && <ViewerBadge />}
-          {canEdit && (
-            <>
-              <Button variant="outline" size="sm" onClick={() => setTypesOpen(true)}>
-                <Settings className="h-4 w-4 mr-1" /> Tipos de Exame
-              </Button>
-              <Button size="sm" onClick={() => { setEditRecord(null); setSelectedEmployee(null); setDrawerOpen(true); }}>
-                <Plus className="h-4 w-4 mr-1" /> Novo ASO
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
+      <PageHeader
+        title="Exames Ocupacionais (ASO)"
+        description="Controle de ASOs e vencimentos dos colaboradores."
+        actions={
+          <>
+            {!canEdit && <ViewerBadge />}
+            <Button variant="outline" size="sm" onClick={() => setTypesOpen(true)} disabled={!canEdit}>
+              <Settings className="h-4 w-4 mr-1" /> Tipos de exame
+            </Button>
+            <PermissionButton
+              canEdit={canEdit}
+              size="sm"
+              onClick={() => { setEditRecord(null); setSelectedEmployee(null); setDrawerOpen(true); }}
+            >
+              <Plus className="h-4 w-4 mr-1" /> Novo ASO
+            </PermissionButton>
+          </>
+        }
+      />
 
       <AsoKpiCards
         totalEmployees={kpis.total}
@@ -148,24 +148,27 @@ export default function Aso() {
         expiringSoon={kpis.warning}
         expired={kpis.expired}
         conformity={kpis.conformity}
+        activeStatus={statusFilter.status}
+        onSelectStatus={statusFilter.toggle}
       />
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar colaborador..." className="pl-9" />
-        </div>
-        <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-[160px]"><SelectValue placeholder="Status" /></SelectTrigger>
+      <FilterBar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Buscar colaborador..."
+        hasActiveFilters={!!search || statusFilter.status !== null}
+        onClear={() => { setSearch(""); statusFilter.clear(); }}
+      >
+        <Select value={statusFilter.selectValue} onValueChange={statusFilter.onSelectChange}>
+          <SelectTrigger className="w-[180px]"><SelectValue placeholder="Situação" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
-            <SelectItem value="ok">Em dia</SelectItem>
-            <SelectItem value="warning">Vencendo</SelectItem>
-            <SelectItem value="expired">Vencido / Sem ASO</SelectItem>
+            <SelectItem value="all">Todas as situações</SelectItem>
+            <SelectItem value="ok">{STATUS_META.ok.label}</SelectItem>
+            <SelectItem value="warning">{STATUS_META.warning.label}</SelectItem>
+            <SelectItem value="expired">{STATUS_META.expired.label}</SelectItem>
           </SelectContent>
         </Select>
-      </div>
+      </FilterBar>
 
       {/* Employee-centric Table */}
       <div className="border rounded-lg overflow-hidden">

@@ -144,12 +144,12 @@ export default function InspecoesExecucoes() {
             ))}
           </SelectContent>
         </Select>
-        <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setKpiFilter(null); }}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Status" />
+        <Select value={kpiFilter || statusFilter} onValueChange={(v) => { setStatusFilter(v); setKpiFilter(null); }}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Situação" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
+            <SelectItem value="all">Todas as situações</SelectItem>
             <SelectItem value="pending">Pendente</SelectItem>
             <SelectItem value="in_progress">Em andamento</SelectItem>
             <SelectItem value="overdue">Vencida</SelectItem>
@@ -157,12 +157,7 @@ export default function InspecoesExecucoes() {
             <SelectItem value="completed_with_issues">Concluída c/ pendências</SelectItem>
           </SelectContent>
         </Select>
-        <PermissionButton canEdit={canEdit} variant="outline" onClick={() => setNewExecOpen(true)} disabled={isDisabled}>
-          <Plus className="h-4 w-4 mr-1.5" />
-          Nova execução manual
-        </PermissionButton>
-        {!canEdit && <ViewerBadge />}
-      </div>
+      </FilterBar>
 
       {/* Table */}
       {isLoading ? (

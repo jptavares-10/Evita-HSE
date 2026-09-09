@@ -5,9 +5,12 @@ import { Kpi, KpiGrid, KpiTone } from "@/components/ui/kpi";
 interface Props {
   suppliers: any[];
   docCounts?: Record<string, number>;
+  /** Active status filter, shared with the "Situação" select. */
+  activeStatus?: string | null;
+  onSelectStatus?: (status: string | null) => void;
 }
 
-export function SupplierKpiCards({ suppliers, docCounts = {} }: Props) {
+export function SupplierKpiCards({ suppliers, docCounts = {}, activeStatus = null, onSelectStatus }: Props) {
   const stats = useMemo(() => {
     const active = suppliers.filter((s: any) => s.status === "active");
     const activeCount = active.length;

@@ -266,11 +266,23 @@ export function useDeleteOccurrence() {
 
 export function useCloseOccurrence() {
   const queryClient = useQueryClient();
+  const { profile } = useAuth();
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (occurrenceId: string) => {
-      const { error } = await supabase.from("occurrences").update({ status: "closed", updated_at: new Date().toISOString() }).eq("id", occurrenceId);
+    mutationFn: async (input: string | { occurrenceId: string; closure_notes?: string | null }) => {
+      const occurrenceId = typeof input === "string" ? input : input.occurrenceId;
+      const notes = typeof input === "string" ? null : input.closure_notes ?? null;
+      const { error } = await supabase
+        .from("occurrences")
+        .update({
+          status: "closed",
+          closure_notes: notes,
+          closed_at: new Date().toISOString(),
+          closed_by: profile?.id ?? null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", occurrenceId);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -283,36 +295,110 @@ export function useCloseOccurrence() {
   });
 }
 
-export function useAddCorrectiveAction() {
+export function useReopenOccurrence() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  return useMutation({
+    mutationFn: async (occurrenceId: string) => {
+      const { error } = await supabase
+        .from("occurrences")
+        .update({ status: "in_progress", closed_at: null, closed_by: null, updated_at: new Date().toISOString() })
+        .eq("id", occurrenceId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["occurrences"] });
+      toast({ title: "Ocorrência reaberta." });
+    },
+    onError: () => toast({ title: "Erro ao reabrir ocorrência", variant: "destructive" }),
+  });
+}
+
+export interface ActionFormValues {
+  id?: string;
+  occurrence_id: string;
+  description: string;
+  responsible_profile_id: string | null;
+  due_date: string | null;
+  priority: string;
+  cause_id: string | null;
+  control_hierarchy: string | null;
+  where_location?: string | null;
+  how_method?: string | null;
+  cost_estimated?: number | null;
+}
+
+/** Cria ou atualiza uma ação corretiva já com todos os campos 5W2H. */
+export function useSaveCorrectiveAction() {
   const queryClient = useQueryClient();
   const { company, profile } = useAuth();
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (values: { occurrence_id: string; description: string }) => {
+    mutationFn: async (values: ActionFormValues) => {
       if (!company || !profile) throw new Error("Sem empresa");
-      const { error } = await supabase.from("corrective_actions").insert({
+      const payload = {
         occurrence_id: values.occurrence_id,
-        company_id: company.id,
         description: values.description,
-        created_by: profile.id,
-      });
-      if (error) throw error;
-      // Update occurrence status
-      await supabase.from("occurrences").update({ status: "in_progress", updated_at: new Date().toISOString() }).eq("id", values.occurrence_id);
+        responsible_profile_id: values.responsible_profile_id,
+        due_date: values.due_date,
+        priority: values.priority,
+        cause_id: values.cause_id,
+        control_hierarchy: values.control_hierarchy,
+        where_location: values.where_location ?? null,
+        how_method: values.how_method ?? null,
+        cost_estimated: values.cost_estimated ?? null,
+      };
+
+      if (values.id) {
+        const { error } = await supabase.from("corrective_actions").update(payload).eq("id", values.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("corrective_actions")
+          .insert({ ...payload, company_id: company.id, created_by: profile.id, status: "pending" });
+        if (error) throw error;
+        await supabase
+          .from("occurrences")
+          .update({ status: "in_progress", updated_at: new Date().toISOString() })
+          .eq("id", values.occurrence_id)
+          .neq("status", "closed");
+      }
     },
-    onSuccess: () => {
+    onSuccess: (_, v) => {
       queryClient.invalidateQueries({ queryKey: ["corrective-actions"] });
+      queryClient.invalidateQueries({ queryKey: ["all-corrective-actions"] });
       queryClient.invalidateQueries({ queryKey: ["occurrences"] });
-      toast({ title: "Ação adicionada." });
+      toast({ title: v.id ? "Ação atualizada." : "Ação criada." });
     },
-    onError: () => {
-      toast({ title: "Erro ao adicionar ação", variant: "destructive" });
+    onError: (err: any) => {
+      toast({ title: err?.message || "Erro ao salvar ação", variant: "destructive" });
     },
   });
 }
 
-export function useUpdateActionStatus() {
+export function useStartAction() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  return useMutation({
+    mutationFn: async (actionId: string) => {
+      const { error } = await supabase
+        .from("corrective_actions")
+        .update({ status: "in_progress", started_at: new Date().toISOString() })
+        .eq("id", actionId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["corrective-actions"] });
+      queryClient.invalidateQueries({ queryKey: ["all-corrective-actions"] });
+      toast({ title: "Ação iniciada." });
+    },
+    onError: () => toast({ title: "Erro ao iniciar ação", variant: "destructive" }),
+  });
+}
+
+/** Conclui a ação com observação obrigatória e vários arquivos de evidência. */
+export function useCompleteAction() {
   const queryClient = useQueryClient();
   const { company, profile } = useAuth();
   const { toast } = useToast();
@@ -321,55 +407,50 @@ export function useUpdateActionStatus() {
     mutationFn: async (values: {
       actionId: string;
       occurrenceId: string;
-      newStatus: string;
-      completion_notes?: string | null;
-      evidenceFile?: File | null;
+      completion_notes: string;
+      files?: File[];
     }) => {
       if (!company || !profile) throw new Error("Sem empresa");
-      const updatePayload: any = { status: values.newStatus };
+      if (!values.completion_notes.trim()) throw new Error("Descreva o que foi feito para concluir a ação.");
 
-      if (values.newStatus === "completed") {
-        updatePayload.completed_at = new Date().toISOString();
-        updatePayload.completed_by = profile.id;
-        updatePayload.completion_notes = values.completion_notes || null;
-
-        if (values.evidenceFile) {
-          const ext = values.evidenceFile.name.split(".").pop() ?? "bin";
-          const path = `${company.id}/${values.occurrenceId}/actions/${values.actionId}.${ext}`;
-          const { error: upErr } = await storageUpload("occurrence-files", path, values.evidenceFile, { upsert: true });
-          if (upErr) throw upErr;
-          updatePayload.evidence_url = path;
-          updatePayload.evidence_name = values.evidenceFile.name;
-        }
-      }
-
-      const { error } = await supabase.from("corrective_actions").update(updatePayload).eq("id", values.actionId);
+      const { error } = await supabase
+        .from("corrective_actions")
+        .update({
+          status: "completed",
+          completed_at: new Date().toISOString(),
+          completed_by: profile.id,
+          completion_notes: values.completion_notes.trim(),
+        })
+        .eq("id", values.actionId);
       if (error) throw error;
 
-      // Recalculate occurrence status
-      const { data: allActions } = await supabase
-        .from("corrective_actions")
-        .select("status")
-        .eq("occurrence_id", values.occurrenceId);
-
-      if (allActions && allActions.length > 0) {
-        const allCompleted = allActions.every((a) => a.status === "completed");
-        const newOccStatus = allCompleted ? "closed" : "in_progress";
-        await supabase.from("occurrences").update({ status: newOccStatus, updated_at: new Date().toISOString() }).eq("id", values.occurrenceId);
+      for (const file of values.files ?? []) {
+        const ext = file.name.split(".").pop()?.toLowerCase() ?? "bin";
+        const path = `${company.id}/${values.occurrenceId}/actions/${values.actionId}/${crypto.randomUUID()}.${ext}`;
+        const { error: upErr } = await storageUpload("occurrence-files", path, file);
+        if (upErr) throw upErr;
+        const fileType = ["jpg", "jpeg", "png", "gif", "webp"].includes(ext) ? "image" : "document";
+        const { error: insErr } = await supabase.from("corrective_action_attachments").insert({
+          company_id: company.id,
+          action_id: values.actionId,
+          file_url: path,
+          file_name: file.name,
+          file_type: fileType,
+          uploaded_by: profile.id,
+        });
+        if (insErr) throw insErr;
       }
     },
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["corrective-actions"] });
-      queryClient.invalidateQueries({ queryKey: ["occurrences"] });
       queryClient.invalidateQueries({ queryKey: ["all-corrective-actions"] });
-      const msg = variables.newStatus === "completed" ? "Ação concluída." : "Ação iniciada.";
-      toast({ title: msg });
+      queryClient.invalidateQueries({ queryKey: ["corrective-action-attachments"] });
+      toast({ title: "Ação concluída." });
     },
-    onError: () => {
-      toast({ title: "Erro ao atualizar ação", variant: "destructive" });
-    },
+    onError: (err: any) => toast({ title: err?.message || "Erro ao concluir ação", variant: "destructive" }),
   });
 }
+
 
 export function useDeleteCorrectiveAction() {
   const queryClient = useQueryClient();

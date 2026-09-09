@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { KpiCard } from "@/components/ui/kpi";
+import { Kpi } from "@/components/ui/kpi";
 import { ListChecks, AlertTriangle, Clock, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAllCorrectiveActions } from "@/hooks/useOccurrences";
@@ -52,19 +52,19 @@ export function IncidentesAcoes() {
     });
   }, [actions, mine, scope, search, stateFilter, responsible]);
 
-  const { page, setPage, pageCount, pageItems, total } = useTablePagination(filtered, 20);
+  const { currentPage, setCurrentPage, pageSize, setPageSize, totalPages, paginatedData, totalItems } = useTablePagination(filtered);
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-4 gap-4">
-        <KpiCard title="Minhas ações em aberto" value={kpis.openMine} icon={ListChecks} />
-        <KpiCard title="Atrasadas" value={kpis.overdue} icon={AlertTriangle} tone="danger" />
-        <KpiCard title="Vencendo em 7 dias" value={kpis.dueSoon} icon={Clock} tone="warning" />
-        <KpiCard title="Aguardando verificação" value={kpis.awaiting} icon={ShieldCheck} />
+        <Kpi label="Minhas ações em aberto" value={kpis.openMine} icon={ListChecks} tone="primary" />
+        <Kpi label="Atrasadas" value={kpis.overdue} icon={AlertTriangle} tone="danger" />
+        <Kpi label="Vencendo em 7 dias" value={kpis.dueSoon} icon={Clock} tone="warning" />
+        <Kpi label="Aguardando verificação" value={kpis.awaiting} icon={ShieldCheck} tone="info" />
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <Tabs value={scope} onValueChange={(v) => { setScope(v as any); setPage(1); }}>
+        <Tabs value={scope} onValueChange={(v) => { setScope(v as any); setCurrentPage(1); }}>
           <TabsList>
             <TabsTrigger value="mine">Minhas ações</TabsTrigger>
             <TabsTrigger value="all">Todas as ações</TabsTrigger>
@@ -74,9 +74,9 @@ export function IncidentesAcoes() {
           className="w-64"
           placeholder="Buscar por descrição..."
           value={search}
-          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
         />
-        <Select value={stateFilter} onValueChange={(v) => { setStateFilter(v); setPage(1); }}>
+        <Select value={stateFilter} onValueChange={(v) => { setStateFilter(v); setCurrentPage(1); }}>
           <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value={ALL}>Todas as situações</SelectItem>
@@ -88,7 +88,7 @@ export function IncidentesAcoes() {
           </SelectContent>
         </Select>
         {scope === "all" && (
-          <Select value={responsible} onValueChange={(v) => { setResponsible(v); setPage(1); }}>
+          <Select value={responsible} onValueChange={(v) => { setResponsible(v); setCurrentPage(1); }}>
             <SelectTrigger className="w-52"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value={ALL}>Todos os responsáveis</SelectItem>
@@ -100,8 +100,15 @@ export function IncidentesAcoes() {
         )}
       </div>
 
-      <ActionsTable actions={pageItems} />
-      <DataTablePagination page={page} pageCount={pageCount} onPageChange={setPage} total={total} />
+      <ActionsTable actions={paginatedData} />
+      <DataTablePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        totalItems={totalItems}
+        onPageChange={setCurrentPage}
+        onPageSizeChange={setPageSize}
+      />
     </div>
   );
 }

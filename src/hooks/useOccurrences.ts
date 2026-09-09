@@ -54,6 +54,9 @@ export function useOccurrenceAttachments(occurrenceId: string | null) {
   });
 }
 
+const ACTION_SELECT =
+  "*, creator:created_by(full_name), completer:completed_by(full_name), responsible:responsible_profile_id(id, full_name), verifier:verified_by(full_name)";
+
 export function useCorrectiveActions(occurrenceId: string | null) {
   return useQuery({
     queryKey: ["corrective-actions", occurrenceId],
@@ -61,7 +64,7 @@ export function useCorrectiveActions(occurrenceId: string | null) {
       if (!occurrenceId) return [];
       const { data, error } = await supabase
         .from("corrective_actions")
-        .select("*, creator:created_by(full_name), completer:completed_by(full_name)")
+        .select(ACTION_SELECT)
         .eq("occurrence_id", occurrenceId)
         .order("created_at", { ascending: true });
       if (error) throw error;
@@ -79,14 +82,34 @@ export function useAllCorrectiveActions() {
       if (!company) return [];
       const { data, error } = await supabase
         .from("corrective_actions")
-        .select("*")
-        .order("created_at", { ascending: false });
+        .select(
+          "*, responsible:responsible_profile_id(id, full_name), occurrence:occurrence_id(id, type, severity, location, description, status)",
+        )
+        .order("due_date", { ascending: true, nullsFirst: false });
       if (error) throw error;
       return data ?? [];
     },
     enabled: !!company,
   });
 }
+
+export function useActionAttachments(actionId: string | null) {
+  return useQuery({
+    queryKey: ["corrective-action-attachments", actionId],
+    queryFn: async () => {
+      if (!actionId) return [];
+      const { data, error } = await supabase
+        .from("corrective_action_attachments")
+        .select("*")
+        .eq("action_id", actionId)
+        .order("uploaded_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+    enabled: !!actionId,
+  });
+}
+
 
 export function useSaveOccurrence() {
   const queryClient = useQueryClient();

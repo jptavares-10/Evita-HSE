@@ -20,6 +20,8 @@ import { ViewerBadge } from "@/components/ViewerBadge";
 import { PermissionButton } from "@/components/PermissionButton";
 import { useTablePagination } from "@/hooks/useTablePagination";
 import { DataTablePagination } from "@/components/DataTablePagination";
+import { FilterBar } from "@/components/ui/filter-bar";
+import { SectionHeader } from "@/components/ui/page-header";
 
 export default function InspecoesExecucoes() {
   const { company } = useAuth();

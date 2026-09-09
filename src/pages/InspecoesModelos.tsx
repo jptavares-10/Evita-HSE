@@ -22,6 +22,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePermission } from "@/hooks/usePermission";
 import { PermissionButton } from "@/components/PermissionButton";
+import { STATUS_META } from "@/lib/status";
+import { FilterBar } from "@/components/ui/filter-bar";
+import { SectionHeader } from "@/components/ui/page-header";
 
 export default function InspecoesModelos() {
   const navigate = useNavigate();

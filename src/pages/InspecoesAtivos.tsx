@@ -13,6 +13,9 @@ import { usePermission } from "@/hooks/usePermission";
 import { PermissionButton } from "@/components/PermissionButton";
 import { ViewerBadge } from "@/components/ViewerBadge";
 import { ASSET_TYPES } from "@/lib/inspection-assets";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FilterBar } from "@/components/ui/filter-bar";
+import { SectionHeader } from "@/components/ui/page-header";
 
 export default function InspecoesAtivos() {
   const { data: assets = [], isLoading } = useInspectionAssets();

@@ -11,6 +11,8 @@ interface Props {
   /** Active status filter, shared with the "Situação" select. */
   activeStatus?: string | null;
   onSelectStatus?: (status: string | null) => void;
+  /** When provided, cards link instead of toggling a local filter. */
+  hrefFor?: (status: string | null) => string | undefined;
 }
 
 export function TrainingKpiCards({
@@ -21,6 +23,7 @@ export function TrainingKpiCards({
   conformity,
   activeStatus = null,
   onSelectStatus,
+  hrefFor,
 }: Props) {
   const cards = [
     { key: null, label: "Colaboradores ativos", value: totalActive, icon: Users, tone: "neutral" as const },

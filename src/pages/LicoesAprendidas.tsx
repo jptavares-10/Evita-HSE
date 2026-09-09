@@ -35,22 +35,18 @@ export default function LicoesAprendidas() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-          <BookOpen className="h-5 w-5 text-primary" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold">Lições Aprendidas</h1>
-          <p className="text-sm text-muted-foreground">Biblioteca de aprendizados extraídos de incidentes e não-conformidades investigados.</p>
-        </div>
-      </div>
+      <PageHeader
+        title="Lições Aprendidas"
+        description="Biblioteca de aprendizados extraídos de incidentes e não-conformidades investigados."
+      />
 
-        <div className="flex flex-col sm:flex-row gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar por título, resumo, local..." className="pl-9" />
-          </div>
-        </div>
+      <FilterBar
+        search={q}
+        onSearchChange={setQ}
+        searchPlaceholder="Buscar por título, resumo, local..."
+        hasActiveFilters={!!q || !!tag}
+        onClear={() => { setQ(""); setTag(null); }}
+      />
 
         {allTags.length > 0 && (
           <div className="flex flex-wrap gap-1.5">

@@ -120,7 +120,7 @@ export function IncidentesAcoes() {
             </SelectContent>
           </Select>
         )}
-      </div>
+      </FilterBar>
 
       <ActionsTable actions={paginatedData} />
       <DataTablePagination

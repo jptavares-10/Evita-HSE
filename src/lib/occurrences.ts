@@ -80,3 +80,139 @@ export function formatDateBR(dateStr: string) {
     return dateStr;
   }
 }
+
+// ── Prioridade das ações corretivas ─────────────────────
+
+export const ACTION_PRIORITIES = [
+  { value: "low", label: "Baixa", color: "bg-gray-100 text-gray-700 border-gray-200" },
+  { value: "medium", label: "Média", color: "bg-blue-100 text-blue-800 border-blue-200" },
+  { value: "high", label: "Alta", color: "bg-red-100 text-red-800 border-red-200" },
+] as const;
+
+export function getPriorityInfo(v: string | null | undefined) {
+  return ACTION_PRIORITIES.find((p) => p.value === v) ?? ACTION_PRIORITIES[1];
+}
+
+export type ActionState = "verified" | "completed" | "overdue" | "in_progress" | "pending";
+
+export const ACTION_STATE_META: Record<ActionState, { label: string; color: string }> = {
+  verified: { label: "Verificada", color: "bg-emerald-100 text-emerald-800 border-emerald-200" },
+  completed: { label: "Concluída", color: "bg-green-100 text-green-800 border-green-200" },
+  overdue: { label: "Atrasada", color: "bg-red-100 text-red-800 border-red-200" },
+  in_progress: { label: "Em andamento", color: "bg-blue-100 text-blue-800 border-blue-200" },
+  pending: { label: "Pendente", color: "bg-gray-100 text-gray-700 border-gray-200" },
+};
+
+export function getActionState(action: any): ActionState {
+  if (action.status === "completed") return action.effectiveness_result ? "verified" : "completed";
+  if (action.due_date) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (new Date(action.due_date + "T00:00:00") < today) return "overdue";
+  }
+  return action.status === "in_progress" ? "in_progress" : "pending";
+}
+
+export function daysUntil(date: string | null | undefined): number | null {
+  if (!date) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return Math.round((new Date(date + "T00:00:00").getTime() - today.getTime()) / 86400000);
+}
+
+// ── Etapas do tratamento da ocorrência ──────────────────
+
+export interface OccurrenceStage {
+  key: "register" | "investigate" | "plan" | "verify" | "close";
+  label: string;
+  done: boolean;
+  pending: string | null;
+  optional?: boolean;
+}
+
+/** Investigação não é exigida para observação de segurança. */
+export function requiresInvestigation(type: string) {
+  return type !== "safety_observation";
+}
+
+export function computeStages(occurrence: any, causes: any[], actions: any[]): OccurrenceStage[] {
+  const rootCauses = causes.filter((c) => c.cause_type === "root");
+  const needsInvestigation = requiresInvestigation(occurrence.type);
+  const openActions = actions.filter((a) => a.status !== "completed");
+  const unverified = actions.filter((a) => a.status === "completed" && !a.effectiveness_result);
+  const noResponsible = actions.filter((a) => !a.responsible_profile_id);
+  const noDue = actions.filter((a) => !a.due_date);
+  const isClosed = occurrence.status === "closed";
+
+  const investigationDone = !needsInvestigation || causes.length > 0;
+  const planDone = actions.length > 0 && noResponsible.length === 0 && noDue.length === 0;
+  const verifyDone = actions.length > 0 && openActions.length === 0 && unverified.length === 0;
+
+  const plural = (n: number, s: string, p: string) => (n === 1 ? s : p);
+
+  return [
+    {
+      key: "register",
+      label: "Registro",
+      done: true,
+      pending: occurrence.cat_required && !occurrence.cat_number ? "CAT ainda não informada" : null,
+    },
+    {
+      key: "investigate",
+      label: "Investigação",
+      done: investigationDone,
+      optional: !needsInvestigation,
+      pending: investigationDone
+        ? rootCauses.length === 0 && causes.length > 0
+          ? "nenhuma causa marcada como raiz"
+          : null
+        : "nenhuma causa identificada ainda",
+    },
+    {
+      key: "plan",
+      label: "Plano de ação",
+      done: planDone,
+      pending: actions.length === 0
+        ? "nenhuma ação criada"
+        : noResponsible.length > 0
+          ? `${noResponsible.length} ${plural(noResponsible.length, "ação sem responsável", "ações sem responsável")}`
+          : noDue.length > 0
+            ? `${noDue.length} ${plural(noDue.length, "ação sem prazo", "ações sem prazo")}`
+            : null,
+    },
+    {
+      key: "verify",
+      label: "Verificação",
+      done: verifyDone,
+      pending: actions.length === 0
+        ? "aguardando o plano de ação"
+        : openActions.length > 0
+          ? `${openActions.length} ${plural(openActions.length, "ação em aberto", "ações em aberto")}`
+          : unverified.length > 0
+            ? `${unverified.length} ${plural(unverified.length, "ação sem verificação de eficácia", "ações sem verificação de eficácia")}`
+            : null,
+    },
+    {
+      key: "close",
+      label: "Encerramento",
+      done: isClosed,
+      pending: isClosed ? null : verifyDone ? "pronta para encerrar" : "aguardando as etapas anteriores",
+    },
+  ];
+}
+
+/** Retorna null quando pode encerrar, ou o motivo do bloqueio. */
+export function closeBlockReason(occurrence: any, causes: any[], actions: any[]): string | null {
+  const stages = computeStages(occurrence, causes, actions);
+  const verify = stages.find((s) => s.key === "verify")!;
+  const investigate = stages.find((s) => s.key === "investigate")!;
+  if (!investigate.done) return "Registre ao menos uma causa na investigação antes de encerrar.";
+  if (actions.length === 0) return "Crie ao menos uma ação corretiva antes de encerrar.";
+  if (!verify.done) return `Ainda há ${verify.pending}. Conclua e verifique a eficácia antes de encerrar.`;
+  return null;
+}
+
+export function stageProgress(stages: OccurrenceStage[]): number {
+  const done = stages.filter((s) => s.done).length;
+  return Math.round((done / stages.length) * 100);
+}

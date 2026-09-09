@@ -6,11 +6,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { AlertTriangle, Calendar, MapPin, User, Pencil, FileText, X } from "lucide-react";
+import { AlertTriangle, Calendar, MapPin, User, Pencil, FileText, X, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useSignedUrls, useSignedUrl } from "@/hooks/useSignedUrl";
 import { getTypeInfo, getSeverityInfo, getStatusInfo, getBodyPartLabel, formatDateTimeBR } from "@/lib/occurrences";
-import { useOccurrenceEmployees, useOccurrenceAttachments, useCorrectiveActions, useCloseOccurrence } from "@/hooks/useOccurrences";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { useOccurrenceEmployees, useOccurrenceAttachments, useCorrectiveActions } from "@/hooks/useOccurrences";
 import { usePermission } from "@/hooks/usePermission";
 import { InvestigationPanel } from "./investigation/InvestigationPanel";
 import { ActionPlan5W2H } from "./investigation/ActionPlan5W2H";
@@ -28,13 +28,11 @@ interface Props {
 export function OccurrenceDetailDrawer({ open, onOpenChange, occurrence, onEdit, planExpired }: Props) {
   const { canEdit } = usePermission("ic_nc");
   const [tab, setTab] = useState("details");
-  const [showCloseDialog, setShowCloseDialog] = useState(false);
   const [lightboxPath, setLightboxPath] = useState<string | null>(null);
 
   const { data: employees = [] } = useOccurrenceEmployees(occurrence?.id ?? null);
   const { data: attachments = [] } = useOccurrenceAttachments(occurrence?.id ?? null);
   const { data: actions = [] } = useCorrectiveActions(occurrence?.id ?? null);
-  const closeOcc = useCloseOccurrence();
   // Resolve signed URLs for all attachment file_urls + evidence_urls
   const allFileUrls = useMemo(() => attachments.map((a: any) => a.file_url).filter(Boolean), [attachments]);
   const signedMap = useSignedUrls("occurrence-files", allFileUrls);
@@ -156,14 +154,18 @@ export function OccurrenceDetailDrawer({ open, onOpenChange, occurrence, onEdit,
 
               <p className="text-xs text-muted-foreground">Registrado por {occurrence.profiles?.full_name} em {formatDateTimeBR(occurrence.created_at)}</p>
 
-              {canEdit && (
-                <div className="flex gap-2 pt-4 border-t">
-                  <Button variant="outline" size="sm" onClick={onEdit} disabled={planExpired}><Pencil className="h-3.5 w-3.5 mr-1" />Editar</Button>
-                  {occurrence.status !== "closed" && (
-                    <Button variant="outline" size="sm" onClick={() => setShowCloseDialog(true)} disabled={planExpired}>Encerrar</Button>
-                  )}
-                </div>
-              )}
+              <div className="flex gap-2 pt-4 border-t">
+                <Button asChild size="sm">
+                  <Link to={`/incidentes/${occurrence.id}`}>
+                    <ArrowRight className="mr-1 h-3.5 w-3.5" />Abrir tratamento completo
+                  </Link>
+                </Button>
+                {canEdit && (
+                  <Button variant="outline" size="sm" onClick={onEdit} disabled={planExpired}>
+                    <Pencil className="mr-1 h-3.5 w-3.5" />Editar
+                  </Button>
+                )}
+              </div>
             </TabsContent>
 
             <TabsContent value="investigation" className="px-6 py-4 m-0">
@@ -209,18 +211,6 @@ export function OccurrenceDetailDrawer({ open, onOpenChange, occurrence, onEdit,
           </Tabs>
         </SheetContent>
       </Sheet>
-
-      {/* Close occurrence dialog */}
-      <Dialog open={showCloseDialog} onOpenChange={setShowCloseDialog}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Encerrar ocorrência</DialogTitle></DialogHeader>
-          <p className="text-sm text-muted-foreground">Tem certeza que deseja encerrar esta ocorrência? Ações pendentes não serão afetadas mas a ocorrência ficará marcada como encerrada.</p>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCloseDialog(false)}>Cancelar</Button>
-            <Button onClick={() => { closeOcc.mutate(occurrence.id); setShowCloseDialog(false); }} disabled={closeOcc.isPending}>Encerrar</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* Lightbox */}
       {lightboxPath && lightboxSignedUrl && (

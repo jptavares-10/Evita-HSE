@@ -250,22 +250,40 @@ export function useSaveActionDetails() {
 
 export function useSaveEffectiveness() {
   const qc = useQueryClient();
+  const { profile } = useAuth();
   const { toast } = useToast();
   return useMutation({
-    mutationFn: async ({ id, effectiveness_result, effectiveness_check_date }: { id: string; effectiveness_result: string; effectiveness_check_date: string }) => {
+    mutationFn: async ({
+      id,
+      effectiveness_result,
+      effectiveness_check_date,
+      effectiveness_notes,
+    }: {
+      id: string;
+      effectiveness_result: string;
+      effectiveness_check_date: string;
+      effectiveness_notes?: string | null;
+    }) => {
       const { error } = await supabase
         .from("corrective_actions")
-        .update({ effectiveness_result, effectiveness_check_date })
+        .update({
+          effectiveness_result,
+          effectiveness_check_date,
+          effectiveness_notes: effectiveness_notes ?? null,
+          verified_by: profile?.id ?? null,
+        })
         .eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["corrective-actions"] });
+      qc.invalidateQueries({ queryKey: ["all-corrective-actions"] });
       toast({ title: "Verificação de eficácia registrada." });
     },
     onError: () => toast({ title: "Erro ao registrar", variant: "destructive" }),
   });
 }
+
 
 // ── Occurrence extras (CAT, cost, lesson) ───────────────
 

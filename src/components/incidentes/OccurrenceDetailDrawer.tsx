@@ -11,7 +11,6 @@ import { Link } from "react-router-dom";
 import { useSignedUrls, useSignedUrl } from "@/hooks/useSignedUrl";
 import { getTypeInfo, getSeverityInfo, getStatusInfo, getBodyPartLabel, formatDateTimeBR } from "@/lib/occurrences";
 import { useOccurrenceEmployees, useOccurrenceAttachments, useCorrectiveActions } from "@/hooks/useOccurrences";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { usePermission } from "@/hooks/usePermission";
 import { InvestigationPanel } from "./investigation/InvestigationPanel";
 import { ActionPlan5W2H } from "./investigation/ActionPlan5W2H";

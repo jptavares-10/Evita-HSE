@@ -33,16 +33,27 @@ export default function EpiCatalogo() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Buscar EPI ou CA..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
-        </div>
-        <div className="flex items-center gap-2">
-          {!canEdit && <ViewerBadge />}
-          <PermissionButton canEdit={canEdit} onClick={() => { setEditData(null); setDrawerOpen(true); }}><Plus className="h-4 w-4 mr-2" />Novo EPI</PermissionButton>
-        </div>
-      </div>
+      <SectionHeader
+        title="Catálogo de EPIs"
+        description="Equipamentos, número do CA e estoque mínimo."
+        actions={
+          <>
+            {!canEdit && <ViewerBadge />}
+            <PermissionButton canEdit={canEdit} onClick={() => { setEditData(null); setDrawerOpen(true); }}>
+              <Plus className="h-4 w-4 mr-2" />Novo EPI
+            </PermissionButton>
+          </>
+        }
+      />
+
+      <FilterBar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Buscar EPI ou CA..."
+        hasActiveFilters={!!search}
+        onClear={() => setSearch("")}
+      />
+
 
       {isLoading ? (
         <TableSkeleton columns={7} />

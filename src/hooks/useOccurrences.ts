@@ -21,6 +21,25 @@ export function useOccurrences() {
   });
 }
 
+export function useOccurrence(id: string | null | undefined) {
+  const { company } = useAuth();
+  return useQuery({
+    queryKey: ["occurrence", id],
+    queryFn: async () => {
+      if (!id) return null;
+      const { data, error } = await supabase
+        .from("occurrences")
+        .select("*, profiles:registered_by(full_name), closer:closed_by(full_name)")
+        .eq("id", id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id && !!company,
+  });
+}
+
+
 export function useOccurrenceEmployees(occurrenceId: string | null) {
   return useQuery({
     queryKey: ["occurrence-employees", occurrenceId],

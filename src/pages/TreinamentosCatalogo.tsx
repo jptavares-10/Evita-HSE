@@ -108,12 +108,12 @@ export default function TreinamentosCatalogo() {
                   <TableCell>{t.has_expiry === false ? "Sem vencimento" : formatValidityLabel(t.validity_months)}</TableCell>
                   <TableCell>{t.positionCount} cargo{t.positionCount !== 1 ? "s" : ""}</TableCell>
                   <TableCell className="text-right space-x-1">
-                    <ActionButton variant="ghost" size="icon" onClick={() => { setEditTraining(t); setDrawerOpen(true); }}>
+                    <PermissionButton canEdit={canEdit} disabled={isExpired} variant="ghost" size="icon" onClick={() => { setEditTraining(t); setDrawerOpen(true); }}>
                       <Pencil className="h-4 w-4" />
-                    </ActionButton>
-                    <ActionButton variant="ghost" size="icon" onClick={() => setDeleteId(t.id)}>
+                    </PermissionButton>
+                    <PermissionButton canEdit={canEdit} disabled={isExpired} variant="ghost" size="icon" onClick={() => setDeleteId(t.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
-                    </ActionButton>
+                    </PermissionButton>
                   </TableCell>
                 </TableRow>
                 );
@@ -137,7 +137,7 @@ export default function TreinamentosCatalogo() {
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir treinamento?</AlertDialogTitle>
+            <AlertDialogTitle>Excluir "{deleteTarget?.name}"?</AlertDialogTitle>
             <AlertDialogDescription>Esta ação não pode ser desfeita.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

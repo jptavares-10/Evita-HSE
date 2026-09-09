@@ -52,31 +52,34 @@ export default function TreinamentosCatalogo() {
 
   const pagination = useTablePagination(filtered);
 
-  const ActionButton = ({ children, onClick, ...props }: any) => {
-    if (isDisabled) {
-      return (
-        <Tooltip><TooltipTrigger asChild><span><Button disabled {...props}>{children}</Button></span></TooltipTrigger>
-        <TooltipContent>{!canEdit ? "Você tem acesso somente leitura neste módulo." : "Seu plano expirou."}</TooltipContent></Tooltip>
-      );
-    }
-    return <Button onClick={onClick} {...props}>{children}</Button>;
-  };
+  const openNew = () => { setEditTraining(null); setDrawerOpen(true); };
+  const deleteTarget = useMemo(() => trainings.find((t: any) => t.id === deleteId), [trainings, deleteId]);
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Buscar treinamento..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
-        </div>
-        <ActionButton onClick={() => { setEditTraining(null); setDrawerOpen(true); }}><Plus className="h-4 w-4 mr-1" />Novo treinamento</ActionButton>
-      </div>
+      <SectionHeader
+        title="Catálogo de treinamentos"
+        description="Cursos disponíveis para montar a matriz por cargo."
+        actions={
+          <PermissionButton canEdit={canEdit} disabled={isExpired} onClick={openNew}>
+            <Plus className="h-4 w-4 mr-1" />Novo treinamento
+          </PermissionButton>
+        }
+      />
+
+      <FilterBar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Buscar treinamento..."
+        hasActiveFilters={!!search}
+        onClear={() => setSearch("")}
+      />
 
       {filtered.length === 0 ? (
         <div className="text-center py-12 space-y-3">
           <GraduationCap className="h-12 w-12 mx-auto text-muted-foreground/50" />
           <p className="text-muted-foreground">Nenhum treinamento cadastrado</p>
-          <ActionButton onClick={() => { setEditTraining(null); setDrawerOpen(true); }}>Cadastrar primeiro treinamento</ActionButton>
+          <PermissionButton canEdit={canEdit} disabled={isExpired} onClick={openNew}>Cadastrar primeiro treinamento</PermissionButton>
         </div>
       ) : (
         <>

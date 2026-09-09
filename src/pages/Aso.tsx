@@ -9,11 +9,15 @@ import { AsoDetailDrawer } from "@/components/aso/AsoDetailDrawer";
 import { ManageExamTypesModal } from "@/components/aso/ManageExamTypesModal";
 import { DeleteAsoDialog } from "@/components/aso/DeleteAsoDialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { PermissionButton } from "@/components/PermissionButton";
+import { PageHeader } from "@/components/ui/page-header";
+import { FilterBar } from "@/components/ui/filter-bar";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { STATUS_META } from "@/lib/status";
+import { useStatusFilter } from "@/hooks/useStatusFilter";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Settings, Pencil, Stethoscope, Users, Tags, CalendarClock, Paperclip } from "lucide-react";
+import { Plus, Settings, Pencil, Stethoscope, Users, Tags, CalendarClock, Paperclip } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
 import { useNavigate } from "react-router-dom";
@@ -36,7 +40,8 @@ export default function Aso() {
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
   const [typesOpen, setTypesOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
+  const statusFilter = useStatusFilter();
+  const filterStatus = statusFilter.status ?? "all";
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailEmployee, setDetailEmployee] = useState<any>(null);
   const [deleteRecord, setDeleteRecord] = useState<any>(null);
@@ -93,11 +98,11 @@ export default function Aso() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "ok": return <Badge variant="outline" className="bg-green-100 text-green-700 border-green-200">Em dia</Badge>;
-      case "no_expiry": return <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-200">Sem validade</Badge>;
-      case "warning": return <Badge variant="outline" className="bg-yellow-100 text-yellow-700 border-yellow-200">Vencendo</Badge>;
-      case "expired": return <Badge variant="outline" className="bg-red-100 text-red-700 border-red-200">Vencido</Badge>;
-      case "no_record": return <Badge variant="outline" className="bg-gray-100 text-gray-700 border-gray-200">Sem ASO</Badge>;
+      case "ok": return <StatusBadge status="ok" />;
+      case "no_expiry": return <StatusBadge status="ok" label="Sem validade" />;
+      case "warning": return <StatusBadge status="warning" label="Vencendo" />;
+      case "expired": return <StatusBadge status="expired" label="Vencido" />;
+      case "no_record": return <StatusBadge status="missing" label="Sem ASO" />;
       default: return null;
     }
   };

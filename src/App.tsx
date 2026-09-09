@@ -35,6 +35,7 @@ import Fornecedores from "./pages/Fornecedores";
 import FornecedorDocumentos from "./pages/FornecedorDocumentos";
 import PortalFornecedor from "./pages/PortalFornecedor";
 import Incidentes from "./pages/Incidentes";
+import IncidenteDetalhe from "./pages/IncidenteDetalhe";
 import Licencas from "./pages/Licencas";
 import LicencasCondicionantes from "./pages/LicencasCondicionantes";
 import Documentos from "./pages/Documentos";
@@ -148,6 +149,8 @@ const App = () => (
               <Route path="/fornecedores/:id" element={<ModuleGuard module="suppliers"><FornecedorDocumentos /></ModuleGuard>} />
               <Route path="/incidentes" element={<ModuleGuard module="ic_nc"><Incidentes /></ModuleGuard>} />
               <Route path="/incidentes/licoes-aprendidas" element={<ModuleGuard module="ic_nc"><Incidentes /></ModuleGuard>} />
+              <Route path="/incidentes/acoes" element={<ModuleGuard module="ic_nc"><Incidentes /></ModuleGuard>} />
+              <Route path="/incidentes/:id" element={<ModuleGuard module="ic_nc"><IncidenteDetalhe /></ModuleGuard>} />
               <Route path="/licencas" element={<ModuleGuard module="environmental_licenses"><Licencas /></ModuleGuard>} />
               <Route path="/licencas/condicionantes" element={<ModuleGuard module="license_conditionants"><LicencasCondicionantes /></ModuleGuard>} />
               <Route path="/documentos" element={<ModuleGuard module="document_library"><Documentos /></ModuleGuard>} />

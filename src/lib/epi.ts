@@ -62,3 +62,39 @@ export function getCaDaysRemaining(caExpiresAt: string | null | undefined): stri
   if (diff < 0) return `Vencido há ${Math.abs(diff)} dias`;
   return `${diff} dias`;
 }
+
+/* ---- Standard status vocabulary mapping (see src/lib/status.ts) ---- */
+
+export function caStatusKey(status: CaStatus): "ok" | "warning" | "expired" | "missing" {
+  switch (status) {
+    case "ok": return "ok";
+    case "warning": return "warning";
+    case "expired": return "expired";
+    case "no_ca": return "missing";
+  }
+}
+
+export function caStatusLabel(status: CaStatus): string {
+  switch (status) {
+    case "ok": return "CA em dia";
+    case "warning": return "CA vencendo";
+    case "expired": return "CA vencido";
+    case "no_ca": return "Sem CA";
+  }
+}
+
+export function stockStatusKey(status: StockStatus): "ok" | "warning" | "expired" {
+  switch (status) {
+    case "ok": return "ok";
+    case "low": return "warning";
+    case "out": return "expired";
+  }
+}
+
+export function stockStatusLabel(status: StockStatus): string {
+  switch (status) {
+    case "ok": return "Em dia";
+    case "low": return "Estoque baixo";
+    case "out": return "Zerado";
+  }
+}

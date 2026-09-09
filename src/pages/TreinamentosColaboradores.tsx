@@ -146,8 +146,8 @@ export default function TreinamentosColaboradores() {
                   <TableHead>Nome</TableHead>
                   <TableHead>Cargo</TableHead>
                   <TableHead>Setor</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Conformidade</TableHead>
+                  <TableHead>Cadastro</TableHead>
+                  <TableHead>Situação</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -157,17 +157,17 @@ export default function TreinamentosColaboradores() {
                     <TableCell>{emp.job_positions?.name || "—"}</TableCell>
                     <TableCell>{emp.job_positions?.sectors?.name || emp.sector || "—"}</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={emp.status === "active" ? "bg-green-100 text-green-700 border-green-200" : "bg-gray-100 text-gray-700 border-gray-200"}>
-                        {emp.status === "active" ? "Ativo" : "Inativo"}
-                      </Badge>
+                      {emp.status === "active"
+                        ? <StatusBadge status="ok" label="Ativo" />
+                        : <StatusBadge status="inactive" />}
                     </TableCell>
                     <TableCell>
                       {emp.compliance.required === 0 ? (
-                        <span className="text-xs text-muted-foreground">Sem obrigações</span>
+                        <StatusBadge status="missing" label="Sem obrigações" />
                       ) : emp.compliance.isCompliant ? (
-                        <Badge variant="outline" className="bg-green-100 text-green-700 border-green-200">✅ Em dia</Badge>
+                        <StatusBadge status="ok" />
                       ) : (
-                        <Badge variant="outline" className="bg-red-100 text-red-700 border-red-200">⚠️ {emp.compliance.pending} pendência{emp.compliance.pending > 1 ? "s" : ""}</Badge>
+                        <StatusBadge status="expired" label={`${emp.compliance.pending} pendência${emp.compliance.pending > 1 ? "s" : ""}`} />
                       )}
                     </TableCell>
                   </TableRow>

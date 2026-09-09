@@ -29,11 +29,11 @@ export function useOccurrence(id: string | null | undefined) {
       if (!id) return null;
       const { data, error } = await supabase
         .from("occurrences")
-        .select("*, profiles:registered_by(full_name), closer:closed_by(full_name)")
+        .select("*, profiles:registered_by(full_name)")
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
-      return data;
+      return data as any;
     },
     enabled: !!id && !!company,
   });
@@ -300,7 +300,7 @@ export function useCloseOccurrence() {
           closed_at: new Date().toISOString(),
           closed_by: profile?.id ?? null,
           updated_at: new Date().toISOString(),
-        })
+        } as any)
         .eq("id", occurrenceId);
       if (error) throw error;
     },
@@ -321,7 +321,7 @@ export function useReopenOccurrence() {
     mutationFn: async (occurrenceId: string) => {
       const { error } = await supabase
         .from("occurrences")
-        .update({ status: "in_progress", closed_at: null, closed_by: null, updated_at: new Date().toISOString() })
+        .update({ status: "in_progress", closed_at: null, closed_by: null, updated_at: new Date().toISOString() } as any)
         .eq("id", occurrenceId);
       if (error) throw error;
     },

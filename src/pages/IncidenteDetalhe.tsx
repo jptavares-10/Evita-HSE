@@ -197,7 +197,7 @@ export default function IncidenteDetalhe() {
                     <Lock className="h-4 w-4" />
                     <AlertDescription>
                       Encerrada {occurrence.closed_at ? `em ${formatDateTimeBR(occurrence.closed_at)}` : ""}
-                      {occurrence.closer?.full_name ? ` por ${occurrence.closer.full_name}` : ""}.
+                      .
                     </AlertDescription>
                   </Alert>
                   {occurrence.closure_notes && (

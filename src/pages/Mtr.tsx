@@ -78,29 +78,38 @@ export default function Mtr() {
 
   return (
     <div className="space-y-6 animate-fade-up">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Gestão de MTR</h1>
-          <p className="text-muted-foreground text-sm">Manifesto de Transporte de Resíduos</p>
-        </div>
-        <div className="flex items-center gap-2">
-          {!canEdit && <ViewerBadge />}
-          <Link to="/mtr/analise">
-            <Button variant="outline" size="sm"><BarChart3 className="h-4 w-4 mr-1" />Ver análise</Button>
-          </Link>
-        </div>
-      </div>
+      <PageHeader
+        title="Gestão de MTR"
+        description="Manifesto de Transporte de Resíduos."
+        actions={
+          <>
+            {!canEdit && <ViewerBadge />}
+            <Link to="/mtr/analise">
+              <Button variant="outline" size="sm"><BarChart3 className="h-4 w-4 mr-1" />Ver análise</Button>
+            </Link>
+            <Button variant="outline" size="sm" onClick={() => setCatModalOpen(true)}>
+              <Settings2 className="h-4 w-4 mr-1" />Categorias
+            </Button>
+            <PermissionButton canEdit={canEdit} disabled={!!isExpired} onClick={handleNewMtr}>
+              <Plus className="h-4 w-4 mr-1" />Novo MTR
+            </PermissionButton>
+          </>
+        }
+      />
 
-      <MtrKpiCards mtrs={mtrs} activeFilter={kpiFilter} onFilter={setKpiFilter} />
+      <MtrKpiCards
+        mtrs={mtrs}
+        activeFilter={kpiFilter || (statusFilter !== "all" ? statusFilter : null)}
+        onFilter={(v) => { setKpiFilter(v); setStatusFilter("all"); }}
+      />
 
       <MtrFilters
         search={search} onSearchChange={setSearch}
-        statusFilter={statusFilter} onStatusChange={setStatusFilter}
+        statusFilter={kpiFilter || statusFilter} onStatusChange={(v) => { setStatusFilter(v); setKpiFilter(null); }}
         transporterFilter={transporterFilter} onTransporterChange={setTransporterFilter}
         categories={[]} categoryFilter={[]} onCategoryChange={() => {}}
-        onManageCategories={() => setCatModalOpen(true)}
-        onNewMtr={handleNewMtr}
-        isExpired={isDisabled}
+        hasActiveFilters={!!search || !!transporterFilter || !!kpiFilter || statusFilter !== "all"}
+        onClear={() => { setSearch(""); setTransporterFilter(""); setStatusFilter("all"); setKpiFilter(null); }}
       />
 
       {isLoading ? (

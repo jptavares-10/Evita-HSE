@@ -108,13 +108,21 @@ export default function Licencas() {
 
   return (
     <div className="space-y-6 animate-fade-up">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Licenças Ambientais</h1>
-          <p className="text-muted-foreground text-sm mt-1">Gerencie suas licenças, vencimentos e renovações.</p>
-        </div>
-        {!canEdit && <ViewerBadge />}
-      </div>
+      <PageHeader
+        title="Licenças Ambientais"
+        description="Gerencie suas licenças, vencimentos e renovações."
+        actions={
+          <>
+            {!canEdit && <ViewerBadge />}
+            <Button variant="outline" size="sm" onClick={() => setTypesModalOpen(true)}>
+              <Settings className="h-4 w-4 mr-1" /> Tipos de licença
+            </Button>
+            <PermissionButton canEdit={canEdit} disabled={!!isExpired} onClick={openNew}>
+              <Plus className="h-4 w-4 mr-1" /> Nova licença
+            </PermissionButton>
+          </>
+        }
+      />
 
       <LicensesTabs />
 
@@ -124,7 +132,7 @@ export default function Licencas() {
         expiring={counts.expiring}
         expired={counts.expired}
         permanent={counts.permanent}
-        activeFilter={kpiFilter}
+        activeFilter={activeStatus}
         onFilterClick={handleKpiClick}
       />
 
@@ -132,11 +140,10 @@ export default function Licencas() {
         search={search} onSearchChange={setSearch}
         typeFilter={typeFilter} onTypeChange={setTypeFilter}
         sphereFilter={sphereFilter} onSphereChange={setSphereFilter}
-        statusFilter={statusFilter} onStatusChange={(v) => { setStatusFilter(v); setKpiFilter(null); }}
+        statusFilter={activeStatus ?? "all"} onStatusChange={(v) => { setStatusFilter(v); setKpiFilter(null); }}
         types={types as any}
-        onManageTypes={() => setTypesModalOpen(true)}
-        onNewLicense={openNew}
-        isExpired={isDisabled}
+        hasActiveFilters={!!search || typeFilter !== "all" || sphereFilter !== "all" || !!activeStatus}
+        onClear={() => { setSearch(""); setTypeFilter("all"); setSphereFilter("all"); setStatusFilter("all"); setKpiFilter(null); }}
       />
 
       {isLoading ? (

@@ -461,19 +461,20 @@ export function useDeleteCorrectiveAction() {
       const { error } = await supabase.from("corrective_actions").delete().eq("id", values.actionId);
       if (error) throw error;
 
-      // Recalculate occurrence status
+      // Sem ações a ocorrência volta a "aberta"; o encerramento é sempre manual.
       const { data: remaining } = await supabase
         .from("corrective_actions")
-        .select("status")
+        .select("id")
         .eq("occurrence_id", values.occurrenceId);
 
       if (!remaining || remaining.length === 0) {
-        await supabase.from("occurrences").update({ status: "open", updated_at: new Date().toISOString() }).eq("id", values.occurrenceId);
-      } else {
-        const allCompleted = remaining.every((a) => a.status === "completed");
-        const newStatus = allCompleted ? "closed" : "in_progress";
-        await supabase.from("occurrences").update({ status: newStatus, updated_at: new Date().toISOString() }).eq("id", values.occurrenceId);
+        await supabase
+          .from("occurrences")
+          .update({ status: "open", updated_at: new Date().toISOString() })
+          .eq("id", values.occurrenceId)
+          .neq("status", "closed");
       }
+
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["corrective-actions"] });

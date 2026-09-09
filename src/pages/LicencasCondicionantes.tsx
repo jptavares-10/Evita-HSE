@@ -127,15 +127,21 @@ export default function LicencasCondicionantes() {
 
   return (
     <div className="space-y-6 animate-fade-up">
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Licenças Ambientais</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Acompanhe as condicionantes de cada licença, prazos e evidências de cumprimento.
-          </p>
-        </div>
-        {!canEdit && <ViewerBadge />}
-      </div>
+      <PageHeader
+        title="Licenças Ambientais"
+        description="Acompanhe as condicionantes de cada licença, prazos e evidências de cumprimento."
+        actions={
+          <>
+            {!canEdit && <ViewerBadge />}
+            <Button variant="outline" size="sm" onClick={handleExport}>
+              <Download className="h-4 w-4 mr-1" /> Exportar
+            </Button>
+            <PermissionButton canEdit={canEdit} onClick={openNew} disabled={isDisabled}>
+              <Plus className="h-4 w-4 mr-1" /> Nova condicionante
+            </PermissionButton>
+          </>
+        }
+      />
 
       <LicensesTabs />
 
@@ -143,23 +149,21 @@ export default function LicencasCondicionantes() {
         counts={counts}
         total={conditionants.length}
         conformity={conformity}
-        activeFilter={kpiFilter}
+        activeFilter={kpiFilter || (statusFilter !== "all" ? statusFilter : null)}
         onFilterClick={(s) => { setKpiFilter(s); if (s) setStatusFilter("all"); }}
       />
 
       <ConditionantFilters
         search={search} onSearchChange={setSearch}
         licenseFilter={licenseFilter} onLicenseChange={setLicenseFilter}
-        statusFilter={statusFilter} onStatusChange={(v) => { setStatusFilter(v); setKpiFilter(null); }}
+        statusFilter={kpiFilter || statusFilter} onStatusChange={(v) => { setStatusFilter(v); setKpiFilter(null); }}
         criticalityFilter={criticalityFilter} onCriticalityChange={setCriticalityFilter}
         responsibleFilter={responsibleFilter} onResponsibleChange={setResponsibleFilter}
         deadlineFilter={deadlineFilter} onDeadlineChange={setDeadlineFilter}
         licenses={licenses as any}
         members={members as any}
-        onNew={openNew}
-        onExport={handleExport}
-        isDisabled={isDisabled}
-        canEdit={canEdit}
+        hasActiveFilters={!!search || licenseFilter !== "all" || statusFilter !== "all" || !!kpiFilter || criticalityFilter !== "all" || responsibleFilter !== "all" || deadlineFilter !== "all"}
+        onClear={() => { setSearch(""); setLicenseFilter("all"); setStatusFilter("all"); setKpiFilter(null); setCriticalityFilter("all"); setResponsibleFilter("all"); setDeadlineFilter("all"); }}
       />
 
       {isLoading ? (

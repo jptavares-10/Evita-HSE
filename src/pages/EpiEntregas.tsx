@@ -6,11 +6,11 @@ import { PermissionButton } from "@/components/PermissionButton";
 import { DeliveryDrawer } from "@/components/epi/DeliveryDrawer";
 import { AddAttachmentModal } from "@/components/epi/AddAttachmentModal";
 import { formatDateBR } from "@/lib/epi";
-import { Button } from "@/components/ui/button";
+import { SectionHeader } from "@/components/ui/page-header";
+import { FilterBar } from "@/components/ui/filter-bar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Plus, Search, HandMetal, FileImage, ImageIcon } from "lucide-react";
+import { Plus, HandMetal, FileImage, ImageIcon } from "lucide-react";
 import { TableSkeleton } from "@/components/TableSkeleton";
 import { useTablePagination } from "@/hooks/useTablePagination";
 import { DataTablePagination } from "@/components/DataTablePagination";
@@ -36,16 +36,26 @@ export default function EpiEntregas() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Buscar por colaborador ou EPI..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
-        </div>
-        <div className="flex items-center gap-2">
-          {!canEdit && <ViewerBadge />}
-          <PermissionButton canEdit={canEdit} onClick={() => setDrawerOpen(true)}><Plus className="h-4 w-4 mr-2" />Nova Entrega</PermissionButton>
-        </div>
-      </div>
+      <SectionHeader
+        title="Entregas"
+        description="Comprovação de entrega de EPI por colaborador."
+        actions={
+          <>
+            {!canEdit && <ViewerBadge />}
+            <PermissionButton canEdit={canEdit} onClick={() => setDrawerOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />Nova entrega
+            </PermissionButton>
+          </>
+        }
+      />
+
+      <FilterBar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Buscar por colaborador ou EPI..."
+        hasActiveFilters={!!search}
+        onClear={() => setSearch("")}
+      />
 
       {isLoading ? (
         <TableSkeleton columns={6} />

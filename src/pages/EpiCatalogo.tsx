@@ -72,9 +72,9 @@ export default function EpiCatalogo() {
                 <TableHead>Nome</TableHead>
                 <TableHead>CA</TableHead>
                 <TableHead>Validade CA</TableHead>
-                <TableHead>Status CA</TableHead>
+                <TableHead>Situação do CA</TableHead>
                 <TableHead className="text-right">Estoque</TableHead>
-                <TableHead>Status Estoque</TableHead>
+                <TableHead>Situação do estoque</TableHead>
                 {canEdit && <TableHead className="text-right">Ações</TableHead>}
               </TableRow>
             </TableHeader>
@@ -82,17 +82,15 @@ export default function EpiCatalogo() {
               {filtered.map((e: any) => {
                 const currentStock = stock[e.id] ?? 0;
                 const caStatus = computeCaStatus(e.ca_expires_at, e.ca_alert_days_before);
-                const caBadge = getCaStatusBadge(caStatus);
                 const stockStatus = computeStockStatus(currentStock, e.minimum_stock);
-                const stockBadge = getStockStatusBadge(stockStatus);
                 return (
                   <TableRow key={e.id}>
                     <TableCell className="font-medium">{e.name}</TableCell>
                     <TableCell>{e.ca_number || "—"}</TableCell>
                     <TableCell>{formatDateBR(e.ca_expires_at)}</TableCell>
-                    <TableCell><Badge variant="outline" className={caBadge.className}>{caBadge.label}</Badge></TableCell>
+                    <TableCell><StatusBadge status={caStatusKey(caStatus)} label={caStatusLabel(caStatus)} /></TableCell>
                     <TableCell className="text-right">{currentStock} {e.unit}</TableCell>
-                    <TableCell><Badge variant="outline" className={stockBadge.className}>{stockBadge.label}</Badge></TableCell>
+                    <TableCell><StatusBadge status={stockStatusKey(stockStatus)} label={stockStatusLabel(stockStatus)} /></TableCell>
                     {canEdit && (
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">

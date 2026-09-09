@@ -21,6 +21,9 @@ import { usePermission } from "@/hooks/usePermission";
 import { ViewerBadge } from "@/components/ViewerBadge";
 import { useTablePagination } from "@/hooks/useTablePagination";
 import { DataTablePagination } from "@/components/DataTablePagination";
+import { PageHeader } from "@/components/ui/page-header";
+import { PermissionButton } from "@/components/PermissionButton";
+import { useStatusFilter } from "@/hooks/useStatusFilter";
 
 export default function Documentos() {
   usePageTitle("Biblioteca de Documentos — Evita HSE", { description: "Biblioteca de documentos SST com revisões.", noindex: true });
@@ -34,9 +37,9 @@ export default function Documentos() {
 
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
   const [areaFilter, setAreaFilter] = useState("all");
-  const [kpiFilter, setKpiFilter] = useState<string | null>(null);
+  const statusFilter = useStatusFilter();
+
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingDoc, setEditingDoc] = useState<any>(null);
@@ -61,7 +64,7 @@ export default function Documentos() {
     return c;
   }, [documents]);
 
-  const activeStatus = kpiFilter === "revision_overdue" ? null : (kpiFilter || (statusFilter !== "all" ? statusFilter : null));
+  const activeStatus = statusFilter.status;
 
   const filtered = useMemo(() => {
     let result = documents;
@@ -74,31 +77,45 @@ export default function Documentos() {
       );
     }
     if (typeFilter !== "all") result = result.filter((d: any) => d.document_type_id === typeFilter);
-    if (activeStatus) result = result.filter((d: any) => d.status === activeStatus);
-    if (kpiFilter === "revision_overdue") result = result.filter((d: any) => getRevisionCycleStatus(d) === "overdue");
+    if (activeStatus === "revision_overdue") {
+      result = result.filter((d: any) => getRevisionCycleStatus(d) === "overdue");
+    } else if (activeStatus) {
+      result = result.filter((d: any) => d.status === activeStatus);
+    }
     if (areaFilter !== "all") result = result.filter((d: any) => d.area === areaFilter);
     return result;
-  }, [documents, search, typeFilter, activeStatus, kpiFilter, areaFilter]);
+  }, [documents, search, typeFilter, activeStatus, areaFilter]);
 
   const pagination = useTablePagination(filtered);
 
-  const handleKpiClick = (status: string | null) => {
-    setKpiFilter(status);
-    if (status) setStatusFilter("all");
+  const clearFilters = () => {
+    setSearch("");
+    setTypeFilter("all");
+    setAreaFilter("all");
+    statusFilter.clear();
   };
+
 
   const openEdit = (doc: any) => { setEditingDoc(doc); setDrawerOpen(true); setDetailOpen(false); };
   const openNew = () => { setEditingDoc(null); setDrawerOpen(true); };
 
   return (
     <div className="space-y-6 animate-fade-up">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Biblioteca de Documentos</h1>
-          <p className="text-muted-foreground text-sm mt-1">Gerencie documentos técnicos, revisões e vínculos.</p>
-        </div>
-        {!canEdit && <ViewerBadge />}
-      </div>
+      <PageHeader
+        title="Biblioteca de Documentos"
+        description="Gerencie documentos técnicos, revisões e vínculos."
+        actions={
+          <>
+            {!canEdit && <ViewerBadge />}
+            <Button variant="outline" onClick={() => setTypesModalOpen(true)}>
+              <Tags className="h-4 w-4 mr-1" />Gerenciar tipos
+            </Button>
+            <PermissionButton canEdit={canEdit} disabled={!!isExpired} onClick={openNew}>
+              <Plus className="h-4 w-4 mr-1" />Novo documento
+            </PermissionButton>
+          </>
+        }
+      />
 
       <DocumentKpiCards
         total={documents.length}
@@ -106,20 +123,18 @@ export default function Documentos() {
         underReview={counts.under_review}
         obsolete={counts.obsolete}
         revisionOverdue={counts.revision_overdue}
-        activeFilter={kpiFilter}
-        onFilterClick={handleKpiClick}
+        activeFilter={statusFilter.status}
+        onFilterClick={statusFilter.toggle}
       />
 
       <DocumentFilters
         search={search} onSearchChange={setSearch}
         typeFilter={typeFilter} onTypeChange={setTypeFilter}
-        statusFilter={statusFilter} onStatusChange={(v) => { setStatusFilter(v); setKpiFilter(null); }}
+        statusFilter={statusFilter.selectValue} onStatusChange={statusFilter.onSelectChange}
         areaFilter={areaFilter} onAreaChange={setAreaFilter}
         types={types as any}
         areas={areas}
-        onManageTypes={() => setTypesModalOpen(true)}
-        onNewDocument={openNew}
-        isExpired={!!isDisabled}
+        onClear={clearFilters}
       />
 
       {isLoading ? (

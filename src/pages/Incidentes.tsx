@@ -15,6 +15,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Plus, Search, Eye, Pencil, XCircle, Trash2, AlertTriangle, FileWarning, BookOpen, ShieldAlert, Users, Search as SearchIcon, ListChecks, Lightbulb } from "lucide-react";
 import LicoesAprendidas from "@/pages/LicoesAprendidas";
+import { IncidentesAcoes } from "@/pages/IncidentesAcoes";
 import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
 import { getTypeInfo, getSeverityInfo, getStatusInfo, formatDateTimeBR, OCCURRENCE_TYPES, SEVERITY_LEVELS, STATUS_OPTIONS } from "@/lib/occurrences";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -30,7 +31,11 @@ export default function Incidentes() {
   const { company } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const activeTab = location.pathname.endsWith("/licoes-aprendidas") ? "licoes" : "ocorrencias";
+  const activeTab = location.pathname.endsWith("/licoes-aprendidas")
+    ? "licoes"
+    : location.pathname.endsWith("/acoes")
+      ? "acoes"
+      : "ocorrencias";
   const planExpired = company?.plan === "expired";
   const { canEdit } = usePermission("ic_nc");
   const isDisabled = planExpired || !canEdit;
@@ -93,9 +98,15 @@ export default function Incidentes() {
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={(v) => navigate(v === "licoes" ? "/incidentes/licoes-aprendidas" : "/incidentes")}>
+      <Tabs
+        value={activeTab}
+        onValueChange={(v) =>
+          navigate(v === "licoes" ? "/incidentes/licoes-aprendidas" : v === "acoes" ? "/incidentes/acoes" : "/incidentes")
+        }
+      >
         <TabsList>
           <TabsTrigger value="ocorrencias" className="gap-1.5"><ShieldAlert className="h-3.5 w-3.5" />Ocorrências</TabsTrigger>
+          <TabsTrigger value="acoes" className="gap-1.5"><ListChecks className="h-3.5 w-3.5" />Ações</TabsTrigger>
           <TabsTrigger value="licoes" className="gap-1.5"><BookOpen className="h-3.5 w-3.5" />Lições Aprendidas</TabsTrigger>
         </TabsList>
 
@@ -197,10 +208,10 @@ export default function Incidentes() {
                       <TableCell><Badge className={sti.color + " text-[10px]"}>{sti.label}</Badge></TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">
-                          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setSelectedOcc(occ); setDetailOpen(true); }}><Eye className="h-3.5 w-3.5" /></Button>
+                          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => navigate(`/incidentes/${occ.id}`)} title="Abrir tratamento"><Eye className="h-3.5 w-3.5" /></Button>
                           {canEdit && <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setEditingOcc(occ); setDrawerOpen(true); }} disabled={isDisabled}><Pencil className="h-3.5 w-3.5" /></Button>}
                           {canEdit && occ.status !== "closed" && (
-                            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => closeOcc.mutate(occ.id)} disabled={isDisabled}><XCircle className="h-3.5 w-3.5" /></Button>
+                            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => navigate(`/incidentes/${occ.id}`)} disabled={isDisabled} title="Encerrar na tela da ocorrência"><XCircle className="h-3.5 w-3.5" /></Button>
                           )}
                           {canEdit && <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => { setSelectedOcc(occ); setDeleteOpen(true); }} disabled={isDisabled || occ.status === "closed"}><Trash2 className="h-3.5 w-3.5" /></Button>}
                         </div>
@@ -231,6 +242,10 @@ export default function Incidentes() {
         planExpired={isDisabled}
       />
       <DeleteOccurrenceDialog open={deleteOpen} onOpenChange={setDeleteOpen} occurrence={selectedOcc} />
+        </TabsContent>
+
+        <TabsContent value="acoes" className="mt-6">
+          <IncidentesAcoes />
         </TabsContent>
 
         <TabsContent value="licoes" className="mt-6">

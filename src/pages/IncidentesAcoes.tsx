@@ -56,28 +56,50 @@ export function IncidentesAcoes() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-4 gap-4">
-        <Kpi label="Minhas ações em aberto" value={kpis.openMine} icon={ListChecks} tone="primary" />
-        <Kpi label="Atrasadas" value={kpis.overdue} icon={AlertTriangle} tone="danger" />
-        <Kpi label="Vencendo em 7 dias" value={kpis.dueSoon} icon={Clock} tone="warning" />
-        <Kpi label="Aguardando verificação" value={kpis.awaiting} icon={ShieldCheck} tone="info" />
-      </div>
-
-      <div className="flex flex-wrap items-center gap-3">
-        <Tabs value={scope} onValueChange={(v) => { setScope(v as any); setCurrentPage(1); }}>
-          <TabsList>
-            <TabsTrigger value="mine">Minhas ações</TabsTrigger>
-            <TabsTrigger value="all">Todas as ações</TabsTrigger>
-          </TabsList>
-        </Tabs>
-        <Input
-          className="w-64"
-          placeholder="Buscar por descrição..."
-          value={search}
-          onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
+      <KpiGrid cols={4}>
+        <Kpi
+          label="Minhas ações em aberto"
+          value={kpis.openMine}
+          icon={ListChecks}
+          tone="primary"
+          active={scope === "mine" && stateFilter === ALL}
+          onClick={() => { setScope("mine"); setStateFilter(ALL); setCurrentPage(1); }}
         />
+        <Kpi
+          label="Atrasadas"
+          value={kpis.overdue}
+          icon={AlertTriangle}
+          tone="danger"
+          active={stateFilter === "overdue"}
+          onClick={() => { setStateFilter(stateFilter === "overdue" ? ALL : "overdue"); setCurrentPage(1); }}
+        />
+        <Kpi label="Vencendo em 7 dias" value={kpis.dueSoon} icon={Clock} tone="warning" />
+        <Kpi
+          label="Aguardando verificação"
+          value={kpis.awaiting}
+          icon={ShieldCheck}
+          tone="info"
+          active={stateFilter === "completed"}
+          onClick={() => { setStateFilter(stateFilter === "completed" ? ALL : "completed"); setCurrentPage(1); }}
+        />
+      </KpiGrid>
+
+      <Tabs value={scope} onValueChange={(v) => { setScope(v as any); setCurrentPage(1); }}>
+        <TabsList>
+          <TabsTrigger value="mine">Minhas ações</TabsTrigger>
+          <TabsTrigger value="all">Todas as ações</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      <FilterBar
+        search={search}
+        onSearchChange={(v) => { setSearch(v); setCurrentPage(1); }}
+        searchPlaceholder="Buscar por descrição..."
+        hasActiveFilters={!!search || stateFilter !== ALL || responsible !== ALL}
+        onClear={() => { setSearch(""); setStateFilter(ALL); setResponsible(ALL); setCurrentPage(1); }}
+      >
         <Select value={stateFilter} onValueChange={(v) => { setStateFilter(v); setCurrentPage(1); }}>
-          <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value={ALL}>Todas as situações</SelectItem>
             <SelectItem value="pending">Pendente</SelectItem>

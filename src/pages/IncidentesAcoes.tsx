@@ -111,7 +111,7 @@ export function IncidentesAcoes() {
         </Select>
         {scope === "all" && (
           <Select value={responsible} onValueChange={(v) => { setResponsible(v); setCurrentPage(1); }}>
-            <SelectTrigger className="w-52"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-[200px]"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value={ALL}>Todos os responsáveis</SelectItem>
               {members.map((m) => (

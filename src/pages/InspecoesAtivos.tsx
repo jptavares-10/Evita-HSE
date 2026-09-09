@@ -13,6 +13,9 @@ import { usePermission } from "@/hooks/usePermission";
 import { PermissionButton } from "@/components/PermissionButton";
 import { ViewerBadge } from "@/components/ViewerBadge";
 import { ASSET_TYPES } from "@/lib/inspection-assets";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FilterBar } from "@/components/ui/filter-bar";
+import { SectionHeader } from "@/components/ui/page-header";
 
 export default function InspecoesAtivos() {
   const { data: assets = [], isLoading } = useInspectionAssets();
@@ -38,21 +41,34 @@ export default function InspecoesAtivos() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap gap-3 items-end">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Buscar por tag ou nome..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
-        </div>
-        <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="h-10 rounded-md border bg-background px-3 text-sm">
-          <option value="all">Todos os tipos</option>
-          {Object.entries(ASSET_TYPES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-        </select>
-        <PermissionButton canEdit={canEdit} onClick={() => { setEditing(null); setDrawerOpen(true); }}>
-          <Plus className="h-4 w-4 mr-1.5" />
-          Novo ativo
-        </PermissionButton>
-        {!canEdit && <ViewerBadge />}
-      </div>
+      <SectionHeader
+        title="Ativos"
+        description="Extintores, máquinas e outros ativos vinculados às inspeções."
+        actions={
+          <>
+            {!canEdit && <ViewerBadge />}
+            <PermissionButton canEdit={canEdit} onClick={() => { setEditing(null); setDrawerOpen(true); }}>
+              <Plus className="h-4 w-4 mr-1" />Novo ativo
+            </PermissionButton>
+          </>
+        }
+      />
+
+      <FilterBar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Buscar por tag ou nome..."
+        hasActiveFilters={!!search || typeFilter !== "all"}
+        onClear={() => { setSearch(""); setTypeFilter("all"); }}
+      >
+        <Select value={typeFilter} onValueChange={setTypeFilter}>
+          <SelectTrigger className="w-[180px]"><SelectValue placeholder="Tipo" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os tipos</SelectItem>
+            {Object.entries(ASSET_TYPES).map(([k, v]) => <SelectItem key={k} value={k}>{v as string}</SelectItem>)}
+          </SelectContent>
+        </Select>
+      </FilterBar>
 
       {isLoading ? (
         <TableSkeleton columns={5} />

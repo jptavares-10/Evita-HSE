@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { PageHeader } from "@/components/ui/page-header";
 
 const tabs = [
   { label: "Execuções", to: "/inspecoes" },
@@ -14,10 +15,10 @@ export default function Inspecoes() {
 
   return (
     <div className="space-y-6 animate-fade-up">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Inspeções de Segurança</h1>
-        <p className="text-muted-foreground mt-1">Gestão de inspeções periódicas e ações corretivas.</p>
-      </div>
+      <PageHeader
+        title="Inspeções de Segurança"
+        description="Gestão de inspeções periódicas e ações corretivas."
+      />
 
       <nav className="flex gap-1 border-b">
         {tabs.map((t) => {

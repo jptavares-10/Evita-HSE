@@ -22,6 +22,8 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { TableSkeleton } from "@/components/TableSkeleton";
 import { usePermission } from "@/hooks/usePermission";
 import { ViewerBadge } from "@/components/ViewerBadge";
+import { PageHeader } from "@/components/ui/page-header";
+import { FilterBar } from "@/components/ui/filter-bar";
 import { PermissionButton } from "@/components/PermissionButton";
 import { useTablePagination } from "@/hooks/useTablePagination";
 import { DataTablePagination } from "@/components/DataTablePagination";
@@ -83,20 +85,20 @@ export default function Incidentes() {
 
   return (
     <div className="space-y-6 animate-fade-up">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">IC & NC — Incidentes e Não Conformidades</h1>
-          <p className="text-muted-foreground text-sm mt-1">Gerencie ocorrências e ações corretivas</p>
-        </div>
-        <div className="flex items-center gap-3">
-          {!canEdit && <ViewerBadge />}
-          {activeTab === "ocorrencias" && (
-            <PermissionButton canEdit={canEdit} onClick={() => { setEditingOcc(null); setDrawerOpen(true); }} disabled={isDisabled}>
-              <Plus className="h-4 w-4 mr-2" />Registrar ocorrência
-            </PermissionButton>
-          )}
-        </div>
-      </div>
+      <PageHeader
+        title="IC & NC — Incidentes e Não Conformidades"
+        description="Gerencie ocorrências e ações corretivas."
+        actions={
+          <>
+            {!canEdit && <ViewerBadge />}
+            {activeTab === "ocorrencias" && (
+              <PermissionButton canEdit={canEdit} onClick={() => { setEditingOcc(null); setDrawerOpen(true); }} disabled={isDisabled}>
+                <Plus className="h-4 w-4 mr-1" />Registrar ocorrência
+              </PermissionButton>
+            )}
+          </>
+        }
+      />
 
       <Tabs
         value={activeTab}
@@ -111,14 +113,20 @@ export default function Incidentes() {
         </TabsList>
 
         <TabsContent value="ocorrencias" className="space-y-6 mt-6">
-          <OccurrenceKpiCards occurrences={occurrences} actions={allActions} />
+          <OccurrenceKpiCards
+            occurrences={occurrences}
+            actions={allActions}
+            activeStatus={statusFilter === "all" ? null : statusFilter}
+            onSelectStatus={(s) => setStatusFilter(s ?? "all")}
+          />
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3 items-end">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar por descrição ou local..." className="pl-9" />
-        </div>
+      <FilterBar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Buscar por descrição ou local..."
+        hasActiveFilters={!!search || typeFilter !== "all" || severityFilter !== "all" || statusFilter !== "all" || !!dateFrom || !!dateTo}
+        onClear={() => { setSearch(""); setTypeFilter("all"); setSeverityFilter("all"); setStatusFilter("all"); setDateFrom(""); setDateTo(""); }}
+      >
         <Select value={typeFilter} onValueChange={setTypeFilter}>
           <SelectTrigger className="w-[180px]"><SelectValue placeholder="Tipo" /></SelectTrigger>
           <SelectContent>
@@ -134,15 +142,15 @@ export default function Incidentes() {
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[150px]"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectTrigger className="w-[170px]"><SelectValue placeholder="Situação" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
+            <SelectItem value="all">Todas as situações</SelectItem>
             {STATUS_OPTIONS.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
           </SelectContent>
         </Select>
         <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="w-[140px]" placeholder="De" />
         <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-[140px]" placeholder="Até" />
-      </div>
+      </FilterBar>
 
       {/* Table */}
       {isLoading ? (

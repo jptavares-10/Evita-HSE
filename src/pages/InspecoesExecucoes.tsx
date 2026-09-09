@@ -20,6 +20,8 @@ import { ViewerBadge } from "@/components/ViewerBadge";
 import { PermissionButton } from "@/components/PermissionButton";
 import { useTablePagination } from "@/hooks/useTablePagination";
 import { DataTablePagination } from "@/components/DataTablePagination";
+import { FilterBar } from "@/components/ui/filter-bar";
+import { SectionHeader } from "@/components/ui/page-header";
 
 export default function InspecoesExecucoes() {
   const { company } = useAuth();
@@ -102,28 +104,37 @@ export default function InspecoesExecucoes() {
 
   return (
     <div className="space-y-6">
+      <SectionHeader
+        title="Execuções"
+        description="Inspeções programadas, em andamento e concluídas."
+        actions={
+          <>
+            {!canEdit && <ViewerBadge />}
+            <PermissionButton canEdit={canEdit} onClick={() => setNewExecOpen(true)} disabled={isDisabled}>
+              <Plus className="h-4 w-4 mr-1" />Nova execução manual
+            </PermissionButton>
+          </>
+        }
+      />
+
       <InspectionKpiCards
         pendingToday={kpis.pendingToday}
         inProgress={kpis.inProgress}
         overdue={kpis.overdue}
         completedThisWeek={kpis.completedWeek}
-        activeFilter={kpiFilter}
+        activeFilter={kpiFilter || (statusFilter !== "all" ? statusFilter : null)}
         onFilterClick={(f) => { setKpiFilter(f); if (f) setStatusFilter("all"); }}
       />
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3 items-end">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Buscar inspeção..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
-        </div>
-        <div className="flex gap-2">
-          <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="w-[140px]" />
-          <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-[140px]" />
-          {(dateFrom || dateTo) && (
-            <Button variant="ghost" size="sm" onClick={clearDateFilter}>Limpar</Button>
-          )}
-        </div>
+      <FilterBar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Buscar inspeção..."
+        hasActiveFilters={!!search || modelFilter !== "all" || statusFilter !== "all" || !!kpiFilter || !!dateFrom || !!dateTo}
+        onClear={() => { setSearch(""); setModelFilter("all"); setStatusFilter("all"); setKpiFilter(null); clearDateFilter(); }}
+      >
+        <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="w-[140px]" />
+        <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-[140px]" />
         <Select value={modelFilter} onValueChange={setModelFilter}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Modelo" />
@@ -135,12 +146,12 @@ export default function InspecoesExecucoes() {
             ))}
           </SelectContent>
         </Select>
-        <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setKpiFilter(null); }}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Status" />
+        <Select value={kpiFilter || statusFilter} onValueChange={(v) => { setStatusFilter(v); setKpiFilter(null); }}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Situação" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
+            <SelectItem value="all">Todas as situações</SelectItem>
             <SelectItem value="pending">Pendente</SelectItem>
             <SelectItem value="in_progress">Em andamento</SelectItem>
             <SelectItem value="overdue">Vencida</SelectItem>
@@ -148,12 +159,7 @@ export default function InspecoesExecucoes() {
             <SelectItem value="completed_with_issues">Concluída c/ pendências</SelectItem>
           </SelectContent>
         </Select>
-        <PermissionButton canEdit={canEdit} variant="outline" onClick={() => setNewExecOpen(true)} disabled={isDisabled}>
-          <Plus className="h-4 w-4 mr-1.5" />
-          Nova execução manual
-        </PermissionButton>
-        {!canEdit && <ViewerBadge />}
-      </div>
+      </FilterBar>
 
       {/* Table */}
       {isLoading ? (

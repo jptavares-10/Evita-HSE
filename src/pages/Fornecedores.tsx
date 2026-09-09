@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Plus, FolderOpen, Copy, Pencil, Trash2, Phone, Users, FileText, AlertTriangle, UserPlus, Globe, Tags, Link2 } from "lucide-react";
+import { Plus, FolderOpen, Copy, Pencil, Trash2, Phone, Users, FileText, AlertTriangle, UserPlus, Globe, Tags, Link2, Settings } from "lucide-react";
 import { ModuleOnboarding, OnboardingStep } from "@/components/ModuleOnboarding";
 import { SupplierDrawer } from "@/components/fornecedores/SupplierDrawer";
 import { ManageSupplierCategoriesModal } from "@/components/fornecedores/ManageSupplierCategoriesModal";
@@ -20,6 +20,10 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { TableSkeleton } from "@/components/TableSkeleton";
 import { usePermission } from "@/hooks/usePermission";
 import { ViewerBadge } from "@/components/ViewerBadge";
+import { PermissionButton } from "@/components/PermissionButton";
+import { PageHeader } from "@/components/ui/page-header";
+import { FilterBar } from "@/components/ui/filter-bar";
+import { STATUS_META } from "@/lib/status";
 import { useTablePagination } from "@/hooks/useTablePagination";
 import { DataTablePagination } from "@/components/DataTablePagination";
 
@@ -73,21 +77,38 @@ export default function Fornecedores() {
 
   return (
     <div className="space-y-6 animate-fade-up">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Fornecedores</h1>
-          <p className="text-muted-foreground text-sm mt-1">Gerencie seus fornecedores e documentos</p>
-        </div>
-        {!canEdit && <ViewerBadge />}
-      </div>
+      <PageHeader
+        title="Fornecedores"
+        description="Gerencie seus fornecedores e documentos."
+        actions={
+          <>
+            {!canEdit && <ViewerBadge />}
+            <Button variant="outline" size="sm" onClick={() => setCategoriesModalOpen(true)}>
+              <Settings className="h-4 w-4 mr-1" />Categorias
+            </Button>
+            <PermissionButton canEdit={canEdit} disabled={isDisabled && canEdit} onClick={handleNew}>
+              <Plus className="h-4 w-4 mr-1" />Novo fornecedor
+            </PermissionButton>
+          </>
+        }
+      />
 
-      <SupplierKpiCards suppliers={suppliers} docCounts={docCounts} />
+      <SupplierKpiCards
+        suppliers={suppliers}
+        docCounts={docCounts}
+        activeStatus={statusFilter === "all" ? null : statusFilter}
+        onSelectStatus={(s) => setStatusFilter(s ?? "all")}
+      />
 
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3">
-        <Input placeholder="Buscar por nome..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-64" />
+      <FilterBar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Buscar por nome..."
+        hasActiveFilters={!!search || categoryFilter !== "all" || statusFilter !== "all"}
+        onClear={() => { setSearch(""); setCategoryFilter("all"); setStatusFilter("all"); }}
+      >
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <SelectTrigger className="w-48"><SelectValue placeholder="Categoria" /></SelectTrigger>
+          <SelectTrigger className="w-[180px]"><SelectValue placeholder="Categoria" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todas as categorias</SelectItem>
             {categories.map((c: any) => (
@@ -96,27 +117,14 @@ export default function Fornecedores() {
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-40"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectTrigger className="w-[170px]"><SelectValue placeholder="Situação" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
+            <SelectItem value="all">Todas as situações</SelectItem>
             <SelectItem value="active">Ativos</SelectItem>
-            <SelectItem value="inactive">Inativos</SelectItem>
+            <SelectItem value="inactive">{STATUS_META.inactive.label}</SelectItem>
           </SelectContent>
         </Select>
-        <Button variant="outline" onClick={() => setCategoriesModalOpen(true)}>Categorias</Button>
-        <div className="ml-auto">
-          {isDisabled ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button disabled><Plus className="h-4 w-4 mr-2" />Novo Fornecedor</Button>
-              </TooltipTrigger>
-              <TooltipContent>{!canEdit ? "Você tem acesso somente leitura neste módulo." : "Seu plano expirou. Faça upgrade para continuar."}</TooltipContent>
-            </Tooltip>
-          ) : (
-            <Button onClick={handleNew}><Plus className="h-4 w-4 mr-2" />Novo Fornecedor</Button>
-          )}
-        </div>
-      </div>
+      </FilterBar>
 
       {/* Table */}
       {isLoading ? (

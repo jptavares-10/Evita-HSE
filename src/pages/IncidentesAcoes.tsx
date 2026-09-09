@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Kpi } from "@/components/ui/kpi";
+import { Kpi, KpiGrid } from "@/components/ui/kpi";
 import { ListChecks, AlertTriangle, Clock, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAllCorrectiveActions } from "@/hooks/useOccurrences";
@@ -11,6 +11,7 @@ import { ActionsTable } from "@/components/incidentes/acoes/ActionsTable";
 import { getActionState, daysUntil } from "@/lib/occurrences";
 import { useTablePagination } from "@/hooks/useTablePagination";
 import { DataTablePagination } from "@/components/DataTablePagination";
+import { FilterBar } from "@/components/ui/filter-bar";
 
 const ALL = "all";
 

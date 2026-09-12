@@ -42,6 +42,15 @@ export default function Dashboard() {
   const { data: licenseList = [], isLoading: loadingLicenses } = useEnvironmentalLicenses();
   const { data: asoRecords = [] } = useAsoRecords();
   const { data: inspExecs = [] } = useInspectionExecutions();
+  const { data: epiTypes = [] } = useEpiTypes();
+  const { data: epiStockMap = {} } = useEpiStock();
+  const { data: epiDeliveries = [] } = useEpiDeliveries();
+  const { data: supplierList = [] } = useSuppliers();
+  const { data: supplierDocCounts = {} } = useAllSupplierDocumentCounts();
+  const { data: documentList = [] } = useDocuments();
+  const { data: conditionants = [] } = useConditionants();
+  const { data: calendarEvents = [] } = useCalendarEvents(new Date(), new Date(Date.now() + 30 * 86400000));
+
 
   const isLoading = loadingServices || loadingEmployees || loadingMtr || loadingOccurrences || loadingLicenses;
 

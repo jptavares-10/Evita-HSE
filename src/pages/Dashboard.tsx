@@ -50,6 +50,7 @@ export default function Dashboard() {
   const { data: documentList = [] } = useDocuments();
   const { data: conditionants = [] } = useConditionants();
   const { data: calendarEvents = [] } = useCalendarEvents(new Date(), new Date(Date.now() + 30 * 86400000));
+  const pendingReviewCount = useMyPendingReviewCount();
 
 
   const isLoading = loadingServices || loadingEmployees || loadingMtr || loadingOccurrences || loadingLicenses;

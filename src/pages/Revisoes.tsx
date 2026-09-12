@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { formatDateBR } from "@/lib/documents";
 import { differenceInDays, parseISO } from "date-fns";
 import { Inbox, FileText, Clock } from "lucide-react";
+import { SectionHeader } from "@/components/ui/page-header";
 
 export default function Revisoes() {
   usePageTitle("Documentos para Revisar — Evita HSE", { description: "Documentos pendentes de revisão.", noindex: true });

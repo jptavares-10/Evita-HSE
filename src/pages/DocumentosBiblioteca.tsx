@@ -25,8 +25,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { PermissionButton } from "@/components/PermissionButton";
 import { useStatusFilter } from "@/hooks/useStatusFilter";
 
-export default function Documentos() {
-  usePageTitle("Biblioteca de Documentos — Evita HSE", { description: "Biblioteca de documentos SST com revisões.", noindex: true });
+export default function DocumentosBiblioteca() {
   const { company } = useAuth();
   const { data: documents = [], isLoading } = useDocuments();
   const { data: types = [] } = useDocumentTypes();

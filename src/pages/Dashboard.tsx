@@ -157,7 +157,7 @@ export default function Dashboard() {
   const epiStats = useMemo(() => {
     let caExpired = 0, caWarning = 0, lowStock = 0;
     epiTypes.forEach((e: any) => {
-      const ca = computeCaStatus(e.ca_expires_at, e.alert_days_before ?? 30);
+      const ca = computeCaStatus(e.ca_expires_at, e.ca_alert_days_before ?? 30);
       if (ca === "expired") caExpired++;
       else if (ca === "warning") caWarning++;
       const stock = computeStockStatus((epiStockMap as any)[e.id] ?? 0, e.minimum_stock ?? 0);

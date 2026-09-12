@@ -465,6 +465,70 @@ export default function Dashboard() {
                 { label: "Ações pendentes", value: pendingActions, color: pendingActions > 0 ? "text-yellow-600" : undefined },
               ]}
             />
+            <ModuleCard
+              dotColor="bg-blue-500"
+              title="Inspeções de Segurança"
+              link="/inspecoes"
+              linkLabel="Ver execuções"
+              stats={[
+                { label: "Pendentes", value: inspectionStats.pending },
+                { label: "Concluídas na semana", value: inspectionStats.completedWeek, color: "text-green-600" },
+                { label: "Vencidas", value: inspectionStats.overdue, color: inspectionStats.overdue > 0 ? "text-destructive" : undefined },
+              ]}
+            />
+            <ModuleCard
+              dotColor="bg-orange-500"
+              title="EPIs"
+              link="/epi"
+              linkLabel="Ver EPIs"
+              stats={[
+                { label: "CA vencido", value: epiStats.caExpired, color: epiStats.caExpired > 0 ? "text-destructive" : undefined },
+                { label: "CA vencendo", value: epiStats.caWarning, color: epiStats.caWarning > 0 ? "text-yellow-600" : undefined },
+                { label: "Estoque baixo", value: epiStats.lowStock, color: epiStats.lowStock > 0 ? "text-yellow-600" : undefined },
+              ]}
+            />
+            <ModuleCard
+              dotColor="bg-cyan-500"
+              title="Biblioteca de Documentos"
+              link="/documentos"
+              linkLabel="Ver documentos"
+              stats={[
+                { label: "Vigentes", value: documentStats.active, color: "text-green-600" },
+                { label: "Em revisão", value: documentStats.underReview, color: documentStats.underReview > 0 ? "text-yellow-600" : undefined },
+                { label: "Revisão atrasada", value: documentStats.revisionOverdue, color: documentStats.revisionOverdue > 0 ? "text-destructive" : undefined },
+              ]}
+            />
+            <ModuleCard
+              dotColor="bg-lime-500"
+              title="Condicionantes de Licença"
+              link="/licencas/condicionantes"
+              linkLabel="Ver condicionantes"
+              stats={[
+                { label: "Em dia", value: conditionantStats.onTrack, color: "text-green-600" },
+                { label: "Vencendo", value: conditionantStats.expiring, color: conditionantStats.expiring > 0 ? "text-yellow-600" : undefined },
+                { label: "Atrasadas", value: conditionantStats.overdue, color: conditionantStats.overdue > 0 ? "text-destructive" : undefined },
+              ]}
+            />
+            <ModuleCard
+              dotColor="bg-slate-500"
+              title="Fornecedores"
+              link="/fornecedores"
+              linkLabel="Ver fornecedores"
+              stats={[
+                { label: "Ativos", value: supplierStats.active },
+                { label: "Sem documentos", value: supplierStats.withoutDocs, color: supplierStats.withoutDocs > 0 ? "text-yellow-600" : undefined },
+              ]}
+            />
+            <ModuleCard
+              dotColor="bg-indigo-500"
+              title="Calendário"
+              link="/calendario"
+              linkLabel="Abrir calendário"
+              stats={[
+                { label: "Eventos em 30 dias", value: calendarEvents.length },
+                { label: "Revisões a responder", value: pendingReviewCount, color: pendingReviewCount > 0 ? "text-yellow-600" : undefined },
+              ]}
+            />
           </div>
         </div>
 

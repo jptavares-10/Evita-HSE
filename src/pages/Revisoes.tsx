@@ -34,21 +34,19 @@ export default function Revisoes() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6 animate-fade-up">
-        <div>
-          <h1 className="text-2xl font-bold">Documentos para revisar</h1>
-          <p className="text-muted-foreground text-sm mt-1">Carregando...</p>
-        </div>
+      <div className="space-y-6">
+        <SectionHeader title="Documentos para revisar" description="Carregando..." />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 animate-fade-up">
-      <div>
-        <h1 className="text-2xl font-bold">Documentos para revisar</h1>
-        <p className="text-muted-foreground text-sm mt-1">Documentos aguardando sua confirmação de leitura ou parecer.</p>
-      </div>
+    <div className="space-y-6">
+      <SectionHeader
+        title="Documentos para revisar"
+        description="Documentos aguardando sua confirmação de leitura ou parecer."
+      />
+
 
       {/* Pending section */}
       <div className="space-y-3">

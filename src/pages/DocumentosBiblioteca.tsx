@@ -21,7 +21,7 @@ import { usePermission } from "@/hooks/usePermission";
 import { ViewerBadge } from "@/components/ViewerBadge";
 import { useTablePagination } from "@/hooks/useTablePagination";
 import { DataTablePagination } from "@/components/DataTablePagination";
-import { PageHeader } from "@/components/ui/page-header";
+import { SectionHeader } from "@/components/ui/page-header";
 import { PermissionButton } from "@/components/PermissionButton";
 import { useStatusFilter } from "@/hooks/useStatusFilter";
 

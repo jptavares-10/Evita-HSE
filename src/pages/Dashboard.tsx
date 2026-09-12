@@ -153,8 +153,53 @@ export default function Dashboard() {
     return { pending, overdue, completedWeek };
   }, [inspExecs]);
 
+  // EPI stats
+  const epiStats = useMemo(() => {
+    let caExpired = 0, caWarning = 0, lowStock = 0;
+    epiTypes.forEach((e: any) => {
+      const ca = computeCaStatus(e.ca_expires_at, e.alert_days_before ?? 30);
+      if (ca === "expired") caExpired++;
+      else if (ca === "warning") caWarning++;
+      const stock = computeStockStatus((epiStockMap as any)[e.id] ?? 0, e.minimum_stock ?? 0);
+      if (stock !== "ok") lowStock++;
+    });
+    const pendingSignature = epiDeliveries.filter((d: any) => !d.signature_url && !d.signed_at).length;
+    return { caExpired, caWarning, lowStock, pendingSignature, total: epiTypes.length };
+  }, [epiTypes, epiStockMap, epiDeliveries]);
+
+  // Supplier stats
+  const supplierStats = useMemo(() => {
+    const total = supplierList.length;
+    const active = supplierList.filter((s: any) => s.status !== "inactive").length;
+    const withoutDocs = supplierList.filter((s: any) => !((supplierDocCounts as any)[s.id] > 0)).length;
+    return { total, active, withoutDocs };
+  }, [supplierList, supplierDocCounts]);
+
+  // Document stats
+  const documentStats = useMemo(() => {
+    let active = 0, underReview = 0, revisionOverdue = 0;
+    documentList.forEach((d: any) => {
+      if (d.status === "active") active++;
+      if (d.status === "under_review") underReview++;
+      if (getRevisionCycleStatus(d) === "overdue") revisionOverdue++;
+    });
+    return { active, underReview, revisionOverdue };
+  }, [documentList]);
+
+  // Conditionant stats
+  const conditionantStats = useMemo(() => {
+    let onTrack = 0, expiring = 0, overdue = 0;
+    conditionants.forEach((c: any) => {
+      if (c._status === "overdue") overdue++;
+      else if (c._status === "expiring") expiring++;
+      else if (c._status === "on_track" || c._status === "continuous") onTrack++;
+    });
+    return { onTrack, expiring, overdue, total: conditionants.length };
+  }, [conditionants]);
+
   // Active employees count
   const activeEmployeeCount = employees.filter((e: any) => e.status === "active").length;
+
 
   // Global KPI: total expired items across all modules
   const globalExpired = useMemo(() => {

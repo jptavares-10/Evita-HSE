@@ -39,6 +39,7 @@ import IncidenteDetalhe from "./pages/IncidenteDetalhe";
 import Licencas from "./pages/Licencas";
 import LicencasCondicionantes from "./pages/LicencasCondicionantes";
 import Documentos from "./pages/Documentos";
+import DocumentosBiblioteca from "./pages/DocumentosBiblioteca";
 import Epi from "./pages/Epi";
 import EpiVisaoGeral from "./pages/EpiVisaoGeral";
 import EpiCatalogo from "./pages/EpiCatalogo";

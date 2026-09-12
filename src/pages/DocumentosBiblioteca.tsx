@@ -99,8 +99,8 @@ export default function DocumentosBiblioteca() {
   const openNew = () => { setEditingDoc(null); setDrawerOpen(true); };
 
   return (
-    <div className="space-y-6 animate-fade-up">
-      <PageHeader
+    <div className="space-y-6">
+      <SectionHeader
         title="Biblioteca de Documentos"
         description="Gerencie documentos técnicos, revisões e vínculos."
         actions={

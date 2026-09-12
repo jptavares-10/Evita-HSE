@@ -153,8 +153,11 @@ const App = () => (
               <Route path="/incidentes/:id" element={<ModuleGuard module="ic_nc"><IncidenteDetalhe /></ModuleGuard>} />
               <Route path="/licencas" element={<ModuleGuard module="environmental_licenses"><Licencas /></ModuleGuard>} />
               <Route path="/licencas/condicionantes" element={<ModuleGuard module="license_conditionants"><LicencasCondicionantes /></ModuleGuard>} />
-              <Route path="/documentos" element={<ModuleGuard module="document_library"><Documentos /></ModuleGuard>} />
-              <Route path="/revisoes" element={<ModuleGuard module="document_review"><Revisoes /></ModuleGuard>} />
+              <Route path="/documentos" element={<ModuleGuard module="document_library"><Documentos /></ModuleGuard>}>
+                <Route index element={<DocumentosBiblioteca />} />
+                <Route path="revisoes" element={<ModuleGuard module="document_review"><Revisoes /></ModuleGuard>} />
+              </Route>
+              <Route path="/revisoes" element={<Navigate to="/documentos/revisoes" replace />} />
               <Route path="/aso" element={<ModuleGuard module="aso"><Aso /></ModuleGuard>} />
               <Route path="/inspecoes" element={<ModuleGuard module="inspections"><Inspecoes /></ModuleGuard>}>
                 <Route index element={<InspecoesExecucoes />} />

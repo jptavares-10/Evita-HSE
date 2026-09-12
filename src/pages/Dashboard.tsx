@@ -13,6 +13,13 @@ import { useAsoRecords } from "@/hooks/useAso";
 import { useInspectionExecutions } from "@/hooks/useInspections";
 import { getExecutionDisplayStatus } from "@/lib/inspections";
 import { useMyPendingReviewCount } from "@/hooks/useDocumentReviews";
+import { useEpiTypes, useEpiStock, useEpiDeliveries } from "@/hooks/useEpi";
+import { computeCaStatus, computeStockStatus } from "@/lib/epi";
+import { useSuppliers, useAllSupplierDocumentCounts } from "@/hooks/useSuppliers";
+import { useDocuments } from "@/hooks/useDocuments";
+import { getRevisionCycleStatus } from "@/lib/documents";
+import { useConditionants } from "@/hooks/useConditionants";
+import { useCalendarEvents } from "@/hooks/useCalendar";
 import { computeAsoStatus } from "@/lib/aso";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
@@ -35,6 +42,16 @@ export default function Dashboard() {
   const { data: licenseList = [], isLoading: loadingLicenses } = useEnvironmentalLicenses();
   const { data: asoRecords = [] } = useAsoRecords();
   const { data: inspExecs = [] } = useInspectionExecutions();
+  const { data: epiTypes = [] } = useEpiTypes();
+  const { data: epiStockMap = {} } = useEpiStock();
+  const { data: epiDeliveries = [] } = useEpiDeliveries();
+  const { data: supplierList = [] } = useSuppliers();
+  const { data: supplierDocCounts = {} } = useAllSupplierDocumentCounts();
+  const { data: documentList = [] } = useDocuments();
+  const { data: conditionants = [] } = useConditionants();
+  const { data: calendarEvents = [] } = useCalendarEvents(new Date(), new Date(Date.now() + 30 * 86400000));
+  const pendingReviewCount = useMyPendingReviewCount();
+
 
   const isLoading = loadingServices || loadingEmployees || loadingMtr || loadingOccurrences || loadingLicenses;
 
@@ -137,8 +154,53 @@ export default function Dashboard() {
     return { pending, overdue, completedWeek };
   }, [inspExecs]);
 
+  // EPI stats
+  const epiStats = useMemo(() => {
+    let caExpired = 0, caWarning = 0, lowStock = 0;
+    epiTypes.forEach((e: any) => {
+      const ca = computeCaStatus(e.ca_expires_at, e.ca_alert_days_before ?? 30);
+      if (ca === "expired") caExpired++;
+      else if (ca === "warning") caWarning++;
+      const stock = computeStockStatus((epiStockMap as any)[e.id] ?? 0, e.minimum_stock ?? 0);
+      if (stock !== "ok") lowStock++;
+    });
+    const pendingSignature = epiDeliveries.filter((d: any) => !d.signature_url && !d.signed_at).length;
+    return { caExpired, caWarning, lowStock, pendingSignature, total: epiTypes.length };
+  }, [epiTypes, epiStockMap, epiDeliveries]);
+
+  // Supplier stats
+  const supplierStats = useMemo(() => {
+    const total = supplierList.length;
+    const active = supplierList.filter((s: any) => s.status !== "inactive").length;
+    const withoutDocs = supplierList.filter((s: any) => !((supplierDocCounts as any)[s.id] > 0)).length;
+    return { total, active, withoutDocs };
+  }, [supplierList, supplierDocCounts]);
+
+  // Document stats
+  const documentStats = useMemo(() => {
+    let active = 0, underReview = 0, revisionOverdue = 0;
+    documentList.forEach((d: any) => {
+      if (d.status === "active") active++;
+      if (d.status === "under_review") underReview++;
+      if (getRevisionCycleStatus(d) === "overdue") revisionOverdue++;
+    });
+    return { active, underReview, revisionOverdue };
+  }, [documentList]);
+
+  // Conditionant stats
+  const conditionantStats = useMemo(() => {
+    let onTrack = 0, expiring = 0, overdue = 0;
+    conditionants.forEach((c: any) => {
+      if (c._status === "overdue") overdue++;
+      else if (c._status === "expiring") expiring++;
+      else if (c._status === "on_track" || c._status === "continuous") onTrack++;
+    });
+    return { onTrack, expiring, overdue, total: conditionants.length };
+  }, [conditionants]);
+
   // Active employees count
   const activeEmployeeCount = employees.filter((e: any) => e.status === "active").length;
+
 
   // Global KPI: total expired items across all modules
   const globalExpired = useMemo(() => {
@@ -402,6 +464,70 @@ export default function Dashboard() {
               stats={[
                 { label: "Abertas", value: openOccs, color: openOccs > 0 ? "text-destructive" : undefined },
                 { label: "Ações pendentes", value: pendingActions, color: pendingActions > 0 ? "text-yellow-600" : undefined },
+              ]}
+            />
+            <ModuleCard
+              dotColor="bg-blue-500"
+              title="Inspeções de Segurança"
+              link="/inspecoes"
+              linkLabel="Ver execuções"
+              stats={[
+                { label: "Pendentes", value: inspectionStats.pending },
+                { label: "Concluídas na semana", value: inspectionStats.completedWeek, color: "text-green-600" },
+                { label: "Vencidas", value: inspectionStats.overdue, color: inspectionStats.overdue > 0 ? "text-destructive" : undefined },
+              ]}
+            />
+            <ModuleCard
+              dotColor="bg-orange-500"
+              title="EPIs"
+              link="/epi"
+              linkLabel="Ver EPIs"
+              stats={[
+                { label: "CA vencido", value: epiStats.caExpired, color: epiStats.caExpired > 0 ? "text-destructive" : undefined },
+                { label: "CA vencendo", value: epiStats.caWarning, color: epiStats.caWarning > 0 ? "text-yellow-600" : undefined },
+                { label: "Estoque baixo", value: epiStats.lowStock, color: epiStats.lowStock > 0 ? "text-yellow-600" : undefined },
+              ]}
+            />
+            <ModuleCard
+              dotColor="bg-cyan-500"
+              title="Biblioteca de Documentos"
+              link="/documentos"
+              linkLabel="Ver documentos"
+              stats={[
+                { label: "Vigentes", value: documentStats.active, color: "text-green-600" },
+                { label: "Em revisão", value: documentStats.underReview, color: documentStats.underReview > 0 ? "text-yellow-600" : undefined },
+                { label: "Revisão atrasada", value: documentStats.revisionOverdue, color: documentStats.revisionOverdue > 0 ? "text-destructive" : undefined },
+              ]}
+            />
+            <ModuleCard
+              dotColor="bg-lime-500"
+              title="Condicionantes de Licença"
+              link="/licencas/condicionantes"
+              linkLabel="Ver condicionantes"
+              stats={[
+                { label: "Em dia", value: conditionantStats.onTrack, color: "text-green-600" },
+                { label: "Vencendo", value: conditionantStats.expiring, color: conditionantStats.expiring > 0 ? "text-yellow-600" : undefined },
+                { label: "Atrasadas", value: conditionantStats.overdue, color: conditionantStats.overdue > 0 ? "text-destructive" : undefined },
+              ]}
+            />
+            <ModuleCard
+              dotColor="bg-slate-500"
+              title="Fornecedores"
+              link="/fornecedores"
+              linkLabel="Ver fornecedores"
+              stats={[
+                { label: "Ativos", value: supplierStats.active },
+                { label: "Sem documentos", value: supplierStats.withoutDocs, color: supplierStats.withoutDocs > 0 ? "text-yellow-600" : undefined },
+              ]}
+            />
+            <ModuleCard
+              dotColor="bg-indigo-500"
+              title="Calendário"
+              link="/calendario"
+              linkLabel="Abrir calendário"
+              stats={[
+                { label: "Eventos em 30 dias", value: calendarEvents.length },
+                { label: "Revisões a responder", value: pendingReviewCount, color: pendingReviewCount > 0 ? "text-yellow-600" : undefined },
               ]}
             />
           </div>

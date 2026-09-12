@@ -404,7 +404,7 @@ export function AppSidebar() {
           {/* Dashboard */}
           <SidebarItem to="/dashboard" icon={LayoutDashboard} label="Dashboard" active={path === "/dashboard"} collapsed={collapsed} />
           <SidebarItem to="/calendario" icon={CalendarDays} label="Calendário" active={path === "/calendario"} collapsed={collapsed} />
-          <SidebarItem to="/revisoes" icon={Inbox} label="Revisões" badge={reviewBadge} active={path === "/revisoes"} collapsed={collapsed} locked={isLocked("/revisoes")} onLockedClick={() => handleLockedClick("/revisoes")} />
+          
 
           <div className="h-1" />
           <div className="border-t border-border my-1" />
@@ -457,7 +457,7 @@ export function AppSidebar() {
                 </>
               )}
               <SidebarItem to="/epi" icon={HardHat} label="EPIs" badge={epiBadge} active={path.startsWith("/epi")} collapsed={collapsed} locked={isLocked("/epi")} onLockedClick={() => handleLockedClick("/epi")} />
-              <SidebarItem to="/documentos" icon={FileText} label="Biblioteca de Docs" active={path === "/documentos"} collapsed={collapsed} locked={isLocked("/documentos")} onLockedClick={() => handleLockedClick("/documentos")} />
+              <SidebarItem to="/documentos" icon={FileText} label="Documentos" badge={reviewBadge} active={path.startsWith("/documentos")} collapsed={collapsed} locked={isLocked("/documentos")} onLockedClick={() => handleLockedClick("/documentos")} />
             </div>
           )}
 
